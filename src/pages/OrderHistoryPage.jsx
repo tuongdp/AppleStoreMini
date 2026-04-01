@@ -26,8 +26,9 @@ export default function OrderHistoryPage() {
         status: activeTab || undefined,
     });
 
-    const orders = data?.data || [];
-    const pagination = data?.pagination || {};
+    // ✅ ordersApi transformResponse → { orders, pagination }
+    const orders = data?.orders ?? [];
+    const pagination = data?.pagination ?? {};
 
     const handleTabChange = (value) => {
         setActiveTab(value);
@@ -36,14 +37,12 @@ export default function OrderHistoryPage() {
 
     return (
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
-            {/* Header */}
             <div className="mb-6">
                 <h2 className="text-xl font-semibold text-foreground">
                     {t("title")}
                 </h2>
             </div>
 
-            {/* Status tabs */}
             <Tabs
                 value={activeTab}
                 onValueChange={handleTabChange}
@@ -62,10 +61,8 @@ export default function OrderHistoryPage() {
                 </TabsList>
             </Tabs>
 
-            {/* Order list — dùng OrderList */}
             <OrderList orders={orders} isLoading={isLoading} />
 
-            {/* Pagination */}
             {!isLoading && pagination.totalPages > 1 && (
                 <div className="mt-8 flex items-center justify-center gap-2">
                     <Button

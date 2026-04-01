@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useCreateOrderMutation } from "@/store/api/ordersApi";
 import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";
-import { ROUTES, SHIPPING } from "@/lib/constants";
+import { SHIPPING } from "@/lib/constants";
 
 export function useCheckout() {
     const { t } = useTranslation("checkout");
@@ -23,7 +23,6 @@ export function useCheckout() {
         note: "",
     });
 
-    // ── Coupon state ───────────────────────────────────
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     // appliedCoupon shape: { code, discountAmount, description }
 
@@ -74,20 +73,27 @@ export function useCheckout() {
         }
 
         try {
-            const response = await createOrder({
-                addressId: checkoutData.addressId,
+            // ✅ ordersApi transformResponse → trả về order object trực tiếp
+            const order = await createOrder({
+                // BE nhận addressId hoặc address object
+                ...(checkoutData.addressId
+                    ? { addressId: checkoutData.addressId }
+                    : { address: checkoutData.address }),
+                // BE sẽ .toUpperCase() → không cần FE làm thủ công
                 paymentMethod: checkoutData.paymentMethod,
-                note: checkoutData.note,
+                note: checkoutData.note || "",
                 couponCode: appliedCoupon?.code || undefined,
+                // ✅ MySQL dùng integer id — không có _id
                 items: items.map((item) => ({
-                    productId: item.product._id || item.product.id,
+                    productId: item.product.id,
                     quantity: item.quantity,
                     selectedColor: item.selectedColor || "",
                     selectedStorage: item.selectedStorage || "",
                 })),
             }).unwrap();
 
-            setCreatedOrder(response.data);
+            // order đã được unwrap từ transformResponse → object trực tiếp
+            setCreatedOrder(order);
             dispatch(clearCart());
             setIsSuccess(true);
             toast.success(t("success.placeOrder"));

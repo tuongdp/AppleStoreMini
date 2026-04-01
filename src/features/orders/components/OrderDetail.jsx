@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Package, MapPin, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderTimeline from "./OrderTimeline";
@@ -16,7 +15,7 @@ import {
 } from "@/store/api/ordersApi";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime } from "@/lib/utils";
-import { ORDER_STATUS, SHIPPING } from "@/lib/constants";
+import { ORDER_STATUS } from "@/lib/constants";
 
 export default function OrderDetail({ order }) {
     const { t } = useTranslation("order");
@@ -32,13 +31,26 @@ export default function OrderDetail({ order }) {
     );
     const canConfirm = order.status === ORDER_STATUS.SHIPPING;
 
-    const shippingFee = order.shippingFee ?? SHIPPING.DEFAULT_FEE;
-    const discount = order.discount ?? 0;
+    // ✅ BE lưu shipping address dưới dạng flat fields (không phải object lồng nhau)
+    // order.shippingFullName, order.shippingPhone, order.shippingAddress,
+    // order.shippingWard, order.shippingDistrict, order.shippingProvince
+    const shippingInfo = {
+        fullName: order.shippingFullName,
+        phone: order.shippingPhone,
+        address: order.shippingAddress,
+        ward: order.shippingWard,
+        district: order.shippingDistrict,
+        province: order.shippingProvince,
+    };
+
+    // ✅ BE dùng discountAmount (không phải discount)
+    const shippingFee = order.shippingFee ?? 0;
+    const discountAmount = order.discountAmount ?? 0;
 
     const handleCancel = async () => {
         try {
-            const orderId = order._id || order.id;
-            await cancelOrder({ id: orderId, reason: cancelReason }).unwrap();
+            // ✅ MySQL id là integer, không có _id
+            await cancelOrder({ id: order.id, reason: cancelReason }).unwrap();
             toast.success(t("toast.cancelSuccess"));
             setCancelReason("");
             setCancelOpen(false);
@@ -49,8 +61,7 @@ export default function OrderDetail({ order }) {
 
     const handleConfirmDelivered = async () => {
         try {
-            const orderId = order._id || order.id;
-            await confirmDelivered(orderId).unwrap();
+            await confirmDelivered(order.id).unwrap();
             toast.success(t("toast.confirmSuccess"));
         } catch {
             toast.error(t("status.error", { ns: "common" }));
@@ -75,7 +86,6 @@ export default function OrderDetail({ order }) {
                         </p>
                     </div>
 
-                    {/* Actions */}
                     <div className="flex flex-wrap gap-2">
                         {canConfirm && (
                             <Button
@@ -106,7 +116,7 @@ export default function OrderDetail({ order }) {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 {/* ── Left column ── */}
                 <div className="space-y-4 lg:col-span-2">
-                    {/* Order items — dùng OrderItemRow */}
+                    {/* Order items */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <div className="mb-4 flex items-center gap-2">
                             <Package className="h-4 w-4 text-muted-foreground" />
@@ -144,10 +154,18 @@ export default function OrderDetail({ order }) {
                                         : formatPrice(shippingFee)}
                                 </span>
                             </div>
-                            {discount > 0 && (
+                            {/* ✅ dùng discountAmount theo BE schema */}
+                            {discountAmount > 0 && (
                                 <div className="flex justify-between text-green-600 dark:text-green-400">
-                                    <span>{t("detail.discount")}</span>
-                                    <span>-{formatPrice(discount)}</span>
+                                    <span>
+                                        {t("detail.discount")}
+                                        {order.couponCode && (
+                                            <code className="ml-1 text-xs">
+                                                ({order.couponCode})
+                                            </code>
+                                        )}
+                                    </span>
+                                    <span>-{formatPrice(discountAmount)}</span>
                                 </div>
                             )}
                             <Separator />
@@ -161,7 +179,7 @@ export default function OrderDetail({ order }) {
                         </div>
                     </div>
 
-                    {/* Shipping address */}
+                    {/* ✅ Shipping address — dùng flat fields từ BE */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <div className="mb-4 flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -171,16 +189,14 @@ export default function OrderDetail({ order }) {
                         </div>
                         <div className="space-y-0.5 text-sm">
                             <p className="font-medium text-foreground">
-                                {order.shippingAddress?.fullName}
+                                {shippingInfo.fullName}
                             </p>
                             <p className="text-muted-foreground">
-                                {order.shippingAddress?.phone}
+                                {shippingInfo.phone}
                             </p>
                             <p className="text-muted-foreground">
-                                {order.shippingAddress?.address},{" "}
-                                {order.shippingAddress?.ward},{" "}
-                                {order.shippingAddress?.district},{" "}
-                                {order.shippingAddress?.province}
+                                {shippingInfo.address}, {shippingInfo.ward},{" "}
+                                {shippingInfo.district}, {shippingInfo.province}
                             </p>
                         </div>
                     </div>

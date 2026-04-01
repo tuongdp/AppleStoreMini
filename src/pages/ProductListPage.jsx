@@ -35,8 +35,9 @@ export default function ProductListPage() {
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
 
-    const products = data?.data?.products ?? data?.data ?? [];
-    const pagination = data?.pagination || {};
+    // ✅ productsApi transformResponse → { products, pagination }
+    const products = data?.products ?? [];
+    const pagination = data?.pagination ?? {};
 
     const updateFilter = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -80,7 +81,6 @@ export default function ProductListPage() {
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
-                {/* Breadcrumb */}
                 <Breadcrumb
                     items={[
                         { label: t("page.title"), href: ROUTES.PRODUCTS },
@@ -91,7 +91,6 @@ export default function ProductListPage() {
                     className="mb-6"
                 />
 
-                {/* Header */}
                 <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <SectionTitle
@@ -108,7 +107,6 @@ export default function ProductListPage() {
                         )}
                     </div>
 
-                    {/* Sort + Filter trigger */}
                     <div className="flex items-center gap-2">
                         <Select
                             value={filters.sort}
@@ -152,9 +150,7 @@ export default function ProductListPage() {
                     </div>
                 </div>
 
-                {/* Content */}
                 <div className="flex gap-6">
-                    {/* Filter sidebar — desktop */}
                     <aside className="hidden w-52 shrink-0 lg:block">
                         <FilterPanel
                             filters={filters}
@@ -162,7 +158,6 @@ export default function ProductListPage() {
                         />
                     </aside>
 
-                    {/* Grid + Pagination */}
                     <div className="min-w-0 flex-1">
                         {products.length === 0 && !isLoading ? (
                             <EmptyState
@@ -180,7 +175,6 @@ export default function ProductListPage() {
                                     skeletonCount={PAGINATION.DEFAULT_LIMIT}
                                 />
 
-                                {/* Pagination */}
                                 {!isLoading && totalPages > 1 && (
                                     <div className="mt-10 flex items-center justify-center gap-1">
                                         <Button
@@ -253,7 +247,6 @@ export default function ProductListPage() {
     );
 }
 
-// ── Filter Panel ───────────────────────────────────────
 function FilterPanel({ filters, onUpdate }) {
     const { t } = useTranslation("product");
 

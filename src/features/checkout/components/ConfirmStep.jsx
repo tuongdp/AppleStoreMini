@@ -12,7 +12,7 @@ export default function ConfirmStep({
     items,
     total,
     shippingFee,
-    discountAmount = 0, // ✅ Thêm prop
+    discountAmount = 0,
     grandTotal,
     onPlaceOrder,
     onBack,
@@ -78,8 +78,9 @@ export default function ConfirmStep({
 
                 <div className="space-y-4">
                     {items.map((item, index) => (
+                        // ✅ MySQL integer id — không dùng _id
                         <OrderItemRow
-                            key={`${item.product._id || item.product.id}-${item.selectedColor}-${item.selectedStorage}`}
+                            key={`${item.product.id}-${item.selectedColor}-${item.selectedStorage}-${index}`}
                             item={item}
                             index={index}
                             isLast={index === items.length - 1}
@@ -114,7 +115,6 @@ export default function ConfirmStep({
                         </span>
                     </div>
 
-                    {/* ✅ Dòng giảm giá — chỉ hiện khi có coupon */}
                     {discountAmount > 0 && (
                         <div className="flex justify-between text-green-600 dark:text-green-400">
                             <span>

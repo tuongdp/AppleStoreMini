@@ -4,7 +4,8 @@ const initialState = {
     items: [],
 };
 
-const getProductId = (product) => product?._id || product?.id;
+// MySQL/Prisma dùng integer id — không có _id như MongoDB
+const getProductId = (product) => product?.id;
 
 // Lấy giá hiệu lực: ưu tiên salePrice nếu có và hợp lệ
 const getEffectivePrice = (product) => {
@@ -42,7 +43,6 @@ const cartSlice = createSlice({
         removeFromCart: (state, action) => {
             const { productId, selectedColor, selectedStorage } =
                 action.payload;
-
             state.items = state.items.filter(
                 (item) =>
                     !(
@@ -76,9 +76,19 @@ const cartSlice = createSlice({
                     item.selectedStorage === selectedStorage,
             );
 
-            if (item) {
-                item.quantity = quantity;
-            }
+            if (item) item.quantity = quantity;
+        },
+
+        // Dùng khi load server cart về → replace toàn bộ local items
+        setCartFromServer: (state, action) => {
+            const serverCart = action.payload;
+            // BE trả: { items: [{ product, quantity, selectedColor, selectedStorage }] }
+            state.items = (serverCart?.items || []).map((item) => ({
+                product: item.product,
+                quantity: item.quantity,
+                selectedColor: item.selectedColor || "",
+                selectedStorage: item.selectedStorage || "",
+            }));
         },
 
         clearCart: (state) => {
@@ -87,8 +97,13 @@ const cartSlice = createSlice({
     },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } =
-    cartSlice.actions;
+export const {
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    setCartFromServer,
+    clearCart,
+} = cartSlice.actions;
 
 export default cartSlice.reducer;
 
@@ -108,7 +123,6 @@ export const selectCartCount = (state) =>
 
 export const selectCartIsEmpty = (state) => state.cart.items.length === 0;
 
-// Tổng tiết kiệm được (để hiển thị ở CartSummary)
 export const selectCartSavings = (state) =>
     state.cart.items.reduce((total, item) => {
         const product = item.product;

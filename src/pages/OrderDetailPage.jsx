@@ -13,7 +13,9 @@ export default function OrderDetailPage() {
     const { id } = useParams();
 
     const { data, isLoading, isError } = useGetOrderByIdQuery(id);
-    const order = data?.data;
+
+    // ✅ ordersApi transformResponse → response.data trực tiếp (không wrap thêm .data)
+    const order = data;
 
     if (isLoading) return <OrderDetailSkeleton />;
 
@@ -32,7 +34,6 @@ export default function OrderDetailPage() {
 
     return (
         <div className="space-y-4">
-            {/* Breadcrumb */}
             <Breadcrumb
                 items={[
                     { label: t("title"), href: ROUTES.ORDERS },
@@ -40,7 +41,6 @@ export default function OrderDetailPage() {
                 ]}
             />
 
-            {/* Back button */}
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ORDERS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
@@ -48,7 +48,6 @@ export default function OrderDetailPage() {
                 </Link>
             </Button>
 
-            {/* Detail */}
             <OrderDetail order={order} />
         </div>
     );
@@ -60,7 +59,6 @@ function OrderDetailSkeleton() {
             <Skeleton className="h-4 w-48" />
             <Skeleton className="h-8 w-24 rounded-full" />
 
-            {/* Header card */}
             <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                 <div className="flex items-start justify-between">
                     <div className="space-y-2">
@@ -72,7 +70,6 @@ function OrderDetailSkeleton() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                {/* Left */}
                 <div className="space-y-4 lg:col-span-2">
                     {[...Array(3)].map((_, i) => (
                         <div
@@ -96,7 +93,6 @@ function OrderDetailSkeleton() {
                     ))}
                 </div>
 
-                {/* Right */}
                 <div className="space-y-4">
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <Skeleton className="mb-4 h-4 w-24" />
