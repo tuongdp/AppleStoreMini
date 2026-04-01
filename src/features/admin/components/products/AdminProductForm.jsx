@@ -31,19 +31,37 @@ import { slugify } from "@/lib/utils";
 
 export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const { t } = useTranslation("admin");
-    const [images, setImages] = useState(product?.images || []);
-    const [colors, setColors] = useState(product?.colors || []);
-    const [storage, setStorage] = useState(product?.storage || []);
+
+    // ✅ MySQL: product.id (integer), không có _id
+    // images/colors/storage BE lưu dạng JSON string → parse khi edit
+    const parseJsonField = (field) => {
+        if (!field) return [];
+        if (Array.isArray(field)) return field;
+        try {
+            return JSON.parse(field);
+        } catch {
+            return [];
+        }
+    };
+
+    const [images, setImages] = useState(() => parseJsonField(product?.images));
+    const [colors, setColors] = useState(() => parseJsonField(product?.colors));
+    const [storage, setStorage] = useState(() =>
+        parseJsonField(product?.storage),
+    );
 
     const form = useForm({
         resolver: zodResolver(productSchema),
         defaultValues: {
             name: "",
             slug: "",
+            // ✅ BE dùng "category" field → product.service.js: data.category || data.categorySlug
+            // CATEGORIES constant dùng slug value (vd: "iphone", "ipad")
             category: "",
             price: 0,
-            originalPrice: 0,
-            stock: 0, // ✅ Thêm
+            salePrice: 0, // ✅ BE schema: salePrice (không phải originalPrice)
+            originalPrice: 0, // ✅ BE schema: originalPrice vẫn có — giữ cả 2
+            stock: 0,
             description: "",
             inStock: true,
             featured: false,
@@ -58,17 +76,19 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             form.reset({
                 name: product.name || "",
                 slug: product.slug || "",
-                category: product.category || "",
+                // ✅ BE trả categorySlug — map về category field để FE dùng
+                category: product.categorySlug || product.category || "",
                 price: product.price || 0,
+                salePrice: product.salePrice || 0,
                 originalPrice: product.originalPrice || 0,
-                stock: product.stock ?? 0, // ✅ Thêm
+                stock: product.stock ?? 0,
                 description: product.description || "",
                 inStock: product.inStock ?? true,
                 featured: product.featured ?? false,
             });
-            setImages(product.images || []);
-            setColors(product.colors || []);
-            setStorage(product.storage || []);
+            setImages(parseJsonField(product.images));
+            setColors(parseJsonField(product.colors));
+            setStorage(parseJsonField(product.storage));
         }
     }, [product, form]);
 
@@ -84,11 +104,21 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const handleNameChange = (e) => {
         const name = e.target.value;
         form.setValue("name", name);
+        // Chỉ auto-slug khi tạo mới, không overwrite khi edit
         if (!product) form.setValue("slug", slugify(name));
     };
 
     const handleSubmit = (values) => {
-        onSubmit({ ...values, images, colors, storage });
+        // ✅ Gửi đúng field names theo BE product.service.js:
+        // createProduct nhận: { name, slug, category/categorySlug, price, salePrice?,
+        //   originalPrice?, stock?, images?, colors?, storage?, featured?, inStock?, description? }
+        onSubmit({
+            ...values,
+            images,
+            // colors và storage BE lưu JSON string → gửi array, BE tự xử lý
+            colors,
+            storage,
+        });
     };
 
     return (
@@ -129,6 +159,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="slug"
@@ -150,6 +181,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="category"
@@ -188,7 +220,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                 )}
                             />
 
-                            {/* Price + Original price */}
+                            {/* Price + salePrice + originalPrice */}
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
@@ -201,16 +233,15 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                             <FormControl>
                                                 <Input
                                                     type="number"
-                                                    placeholder={t(
-                                                        "product.pricePlaceholder",
-                                                    )}
+                                                    min={0}
+                                                    placeholder="0"
                                                     disabled={isLoading}
                                                     {...field}
                                                     onChange={(e) =>
                                                         field.onChange(
                                                             e.target.value ===
                                                                 ""
-                                                                ? ""
+                                                                ? 0
                                                                 : Number(
                                                                       e.target
                                                                           .value,
@@ -223,27 +254,30 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                         </FormItem>
                                     )}
                                 />
+
+                                {/* ✅ salePrice — giá khuyến mãi theo BE schema */}
                                 <FormField
                                     control={form.control}
-                                    name="originalPrice"
+                                    name="salePrice"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>
-                                                {t("product.originalPrice")}
+                                                {t("product.salePrice", {
+                                                    defaultValue: "Giá KM",
+                                                })}
                                             </FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="number"
-                                                    placeholder={t(
-                                                        "product.originalPricePlaceholder",
-                                                    )}
+                                                    min={0}
+                                                    placeholder="0"
                                                     disabled={isLoading}
                                                     {...field}
                                                     onChange={(e) =>
                                                         field.onChange(
                                                             e.target.value ===
                                                                 ""
-                                                                ? ""
+                                                                ? 0
                                                                 : Number(
                                                                       e.target
                                                                           .value,
@@ -252,11 +286,52 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                                     }
                                                 />
                                             </FormControl>
+                                            <p className="text-xs text-muted-foreground">
+                                                {t("product.salePriceNote", {
+                                                    defaultValue:
+                                                        "Để 0 nếu không có khuyến mãi",
+                                                })}
+                                            </p>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </div>
+
+                            <FormField
+                                control={form.control}
+                                name="originalPrice"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            {t("product.originalPrice", {
+                                                defaultValue:
+                                                    "Giá gốc (hiển thị gạch ngang)",
+                                            })}
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                placeholder="0"
+                                                disabled={isLoading}
+                                                {...field}
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value === ""
+                                                            ? 0
+                                                            : Number(
+                                                                  e.target
+                                                                      .value,
+                                                              ),
+                                                    )
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
                             <FormField
                                 control={form.control}
@@ -288,8 +363,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                         <h3 className="mb-5 text-sm font-medium text-foreground">
                             {t("product.images")}
                         </h3>
+                        {/* ✅ MySQL integer id — không có _id */}
                         <AdminProductImageUpload
-                            productId={product?._id || product?.id}
+                            productId={product?.id}
                             images={images}
                             onImagesChange={setImages}
                         />
@@ -320,7 +396,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                             {t("product.status")}
                         </h3>
                         <div className="space-y-4">
-                            {/* ✅ Tồn kho */}
                             <FormField
                                 control={form.control}
                                 name="stock"
@@ -365,7 +440,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
 
                             <Separator />
 
-                            {/* inStock — sync tự động theo stock, vẫn cho override thủ công */}
                             <FormField
                                 control={form.control}
                                 name="inStock"
@@ -424,9 +498,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                         {isLoading ? t("product.saving") : t("product.save")}
                     </Button>
 
+                    {/* ✅ MySQL integer id */}
                     {product && (
                         <p className="text-center text-xs text-muted-foreground">
-                            ID: {product?._id || product?.id}
+                            ID: {product.id}
                         </p>
                     )}
                 </div>

@@ -1,28 +1,29 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Package, MapPin, CreditCard } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
 import OrderTimeline from "@/features/orders/components/OrderTimeline";
 import OrderItemRow from "@/features/orders/components/OrderItemRow";
 import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { formatPrice, formatDateTime } from "@/lib/utils";
-import { ORDER_STATUS, SHIPPING } from "@/lib/constants";
 
 export default function AdminOrderDetail({ order }) {
     const { t } = useTranslation("admin");
 
-    const shippingFee = order?.shippingFee ?? SHIPPING.DEFAULT_FEE;
-    const discount = order?.discount ?? 0;
+    // ✅ BE lưu shipping address dưới dạng flat fields (giống OrderDetail user)
+    const shippingInfo = {
+        fullName: order.shippingFullName,
+        phone: order.shippingPhone,
+        address: order.shippingAddress,
+        ward: order.shippingWard,
+        district: order.shippingDistrict,
+        province: order.shippingProvince,
+    };
+
+    // ✅ BE dùng discountAmount (không phải discount)
+    const shippingFee = order?.shippingFee ?? 0;
+    const discountAmount = order?.discountAmount ?? 0;
 
     return (
         <div className="space-y-4">
@@ -40,9 +41,9 @@ export default function AdminOrderDetail({ order }) {
                     </p>
                 </div>
 
-                {/* Status update */}
+                {/* ✅ MySQL integer id */}
                 <AdminOrderStatusUpdate
-                    orderId={order._id || order.id}
+                    orderId={order.id}
                     currentStatus={order.status}
                 />
             </div>
@@ -56,7 +57,7 @@ export default function AdminOrderDetail({ order }) {
                             <Package className="h-4 w-4 text-muted-foreground" />
                             <h3 className="text-sm font-medium text-foreground">
                                 {t("order.orderCode")} —{" "}
-                                {order.items?.length || 0}{" "}
+                                {order.items?.length ?? 0}{" "}
                                 {t("item.quantity", { ns: "cart" })}
                             </h3>
                         </div>
@@ -92,12 +93,18 @@ export default function AdminOrderDetail({ order }) {
                                         : formatPrice(shippingFee)}
                                 </span>
                             </div>
-                            {discount > 0 && (
+                            {/* ✅ dùng discountAmount + hiện couponCode nếu có */}
+                            {discountAmount > 0 && (
                                 <div className="flex justify-between text-green-600 dark:text-green-400">
                                     <span>
                                         {t("detail.discount", { ns: "order" })}
+                                        {order.couponCode && (
+                                            <code className="ml-1 text-xs">
+                                                ({order.couponCode})
+                                            </code>
+                                        )}
                                     </span>
-                                    <span>-{formatPrice(discount)}</span>
+                                    <span>-{formatPrice(discountAmount)}</span>
                                 </div>
                             )}
                             <Separator />
@@ -132,6 +139,7 @@ export default function AdminOrderDetail({ order }) {
                             </div>
                         </div>
 
+                        {/* ✅ Dùng flat fields từ BE */}
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <div className="mb-3 flex items-center gap-2">
                                 <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -143,16 +151,15 @@ export default function AdminOrderDetail({ order }) {
                             </div>
                             <div className="space-y-0.5 text-sm">
                                 <p className="font-medium text-foreground">
-                                    {order.shippingAddress?.fullName}
+                                    {shippingInfo.fullName}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {order.shippingAddress?.phone}
+                                    {shippingInfo.phone}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {order.shippingAddress?.address},{" "}
-                                    {order.shippingAddress?.ward},{" "}
-                                    {order.shippingAddress?.district},{" "}
-                                    {order.shippingAddress?.province}
+                                    {shippingInfo.address}, {shippingInfo.ward},{" "}
+                                    {shippingInfo.district},{" "}
+                                    {shippingInfo.province}
                                 </p>
                             </div>
                         </div>

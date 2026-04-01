@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
 
-export default function AdminOrderDetail() {
+export default function AdminOrderDetailPage() {
     const { t } = useTranslation("admin");
     const { id } = useParams();
 
     const { data, isLoading, isError } = useGetAdminOrderByIdQuery(id);
-    const order = data?.data;
+
+    // ✅ getAdminOrderByIdQuery transformResponse → response.data trực tiếp
+    // Không cần .data thêm lần nữa
+    const order = data;
 
     if (isLoading) {
         return (

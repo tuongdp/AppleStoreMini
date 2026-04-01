@@ -23,43 +23,58 @@ import { formatPrice, formatNumber, cn } from "@/lib/utils";
 export default function AdminDashboard() {
     const { t } = useTranslation("admin");
 
-    const { data: statsData, isLoading: isStatsLoading } =
-        useGetRevenueStatsQuery({ period: "month" });
-    const { data: ordersData } = useGetAllOrdersQuery({ page: 1, limit: 1 });
-    const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
-    const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
+    // ✅ getRevenueStatsQuery transformResponse → response.data trực tiếp
+    // shape: { chart, totalRevenue, totalOrders, revenueChange }
+    const { data: stats, isLoading: isStatsLoading } = useGetRevenueStatsQuery({
+        period: "month",
+    });
 
-    const stats = statsData?.data || {};
+    // ✅ getAllOrdersQuery transformResponse → { orders, pagination }
+    const { data: ordersData } = useGetAllOrdersQuery({ page: 1, limit: 1 });
+
+    // usersApi chưa có transformResponse → vẫn dùng data?.data?.pagination
+    const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
+
+    // ✅ getProductsQuery transformResponse → { products, pagination }
+    const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
 
     const STAT_CARDS = [
         {
             titleKey: "dashboard.totalRevenue",
-            value: formatPrice(stats.totalRevenue || 0),
-            change: stats.revenueChange || 0,
+            // stats là object trực tiếp sau transformResponse (không cần .data)
+            value: formatPrice(stats?.totalRevenue ?? 0),
+            change: stats?.revenueChange ?? 0,
             icon: DollarSign,
             color: "text-green-600",
             bg: "bg-green-50 dark:bg-green-950/30",
         },
         {
             titleKey: "dashboard.totalOrders",
-            value: formatNumber(ordersData?.pagination?.total || 0),
-            change: stats.orderChange || 0,
+            // ordersData → { orders, pagination }
+            value: formatNumber(ordersData?.pagination?.total ?? 0),
+            change: 0,
             icon: ShoppingBag,
             color: "text-blue-600",
             bg: "bg-blue-50 dark:bg-blue-950/30",
         },
         {
             titleKey: "dashboard.totalProducts",
-            value: formatNumber(productsData?.pagination?.total || 0),
-            change: stats.productChange || 0,
+            // productsData → { products, pagination }
+            value: formatNumber(productsData?.pagination?.total ?? 0),
+            change: 0,
             icon: Package,
             color: "text-purple-600",
             bg: "bg-purple-50 dark:bg-purple-950/30",
         },
         {
             titleKey: "dashboard.totalUsers",
-            value: formatNumber(usersData?.pagination?.total || 0),
-            change: stats.userChange || 0,
+            // usersApi chưa có transformResponse → data?.data?.pagination
+            value: formatNumber(
+                usersData?.data?.pagination?.total ??
+                    usersData?.pagination?.total ??
+                    0,
+            ),
+            change: 0,
             icon: Users,
             color: "text-orange-600",
             bg: "bg-orange-50 dark:bg-orange-950/30",
@@ -68,7 +83,6 @@ export default function AdminDashboard() {
 
     return (
         <div className="space-y-6">
-            {/* Header */}
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
                     {t("dashboard.title")}
@@ -130,7 +144,6 @@ export default function AdminDashboard() {
 
             {/* Charts + Recent orders */}
             <div className="grid gap-4 lg:grid-cols-7">
-                {/* Revenue chart */}
                 <Card className="lg:col-span-4">
                     <CardHeader>
                         <CardTitle className="text-sm font-medium text-foreground">
@@ -142,7 +155,6 @@ export default function AdminDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Recent orders */}
                 <Card className="lg:col-span-3">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-sm font-medium text-foreground">
