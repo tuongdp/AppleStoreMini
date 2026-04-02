@@ -83,8 +83,9 @@ export default function AdminReviewList() {
     const [toggleVisibility, { isLoading: isToggling }] =
         useToggleReviewVisibilityMutation();
 
-    const reviews = data?.data || [];
-    const pagination = data?.pagination || {};
+    // ✅ reviewsApi transformResponse → { reviews, pagination }
+    const reviews = data?.reviews ?? [];
+    const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -109,11 +110,13 @@ export default function AdminReviewList() {
     };
 
     const handleToggleVisibility = async (review) => {
-        const reviewId = review._id || review.id;
+        // ✅ MySQL integer id — không dùng _id
         try {
-            await toggleVisibility(reviewId).unwrap();
+            await toggleVisibility(review.id).unwrap();
             toast.success(
-                review.isVisible ? "Đã ẩn đánh giá" : "Đã hiện đánh giá",
+                review.isVisible !== false
+                    ? "Đã ẩn đánh giá"
+                    : "Đã hiện đánh giá",
             );
         } catch {
             toast.error(t("status.error", { ns: "common" }));
@@ -187,153 +190,135 @@ export default function AdminReviewList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            reviews.map((review) => {
-                                const reviewId = review._id || review.id;
-                                return (
-                                    <TableRow key={reviewId}>
-                                        {/* User */}
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <Avatar className="h-7 w-7">
-                                                    <AvatarImage
-                                                        src={
-                                                            review.user?.avatar
-                                                        }
-                                                        alt={
-                                                            review.user
-                                                                ?.fullName
-                                                        }
-                                                    />
-                                                    <AvatarFallback className="text-xs">
-                                                        {review.user?.fullName
-                                                            ?.charAt(0)
-                                                            ?.toUpperCase() ||
-                                                            "U"}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="min-w-0">
-                                                    <p className="truncate text-sm font-medium text-foreground">
-                                                        {review.user?.fullName}
-                                                    </p>
-                                                    <p className="truncate text-xs text-muted-foreground">
-                                                        {review.user?.email}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-
-                                        {/* Product */}
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                {review.product
-                                                    ?.images?.[0] && (
-                                                    <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-0.5">
-                                                        <img
-                                                            src={
-                                                                review.product
-                                                                    .images[0]
-                                                            }
-                                                            alt={
-                                                                review.product
-                                                                    ?.name
-                                                            }
-                                                            className="h-full w-full object-contain"
-                                                        />
-                                                    </div>
-                                                )}
-                                                <p className="max-w-[140px] truncate text-sm text-foreground">
-                                                    {review.product?.name}
+                            reviews.map((review) => (
+                                // ✅ MySQL integer id thuần
+                                <TableRow key={review.id}>
+                                    {/* User */}
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <Avatar className="h-7 w-7">
+                                                <AvatarImage
+                                                    src={review.user?.avatar}
+                                                    alt={review.user?.fullName}
+                                                />
+                                                <AvatarFallback className="text-xs">
+                                                    {review.user?.fullName
+                                                        ?.charAt(0)
+                                                        ?.toUpperCase() || "U"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-medium text-foreground">
+                                                    {review.user?.fullName}
+                                                </p>
+                                                <p className="truncate text-xs text-muted-foreground">
+                                                    {review.user?.email}
                                                 </p>
                                             </div>
-                                        </TableCell>
+                                        </div>
+                                    </TableCell>
 
-                                        {/* Rating */}
-                                        <TableCell>
-                                            <StarDisplay
-                                                rating={review.rating}
-                                            />
-                                        </TableCell>
-
-                                        {/* Comment */}
-                                        <TableCell>
-                                            <p className="max-w-[200px] truncate text-sm text-muted-foreground">
-                                                {review.comment || (
-                                                    <span className="italic">
-                                                        Không có nhận xét
-                                                    </span>
-                                                )}
+                                    {/* Product */}
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            {review.product?.images?.[0] && (
+                                                <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-0.5">
+                                                    <img
+                                                        src={
+                                                            review.product
+                                                                .images[0]
+                                                        }
+                                                        alt={
+                                                            review.product?.name
+                                                        }
+                                                        className="h-full w-full object-contain"
+                                                    />
+                                                </div>
+                                            )}
+                                            <p className="max-w-[140px] truncate text-sm text-foreground">
+                                                {review.product?.name}
                                             </p>
-                                        </TableCell>
+                                        </div>
+                                    </TableCell>
 
-                                        {/* Visibility */}
-                                        <TableCell>
-                                            <Badge
-                                                className={
+                                    {/* Rating */}
+                                    <TableCell>
+                                        <StarDisplay rating={review.rating} />
+                                    </TableCell>
+
+                                    {/* Comment */}
+                                    <TableCell>
+                                        <p className="max-w-[200px] truncate text-sm text-muted-foreground">
+                                            {review.comment || (
+                                                <span className="italic">
+                                                    Không có nhận xét
+                                                </span>
+                                            )}
+                                        </p>
+                                    </TableCell>
+
+                                    {/* Visibility */}
+                                    <TableCell>
+                                        <Badge
+                                            className={
+                                                review.isVisible !== false
+                                                    ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
+                                                    : "bg-muted text-muted-foreground hover:bg-muted"
+                                            }
+                                        >
+                                            {review.isVisible !== false
+                                                ? "Hiển thị"
+                                                : "Đã ẩn"}
+                                        </Badge>
+                                    </TableCell>
+
+                                    {/* Date */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatDateTime(review.createdAt)}
+                                        </span>
+                                    </TableCell>
+
+                                    {/* Actions */}
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                disabled={isToggling}
+                                                onClick={() =>
+                                                    handleToggleVisibility(
+                                                        review,
+                                                    )
+                                                }
+                                                title={
                                                     review.isVisible !== false
-                                                        ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                                                        : "bg-muted text-muted-foreground hover:bg-muted"
+                                                        ? "Ẩn đánh giá"
+                                                        : "Hiện đánh giá"
                                                 }
                                             >
-                                                {review.isVisible !== false
-                                                    ? "Hiển thị"
-                                                    : "Đã ẩn"}
-                                            </Badge>
-                                        </TableCell>
-
-                                        {/* Date */}
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {formatDateTime(
-                                                    review.createdAt,
+                                                {review.isVisible !== false ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
                                                 )}
-                                            </span>
-                                        </TableCell>
+                                            </Button>
 
-                                        {/* Actions */}
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                {/* Toggle visibility */}
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                                    disabled={isToggling}
-                                                    onClick={() =>
-                                                        handleToggleVisibility(
-                                                            review,
-                                                        )
-                                                    }
-                                                    title={
-                                                        review.isVisible !==
-                                                        false
-                                                            ? "Ẩn đánh giá"
-                                                            : "Hiện đánh giá"
-                                                    }
-                                                >
-                                                    {review.isVisible !==
-                                                    false ? (
-                                                        <EyeOff className="h-4 w-4" />
-                                                    ) : (
-                                                        <Eye className="h-4 w-4" />
-                                                    )}
-                                                </Button>
-
-                                                {/* Delete */}
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                    onClick={() =>
-                                                        setDeleteId(reviewId)
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                onClick={() =>
+                                                    setDeleteId(review.id)
+                                                }
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
                         )}
                     </TableBody>
                 </Table>
@@ -376,7 +361,6 @@ export default function AdminReviewList() {
                 </div>
             )}
 
-            {/* Confirm delete */}
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}

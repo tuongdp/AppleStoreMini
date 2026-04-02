@@ -162,3 +162,13 @@ export function isValidImageFile(file) {
     const validTypes = ["image/jpeg", "image/png", "image/webp"];
     return validTypes.includes(file.type);
 }
+
+export const parseJsonField = (field) => {
+    if (!field) return [];
+    if (Array.isArray(field)) return field;
+    try {
+        return JSON.parse(field);
+    } catch {
+        return [];
+    }
+};

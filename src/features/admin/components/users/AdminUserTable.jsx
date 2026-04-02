@@ -45,13 +45,20 @@ import {
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { ROUTES, USER_ROLES, PAGINATION } from "@/lib/constants";
+import { ROUTES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
+
+// ✅ BE auth.service.js getUserResponse() → role.toLowerCase() → "admin" | "user"
+// Dùng lowercase để so sánh nhất quán
+const ROLE = {
+    ADMIN: "admin",
+    USER: "user",
+};
 
 const ROLE_OPTIONS = [
     { value: "all", labelKey: "user.all" },
-    { value: USER_ROLES.USER, labelKey: "user.roleUser" },
-    { value: USER_ROLES.ADMIN, labelKey: "user.roleAdmin" },
+    { value: ROLE.USER, labelKey: "user.roleUser" },
+    { value: ROLE.ADMIN, labelKey: "user.roleAdmin" },
 ];
 
 export default function AdminUserTable() {
@@ -77,8 +84,9 @@ export default function AdminUserTable() {
         useToggleUserStatusMutation();
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
-    const users = data?.data || [];
-    const pagination = data?.pagination || {};
+    // ✅ usersApi transformResponse → { users, pagination }
+    const users = data?.users ?? [];
+    const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -92,11 +100,10 @@ export default function AdminUserTable() {
     };
 
     const handleToggleRole = async (user) => {
-        const newRole =
-            user.role === USER_ROLES.ADMIN ? USER_ROLES.USER : USER_ROLES.ADMIN;
+        // ✅ BE role là lowercase, usersApi.updateUserRole sẽ .toUpperCase() trước khi gửi
+        const newRole = user.role === ROLE.ADMIN ? ROLE.USER : ROLE.ADMIN;
         try {
-            const userId = user._id || user.id;
-            await updateRole({ id: userId, role: newRole }).unwrap();
+            await updateRole({ id: user.id, role: newRole }).unwrap();
             toast.success(t("user.updateRoleSuccess"));
         } catch {
             toast.error(t("status.error", { ns: "common" }));
@@ -190,184 +197,162 @@ export default function AdminUserTable() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            users.map((user) => {
-                                // ✅ Khai báo userId một lần, dùng xuyên suốt row
-                                const userId = user._id || user.id;
-
-                                return (
-                                    <TableRow key={userId}>
-                                        {/* Name + Email */}
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-8 w-8">
-                                                    <AvatarImage
-                                                        src={user.avatar}
-                                                        alt={user.fullName}
-                                                    />
-                                                    <AvatarFallback className="text-xs">
-                                                        {user.fullName
-                                                            ?.charAt(0)
-                                                            ?.toUpperCase() ||
-                                                            "U"}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="min-w-0">
-                                                    <p className="truncate text-sm font-medium text-foreground">
-                                                        {user.fullName}
-                                                    </p>
-                                                    <p className="truncate text-xs text-muted-foreground">
-                                                        {user.email}
-                                                    </p>
-                                                </div>
+                            users.map((user) => (
+                                // ✅ MySQL integer id thuần — không có _id
+                                <TableRow key={user.id}>
+                                    {/* Name + Email */}
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Avatar className="h-8 w-8">
+                                                <AvatarImage
+                                                    src={user.avatar}
+                                                    alt={user.fullName}
+                                                />
+                                                <AvatarFallback className="text-xs">
+                                                    {user.fullName
+                                                        ?.charAt(0)
+                                                        ?.toUpperCase() || "U"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-medium text-foreground">
+                                                    {user.fullName}
+                                                </p>
+                                                <p className="truncate text-xs text-muted-foreground">
+                                                    {user.email}
+                                                </p>
                                             </div>
-                                        </TableCell>
+                                        </div>
+                                    </TableCell>
 
-                                        {/* Phone */}
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {user.phone || "—"}
-                                            </span>
-                                        </TableCell>
+                                    {/* Phone */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {user.phone || "—"}
+                                        </span>
+                                    </TableCell>
 
-                                        {/* Role */}
-                                        <TableCell>
-                                            <Badge
-                                                className={
-                                                    user.role ===
-                                                    USER_ROLES.ADMIN
-                                                        ? "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/30 dark:text-purple-400"
-                                                        : "bg-muted text-muted-foreground hover:bg-muted"
-                                                }
-                                            >
-                                                {user.role === USER_ROLES.ADMIN
-                                                    ? t("user.roleAdmin")
-                                                    : t("user.roleUser")}
-                                            </Badge>
-                                        </TableCell>
+                                    {/* Role — ✅ so sánh lowercase */}
+                                    <TableCell>
+                                        <Badge
+                                            className={
+                                                user.role === ROLE.ADMIN
+                                                    ? "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/30 dark:text-purple-400"
+                                                    : "bg-muted text-muted-foreground hover:bg-muted"
+                                            }
+                                        >
+                                            {user.role === ROLE.ADMIN
+                                                ? t("user.roleAdmin")
+                                                : t("user.roleUser")}
+                                        </Badge>
+                                    </TableCell>
 
-                                        {/* Status */}
-                                        <TableCell>
-                                            <Badge
-                                                className={
-                                                    !user.isBlocked
-                                                        ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                                                        : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"
-                                                }
-                                            >
-                                                {!user.isBlocked
-                                                    ? t("user.active")
-                                                    : t("user.blocked")}
-                                            </Badge>
-                                        </TableCell>
+                                    {/* Status */}
+                                    <TableCell>
+                                        <Badge
+                                            className={
+                                                !user.isBlocked
+                                                    ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
+                                                    : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"
+                                            }
+                                        >
+                                            {!user.isBlocked
+                                                ? t("user.active")
+                                                : t("user.blocked")}
+                                        </Badge>
+                                    </TableCell>
 
-                                        {/* Join date */}
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {formatDate(user.createdAt)}
-                                            </span>
-                                        </TableCell>
+                                    {/* Join date */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatDate(user.createdAt)}
+                                        </span>
+                                    </TableCell>
 
-                                        {/* Total orders */}
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {formatNumber(
-                                                    user.orderCount || 0,
-                                                )}
-                                            </span>
-                                        </TableCell>
+                                    {/* Total orders */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatNumber(user.orderCount ?? 0)}
+                                        </span>
+                                    </TableCell>
 
-                                        {/* Actions */}
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8"
+                                    {/* Actions */}
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                >
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        to={ROUTES.ADMIN_USER_DETAIL(
+                                                            user.id,
+                                                        )}
+                                                        className="flex items-center gap-2"
                                                     >
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    {/* View detail */}
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            to={ROUTES.ADMIN_USER_DETAIL(
-                                                                userId,
-                                                            )}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <Eye className="h-4 w-4" />
-                                                            {t(
-                                                                "user.viewDetail",
-                                                            )}
-                                                        </Link>
-                                                    </DropdownMenuItem>
+                                                        <Eye className="h-4 w-4" />
+                                                        {t("user.viewDetail")}
+                                                    </Link>
+                                                </DropdownMenuItem>
 
-                                                    {/* Toggle role */}
-                                                    <DropdownMenuItem
-                                                        className="gap-2"
-                                                        disabled={isUpdating}
-                                                        onClick={() =>
-                                                            handleToggleRole(
-                                                                user,
-                                                            )
-                                                        }
-                                                    >
-                                                        <ShieldCheck className="h-4 w-4" />
-                                                        {user.role ===
-                                                        USER_ROLES.ADMIN
-                                                            ? t("user.roleUser")
-                                                            : t(
-                                                                  "user.roleAdmin",
-                                                              )}
-                                                    </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="gap-2"
+                                                    disabled={isUpdating}
+                                                    onClick={() =>
+                                                        handleToggleRole(user)
+                                                    }
+                                                >
+                                                    <ShieldCheck className="h-4 w-4" />
+                                                    {user.role === ROLE.ADMIN
+                                                        ? t("user.roleUser")
+                                                        : t("user.roleAdmin")}
+                                                </DropdownMenuItem>
 
-                                                    {/* Toggle block */}
-                                                    <DropdownMenuItem
-                                                        className="gap-2"
-                                                        disabled={isToggling}
-                                                        onClick={() =>
-                                                            handleToggleStatus(
-                                                                userId,
-                                                            )
-                                                        }
-                                                    >
-                                                        <ShieldOff className="h-4 w-4" />
-                                                        {user.isBlocked
-                                                            ? t(
-                                                                  "user.unblock",
-                                                                  {
-                                                                      defaultValue:
-                                                                          "Bỏ chặn",
-                                                                  },
-                                                              )
-                                                            : t("user.block", {
-                                                                  defaultValue:
-                                                                      "Chặn",
-                                                              })}
-                                                    </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="gap-2"
+                                                    disabled={isToggling}
+                                                    onClick={() =>
+                                                        handleToggleStatus(
+                                                            user.id,
+                                                        )
+                                                    }
+                                                >
+                                                    <ShieldOff className="h-4 w-4" />
+                                                    {user.isBlocked
+                                                        ? t("user.unblock", {
+                                                              defaultValue:
+                                                                  "Bỏ chặn",
+                                                          })
+                                                        : t("user.block", {
+                                                              defaultValue:
+                                                                  "Chặn",
+                                                          })}
+                                                </DropdownMenuItem>
 
-                                                    <DropdownMenuSeparator />
+                                                <DropdownMenuSeparator />
 
-                                                    {/* Delete */}
-                                                    <DropdownMenuItem
-                                                        className="gap-2 text-destructive focus:text-destructive"
-                                                        onClick={() =>
-                                                            setDeleteId(userId)
-                                                        }
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        {t("btn.delete", {
-                                                            ns: "common",
-                                                        })}
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })
+                                                <DropdownMenuItem
+                                                    className="gap-2 text-destructive focus:text-destructive"
+                                                    onClick={() =>
+                                                        setDeleteId(user.id)
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                    {t("btn.delete", {
+                                                        ns: "common",
+                                                    })}
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
                         )}
                     </TableBody>
                 </Table>
@@ -410,7 +395,6 @@ export default function AdminUserTable() {
                 </div>
             )}
 
-            {/* Confirm delete */}
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}

@@ -8,19 +8,22 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
 
-export default function AdminUserDetail() {
+export default function AdminUserDetailPage() {
     const { t } = useTranslation("admin");
     const { id } = useParams();
 
-    const { data, isLoading, isError } = useGetUserByIdQuery(id);
+    const { data: user, isLoading, isError } = useGetUserByIdQuery(id);
+
+    // ✅ getAllOrdersQuery transformResponse → { orders, pagination }
     const { data: ordersData } = useGetAllOrdersQuery({
         page: 1,
         limit: 5,
         userId: id,
     });
 
-    const user = data?.data;
-    const orders = ordersData?.data || [];
+    // ✅ getUserByIdQuery transformResponse → response.data trực tiếp (không .data nữa)
+    // ✅ getAllOrdersQuery transformResponse → { orders, pagination }
+    const orders = ordersData?.orders ?? [];
 
     if (isLoading) {
         return (

@@ -17,11 +17,14 @@ import { ROUTES, USER_ROLES } from "@/lib/constants";
 export default function AdminUserDetail({ user, orders = [] }) {
     const { t } = useTranslation("admin");
 
+    // ✅ BE auth.service.js getUserResponse() trả role lowercase ("admin"/"user")
+    // USER_ROLES constant cần khớp lowercase nếu so sánh ở đây
+    const isAdmin = user.role === "admin" || user.role === USER_ROLES.ADMIN;
+
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* ── Left — Profile ── */}
             <div className="space-y-4">
-                {/* Profile card */}
                 <div className="rounded-2xl border border-border bg-card p-6 text-center">
                     <Avatar className="mx-auto mb-4 h-20 w-20">
                         <AvatarImage src={user.avatar} alt={user.fullName} />
@@ -37,14 +40,12 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     <div className="mt-2 flex items-center justify-center gap-2">
                         <Badge
                             className={
-                                user.role === USER_ROLES.ADMIN
+                                isAdmin
                                     ? "bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400"
                                     : "bg-muted text-muted-foreground"
                             }
                         >
-                            {user.role === USER_ROLES.ADMIN
-                                ? t("user.roleAdmin")
-                                : t("user.roleUser")}
+                            {isAdmin ? t("user.roleAdmin") : t("user.roleUser")}
                         </Badge>
                         <Badge
                             className={
@@ -61,7 +62,6 @@ export default function AdminUserDetail({ user, orders = [] }) {
 
                     <Separator className="my-4" />
 
-                    {/* Contact */}
                     <div className="space-y-3 text-left">
                         <div className="flex items-center gap-3 text-sm">
                             <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -108,7 +108,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 {t("user.totalOrders")}
                             </span>
                             <span className="font-medium text-foreground">
-                                {formatNumber(user.orderCount || 0)}
+                                {formatNumber(user.orderCount ?? 0)}
                             </span>
                         </div>
                         <Separator />
@@ -117,7 +117,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 {t("user.totalSpent")}
                             </span>
                             <span className="font-medium text-foreground">
-                                {formatPrice(user.totalSpent || 0)}
+                                {formatPrice(user.totalSpent ?? 0)}
                             </span>
                         </div>
                         {user.gender && (
@@ -159,11 +159,10 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     ) : (
                         <div className="space-y-1">
                             {orders.map((order) => (
+                                // ✅ MySQL integer id — không có _id
                                 <Link
-                                    key={order._id || order.id}
-                                    to={ROUTES.ADMIN_ORDER_DETAIL(
-                                        order._id || order.id,
-                                    )}
+                                    key={order.id}
+                                    to={ROUTES.ADMIN_ORDER_DETAIL(order.id)}
                                     className="flex items-center gap-4 rounded-xl p-3 transition-colors hover:bg-muted/50"
                                 >
                                     <div className="min-w-0 flex-1">
@@ -175,7 +174,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                         </p>
                                     </div>
                                     <span className="text-xs text-muted-foreground">
-                                        {order.items?.length || 0}{" "}
+                                        {order.items?.length ?? 0}{" "}
                                         {t("item.quantity", { ns: "cart" })}
                                     </span>
                                     <OrderStatusBadge status={order.status} />
@@ -211,8 +210,9 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         </h3>
                         <div className="space-y-3">
                             {user.addresses.map((addr) => (
+                                // ✅ MySQL integer id — không có _id
                                 <div
-                                    key={addr._id || addr.id}
+                                    key={addr.id}
                                     className="rounded-xl border border-border p-3"
                                 >
                                     <p className="text-sm font-medium text-foreground">

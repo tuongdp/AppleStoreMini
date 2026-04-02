@@ -31,18 +31,37 @@ import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES, SHIPPING } from "@/lib/constants";
 
+// ✅ BE lưu colors/storage/images dưới dạng JSON string trong MySQL
+// Cần parse trước khi dùng
+const parseJsonField = (field) => {
+    if (!field) return [];
+    if (Array.isArray(field)) return field;
+    try {
+        return JSON.parse(field);
+    } catch {
+        return [];
+    }
+};
+
 export default function ProductDetailPage() {
     const { slug } = useParams();
     const { t } = useTranslation("product");
     const dispatch = useDispatch();
 
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
-    const product = data?.data;
+
+    // ✅ getProductBySlugQuery transformResponse → response.data trực tiếp
+    const product = data;
+
+    // ✅ Parse JSON fields từ MySQL
+    const productColors = parseJsonField(product?.colors);
+    const productStorage = parseJsonField(product?.storage);
+    const productImages = parseJsonField(product?.images);
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isInWishlist = useSelector(
-        selectIsInWishlist(product?._id || product?.id),
-    );
+
+    // ✅ MySQL integer id — không có _id
+    const isInWishlist = useSelector(selectIsInWishlist(product?.id));
 
     const [selectedColor, setSelectedColor] = useState(null);
     const [selectedStorage, setSelectedStorage] = useState(null);
@@ -54,15 +73,21 @@ export default function ProductDetailPage() {
         setQuantity(1);
     }, [slug]);
 
-    const currentColor = selectedColor ?? product?.colors?.[0];
-    const currentStorage = selectedStorage ?? product?.storage?.[0];
+    const currentColor = selectedColor ?? productColors[0] ?? null;
+    const currentStorage = selectedStorage ?? productStorage[0] ?? null;
     const currentPrice = currentStorage?.price || product?.price;
 
     const handleAddToCart = () => {
         if (!product) return;
         dispatch(
             addToCart({
-                product,
+                product: {
+                    ...product,
+                    // Đảm bảo images là array (đã parse) để CartDrawer hiển thị đúng
+                    images: productImages,
+                    colors: productColors,
+                    storage: productStorage,
+                },
                 quantity,
                 selectedColor: currentColor?.name || "",
                 selectedStorage: currentStorage?.label || "",
@@ -94,15 +119,17 @@ export default function ProductDetailPage() {
         );
     }
 
+    // ✅ BE trả categorySlug (vd: "iphone") — dùng để filter và display
+    const categoryDisplay = product.categorySlug || "";
+
     return (
         <div className="section-padding py-8 md:py-12">
-            {/* Breadcrumb */}
             <Breadcrumb
                 items={[
                     { label: t("page.title"), href: ROUTES.PRODUCTS },
                     {
-                        label: product.category,
-                        href: `${ROUTES.PRODUCTS}?category=${product.category.toLowerCase()}`,
+                        label: categoryDisplay,
+                        href: `${ROUTES.PRODUCTS}?category=${categoryDisplay}`,
                     },
                     { label: product.name },
                 ]}
@@ -112,14 +139,14 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:gap-20">
                 {/* ── Images ── */}
                 <ProductImageGallery
-                    product={product}
+                    product={{ ...product, images: productImages }}
                     selectedColor={currentColor}
                 />
 
                 {/* ── Info ── */}
                 <div className="flex flex-col gap-5">
                     <p className="text-sm font-medium uppercase tracking-wider text-apple-blue">
-                        {product.category}
+                        {categoryDisplay}
                     </p>
 
                     <h1 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
@@ -137,6 +164,7 @@ export default function ProductDetailPage() {
                     <PriceDisplay
                         price={currentPrice}
                         originalPrice={product.originalPrice}
+                        salePrice={product.salePrice}
                         size="xl"
                         showBadge
                         showSaved
@@ -146,14 +174,14 @@ export default function ProductDetailPage() {
 
                     {/* Color picker */}
                     <ProductColorPicker
-                        colors={product.colors || []}
+                        colors={productColors}
                         selectedColor={currentColor}
                         onChange={setSelectedColor}
                     />
 
                     {/* Storage picker */}
                     <ProductStoragePicker
-                        storage={product.storage || []}
+                        storage={productStorage}
                         selectedStorage={currentStorage}
                         onChange={setSelectedStorage}
                     />
@@ -174,20 +202,6 @@ export default function ProductDetailPage() {
 
                     {/* Actions */}
                     <div className="flex gap-3">
-                        {/* <Button
-                            size="lg"
-                            className="flex-1 rounded-full text-base"
-                            disabled={!product.inStock}
-                            asChild={product.inStock}
-                        >
-                            {product.inStock ? (
-                                <Link to={ROUTES.CHECKOUT}>
-                                    {t("detail.buyNow")}
-                                </Link>
-                            ) : (
-                                t("detail.outOfStock")
-                            )}
-                        </Button> */}
                         {product.inStock ? (
                             <Button
                                 size="lg"
@@ -272,7 +286,6 @@ export default function ProductDetailPage() {
                         </div>
                     </div>
 
-                    {/* Description + Specification */}
                     <div className="space-y-2">
                         <ProductDescription description={product.description} />
                         <ProductSpecification
@@ -282,13 +295,13 @@ export default function ProductDetailPage() {
                 </div>
             </div>
 
-            {/* Reviews */}
+            {/* Reviews — truyền product.id (integer) */}
             <Separator className="my-12" />
             <ProductReviews product={product} />
 
-            {/* Related */}
+            {/* Related — dùng categorySlug */}
             <Separator className="my-12" />
-            <RelatedProducts slug={slug} category={product.category} />
+            <RelatedProducts slug={slug} category={categoryDisplay} />
         </div>
     );
 }
