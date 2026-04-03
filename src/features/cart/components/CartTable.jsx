@@ -8,50 +8,46 @@ import CartEmpty from "./CartEmpty";
 import { selectCartItems, clearCart } from "@/store/cartSlice";
 
 export default function CartTable() {
-    const { t } = useTranslation("cart");
-    const dispatch = useDispatch();
-    const items = useSelector(selectCartItems);
+  const { t } = useTranslation("cart");
+  const dispatch = useDispatch();
+  const items = useSelector(selectCartItems);
 
-    if (items.length === 0) return <CartEmpty />;
+  if (items.length === 0) return <CartEmpty />;
 
-    return (
-        <div className="min-w-0 flex-1">
-            {/* Clear cart */}
-            <div className="mb-4 flex justify-end">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-destructive"
-                    onClick={() => dispatch(clearCart())}
-                >
-                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                    {t("clearCart", { defaultValue: "Xóa giỏ hàng" })}
-                </Button>
-            </div>
+  return (
+    <div className="min-w-0 flex-1">
+      <div className="mb-4 flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground hover:text-destructive"
+          onClick={() => dispatch(clearCart())}
+        >
+          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+          {t("clearCart", { defaultValue: "Xóa giỏ hàng" })}
+        </Button>
+      </div>
 
-            {/* Table header — desktop */}
-            <div className="mb-3 hidden grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wider text-muted-foreground md:grid">
-                <div className="col-span-6">{t("item.product")}</div>
-                <div className="col-span-2 text-center">{t("item.price")}</div>
-                <div className="col-span-2 text-center">
-                    {t("item.quantity")}
-                </div>
-                <div className="col-span-2 text-right">{t("item.total")}</div>
-            </div>
+      <div className="mb-3 hidden grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wider text-muted-foreground md:grid">
+        <div className="col-span-6">{t("item.product")}</div>
+        <div className="col-span-2 text-center">{t("item.price")}</div>
+        <div className="col-span-2 text-center">{t("item.quantity")}</div>
+        <div className="col-span-2 text-right">{t("item.total")}</div>
+      </div>
 
-            <Separator className="mb-4" />
+      <Separator className="mb-4" />
 
-            {/* Items */}
-            <div className="space-y-6">
-                {items.map((item, index) => (
-                    <CartTableItem
-                        key={`${item.product._id || item.product.id}-${item.selectedColor}-${item.selectedStorage}`}
-                        item={item}
-                        index={index}
-                        isLast={index === items.length - 1}
-                    />
-                ))}
-            </div>
-        </div>
-    );
+      <div className="space-y-6">
+        {items.map((item, index) => (
+          <CartTableItem
+            // ✅ MySQL integer id thuần
+            key={`${item.product.id}-${item.selectedColor}-${item.selectedStorage}`}
+            item={item}
+            index={index}
+            isLast={index === items.length - 1}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
