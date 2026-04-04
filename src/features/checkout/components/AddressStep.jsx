@@ -29,7 +29,9 @@ export default function AddressStep({ defaultData, onNext }) {
     const { data } = useGetAddressesQuery(undefined, {
         skip: !isAuthenticated,
     });
-    const addresses = data?.data || [];
+
+    // ✅ usersApi transformResponse → response.data trực tiếp (array)
+    const addresses = data ?? [];
 
     const [selectedAddressId, setSelectedAddressId] = useState(
         defaultData?.addressId || null,
@@ -49,16 +51,15 @@ export default function AddressStep({ defaultData, onNext }) {
         },
     });
 
-    // Tự động chọn địa chỉ mặc định
+    // ✅ Tự động chọn địa chỉ mặc định — dùng integer id
     useEffect(() => {
         if (addresses.length > 0 && !selectedAddressId) {
             const defaultAddr =
                 addresses.find((a) => a.isDefault) || addresses[0];
-            setSelectedAddressId(defaultAddr._id || defaultAddr.id);
+            setSelectedAddressId(defaultAddr.id);
         }
     }, [addresses, selectedAddressId]);
 
-    // Nếu chưa đăng nhập hoặc không có địa chỉ — hiện form luôn
     useEffect(() => {
         if (!isAuthenticated || addresses.length === 0) {
             setShowNewForm(true);
@@ -66,15 +67,15 @@ export default function AddressStep({ defaultData, onNext }) {
     }, [isAuthenticated, addresses]);
 
     const handleSelectAddress = (address) => {
-        setSelectedAddressId(address._id || address.id);
+        // ✅ MySQL integer id
+        setSelectedAddressId(address.id);
         setShowNewForm(false);
     };
 
     const handleNext = () => {
         if (selectedAddressId && !showNewForm) {
-            const address = addresses.find(
-                (a) => (a._id || a.id) === selectedAddressId,
-            );
+            // ✅ So sánh bằng integer id
+            const address = addresses.find((a) => a.id === selectedAddressId);
             onNext({ addressId: selectedAddressId, address });
             return;
         }
@@ -89,7 +90,6 @@ export default function AddressStep({ defaultData, onNext }) {
                 {t("address.title")}
             </h2>
 
-            {/* Saved addresses — dùng AddressSavedList */}
             {isAuthenticated && addresses.length > 0 && (
                 <div className="mb-5 space-y-3">
                     <AddressSavedList
@@ -98,7 +98,6 @@ export default function AddressStep({ defaultData, onNext }) {
                         onSelect={handleSelectAddress}
                     />
 
-                    {/* Toggle new form */}
                     <button
                         type="button"
                         onClick={() => {
@@ -118,7 +117,6 @@ export default function AddressStep({ defaultData, onNext }) {
                 </div>
             )}
 
-            {/* New address form */}
             {showNewForm && (
                 <>
                     {addresses.length > 0 && <Separator className="mb-5" />}
@@ -278,9 +276,7 @@ export default function AddressStep({ defaultData, onNext }) {
                 </>
             )}
 
-            {/* Actions */}
             <div className="mt-6 flex justify-end gap-3">
-                {/* Chỉ hiện nút Hủy khi đang mở form mới VÀ user đã có địa chỉ lưu sẵn để quay về */}
                 {showNewForm && addresses.length > 0 && (
                     <Button
                         variant="outline"
@@ -290,7 +286,6 @@ export default function AddressStep({ defaultData, onNext }) {
                         {t("btn.cancel", { ns: "common" })}
                     </Button>
                 )}
-
                 <Button
                     onClick={handleNext}
                     className="rounded-full px-8"

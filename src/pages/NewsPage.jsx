@@ -23,7 +23,7 @@ export default function NewsPage() {
         status: "published",
     });
 
-    const news = data?.data || [];
+    const news = data?.news || [];
     const pagination = data?.pagination || {};
 
     const updateParam = (key, value) => {

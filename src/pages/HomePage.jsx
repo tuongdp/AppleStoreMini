@@ -28,25 +28,10 @@ import ProductCardSkeleton from "@/components/shared/ProductCardSkeleton";
 import ProductCard from "@/components/shared/ProductCard";
 
 // Constants & utils
-import { ROUTES, CATEGORIES, BANNER_SLIDES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants";
 
-// Category images
-import iphoneImg from "@/assets/images/categories/iphone.jpg";
-import ipadImg from "@/assets/images/categories/ipad.jpg";
-import macImg from "@/assets/images/categories/mac.jpg";
-import watchImg from "@/assets/images/categories/watch.jpg";
-import airpodsImg from "@/assets/images/categories/airpods.jpg";
 import { useGetBannersQuery } from "@/store/api/bannersApi";
-
-const CATEGORY_IMAGES = {
-    iphone: iphoneImg,
-    ipad: ipadImg,
-    mac: macImg,
-    watch: watchImg,
-    airpods: airpodsImg,
-};
-
+import { useCategories } from "@/hooks/useCategories";
 const TRUST_BADGES = [
     {
         icon: Truck,
@@ -71,6 +56,9 @@ const TRUST_BADGES = [
 ];
 
 export default function HomePage() {
+    const { categories, isLoading: isCategoriesLoading } = useCategories();
+    const getCatImage = (slug) =>
+        categories.find((c) => c.slug === slug)?.image || "";
     const { t } = useTranslation("product");
 
     const { data: featuredData, isLoading: isFeaturedLoading } =
@@ -88,11 +76,11 @@ export default function HomePage() {
         useGetBannersQuery();
 
     const banners =
-        bannerData?.data
+        bannerData
             ?.filter((item) => item.isActive)
             ?.sort((a, b) => a.order - b.order)
             ?.map((item) => ({
-                id: item._id,
+                id: item.id,
                 title: item.title,
                 subtitle: item.subtitle,
                 description: item.description,
@@ -104,9 +92,9 @@ export default function HomePage() {
                 ctaLink: item.ctaLink,
             })) || [];
 
-    const featuredProducts = featuredData?.data ?? [];
-    const newProducts = newData?.data ?? [];
-    const saleProducts = saleData?.data?.products ?? saleData?.data ?? [];
+    const featuredProducts = featuredData ?? [];
+    const newProducts = newData ?? [];
+    const saleProducts = saleData?.products ?? [];
 
     return (
         <div className="flex flex-col">
@@ -116,26 +104,40 @@ export default function HomePage() {
             {/* ── 2. Category Bar ── */}
             <section className="section-padding border-b border-border bg-muted/20 py-8">
                 <div className="mx-auto max-w-7xl">
-                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:gap-4">
-                        {CATEGORIES.map((cat) => (
-                            <Link
-                                key={cat.value}
-                                to={cat.href}
-                                className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-sm md:p-5"
-                            >
-                                <div className="h-14 w-14 overflow-hidden rounded-xl bg-muted md:h-20 md:w-20">
-                                    <img
-                                        src={CATEGORY_IMAGES[cat.value]}
-                                        alt={cat.label}
-                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                        loading="lazy"
-                                    />
-                                </div>
-                                <span className="text-xs font-medium text-foreground md:text-sm">
-                                    {cat.label}
-                                </span>
-                            </Link>
-                        ))}
+                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 md:gap-4">
+                        {isCategoriesLoading
+                            ? [...Array(5)].map((_, i) => (
+                                  <div
+                                      key={i}
+                                      className="flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 md:p-5"
+                                  >
+                                      <div className="h-14 w-14 animate-pulse rounded-xl bg-muted md:h-20 md:w-20" />
+                                      <div className="h-3 w-12 animate-pulse rounded bg-muted" />
+                                  </div>
+                              ))
+                            : categories.map((cat) => (
+                                  <Link
+                                      key={cat.slug}
+                                      to={cat.href}
+                                      className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-sm md:p-5"
+                                  >
+                                      <div className="h-14 w-14 overflow-hidden rounded-xl bg-muted md:h-20 md:w-20">
+                                          {cat.image ? (
+                                              <img
+                                                  src={cat.image}
+                                                  alt={cat.name}
+                                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                                  loading="lazy"
+                                              />
+                                          ) : (
+                                              <div className="h-full w-full bg-muted" />
+                                          )}
+                                      </div>
+                                      <span className="text-xs font-medium text-foreground md:text-sm">
+                                          {cat.name}
+                                      </span>
+                                  </Link>
+                              ))}
                     </div>
                 </div>
             </section>
@@ -189,7 +191,7 @@ export default function HomePage() {
                                 </span>
                             </div>
                             <img
-                                src={CATEGORY_IMAGES.iphone}
+                                src={getCatImage("iphone")}
                                 alt=""
                                 aria-hidden
                                 className="absolute -bottom-4 -right-4 h-44 w-44 object-cover opacity-15 transition-all duration-500 group-hover:scale-110 group-hover:opacity-25"
@@ -222,7 +224,7 @@ export default function HomePage() {
                                 </span>
                             </div>
                             <img
-                                src={CATEGORY_IMAGES.mac}
+                                src={getCatImage("mac")}
                                 alt=""
                                 aria-hidden
                                 className="absolute -bottom-4 -right-4 h-44 w-44 object-cover opacity-15 transition-all duration-500 group-hover:scale-110 group-hover:opacity-25"
@@ -239,7 +241,7 @@ export default function HomePage() {
                         title={t("home.newest", {
                             defaultValue: "Sản phẩm mới",
                         })}
-                        subtitle="Mới về"
+                        subtitle="Mới nhất"
                         viewAllHref={`${ROUTES.PRODUCTS}?sort=newest`}
                         className="mb-8"
                     />

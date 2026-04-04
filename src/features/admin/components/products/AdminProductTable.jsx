@@ -38,6 +38,17 @@ import { formatPrice, formatNumber } from "@/lib/utils";
 import { ROUTES, CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 
+// ✅ images có thể là JSON string (MySQL)
+const getFirstImage = (images) => {
+    if (!images) return "";
+    if (Array.isArray(images)) return images[0] || "";
+    try {
+        return JSON.parse(images)[0] || "";
+    } catch {
+        return "";
+    }
+};
+
 export default function AdminProductTable() {
     const { t } = useTranslation("admin");
     const [searchParams, setSearchParams] = useSearchParams();
@@ -59,8 +70,9 @@ export default function AdminProductTable() {
     const [deleteProduct, { isLoading: isDeleting }] =
         useDeleteProductMutation();
 
-    const products = data?.data || [];
-    const pagination = data?.pagination || {};
+    // ✅ getProductsQuery transformResponse → { products, pagination }
+    const products = data?.products ?? [];
+    const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -89,7 +101,6 @@ export default function AdminProductTable() {
             {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-3">
-                    {/* Search */}
                     <div className="relative min-w-[200px]">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
@@ -100,7 +111,6 @@ export default function AdminProductTable() {
                         />
                     </div>
 
-                    {/* Category filter */}
                     <Select
                         value={searchParams.get("category") || "all"}
                         onValueChange={(val) => updateParam("category", val)}
@@ -123,7 +133,6 @@ export default function AdminProductTable() {
                     </Select>
                 </div>
 
-                {/* Add button */}
                 <Button className="rounded-full" asChild>
                     <Link to={ROUTES.ADMIN_PRODUCT_CREATE}>
                         <Plus className="mr-1.5 h-4 w-4" />
@@ -171,110 +180,107 @@ export default function AdminProductTable() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            products.map((product) => {
-                                const productId = product._id || product.id;
-                                return (
-                                    <TableRow key={productId}>
-                                        <TableCell>
-                                            <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
-                                                <img
-                                                    src={
-                                                        product.images?.[0] ||
-                                                        product.image
-                                                    }
-                                                    alt={product.name}
-                                                    className="h-full w-full object-contain"
-                                                />
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <p className="max-w-[200px] truncate text-sm font-medium text-foreground">
-                                                {product.name}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {product.slug}
-                                            </p>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {product.category}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm font-medium text-foreground">
-                                                {formatPrice(product.price)}
-                                            </span>
-                                            {product.originalPrice && (
-                                                <p className="text-xs text-muted-foreground line-through">
-                                                    {formatPrice(
-                                                        product.originalPrice,
-                                                    )}
-                                                </p>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {formatNumber(
-                                                    product.soldCount || 0,
+                            products.map((product) => (
+                                // ✅ MySQL integer id
+                                <TableRow key={product.id}>
+                                    <TableCell>
+                                        <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
+                                            <img
+                                                // ✅ parse JSON string nếu cần
+                                                src={getFirstImage(
+                                                    product.images,
                                                 )}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                className={
-                                                    product.inStock
-                                                        ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                                                        : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"
-                                                }
-                                            >
-                                                {product.inStock
-                                                    ? t("product.active")
-                                                    : t("product.inactive")}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8"
+                                                alt={product.name}
+                                                className="h-full w-full object-contain"
+                                            />
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <p className="max-w-[200px] truncate text-sm font-medium text-foreground">
+                                            {product.name}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {product.slug}
+                                        </p>
+                                    </TableCell>
+                                    <TableCell>
+                                        {/* ✅ BE trả categorySlug — không phải category */}
+                                        <span className="text-sm text-muted-foreground">
+                                            {product.categorySlug}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm font-medium text-foreground">
+                                            {formatPrice(product.price)}
+                                        </span>
+                                        {product.originalPrice > 0 && (
+                                            <p className="text-xs text-muted-foreground line-through">
+                                                {formatPrice(
+                                                    product.originalPrice,
+                                                )}
+                                            </p>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatNumber(
+                                                product.soldCount ?? 0,
+                                            )}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            className={
+                                                product.inStock
+                                                    ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
+                                                    : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"
+                                            }
+                                        >
+                                            {product.inStock
+                                                ? t("product.active")
+                                                : t("product.inactive")}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                >
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        to={ROUTES.ADMIN_PRODUCT_EDIT(
+                                                            product.id,
+                                                        )}
+                                                        className="flex items-center gap-2"
                                                     >
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            to={ROUTES.ADMIN_PRODUCT_EDIT(
-                                                                productId,
-                                                            )}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <Edit className="h-4 w-4" />
-                                                            {t("product.edit")}
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem
-                                                        className="gap-2 text-destructive focus:text-destructive"
-                                                        onClick={() =>
-                                                            setDeleteId(
-                                                                productId,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                        {t("btn.delete", {
-                                                            ns: "common",
-                                                        })}
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })
+                                                        <Edit className="h-4 w-4" />
+                                                        {t("product.edit")}
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem
+                                                    className="gap-2 text-destructive focus:text-destructive"
+                                                    onClick={() =>
+                                                        setDeleteId(product.id)
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                    {t("btn.delete", {
+                                                        ns: "common",
+                                                    })}
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
                         )}
                     </TableBody>
                 </Table>
@@ -317,7 +323,6 @@ export default function AdminProductTable() {
                 </div>
             )}
 
-            {/* Confirm delete */}
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}

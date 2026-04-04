@@ -18,13 +18,12 @@ export default function AddressSavedList({
                 {t("address.savedAddresses")}
             </p>
             {addresses.map((addr) => {
-                const addrId = addr._id || addr.id;
-                const isSelected = selectedId === addrId;
+                // ✅ MySQL integer id — không có _id
+                const isSelected = selectedId === addr.id;
 
                 return (
-                    // ✅ thêm return
                     <button
-                        key={addrId}
+                        key={addr.id}
                         type="button"
                         onClick={() => onSelect(addr)}
                         className={cn(
@@ -62,7 +61,6 @@ export default function AddressSavedList({
                                 </p>
                             </div>
 
-                            {/* Radio indicator */}
                             <div
                                 className={cn(
                                     "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all",

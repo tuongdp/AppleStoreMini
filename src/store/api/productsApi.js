@@ -1,5 +1,5 @@
 import { baseApi } from "./baseApi";
-
+import { parseProduct } from "./helpers";
 export const productsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // GET /products?page=&limit=&category=&sort=&search=&inStock=&featured=&onSale=&minPrice=&maxPrice=
@@ -17,14 +17,14 @@ export const productsApi = baseApi.injectEndpoints({
         getProductBySlug: builder.query({
             query: (slug) => `/products/slug/${slug}`,
             providesTags: (_, __, slug) => [{ type: "Product", id: slug }],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => parseProduct(response.data),
         }),
 
         // GET /products/:id — dùng cho AdminProductEdit
         getProductById: builder.query({
             query: (id) => `/products/${id}`,
             providesTags: (_, __, id) => [{ type: "Product", id }],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => parseProduct(response.data),
         }),
 
         // GET /products/featured?limit=8
@@ -34,17 +34,14 @@ export const productsApi = baseApi.injectEndpoints({
                 params: { limit },
             }),
             providesTags: ["Products"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => response.data.map(parseProduct),
         }),
 
         // GET /products/new?limit=8
         getNewProducts: builder.query({
-            query: (limit = 8) => ({
-                url: "/products/new",
-                params: { limit },
-            }),
+            query: (limit = 8) => ({ url: "/products/new", params: { limit } }),
             providesTags: ["Products"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => response.data.map(parseProduct),
         }),
 
         // GET /products?category=:slug&limit=4
@@ -64,7 +61,7 @@ export const productsApi = baseApi.injectEndpoints({
                 url: `/products/slug/${slug}/related`,
                 params: { limit },
             }),
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => response.data.map(parseProduct),
         }),
 
         // GET /products/search?q=:keyword
@@ -73,7 +70,7 @@ export const productsApi = baseApi.injectEndpoints({
                 url: "/products/search",
                 params: { q: keyword },
             }),
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => response.data.map(parseProduct),
         }),
 
         // ── Admin ──────────────────────────────────────

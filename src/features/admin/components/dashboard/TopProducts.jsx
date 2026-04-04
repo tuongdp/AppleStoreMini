@@ -6,6 +6,17 @@ import { formatPrice, formatNumber } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
+// ✅ images có thể là JSON string (MySQL)
+const getFirstImage = (images) => {
+    if (!images) return "";
+    if (Array.isArray(images)) return images[0] || "";
+    try {
+        return JSON.parse(images)[0] || "";
+    } catch {
+        return "";
+    }
+};
+
 export default function TopProducts() {
     const { t } = useTranslation("admin");
 
@@ -15,7 +26,8 @@ export default function TopProducts() {
         page: 1,
     });
 
-    const products = data?.data || [];
+    // ✅ getProductsQuery transformResponse → { products, pagination }
+    const products = data?.products ?? [];
 
     if (isLoading) {
         return (
@@ -48,7 +60,6 @@ export default function TopProducts() {
 
     return (
         <div className="space-y-1">
-            {/* Header */}
             <div className="mb-3 grid grid-cols-12 gap-4 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <div className="col-span-1">#</div>
                 <div className="col-span-5">{t("product.name")}</div>
@@ -63,14 +74,13 @@ export default function TopProducts() {
                 </div>
             </div>
 
-            {/* Rows */}
             {products.map((product, index) => (
+                // ✅ MySQL integer id
                 <Link
-                    key={product._id || product.id}
-                    to={ROUTES.ADMIN_PRODUCT_EDIT(product._id || product.id)}
+                    key={product.id}
+                    to={ROUTES.ADMIN_PRODUCT_EDIT(product.id)}
                     className="grid grid-cols-12 items-center gap-4 rounded-xl px-2 py-2.5 transition-colors hover:bg-muted/50"
                 >
-                    {/* Rank */}
                     <div className="col-span-1">
                         <span
                             className={cn(
@@ -88,11 +98,11 @@ export default function TopProducts() {
                         </span>
                     </div>
 
-                    {/* Product info */}
                     <div className="col-span-5 flex items-center gap-3">
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-1">
                             <img
-                                src={product.images?.[0] || product.image}
+                                // ✅ parse JSON string nếu cần
+                                src={getFirstImage(product.images)}
                                 alt={product.name}
                                 className="h-full w-full object-contain"
                             />
@@ -101,20 +111,19 @@ export default function TopProducts() {
                             <p className="truncate text-sm font-medium text-foreground">
                                 {product.name}
                             </p>
+                            {/* ✅ BE trả categorySlug — không phải category */}
                             <p className="text-xs text-muted-foreground">
-                                {product.category}
+                                {product.categorySlug}
                             </p>
                         </div>
                     </div>
 
-                    {/* Sold count */}
                     <div className="col-span-2 text-center">
                         <span className="text-sm text-foreground">
-                            {formatNumber(product.soldCount || 0)}
+                            {formatNumber(product.soldCount ?? 0)}
                         </span>
                     </div>
 
-                    {/* Status */}
                     <div className="col-span-2 flex justify-center">
                         <span
                             className={cn(
@@ -130,7 +139,6 @@ export default function TopProducts() {
                         </span>
                     </div>
 
-                    {/* Price */}
                     <div className="col-span-2 text-right">
                         <span className="text-sm font-medium text-foreground">
                             {formatPrice(product.price)}

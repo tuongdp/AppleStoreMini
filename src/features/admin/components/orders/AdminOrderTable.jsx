@@ -34,16 +34,15 @@ const STATUS_OPTIONS = [
     { value: "all", labelKey: "order.status.all" },
     { value: ORDER_STATUS.PENDING, labelKey: "order.status.pending" },
     { value: ORDER_STATUS.CONFIRMED, labelKey: "order.status.confirmed" },
-    { value: ORDER_STATUS.PROCESSING, labelKey: "order.status.processing" },
     { value: ORDER_STATUS.SHIPPING, labelKey: "order.status.shipping" },
     { value: ORDER_STATUS.DELIVERED, labelKey: "order.status.delivered" },
     { value: ORDER_STATUS.CANCELLED, labelKey: "order.status.cancelled" },
 ];
 
+// ✅ BE chỉ có: PENDING → CONFIRMED → SHIPPING → DELIVERED (không có PROCESSING)
 const NEXT_STATUS = {
     [ORDER_STATUS.PENDING]: ORDER_STATUS.CONFIRMED,
-    [ORDER_STATUS.CONFIRMED]: ORDER_STATUS.PROCESSING,
-    [ORDER_STATUS.PROCESSING]: ORDER_STATUS.SHIPPING,
+    [ORDER_STATUS.CONFIRMED]: ORDER_STATUS.SHIPPING,
     [ORDER_STATUS.SHIPPING]: ORDER_STATUS.DELIVERED,
 };
 
@@ -67,8 +66,9 @@ export default function AdminOrderTable() {
     const { data, isLoading } = useGetAllOrdersQuery(filters);
     const [updateStatus] = useUpdateOrderStatusMutation();
 
-    const orders = data?.data || [];
-    const pagination = data?.pagination || {};
+    // ✅ getAllOrdersQuery transformResponse → { orders, pagination }
+    const orders = data?.orders ?? [];
+    const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -83,7 +83,6 @@ export default function AdminOrderTable() {
 
     const handleUpdateStatus = async (orderId, status) => {
         setUpdatingId(orderId);
-
         try {
             await updateStatus({ id: orderId, status }).unwrap();
             toast.success(t("order.updateSuccess"));
@@ -162,7 +161,8 @@ export default function AdminOrderTable() {
                             </TableRow>
                         ) : (
                             orders.map((order) => (
-                                <TableRow key={order._id || order.id}>
+                                // ✅ MySQL integer id
+                                <TableRow key={order.id}>
                                     <TableCell>
                                         <span className="font-mono text-sm font-medium text-foreground">
                                             #{order.code}
@@ -222,21 +222,18 @@ export default function AdminOrderTable() {
                                                     size="sm"
                                                     className="rounded-full text-xs"
                                                     disabled={
-                                                        updatingId ===
-                                                        (order._id || order.id)
+                                                        updatingId === order.id
                                                     }
                                                     onClick={() =>
                                                         handleUpdateStatus(
-                                                            order._id ||
-                                                                order.id,
+                                                            order.id,
                                                             NEXT_STATUS[
                                                                 order.status
                                                             ],
                                                         )
                                                     }
                                                 >
-                                                    {updatingId ===
-                                                    (order._id || order.id)
+                                                    {updatingId === order.id
                                                         ? t("table.loading")
                                                         : t(
                                                               `order.status.${NEXT_STATUS[order.status]}`,
@@ -252,7 +249,7 @@ export default function AdminOrderTable() {
                                             >
                                                 <Link
                                                     to={ROUTES.ADMIN_ORDER_DETAIL(
-                                                        order._id || order.id,
+                                                        order.id,
                                                     )}
                                                 >
                                                     <Eye className="h-4 w-4" />

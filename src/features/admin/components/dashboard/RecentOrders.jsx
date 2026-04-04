@@ -10,12 +10,10 @@ import { ROUTES } from "@/lib/constants";
 export default function RecentOrders() {
     const { t } = useTranslation("admin");
 
-    const { data, isLoading } = useGetAllOrdersQuery({
-        page: 1,
-        limit: 5,
-    });
+    const { data, isLoading } = useGetAllOrdersQuery({ page: 1, limit: 5 });
 
-    const orders = data?.data || [];
+    // ✅ getAllOrdersQuery transformResponse → { orders, pagination }
+    const orders = data?.orders ?? [];
 
     if (isLoading) {
         return (
@@ -48,17 +46,16 @@ export default function RecentOrders() {
     return (
         <div className="space-y-1">
             {orders.map((order) => (
+                // ✅ MySQL integer id
                 <Link
-                    key={order._id || order.id}
-                    to={ROUTES.ADMIN_ORDER_DETAIL(order._id || order.id)}
+                    key={order.id}
+                    to={ROUTES.ADMIN_ORDER_DETAIL(order.id)}
                     className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted/50"
                 >
-                    {/* Avatar placeholder */}
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                         {order.user?.fullName?.charAt(0)?.toUpperCase() || "?"}
                     </div>
 
-                    {/* Info */}
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
                             {order.user?.fullName || t("order.customer")}
@@ -68,17 +65,14 @@ export default function RecentOrders() {
                         </p>
                     </div>
 
-                    {/* Status */}
                     <OrderStatusBadge status={order.status} />
 
-                    {/* Total */}
                     <p className="shrink-0 text-sm font-medium text-foreground">
                         {formatPrice(order.totalAmount)}
                     </p>
                 </Link>
             ))}
 
-            {/* View all */}
             <div className="pt-2">
                 <Button
                     variant="outline"

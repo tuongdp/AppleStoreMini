@@ -7,17 +7,17 @@ import {
 } from "@/components/ui/dialog";
 import ReviewForm from "@/features/products/components/ReviewForm";
 
-/**
- * ReviewModal — hiện từ OrderCard khi user click đánh giá sản phẩm
- *
- * Props:
- *   open           — boolean
- *   onOpenChange   — (open: boolean) => void
- *   product        — object sản phẩm cần đánh giá
- *   orderId        — id đơn hàng
- *   existingReview — review đã submit trước đó (nếu có) — dùng để fill form
- *   onSuccess      — (reviewData) => void — callback khi submit thành công
- */
+// ✅ images có thể là JSON string (MySQL) hoặc array đã parse
+const getFirstImage = (images) => {
+    if (!images) return "";
+    if (Array.isArray(images)) return images[0] || "";
+    try {
+        return JSON.parse(images)[0] || "";
+    } catch {
+        return "";
+    }
+};
+
 export default function ReviewModal({
     open,
     onOpenChange,
@@ -50,12 +50,12 @@ export default function ReviewModal({
                     </DialogTitle>
                 </DialogHeader>
 
-                {/* Product info */}
                 {product && (
                     <div className="flex items-center gap-3 rounded-xl bg-muted/30 p-3">
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted p-1">
                             <img
-                                src={product.images?.[0] || product.image}
+                                // ✅ parse JSON string nếu cần
+                                src={getFirstImage(product.images)}
                                 alt={product.name}
                                 className="h-full w-full object-contain"
                             />
@@ -66,9 +66,9 @@ export default function ReviewModal({
                     </div>
                 )}
 
-                {/* Form — truyền existingReview để fill sẵn nếu đã review */}
                 <ReviewForm
-                    productId={product?._id || product?.id}
+                    // ✅ MySQL integer id — không có _id
+                    productId={product?.id}
                     orderId={orderId}
                     review={existingReview}
                     onSuccess={handleSuccess}

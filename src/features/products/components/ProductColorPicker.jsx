@@ -7,7 +7,6 @@ export default function ProductColorPicker({
     onChange,
 }) {
     const { t } = useTranslation("product");
-
     if (!colors.length) return null;
 
     return (
@@ -16,20 +15,20 @@ export default function ProductColorPicker({
                 {t("detail.selectColor")}
                 {selectedColor && (
                     <span className="ml-2 font-normal text-muted-foreground">
-                        {selectedColor.name}
+                        {selectedColor.label}
                     </span>
                 )}
             </p>
             <div className="flex flex-wrap gap-3">
                 {colors.map((color) => (
                     <button
-                        key={color.name}
+                        key={color.label}
                         type="button"
                         onClick={() => onChange(color)}
-                        title={color.name}
+                        title={color.label}
                         className={cn(
                             "h-10 w-10 rounded-full border-2 transition-all",
-                            selectedColor?.name === color.name
+                            selectedColor?.label === color.label
                                 ? "border-foreground ring-2 ring-foreground ring-offset-2 ring-offset-background"
                                 : "border-transparent ring-1 ring-border hover:ring-foreground/50",
                         )}

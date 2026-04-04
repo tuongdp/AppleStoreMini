@@ -21,10 +21,8 @@ const PERIODS = [
     { value: "year", labelKey: "dashboard.year" },
 ];
 
-// Custom tooltip hiển thị đúng format VND
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
-
     return (
         <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md">
             <p className="mb-1 text-xs text-muted-foreground">{label}</p>
@@ -45,7 +43,10 @@ export default function RevenueChart() {
     const [period, setPeriod] = useState("month");
 
     const { data, isLoading } = useGetRevenueStatsQuery({ period });
-    const chartData = data?.data?.chart || [];
+
+    // ✅ getRevenueStatsQuery transformResponse → response.data trực tiếp
+    // shape: { chart, totalRevenue, totalOrders, revenueChange }
+    const chartData = data?.chart ?? [];
 
     if (isLoading) {
         return (
@@ -62,7 +63,6 @@ export default function RevenueChart() {
 
     return (
         <div className="space-y-4">
-            {/* Period selector */}
             <div className="flex gap-1.5">
                 {PERIODS.map((p) => (
                     <Button
@@ -82,7 +82,6 @@ export default function RevenueChart() {
                 ))}
             </div>
 
-            {/* Chart */}
             {chartData.length === 0 ? (
                 <div className="flex h-[280px] items-center justify-center rounded-xl bg-muted/30">
                     <p className="text-sm text-muted-foreground">
@@ -115,13 +114,11 @@ export default function RevenueChart() {
                                 />
                             </linearGradient>
                         </defs>
-
                         <CartesianGrid
                             strokeDasharray="3 3"
                             stroke="hsl(var(--border))"
                             vertical={false}
                         />
-
                         <XAxis
                             dataKey="label"
                             axisLine={false}
@@ -132,7 +129,6 @@ export default function RevenueChart() {
                             }}
                             dy={8}
                         />
-
                         <YAxis
                             axisLine={false}
                             tickLine={false}
@@ -151,9 +147,7 @@ export default function RevenueChart() {
                             }}
                             width={56}
                         />
-
                         <Tooltip content={<CustomTooltip />} />
-
                         <Area
                             type="monotone"
                             dataKey="revenue"
@@ -171,15 +165,15 @@ export default function RevenueChart() {
                 </ResponsiveContainer>
             )}
 
-            {/* Summary */}
-            {data?.data && (
+            {/* ✅ data là object trực tiếp sau transformResponse — không cần .data thêm */}
+            {data && (
                 <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
                     <div className="text-center">
                         <p className="text-xs text-muted-foreground">
                             {t("dashboard.totalRevenue")}
                         </p>
                         <p className="mt-0.5 text-sm font-semibold text-foreground">
-                            {formatPrice(data.data.totalRevenue || 0)}
+                            {formatPrice(data.totalRevenue ?? 0)}
                         </p>
                     </div>
                     <div className="text-center">
@@ -187,7 +181,7 @@ export default function RevenueChart() {
                             {t("dashboard.totalOrders")}
                         </p>
                         <p className="mt-0.5 text-sm font-semibold text-foreground">
-                            {data.data.totalOrders || 0}
+                            {data.totalOrders ?? 0}
                         </p>
                     </div>
                     <div className="text-center">
@@ -197,13 +191,13 @@ export default function RevenueChart() {
                         <p
                             className={cn(
                                 "mt-0.5 text-sm font-semibold",
-                                (data.data.revenueChange || 0) >= 0
+                                (data.revenueChange ?? 0) >= 0
                                     ? "text-green-600 dark:text-green-400"
                                     : "text-red-500",
                             )}
                         >
-                            {(data.data.revenueChange || 0) >= 0 ? "+" : ""}
-                            {data.data.revenueChange || 0}%
+                            {(data.revenueChange ?? 0) >= 0 ? "+" : ""}
+                            {data.revenueChange ?? 0}%
                         </p>
                     </div>
                 </div>

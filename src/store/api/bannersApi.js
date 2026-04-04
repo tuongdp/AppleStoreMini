@@ -2,27 +2,33 @@ import { baseApi } from "./baseApi";
 
 export const bannersApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // Public
+        // GET /banners — public
         getBanners: builder.query({
             query: () => "/banners",
             providesTags: ["Banners"],
+            transformResponse: (response) => response.data,
         }),
 
-        // Admin
+        // GET /admin/banners
         getAllBanners: builder.query({
             query: () => "/admin/banners",
             providesTags: ["Banners"],
+            transformResponse: (response) => response.data,
         }),
 
+        // POST /admin/banners — multipart/form-data
         createBanner: builder.mutation({
             query: (formData) => ({
                 url: "/admin/banners",
                 method: "POST",
                 body: formData,
+                formData: true,
             }),
             invalidatesTags: ["Banners"],
+            transformResponse: (response) => response.data,
         }),
 
+        // PUT /admin/banners/:id
         updateBanner: builder.mutation({
             query: ({ id, ...formData }) => ({
                 url: `/admin/banners/${id}`,
@@ -30,8 +36,10 @@ export const bannersApi = baseApi.injectEndpoints({
                 body: formData,
             }),
             invalidatesTags: ["Banners"],
+            transformResponse: (response) => response.data,
         }),
 
+        // DELETE /admin/banners/:id
         deleteBanner: builder.mutation({
             query: (id) => ({
                 url: `/admin/banners/${id}`,
@@ -40,14 +48,17 @@ export const bannersApi = baseApi.injectEndpoints({
             invalidatesTags: ["Banners"],
         }),
 
+        // PATCH /admin/banners/:id/toggle
         toggleBannerStatus: builder.mutation({
             query: (id) => ({
                 url: `/admin/banners/${id}/toggle`,
                 method: "PATCH",
             }),
             invalidatesTags: ["Banners"],
+            transformResponse: (response) => response.data,
         }),
 
+        // PATCH /admin/banners/orders
         updateBannerOrders: builder.mutation({
             query: (orders) => ({
                 url: "/admin/banners/orders",

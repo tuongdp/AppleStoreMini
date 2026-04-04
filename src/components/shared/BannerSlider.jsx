@@ -8,8 +8,51 @@ import "swiper/css/effect-fade";
 
 import { ROUTES } from "@/lib/constants";
 
+function BannerSkeleton() {
+    return (
+        <section className="relative w-full overflow-hidden">
+            <div className="relative h-[580px] w-full animate-pulse bg-gray-200">
+                {/* Gradient overlay giả */}
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-300/60 to-transparent" />
+
+                {/* Content skeleton */}
+                <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6">
+                    <div className="max-w-xl space-y-4">
+                        {/* Eyebrow */}
+                        <div className="h-3 w-40 rounded-full bg-gray-300" />
+                        {/* Title */}
+                        <div className="space-y-2">
+                            <div className="h-14 w-80 rounded-lg bg-gray-300" />
+                            <div className="h-14 w-64 rounded-lg bg-gray-300" />
+                        </div>
+                        {/* Subtitle */}
+                        <div className="h-5 w-72 rounded-full bg-gray-300" />
+                        {/* Description */}
+                        <div className="h-4 w-56 rounded-full bg-gray-300" />
+                        {/* Buttons */}
+                        <div className="flex gap-3 pt-2">
+                            <div className="h-11 w-36 rounded-full bg-gray-300" />
+                            <div className="h-11 w-28 rounded-full bg-gray-300" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Pagination dots skeleton */}
+                <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
+                    {[0, 1, 2].map((i) => (
+                        <div
+                            key={i}
+                            className={`h-2 rounded-full bg-gray-400 transition-all ${i === 0 ? "w-6" : "w-2"}`}
+                        />
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
 export default function BannerSlider({ slides = [] }) {
-    if (!slides.length) return null;
+    if (!slides.length) return <BannerSkeleton />;
 
     return (
         <section className="relative w-full overflow-hidden">

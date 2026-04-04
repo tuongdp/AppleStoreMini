@@ -2,13 +2,14 @@ import { baseApi } from "./baseApi";
 
 export const categoriesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // ── Public ─────────────────────────────────────
+        // GET /categories — public
         getCategories: builder.query({
             query: () => "/categories",
             providesTags: ["Categories"],
+            transformResponse: (response) => response.data,
         }),
 
-        // ── Admin ──────────────────────────────────────
+        // POST /admin/categories
         createCategory: builder.mutation({
             query: (data) => ({
                 url: "/admin/categories",
@@ -16,8 +17,10 @@ export const categoriesApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Categories"],
+            transformResponse: (response) => response.data,
         }),
 
+        // PUT /admin/categories/:id
         updateCategory: builder.mutation({
             query: ({ id, ...data }) => ({
                 url: `/admin/categories/${id}`,
@@ -25,8 +28,10 @@ export const categoriesApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Categories"],
+            transformResponse: (response) => response.data,
         }),
 
+        // DELETE /admin/categories/:id
         deleteCategory: builder.mutation({
             query: (id) => ({
                 url: `/admin/categories/${id}`,
@@ -35,12 +40,14 @@ export const categoriesApi = baseApi.injectEndpoints({
             invalidatesTags: ["Categories"],
         }),
 
+        // PATCH /admin/categories/:id/toggle
         toggleCategoryStatus: builder.mutation({
             query: (id) => ({
                 url: `/admin/categories/${id}/toggle`,
                 method: "PATCH",
             }),
             invalidatesTags: ["Categories"],
+            transformResponse: (response) => response.data,
         }),
     }),
 });

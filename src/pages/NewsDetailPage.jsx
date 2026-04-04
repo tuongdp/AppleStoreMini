@@ -10,6 +10,7 @@ import {
     Trash2,
 } from "lucide-react";
 import {
+    useGetNewsQuery,
     useGetNewsBySlugQuery,
     useGetNewsCommentsQuery,
     useCreateNewsCommentMutation,
@@ -53,6 +54,83 @@ function StarRatingInput({ value, onChange }) {
     );
 }
 
+function SidebarNewsCard({ news, index }) {
+    return (
+        <Link
+            to={`/news/${news.slug}`}
+            className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-muted/50"
+        >
+            {index && (
+                <span className="mt-0.5 w-5 shrink-0 text-2xl font-bold leading-none text-muted-foreground/30 tabular-nums">
+                    {index}
+                </span>
+            )}
+            <div className="min-w-0 flex-1">
+                <p className="line-clamp-2 text-sm font-medium text-foreground transition-colors group-hover:text-apple-blue">
+                    {news.title}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                    {news.readTime ? `${news.readTime} phút đọc · ` : ""}
+                    {news.viewCount?.toLocaleString()} lượt xem
+                </p>
+            </div>
+        </Link>
+    );
+}
+
+function NewsSidebar({ currentSlug, currentCategory }) {
+    const { data: relatedData } = useGetNewsQuery(
+        { category: currentCategory, limit: 5 },
+        { skip: !currentCategory },
+    );
+    const { data: popularData } = useGetNewsQuery({ limit: 10 });
+
+    const related = (relatedData?.news || [])
+        .filter((n) => n.slug !== currentSlug)
+        .slice(0, 3);
+
+    const popular = (popularData?.news || [])
+        .filter((n) => n.slug !== currentSlug)
+        .sort((a, b) => b.viewCount - a.viewCount)
+        .slice(0, 4);
+
+    return (
+        <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
+            {related.length > 0 && (
+                <div>
+                    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Bài viết liên quan
+                    </h3>
+                    <div className="space-y-1">
+                        {related.map((item) => (
+                            <SidebarNewsCard key={item.id} news={item} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {related.length > 0 && popular.length > 0 && <Separator />}
+
+            {popular.length > 0 && (
+                <div>
+                    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Xem nhiều nhất
+                    </h3>
+                    <div className="space-y-1">
+                        {popular.map((item, i) => (
+                            <SidebarNewsCard
+                                key={item.id}
+                                news={item}
+                                index={i + 1}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+        </aside>
+    );
+}
+
 export default function NewsDetailPage() {
     const { slug } = useParams();
     const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -62,7 +140,7 @@ export default function NewsDetailPage() {
     const [commentPage, setCommentPage] = useState(1);
 
     const { data, isLoading, isError } = useGetNewsBySlugQuery(slug);
-    const news = data?.data;
+    const news = data;
 
     const { data: commentsData, isLoading: isCommentsLoading } =
         useGetNewsCommentsQuery(
@@ -78,8 +156,8 @@ export default function NewsDetailPage() {
         useDeleteNewsCommentMutation();
     const [rateNews] = useRateNewsMutation();
 
-    const comments = commentsData?.data || [];
-    const commentPagination = commentsData?.pagination || {};
+    const comments = commentsData || [];
+    const commentPagination = {};
 
     const handleComment = async (e) => {
         e.preventDefault();
@@ -128,14 +206,24 @@ export default function NewsDetailPage() {
     if (isLoading)
         return (
             <div className="section-padding py-8 md:py-12">
-                <div className="mx-auto max-w-3xl space-y-4">
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-4 w-48" />
-                    <Skeleton className="aspect-video w-full rounded-2xl" />
-                    <div className="space-y-3">
-                        {[...Array(6)].map((_, i) => (
-                            <Skeleton key={i} className="h-4 w-full" />
-                        ))}
+                <div className="mx-auto w-full max-w-7xl">
+                    <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_280px]">
+                        <div className="space-y-4">
+                            <Skeleton className="h-8 w-3/4" />
+                            <Skeleton className="h-4 w-48" />
+                            <Skeleton className="aspect-video w-full rounded-2xl" />
+                            {[...Array(6)].map((_, i) => (
+                                <Skeleton key={i} className="h-4 w-full" />
+                            ))}
+                        </div>
+                        <div className="space-y-3">
+                            {[...Array(4)].map((_, i) => (
+                                <Skeleton
+                                    key={i}
+                                    className="h-16 w-full rounded-xl"
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -155,258 +243,283 @@ export default function NewsDetailPage() {
 
     return (
         <div className="section-padding py-8 md:py-12">
-            <div className="mx-auto max-w-3xl">
-                {/* Breadcrumb */}
-                <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Link to="/news" className="hover:text-foreground">
-                        Tin tức
-                    </Link>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                    <span className="text-foreground line-clamp-1">
-                        {news.title}
-                    </span>
-                </nav>
-
-                {/* Title */}
-                <h1 className="mb-4 text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
-                    {news.title}
-                </h1>
-
-                {/* Meta */}
-                <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                        <Calendar className="h-4 w-4" />
-                        {formatDate(news.publishedAt || news.createdAt)}
-                    </span>
-                    {news.readTime && (
-                        <span className="flex items-center gap-1.5">
-                            <Clock className="h-4 w-4" />
-                            {news.readTime} phút đọc
-                        </span>
-                    )}
-                    {news.author && (
-                        <span>
-                            bởi{" "}
-                            <span className="font-medium text-foreground">
-                                {news.author}
+            <div className="mx-auto w-full max-w-7xl">
+                <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_280px]">
+                    {/* ── Main content ── */}
+                    <div>
+                        {/* Breadcrumb */}
+                        <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Link to="/news" className="hover:text-foreground">
+                                Tin tức
+                            </Link>
+                            <ChevronRight className="h-3.5 w-3.5" />
+                            <span className="line-clamp-1 text-foreground">
+                                {news.title}
                             </span>
-                        </span>
-                    )}
-                    {news.rating > 0 && (
-                        <span className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                            {news.rating.toFixed(1)} ({news.ratingCount || 0}{" "}
-                            đánh giá)
-                        </span>
-                    )}
-                </div>
+                        </nav>
 
-                {/* Thumbnail */}
-                {news.thumbnail && (
-                    <div className="mb-8 overflow-hidden rounded-2xl">
-                        <img
-                            src={news.thumbnail}
-                            alt={news.title}
-                            className="w-full object-cover"
-                        />
-                    </div>
-                )}
+                        {/* Title */}
+                        <h1 className="mb-4 text-3xl font-semibold leading-tight tracking-tight text-foreground md:text-4xl">
+                            {news.title}
+                        </h1>
 
-                {/* Content */}
-                <RichTextViewer content={news.content} className="mb-12" />
+                        {/* Meta */}
+                        <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                                <Calendar className="h-4 w-4" />
+                                {formatDate(news.publishedAt || news.createdAt)}
+                            </span>
+                            {news.readTime && (
+                                <span className="flex items-center gap-1.5">
+                                    <Clock className="h-4 w-4" />
+                                    {news.readTime} phút đọc
+                                </span>
+                            )}
+                            {news.author && (
+                                <span>
+                                    bởi{" "}
+                                    <span className="font-medium text-foreground">
+                                        {news.author}
+                                    </span>
+                                </span>
+                            )}
+                            {news.rating > 0 && (
+                                <span className="flex items-center gap-1">
+                                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                                    {news.rating.toFixed(1)} (
+                                    {news.ratingCount || 0} đánh giá)
+                                </span>
+                            )}
+                        </div>
 
-                <Separator className="mb-8" />
-
-                {/* Rating section */}
-                <div className="mb-8 rounded-2xl border border-border bg-card p-5">
-                    <h3 className="mb-3 text-sm font-medium text-foreground">
-                        Đánh giá bài viết này
-                    </h3>
-                    <StarRatingInput
-                        value={rating || news.userRating || 0}
-                        onChange={handleRate}
-                    />
-                    {!isAuthenticated && (
-                        <p className="mt-2 text-xs text-muted-foreground">
-                            <Link
-                                to="/login"
-                                className="text-apple-blue hover:underline"
-                            >
-                                Đăng nhập
-                            </Link>{" "}
-                            để đánh giá
-                        </p>
-                    )}
-                </div>
-
-                {/* Comments section */}
-                <div>
-                    <h3 className="mb-5 text-lg font-semibold text-foreground">
-                        Bình luận{" "}
-                        {comments.length > 0 &&
-                            `(${commentPagination.total || comments.length})`}
-                    </h3>
-
-                    {/* Comment form */}
-                    {isAuthenticated ? (
-                        <form
-                            onSubmit={handleComment}
-                            className="mb-6 flex gap-3"
-                        >
-                            <Avatar className="h-8 w-8 shrink-0">
-                                <AvatarImage src={currentUser?.avatar} />
-                                <AvatarFallback className="text-xs">
-                                    {currentUser?.fullName
-                                        ?.charAt(0)
-                                        ?.toUpperCase() || "U"}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 space-y-2">
-                                <Textarea
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="Viết bình luận của bạn..."
-                                    rows={3}
-                                    disabled={isCommenting}
+                        {/* Thumbnail */}
+                        {news.thumbnail && (
+                            <div className="mb-8 overflow-hidden rounded-2xl">
+                                <img
+                                    src={news.thumbnail}
+                                    alt={news.title}
+                                    className="w-full object-cover"
                                 />
-                                <div className="flex justify-end">
-                                    <Button
-                                        type="submit"
-                                        size="sm"
-                                        className="rounded-full"
-                                        disabled={
-                                            isCommenting || !comment.trim()
-                                        }
-                                    >
-                                        <Send className="mr-1.5 h-3.5 w-3.5" />
-                                        {isCommenting
-                                            ? "Đang gửi..."
-                                            : "Gửi bình luận"}
-                                    </Button>
-                                </div>
                             </div>
-                        </form>
-                    ) : (
-                        <div className="mb-6 rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
-                            <Link
-                                to="/login"
-                                className="text-apple-blue hover:underline"
-                            >
-                                Đăng nhập
-                            </Link>{" "}
-                            để bình luận
-                        </div>
-                    )}
+                        )}
 
-                    {/* Comments list */}
-                    {isCommentsLoading ? (
-                        <div className="space-y-4">
-                            {[...Array(3)].map((_, i) => (
-                                <div key={i} className="flex gap-3">
-                                    <Skeleton className="h-8 w-8 rounded-full" />
-                                    <div className="flex-1 space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-12 w-full" />
-                                    </div>
-                                </div>
-                            ))}
+                        {/* Content */}
+                        <RichTextViewer
+                            content={news.content}
+                            className="mb-12"
+                        />
+
+                        <Separator className="mb-8" />
+
+                        {/* Rating */}
+                        <div className="mb-8 rounded-2xl border border-border bg-card p-5">
+                            <h3 className="mb-3 text-sm font-medium text-foreground">
+                                Đánh giá bài viết này
+                            </h3>
+                            <StarRatingInput
+                                value={rating || news.userRating || 0}
+                                onChange={handleRate}
+                            />
+                            {!isAuthenticated && (
+                                <p className="mt-2 text-xs text-muted-foreground">
+                                    <Link
+                                        to="/login"
+                                        className="text-apple-blue hover:underline"
+                                    >
+                                        Đăng nhập
+                                    </Link>{" "}
+                                    để đánh giá
+                                </p>
+                            )}
                         </div>
-                    ) : comments.length === 0 ? (
-                        <p className="py-8 text-center text-sm text-muted-foreground">
-                            Chưa có bình luận nào. Hãy là người đầu tiên!
-                        </p>
-                    ) : (
-                        <div className="space-y-5">
-                            {comments.map((cmt) => {
-                                const cId = cmt._id || cmt.id;
-                                const isOwner =
-                                    currentUser &&
-                                    (currentUser._id || currentUser.id) ===
-                                        (cmt.user?._id || cmt.user?.id);
-                                return (
-                                    <div key={cId} className="flex gap-3">
-                                        <Avatar className="h-8 w-8 shrink-0">
-                                            <AvatarImage
-                                                src={cmt.user?.avatar}
-                                            />
-                                            <AvatarFallback className="text-xs">
-                                                {cmt.user?.fullName
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() || "U"}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center justify-between gap-2">
-                                                <div>
-                                                    <span className="text-sm font-medium text-foreground">
-                                                        {cmt.user?.fullName}
-                                                    </span>
-                                                    <span className="ml-2 text-xs text-muted-foreground">
-                                                        {formatDateTime(
-                                                            cmt.createdAt,
-                                                        )}
-                                                    </span>
-                                                </div>
-                                                {isOwner && (
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDeleteComment(
-                                                                cId,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            isDeletingComment
-                                                        }
-                                                        className="text-muted-foreground hover:text-destructive"
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <p className="mt-1 text-sm text-foreground">
-                                                {cmt.content}
-                                            </p>
+
+                        {/* Comments */}
+                        <div>
+                            <h3 className="mb-5 text-lg font-semibold text-foreground">
+                                Bình luận{" "}
+                                {comments.length > 0 &&
+                                    `(${commentPagination.total || comments.length})`}
+                            </h3>
+
+                            {isAuthenticated ? (
+                                <form
+                                    onSubmit={handleComment}
+                                    className="mb-6 flex gap-3"
+                                >
+                                    <Avatar className="h-8 w-8 shrink-0">
+                                        <AvatarImage
+                                            src={currentUser?.avatar}
+                                        />
+                                        <AvatarFallback className="text-xs">
+                                            {currentUser?.fullName
+                                                ?.charAt(0)
+                                                ?.toUpperCase() || "U"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 space-y-2">
+                                        <Textarea
+                                            value={comment}
+                                            onChange={(e) =>
+                                                setComment(e.target.value)
+                                            }
+                                            placeholder="Viết bình luận của bạn..."
+                                            rows={3}
+                                            disabled={isCommenting}
+                                        />
+                                        <div className="flex justify-end">
+                                            <Button
+                                                type="submit"
+                                                size="sm"
+                                                className="rounded-full"
+                                                disabled={
+                                                    isCommenting ||
+                                                    !comment.trim()
+                                                }
+                                            >
+                                                <Send className="mr-1.5 h-3.5 w-3.5" />
+                                                {isCommenting
+                                                    ? "Đang gửi..."
+                                                    : "Gửi bình luận"}
+                                            </Button>
                                         </div>
                                     </div>
-                                );
-                            })}
+                                </form>
+                            ) : (
+                                <div className="mb-6 rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+                                    <Link
+                                        to="/login"
+                                        className="text-apple-blue hover:underline"
+                                    >
+                                        Đăng nhập
+                                    </Link>{" "}
+                                    để bình luận
+                                </div>
+                            )}
 
-                            {/* Comment pagination */}
-                            {commentPagination.totalPages > 1 && (
-                                <div className="flex justify-center gap-2 pt-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-full"
-                                        disabled={commentPage <= 1}
-                                        onClick={() =>
-                                            setCommentPage((p) => p - 1)
-                                        }
-                                    >
-                                        Trước
-                                    </Button>
-                                    <span className="flex items-center text-sm text-muted-foreground">
-                                        {commentPage} /{" "}
-                                        {commentPagination.totalPages}
-                                    </span>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-full"
-                                        disabled={
-                                            commentPage >=
-                                            commentPagination.totalPages
-                                        }
-                                        onClick={() =>
-                                            setCommentPage((p) => p + 1)
-                                        }
-                                    >
-                                        Tiếp
-                                    </Button>
+                            {isCommentsLoading ? (
+                                <div className="space-y-4">
+                                    {[...Array(3)].map((_, i) => (
+                                        <div key={i} className="flex gap-3">
+                                            <Skeleton className="h-8 w-8 rounded-full" />
+                                            <div className="flex-1 space-y-2">
+                                                <Skeleton className="h-4 w-32" />
+                                                <Skeleton className="h-12 w-full" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : comments.length === 0 ? (
+                                <p className="py-8 text-center text-sm text-muted-foreground">
+                                    Chưa có bình luận nào. Hãy là người đầu
+                                    tiên!
+                                </p>
+                            ) : (
+                                <div className="space-y-5">
+                                    {comments.map((cmt) => {
+                                        const cId = cmt._id || cmt.id;
+                                        const isOwner =
+                                            currentUser &&
+                                            (currentUser._id ||
+                                                currentUser.id) ===
+                                                (cmt.user?._id || cmt.user?.id);
+                                        return (
+                                            <div
+                                                key={cId}
+                                                className="flex gap-3"
+                                            >
+                                                <Avatar className="h-8 w-8 shrink-0">
+                                                    <AvatarImage
+                                                        src={cmt.user?.avatar}
+                                                    />
+                                                    <AvatarFallback className="text-xs">
+                                                        {cmt.user?.fullName
+                                                            ?.charAt(0)
+                                                            ?.toUpperCase() ||
+                                                            "U"}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div>
+                                                            <span className="text-sm font-medium text-foreground">
+                                                                {
+                                                                    cmt.user
+                                                                        ?.fullName
+                                                                }
+                                                            </span>
+                                                            <span className="ml-2 text-xs text-muted-foreground">
+                                                                {formatDateTime(
+                                                                    cmt.createdAt,
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        {isOwner && (
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleDeleteComment(
+                                                                        cId,
+                                                                    )
+                                                                }
+                                                                disabled={
+                                                                    isDeletingComment
+                                                                }
+                                                                className="text-muted-foreground hover:text-destructive"
+                                                            >
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    <p className="mt-1 text-sm text-foreground">
+                                                        {cmt.content}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+
+                                    {commentPagination.totalPages > 1 && (
+                                        <div className="flex justify-center gap-2 pt-4">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-full"
+                                                disabled={commentPage <= 1}
+                                                onClick={() =>
+                                                    setCommentPage((p) => p - 1)
+                                                }
+                                            >
+                                                Trước
+                                            </Button>
+                                            <span className="flex items-center text-sm text-muted-foreground">
+                                                {commentPage} /{" "}
+                                                {commentPagination.totalPages}
+                                            </span>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-full"
+                                                disabled={
+                                                    commentPage >=
+                                                    commentPagination.totalPages
+                                                }
+                                                onClick={() =>
+                                                    setCommentPage((p) => p + 1)
+                                                }
+                                            >
+                                                Tiếp
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
-                    )}
+                    </div>
+
+                    {/* ── Sidebar ── */}
+                    <NewsSidebar
+                        currentSlug={slug}
+                        currentCategory={news?.category}
+                    />
                 </div>
             </div>
         </div>

@@ -45,8 +45,9 @@ export default function AdminNewsList() {
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleNewsStatusMutation();
 
-    const news = data?.data || [];
-    const pagination = data?.pagination || {};
+    // ✅ getAllNewsQuery transformResponse → { news, pagination }
+    const news = data?.news ?? [];
+    const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -68,9 +69,9 @@ export default function AdminNewsList() {
     };
 
     const handleToggle = async (item) => {
-        const id = item._id || item.id;
+        // ✅ MySQL integer id
         try {
-            await toggleStatus(id).unwrap();
+            await toggleStatus(item.id).unwrap();
             toast.success(
                 item.isPublished ? "Đã ẩn bài viết" : "Đã xuất bản bài viết",
             );
@@ -92,7 +93,7 @@ export default function AdminNewsList() {
                     />
                 </div>
                 <Button className="rounded-full" asChild>
-                    <Link to="/admin/news/create">
+                    <Link to={ROUTES.ADMIN_NEWS_CREATE ?? "/admin/news/create"}>
                         <Plus className="mr-1.5 h-4 w-4" />
                         Thêm bài viết
                     </Link>
@@ -134,108 +135,106 @@ export default function AdminNewsList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            news.map((item) => {
-                                const itemId = item._id || item.id;
-                                return (
-                                    <TableRow key={itemId}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                {item.thumbnail && (
-                                                    <div className="h-10 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
-                                                        <img
-                                                            src={item.thumbnail}
-                                                            alt={item.title}
-                                                            className="h-full w-full object-cover"
-                                                        />
-                                                    </div>
-                                                )}
-                                                <div className="min-w-0">
-                                                    <p className="max-w-[240px] truncate text-sm font-medium text-foreground">
-                                                        {item.title}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        /{item.slug}
-                                                    </p>
+                            news.map((item) => (
+                                // ✅ MySQL integer id
+                                <TableRow key={item.id}>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            {item.thumbnail && (
+                                                <div className="h-10 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                                                    <img
+                                                        src={item.thumbnail}
+                                                        alt={item.title}
+                                                        className="h-full w-full object-cover"
+                                                    />
                                                 </div>
+                                            )}
+                                            <div className="min-w-0">
+                                                <p className="max-w-[240px] truncate text-sm font-medium text-foreground">
+                                                    {item.title}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    /{item.slug}
+                                                </p>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {item.category || "—"}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {item.author || "—"}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className="text-sm text-muted-foreground">
-                                                {formatDate(item.createdAt)}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                className={
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {item.category || "—"}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {item.author || "—"}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatDate(item.createdAt)}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            className={
+                                                item.isPublished
+                                                    ? "bg-green-100 text-xs text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
+                                                    : "bg-muted text-xs text-muted-foreground hover:bg-muted"
+                                            }
+                                        >
+                                            {item.isPublished
+                                                ? "Đã xuất bản"
+                                                : "Bản nháp"}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                disabled={isToggling}
+                                                onClick={() =>
+                                                    handleToggle(item)
+                                                }
+                                                title={
                                                     item.isPublished
-                                                        ? "bg-green-100 text-xs text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                                                        : "bg-muted text-xs text-muted-foreground hover:bg-muted"
+                                                        ? "Ẩn"
+                                                        : "Xuất bản"
                                                 }
                                             >
-                                                {item.isPublished
-                                                    ? "Đã xuất bản"
-                                                    : "Bản nháp"}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                                    disabled={isToggling}
-                                                    onClick={() =>
-                                                        handleToggle(item)
-                                                    }
-                                                    title={
-                                                        item.isPublished
-                                                            ? "Ẩn"
-                                                            : "Xuất bản"
-                                                    }
+                                                {item.isPublished ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                asChild
+                                            >
+                                                <Link
+                                                    to={`/admin/news/${item.id}/edit`}
                                                 >
-                                                    {item.isPublished ? (
-                                                        <EyeOff className="h-4 w-4" />
-                                                    ) : (
-                                                        <Eye className="h-4 w-4" />
-                                                    )}
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                                    asChild
-                                                >
-                                                    <Link
-                                                        to={`/admin/news/${itemId}/edit`}
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Link>
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                    onClick={() =>
-                                                        setDeleteId(itemId)
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })
+                                                    <Edit className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                onClick={() =>
+                                                    setDeleteId(item.id)
+                                                }
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
                         )}
                     </TableBody>
                 </Table>

@@ -15,20 +15,24 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
 
 export default function ProductReviews({ product }) {
-    const productId = product?._id || product?.id;
+    // ✅ MySQL integer id
+    const productId = product?.id;
     const { t } = useTranslation("product");
     const currentUser = useSelector(selectCurrentUser);
 
     const [deleteId, setDeleteId] = useState(null);
     const [page, setPage] = useState(1);
 
-    const { data, isLoading } = useGetReviewsQuery({
-        productId,
-        params: { page, limit: 5 },
-    });
+    const { data, isLoading } = useGetReviewsQuery(
+        { productId, params: { page, limit: 5 } },
+        { skip: !productId },
+    );
     const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
 
-    const reviews = data?.data ?? [];
+    // ✅ reviewsApi transformResponse → response.data trực tiếp
+    // getReviews trả về data trực tiếp (không phải { reviews, pagination })
+    // vì đây là single product reviews — check shape: thường là { reviews, pagination } hoặc array
+    const reviews = Array.isArray(data) ? data : (data?.reviews ?? data ?? []);
     const pagination = data?.pagination ?? {};
 
     const handleDelete = async () => {
@@ -48,7 +52,6 @@ export default function ProductReviews({ product }) {
                 {t("review.title")}
             </h2>
 
-            {/* Summary */}
             {product.rating > 0 && (
                 <>
                     <ProductReviewSummary
@@ -60,7 +63,6 @@ export default function ProductReviews({ product }) {
                 </>
             )}
 
-            {/* Reviews list */}
             {isLoading ? (
                 <div className="space-y-6">
                     {[...Array(3)].map((_, i) => (
@@ -88,12 +90,12 @@ export default function ProductReviews({ product }) {
             ) : (
                 <div className="space-y-6">
                     {reviews.map((review, index) => (
-                        <div key={review._id || review.id}>
+                        // ✅ MySQL integer id
+                        <div key={review.id}>
                             <ProductReviewItem
                                 review={review}
-                                currentUserId={
-                                    currentUser?._id || currentUser?.id
-                                }
+                                // ✅ currentUser.id (integer), không có _id
+                                currentUserId={currentUser?.id}
                                 onDelete={setDeleteId}
                             />
                             {index < reviews.length - 1 && (
@@ -102,7 +104,6 @@ export default function ProductReviews({ product }) {
                         </div>
                     ))}
 
-                    {/* Pagination */}
                     {pagination.totalPages > 1 && (
                         <div className="flex items-center justify-center gap-2 pt-4">
                             <Button
@@ -131,7 +132,6 @@ export default function ProductReviews({ product }) {
                 </div>
             )}
 
-            {/* Confirm delete */}
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}

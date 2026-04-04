@@ -16,9 +16,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ROUTES, SORT_OPTIONS, CATEGORIES, PAGINATION } from "@/lib/constants";
+import { useCategories } from "@/hooks/useCategories";
+import { ROUTES, SORT_OPTIONS, PAGINATION } from "@/lib/constants";
 
 export default function ProductListPage() {
+    const { categories } = useCategories();
     const { t } = useTranslation("product");
     const [searchParams, setSearchParams] = useSearchParams();
     const [filterOpen, setFilterOpen] = useState(false);
@@ -50,9 +52,7 @@ export default function ProductListPage() {
         setSearchParams(params);
     };
 
-    const currentCategory = CATEGORIES.find(
-        (c) => c.value === filters.category,
-    );
+    const currentCategory = categories.find((c) => c.slug === filters.category);
 
     const totalPages = pagination.totalPages || 1;
     const currentPage = filters.page;
@@ -140,10 +140,8 @@ export default function ProductListPage() {
                             <SheetContent side="left" className="w-72 p-6">
                                 <FilterPanel
                                     filters={filters}
-                                    onUpdate={(k, v) => {
-                                        updateFilter(k, v);
-                                        setFilterOpen(false);
-                                    }}
+                                    categories={categories}
+                                    onUpdate={updateFilter}
                                 />
                             </SheetContent>
                         </Sheet>
@@ -154,7 +152,11 @@ export default function ProductListPage() {
                     <aside className="hidden w-52 shrink-0 lg:block">
                         <FilterPanel
                             filters={filters}
-                            onUpdate={updateFilter}
+                            categories={categories}
+                            onUpdate={(k, v) => {
+                                updateFilter(k, v);
+                                setFilterOpen(false);
+                            }}
                         />
                     </aside>
 
@@ -247,7 +249,7 @@ export default function ProductListPage() {
     );
 }
 
-function FilterPanel({ filters, onUpdate }) {
+function FilterPanel({ filters, categories = [], onUpdate }) {
     const { t } = useTranslation("product");
 
     return (
@@ -267,17 +269,17 @@ function FilterPanel({ filters, onUpdate }) {
                     >
                         {t("filter.allCategories")}
                     </button>
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                         <button
-                            key={cat.value}
-                            onClick={() => onUpdate("category", cat.value)}
+                            key={cat.slug}
+                            onClick={() => onUpdate("category", cat.slug)}
                             className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                                filters.category === cat.value
+                                filters.category === cat.slug
                                     ? "bg-accent font-medium text-foreground"
                                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             }`}
                         >
-                            {cat.label}
+                            {cat.name}
                         </button>
                     ))}
                 </div>
