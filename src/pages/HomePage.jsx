@@ -90,7 +90,7 @@ export default function HomePage() {
         useGetBannersQuery();
 
     const banners =
-        bannerData?.data
+        bannerData
             ?.filter((item) => item.isActive)
             ?.sort((a, b) => a.order - b.order)
             ?.map((item) => ({
