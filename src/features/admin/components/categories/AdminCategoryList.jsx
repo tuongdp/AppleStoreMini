@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Pencil, Trash2, GripVertical, ImagePlus } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, ImagePlus, ImageUp } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
@@ -43,6 +43,9 @@ function CategoryForm({ category, onClose }) {
     const [updateCategory, { isLoading: isUpdating }] =
         useUpdateCategoryMutation();
     const isLoading = isCreating || isUpdating;
+    const fileInputRef = useRef(null);
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(category?.image || null);
 
     const form = useForm({
         resolver: zodResolver(categorySchema),
@@ -59,16 +62,25 @@ function CategoryForm({ category, onClose }) {
         if (!isEditing) form.setValue("slug", slugify(name));
     };
 
+    const handleImagePick = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onload = () => setImagePreview(reader.result);
+        reader.readAsDataURL(file);
+    };
+
     const onSubmit = async (values) => {
         try {
+            const payload = { ...values };
+            if (imageFile) payload.image = imageFile;
             if (isEditing) {
-                await updateCategory({
-                    id: category._id || category.id,
-                    ...values,
-                }).unwrap();
+                payload.id = category._id || category.id;
+                await updateCategory(payload).unwrap();
                 toast.success("Đã cập nhật danh mục");
             } else {
-                await createCategory(values).unwrap();
+                await createCategory(payload).unwrap();
                 toast.success("Đã tạo danh mục mới");
             }
             onClose();
@@ -139,6 +151,40 @@ function CategoryForm({ category, onClose }) {
                         </FormItem>
                     )}
                 />
+
+                {/* Image upload */}
+                <div>
+                    <FormLabel>Ảnh danh mục</FormLabel>
+                    <div className="mt-1.5">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            onChange={handleImagePick}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isLoading}
+                            className="group flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-muted/30 transition-colors hover:border-muted-foreground/40"
+                        >
+                            {imagePreview ? (
+                                <img
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
+                                    <ImageUp className="h-6 w-6" />
+                                    <span className="text-[10px]">Chọn ảnh</span>
+                                </div>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
                 <div className="flex justify-end gap-2">
                     <Button
                         type="button"

@@ -11,6 +11,7 @@ import {
 import { useGetProductsByCategoryQuery } from "@/store/api/productsApi";
 import { useGetActiveFlashSaleQuery } from "@/store/api/flashSalesApi";
 import { useGetBannersQuery } from "@/store/api/bannersApi";
+import { useGetCategoriesQuery } from "@/store/api/categoriesApi";
 
 import { Button } from "@/components/ui/button";
 import BannerSlider from "@/components/shared/BannerSlider";
@@ -18,7 +19,7 @@ import FlashSaleBanner from "@/components/shared/FlashSaleBanner";
 import ProductSlider from "@/components/shared/ProductSlider";
 import SectionTitle from "@/components/shared/SectionTitle";
 
-import { ROUTES, CATEGORIES } from "@/lib/constants";
+import { ROUTES } from "@/lib/constants";
 
 const CATEGORY_SLIDERS = [
     { slug: "iphone", label: "iPhone", subtitle: "iPhone" },
@@ -64,6 +65,7 @@ export default function HomePage() {
 
     const { data: flashSale, isLoading: isFlashLoading } = useGetActiveFlashSaleQuery();
     const { data: bannerData, isLoading: isBannerLoading } = useGetBannersQuery();
+    const { data: categories = [] } = useGetCategoriesQuery();
 
     const banners =
         bannerData
@@ -88,22 +90,28 @@ export default function HomePage() {
             <section className="section-padding border-b border-border bg-muted/20 py-8">
                 <div className="mx-auto max-w-7xl">
                     <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 md:gap-4">
-                        {CATEGORIES.map((cat) => (
+                        {categories.map((cat) => (
                             <Link
-                                key={cat.value}
-                                to={cat.href}
+                                key={cat.id || cat.slug}
+                                to={`${ROUTES.PRODUCTS}?category=${cat.slug}`}
                                 className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-sm md:p-5"
                             >
                                 <div className="h-14 w-14 overflow-hidden rounded-xl bg-muted md:h-20 md:w-20">
-                                    <img
-                                        src={cat.image}
-                                        alt={cat.label}
-                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                        loading="lazy"
-                                    />
+                                    {cat.image ? (
+                                        <img
+                                            src={cat.image}
+                                            alt={cat.name}
+                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-muted-foreground/30">
+                                            {cat.name.charAt(0).toUpperCase()}
+                                        </div>
+                                    )}
                                 </div>
                                 <span className="text-xs font-medium text-foreground md:text-sm">
-                                    {cat.label}
+                                    {cat.name}
                                 </span>
                             </Link>
                         ))}

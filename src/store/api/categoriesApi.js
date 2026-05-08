@@ -18,22 +18,32 @@ export const categoriesApi = baseApi.injectEndpoints({
 
         // POST /admin/categories
         createCategory: builder.mutation({
-            query: (data) => ({
-                url: "/admin/categories",
-                method: "POST",
-                body: data,
-            }),
+            query: (data) => {
+                const hasFile = data.image instanceof File;
+                const body = hasFile ? new FormData() : data;
+                if (hasFile) {
+                    Object.entries(data).forEach(([k, v]) => {
+                        if (v !== undefined && v !== null) body.append(k, v);
+                    });
+                }
+                return { url: "/admin/categories", method: "POST", body };
+            },
             invalidatesTags: ["Categories"],
             transformResponse: (response) => response.data,
         }),
 
         // PUT /admin/categories/:id
         updateCategory: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/admin/categories/${id}`,
-                method: "PUT",
-                body: data,
-            }),
+            query: ({ id, ...data }) => {
+                const hasFile = data.image instanceof File;
+                const body = hasFile ? new FormData() : data;
+                if (hasFile) {
+                    Object.entries(data).forEach(([k, v]) => {
+                        if (v !== undefined && v !== null) body.append(k, v);
+                    });
+                }
+                return { url: `/admin/categories/${id}`, method: "PUT", body };
+            },
             invalidatesTags: ["Categories"],
             transformResponse: (response) => response.data,
         }),
