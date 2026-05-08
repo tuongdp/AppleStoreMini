@@ -26,7 +26,7 @@ export const categoriesApi = baseApi.injectEndpoints({
                         if (v !== undefined && v !== null) body.append(k, v);
                     });
                 }
-                return { url: "/admin/categories", method: "POST", body };
+                return { url: "/admin/categories", method: "POST", body, formData: hasFile };
             },
             invalidatesTags: ["Categories"],
             transformResponse: (response) => response.data,
@@ -42,7 +42,7 @@ export const categoriesApi = baseApi.injectEndpoints({
                         if (v !== undefined && v !== null) body.append(k, v);
                     });
                 }
-                return { url: `/admin/categories/${id}`, method: "PUT", body };
+                return { url: `/admin/categories/${id}`, method: "PUT", body, formData: hasFile };
             },
             invalidatesTags: ["Categories"],
             transformResponse: (response) => response.data,
