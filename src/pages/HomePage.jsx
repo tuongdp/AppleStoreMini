@@ -28,7 +28,7 @@ import ProductCardSkeleton from "@/components/shared/ProductCardSkeleton";
 import ProductCard from "@/components/shared/ProductCard";
 
 // Constants & utils
-import { ROUTES, CATEGORIES, BANNER_SLIDES } from "@/lib/constants";
+import { ROUTES, CATEGORIES } from "@/lib/constants";
 
 
 
