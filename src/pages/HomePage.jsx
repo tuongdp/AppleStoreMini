@@ -81,9 +81,9 @@ export default function HomePage() {
 
     return (
         <div className="flex flex-col">
-            <FlashSaleBanner flashSale={flashSale} isLoading={isFlashLoading} />
-
             <BannerSlider slides={banners} isLoading={isBannerLoading} />
+
+            <FlashSaleBanner flashSale={flashSale} isLoading={isFlashLoading} />
 
             <section className="section-padding border-b border-border bg-muted/20 py-8">
                 <div className="mx-auto max-w-7xl">
