@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useVerifyEmailMutation } from "@/store/api/authApi";
@@ -8,6 +8,7 @@ import { ROUTES } from "@/lib/constants";
 
 export default function VerifyEmailPage() {
     const { t } = useTranslation("auth");
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
     const token = searchParams.get("token");
@@ -17,7 +18,10 @@ export default function VerifyEmailPage() {
         if (!token) return;
         verifyEmail({ token })
             .unwrap()
-            .then(() => setStatus("success"))
+            .then(() => {
+                setStatus("success");
+                setTimeout(() => navigate(ROUTES.HOME, { replace: true }), 1500);
+            })
             .catch((err) => {
                 const msg = err?.data?.message;
                 if (msg?.includes("đã được xác thực")) {
@@ -26,7 +30,7 @@ export default function VerifyEmailPage() {
                     setStatus("invalid");
                 }
             });
-    }, [token, verifyEmail]);
+    }, [token, verifyEmail, navigate]);
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">

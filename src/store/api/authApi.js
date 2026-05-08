@@ -75,6 +75,12 @@ export const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    if (data.data) dispatch(setCredentials(data.data));
+                } catch { /* noop */ }
+            },
         }),
 
         sendVerification: builder.mutation({
