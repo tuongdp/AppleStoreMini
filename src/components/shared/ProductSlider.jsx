@@ -42,7 +42,15 @@ export default function ProductSlider({
         );
     }
 
-    if (!products.length) return null;
+    if (!products.length) {
+        return (
+            <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-border">
+                <p className="text-sm text-muted-foreground">
+                    Không có sản phẩm
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="group/slider relative">
