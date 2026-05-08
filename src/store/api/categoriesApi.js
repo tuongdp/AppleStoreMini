@@ -2,9 +2,16 @@ import { baseApi } from "./baseApi";
 
 export const categoriesApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // GET /categories — public
+        // GET /categories — public (active only)
         getCategories: builder.query({
             query: () => "/categories",
+            providesTags: ["Categories"],
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/categories — all (with productCount)
+        getAdminCategories: builder.query({
+            query: () => "/admin/categories",
             providesTags: ["Categories"],
             transformResponse: (response) => response.data,
         }),
@@ -54,6 +61,7 @@ export const categoriesApi = baseApi.injectEndpoints({
 
 export const {
     useGetCategoriesQuery,
+    useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
     useDeleteCategoryMutation,

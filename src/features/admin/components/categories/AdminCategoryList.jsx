@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, Pencil, Trash2, GripVertical, ImagePlus } from "lucide-react";
 import {
-    useGetCategoriesQuery,
+    useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
     useDeleteCategoryMutation,
@@ -174,13 +174,13 @@ export default function AdminCategoryList() {
     const [editingCategory, setEditingCategory] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const { data, isLoading } = useGetCategoriesQuery();
+    const { data, isLoading } = useGetAdminCategoriesQuery();
     const [deleteCategory, { isLoading: isDeleting }] =
         useDeleteCategoryMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCategoryStatusMutation();
 
-    const categories = data?.data || [];
+    const categories = data || [];
 
     const handleDelete = async () => {
         try {
