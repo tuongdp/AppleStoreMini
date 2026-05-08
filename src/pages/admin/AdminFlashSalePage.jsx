@@ -175,7 +175,8 @@ function FlashSaleForm({ flashSale, onClose }) {
 
 function AddItemDialog({ flashSaleId, open, onClose }) {
     const [search, setSearch] = useState("");
-    const { data: productsData } = useSearchProductsQuery(search, { skip: search.length < 2 });
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const { data: productsData, isFetching, isError } = useSearchProductsQuery(search, { skip: search.length < 2 });
     const [addItem, { isLoading }] = useAddFlashSaleItemMutation();
 
     const products = productsData || [];
@@ -186,6 +187,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
     });
 
     const selectProduct = (product) => {
+        setSelectedProduct(product);
         form.setValue("productId", product.id);
         form.setValue("salePrice", product.salePrice || product.price);
     };
@@ -194,6 +196,8 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
         try {
             await addItem({ flashSaleId, ...values }).unwrap();
             toast.success("Đã thêm sản phẩm");
+            setSelectedProduct(null);
+            setSearch("");
             form.reset();
             onClose();
         } catch (error) {
@@ -202,7 +206,13 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+        <Dialog open={open} onOpenChange={(o) => {
+            if (!o) {
+                setSelectedProduct(null);
+                setSearch("");
+                onClose();
+            }
+        }}>
             <DialogContent className="max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Thêm sản phẩm vào flash sale</DialogTitle>
@@ -217,10 +227,33 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                     className="pl-9"
                                     placeholder="Gõ tên sản phẩm..."
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={(e) => {
+                                        setSearch(e.target.value);
+                                        setSelectedProduct(null);
+                                    }}
                                 />
                             </div>
-                            {products.length > 0 && (
+
+                            {search.length > 0 && search.length < 2 && (
+                                <p className="mt-1.5 text-xs text-muted-foreground">Gõ ít nhất 2 ký tự để tìm kiếm</p>
+                            )}
+
+                            {isFetching && (
+                                <div className="mt-2 flex items-center gap-2 rounded-lg border border-border px-3 py-4">
+                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">Đang tìm kiếm...</span>
+                                </div>
+                            )}
+
+                            {isError && (
+                                <p className="mt-1.5 text-xs text-destructive">Có lỗi khi tìm kiếm. Vui lòng thử lại.</p>
+                            )}
+
+                            {!isFetching && !isError && search.length >= 2 && products.length === 0 && (
+                                <p className="mt-1.5 text-xs text-muted-foreground">Không tìm thấy sản phẩm nào</p>
+                            )}
+
+                            {!isFetching && products.length > 0 && (
                                 <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-border">
                                     {products.map((product) => (
                                         <button
@@ -228,7 +261,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                             type="button"
                                             className={cn(
                                                 "flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-muted",
-                                                form.watch("productId") === product.id && "bg-muted"
+                                                selectedProduct?.id === product.id && "bg-primary/10"
                                             )}
                                             onClick={() => selectProduct(product)}
                                         >
@@ -243,6 +276,13 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                             </div>
                                         </button>
                                     ))}
+                                </div>
+                            )}
+
+                            {selectedProduct && (
+                                <div className="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm dark:border-green-800 dark:bg-green-950/20">
+                                    <span className="text-muted-foreground">Đã chọn: </span>
+                                    <span className="font-medium">{selectedProduct.name}</span>
                                 </div>
                             )}
                         </div>
