@@ -99,8 +99,8 @@ export default function CartTableItem({ item, isLast }) {
         {/* Unit price — desktop */}
         <div className="col-span-2 hidden items-center justify-center md:flex">
           <PriceDisplay
-            price={effectivePrice}
-            originalPrice={item.product.originalPrice}
+            price={item.product.price}
+            salePrice={effectivePrice}
             size="sm"
           />
         </div>

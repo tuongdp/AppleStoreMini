@@ -64,6 +64,7 @@ import AdminNewsPage from "./pages/admin/AdminNewsPage";
 import AdminNewsCreate from "./pages/admin/AdminNewsCreate";
 import AdminNewsEdit from "./pages/admin/AdminNewsEdit";
 import AdminBannerPage from "./pages/admin/AdminBannerPage";
+import AdminFlashSalePage from "./pages/admin/AdminFlashSalePage";
 
 export const router = createBrowserRouter([
     // ── Public ───────────────────────────────────────────
@@ -207,6 +208,7 @@ export const router = createBrowserRouter([
             { path: "news/create", element: <AdminNewsCreate /> },
             { path: "news/:id/edit", element: <AdminNewsEdit /> },
             { path: "banners", element: <AdminBannerPage /> },
+            { path: "flash-sales", element: <AdminFlashSalePage /> },
         ],
     },
 

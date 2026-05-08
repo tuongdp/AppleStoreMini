@@ -11,7 +11,9 @@
         "coupons": "Coupons",
         "categories": "Categories",
         "news": "News",
-        "backToStore": "Back to Store"
+        "backToStore": "Back to Store",
+        "banners": "Banners",
+        "flashSales": "Flash Sale"
     },
 
     "dashboard": {
@@ -52,8 +54,7 @@
         "categoryPlaceholder": "Select category",
         "price": "Price",
         "pricePlaceholder": "Enter price",
-        "originalPrice": "Original price",
-        "originalPricePlaceholder": "Enter original price (if any)",
+        "priceNote": "Listed price",
         "description": "Description",
         "descriptionPlaceholder": "Enter product description",
         "images": "Product images",

@@ -192,26 +192,25 @@ export default function AdminProductTable() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm font-medium text-foreground">
-                        {formatPrice(product.price)}
-                      </span>
-                      {product.originalPrice && product.originalPrice > product.price && (
-                        <p className="text-xs text-muted-foreground line-through">
-                          {formatPrice(product.originalPrice)}
-                        </p>
+                      {product.salePrice && product.salePrice < product.price ? (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatPrice(product.price)}
+                        </span>
+                      ) : (
+                        <span className="text-sm font-medium text-foreground">
+                          {formatPrice(product.price)}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>
-                      {product.salePrice ? (
+                      {product.salePrice && product.salePrice < product.price ? (
                         <>
                           <span className="text-sm font-medium text-green-600 dark:text-green-400">
                             {formatPrice(product.salePrice)}
                           </span>
-                          {product.price > product.salePrice && (
-                            <p className="text-xs text-muted-foreground">
-                              -{Math.round((1 - product.salePrice / product.price) * 100)}%
-                            </p>
-                          )}
+                          <p className="text-xs text-muted-foreground">
+                            -{Math.round((1 - product.salePrice / product.price) * 100)}%
+                          </p>
                         </>
                       ) : (
                         <span className="text-sm text-muted-foreground">—</span>

@@ -95,8 +95,8 @@ export default function CartDrawerItem({ item }) {
 
         <div className="mt-2 flex items-center justify-between">
           <PriceDisplay
-            price={effectivePrice}
-            originalPrice={item.product.originalPrice}
+            price={item.product.price}
+            salePrice={effectivePrice}
             size="sm"
           />
           <QuantityInput

@@ -37,7 +37,7 @@ export default function ProductCard({ product }) {
             ? product.salePrice
             : product.price;
 
-    const discount = calcDiscount(product.originalPrice, effectivePrice);
+    const discount = calcDiscount(product.price, effectivePrice);
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
@@ -183,12 +183,11 @@ export default function ProductCard({ product }) {
                             <span className="text-sm font-semibold text-foreground">
                                 {formatPrice(effectivePrice)}
                             </span>
-                            {product.originalPrice &&
-                                product.originalPrice > effectivePrice && (
-                                    <span className="text-xs text-muted-foreground line-through">
-                                        {formatPrice(product.originalPrice)}
-                                    </span>
-                                )}
+                            {product.price > effectivePrice && (
+                                <span className="text-xs text-muted-foreground line-through">
+                                    {formatPrice(product.price)}
+                                </span>
+                            )}
                         </>
                     )}
                 </div>

@@ -17,6 +17,7 @@ import {
     LayoutGrid,
     Newspaper,
     FileSliders,
+    Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,6 +54,7 @@ const NAV_ITEMS = [
     },
     { key: "news", href: "/admin/news", icon: Newspaper, end: false },
     { key: "banners", href: "/admin/banners", icon: FileSliders, end: false },
+    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, end: false },
 ];
 
 function SidebarContent({ onClose }) {

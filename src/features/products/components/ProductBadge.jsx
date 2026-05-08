@@ -14,12 +14,11 @@ export default function ProductBadge({ product, className }) {
                     {t("new")}
                 </Badge>
             )}
-            {product.originalPrice && product.originalPrice > product.price && (
+            {product.salePrice && product.salePrice < product.price && (
                 <Badge variant="destructive">
                     -
                     {Math.round(
-                        ((product.originalPrice - product.price) /
-                            product.originalPrice) *
+                        ((product.price - product.salePrice) / product.price) *
                             100,
                     )}
                     %

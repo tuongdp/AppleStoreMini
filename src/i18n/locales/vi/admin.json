@@ -11,7 +11,9 @@
         "coupons": "Khuyến mãi",
         "categories": "Danh mục",
         "news": "Tin tức",
-        "backToStore": "Về trang Store"
+        "backToStore": "Về trang Store",
+        "banners": "Banner",
+        "flashSales": "Flash Sale"
     },
 
     "dashboard": {
@@ -52,8 +54,7 @@
         "categoryPlaceholder": "Chọn danh mục",
         "price": "Giá bán",
         "pricePlaceholder": "Nhập giá bán",
-        "originalPrice": "Giá gốc",
-        "originalPricePlaceholder": "Nhập giá gốc (nếu có)",
+        "priceNote": "Giá niêm yết",
         "description": "Mô tả sản phẩm",
         "descriptionPlaceholder": "Nhập mô tả sản phẩm",
         "images": "Hình ảnh sản phẩm",

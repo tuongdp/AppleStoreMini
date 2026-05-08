@@ -17,9 +17,9 @@ export function formatPrice(price) {
 }
 
 // Tính phần trăm giảm giá
-export function calcDiscount(originalPrice, salePrice) {
-    if (!originalPrice || !salePrice) return 0;
-    return Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+export function calcDiscount(price, salePrice) {
+    if (!salePrice || salePrice >= price) return 0;
+    return Math.round(((price - salePrice) / price) * 100);
 }
 
 // ── Format ngày tháng ──────────────────────────────────

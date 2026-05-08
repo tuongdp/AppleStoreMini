@@ -53,8 +53,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             // CATEGORIES constant dùng slug value (vd: "iphone", "ipad")
             category: "",
             price: 0,
-            salePrice: 0, // ✅ BE schema: salePrice (không phải originalPrice)
-            originalPrice: 0, // ✅ BE schema: originalPrice vẫn có — giữ cả 2
+            salePrice: 0,
             stock: 0,
             description: "",
             inStock: true,
@@ -74,7 +73,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                 category: product.categorySlug || product.category || "",
                 price: product.price || 0,
                 salePrice: product.salePrice || 0,
-                originalPrice: product.originalPrice || 0,
                 stock: product.stock ?? 0,
                 description: product.description || "",
                 inStock: product.inStock ?? true,
@@ -210,7 +208,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                 )}
                             />
 
-                            {/* Price + salePrice + originalPrice */}
+                            {/* Price + salePrice */}
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
@@ -287,41 +285,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     )}
                                 />
                             </div>
-
-                            <FormField
-                                control={form.control}
-                                name="originalPrice"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t("product.originalPrice", {
-                                                defaultValue:
-                                                    "Giá gốc (hiển thị gạch ngang)",
-                                            })}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                placeholder="0"
-                                                disabled={isLoading}
-                                                {...field}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value === ""
-                                                            ? 0
-                                                            : Number(
-                                                                  e.target
-                                                                      .value,
-                                                              ),
-                                                    )
-                                                }
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
 
                             <FormField
                                 control={form.control}

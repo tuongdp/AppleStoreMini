@@ -138,7 +138,6 @@ export default function ProductDetailPage() {
 
                     <PriceDisplay
                         price={currentPrice}
-                        originalPrice={product.originalPrice}
                         salePrice={product.salePrice}
                         size="xl"
                         showBadge
