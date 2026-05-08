@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Clock, Zap, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import ProductSlider from "@/components/shared/ProductSlider";
 import ProductCard from "@/components/shared/ProductCard";
@@ -84,6 +83,7 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
             ...item.product,
             price: item.originalPrice,
             salePrice: item.salePrice,
+            category: item.product.category?.name || item.product.category,
             _flashSaleItem: item,
         }));
     }, [flashSale]);
