@@ -8,41 +8,24 @@
     },
 
     "address": {
-        "title": "Shipping address",
-        "savedAddresses": "Saved addresses",
-        "useThisAddress": "Use this address",
-        "addNewAddress": "Add new address",
+        "title": "Shipping information",
         "fullName": "Full name",
         "fullNamePlaceholder": "Enter recipient's full name",
         "phone": "Phone number",
         "phonePlaceholder": "Enter phone number",
-        "province": "Province / City",
-        "provincePlaceholder": "Select province / city",
-        "district": "District",
-        "districtPlaceholder": "Select district",
-        "ward": "Ward",
-        "wardPlaceholder": "Select ward",
-        "address": "Street address",
-        "addressPlaceholder": "House number, street name...",
-        "saveAddress": "Save this address",
-        "setDefault": "Set as default address",
-        "continue": "Continue",
+        "address": "Address",
+        "addressPlaceholder": "Enter shipping address (street, ward, district, province)",
         "note": "Order note",
-        "notePlaceholder": "Note for your order (optional)"
+        "notePlaceholder": "Note for your order (optional)",
+        "continue": "Continue"
     },
 
     "payment": {
         "title": "Payment method",
-        "vnpay": "VNPay",
-        "vnpayDesc": "Pay via VNPay gateway",
         "momo": "MoMo",
         "momoDesc": "Pay via MoMo wallet",
-        "zalopay": "ZaloPay",
-        "zalopayDesc": "Pay via ZaloPay wallet",
         "cod": "Cash on delivery",
         "codDesc": "Pay with cash upon delivery",
-        "bankTransfer": "Bank transfer",
-        "bankTransferDesc": "Transfer directly to bank account",
         "selectMethod": "Please select a payment method",
         "continue": "Continue",
         "back": "Back",
@@ -77,12 +60,20 @@
         "estimatedDelivery": "Estimated delivery",
         "trackOrder": "Track order",
         "continueShopping": "Continue shopping",
+        "placeOrder": "Order placed successfully",
         "days": "business days"
     },
+
+    "momoPayNow": "Pay with MoMo",
+    "paymentSuccess": "Payment successful!",
+    "paymentSuccessDesc": "Thank you, your order has been paid.",
+    "paymentFailed": "Payment failed",
+    "paymentFailedDesc": "An error occurred during payment. Please try again.",
 
     "error": {
         "placeOrderFailed": "Failed to place order, please try again",
         "paymentFailed": "Payment failed",
+        "emptyCart": "Cart is empty",
         "outOfStock": "Some items in your cart are out of stock"
     }
 }

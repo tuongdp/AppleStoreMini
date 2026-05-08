@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -21,8 +21,6 @@ import Breadcrumb from "@/components/shared/Breadcrumb";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import StarRating from "@/components/shared/StarRating";
 import QuantityInput from "@/components/shared/QuantityInput";
-import ProductColorPicker from "@/features/products/components/ProductColorPicker";
-import ProductStoragePicker from "@/features/products/components/ProductStoragePicker";
 import ProductImageGallery from "@/features/products/components/ProductImageGallery";
 import ProductDescription from "@/features/products/components/ProductDescription";
 import ProductSpecification from "@/features/products/components/ProductSpecification";
@@ -38,36 +36,37 @@ export default function ProductDetailPage() {
 
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
 
-    // ✅ getProductBySlugQuery transformResponse → response.data trực tiếp
     const product = data;
+
+    const productImages = Array.isArray(product?.images) ? product.images : [];
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
-    // ✅ MySQL integer id — không có _id
     const isInWishlist = useSelector(selectIsInWishlist(product?.id));
 
-    const [selectedColor, setSelectedColor] = useState(null);
-    const [selectedStorage, setSelectedStorage] = useState(null);
+    const slugRef = useRef(slug);
     const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
-        setSelectedColor(null);
-        setSelectedStorage(null);
-        setQuantity(1);
+        if (slugRef.current !== slug) {
+            slugRef.current = slug;
+            setQuantity(1);
+        }
     }, [slug]);
 
-    const currentColor = selectedColor ?? product?.colors?.[0] ?? null;
-    const currentStorage = selectedStorage ?? product?.storage?.[0] ?? null;
-    const currentPrice = currentStorage?.price || product?.price;
+    const currentPrice = product?.salePrice || product?.price;
 
     const handleAddToCart = () => {
         if (!product) return;
         dispatch(
             addToCart({
-                product,
+                product: {
+                    ...product,
+                    images: productImages,
+                },
                 quantity,
-                selectedColor: currentColor?.label || "",
-                selectedStorage: currentStorage?.label || "",
+                selectedColor: product.color || "",
+                selectedStorage: product.storage || "",
             }),
         );
         dispatch(toggleCartDrawer(true));
@@ -101,189 +100,193 @@ export default function ProductDetailPage() {
 
     return (
         <div className="section-padding py-8 md:py-12">
-            <div className="mx-auto max-w-7xl">
-                <Breadcrumb
-                    items={[
-                        { label: t("page.title"), href: ROUTES.PRODUCTS },
-                        {
-                            label: categoryDisplay,
-                            href: `${ROUTES.PRODUCTS}?category=${categoryDisplay}`,
-                        },
-                        { label: product.name },
-                    ]}
-                    className="mb-8"
+            <Breadcrumb
+                items={[
+                    { label: t("page.title"), href: ROUTES.PRODUCTS },
+                    {
+                        label: categoryDisplay,
+                        href: `${ROUTES.PRODUCTS}?category=${categoryDisplay}`,
+                    },
+                    { label: product.name },
+                ]}
+                className="mb-8"
+            />
+
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:gap-20">
+                {/* ── Images ── */}
+                <ProductImageGallery
+                    product={{ ...product, images: productImages }}
                 />
 
-                <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:gap-20">
-                    {/* ── Images ── */}
-                    <ProductImageGallery
-                        product={product}
-                        selectedColor={currentColor}
+                {/* ── Info ── */}
+                <div className="flex flex-col gap-5">
+                    <p className="text-sm font-medium uppercase tracking-wider text-apple-blue">
+                        {categoryDisplay}
+                    </p>
+
+                    <h1 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
+                        {product.name}
+                    </h1>
+
+                    {product.rating > 0 && (
+                        <StarRating
+                            rating={product.rating}
+                            showCount
+                            count={product.reviewCount}
+                        />
+                    )}
+
+                    <PriceDisplay
+                        price={currentPrice}
+                        originalPrice={product.originalPrice}
+                        salePrice={product.salePrice}
+                        size="xl"
+                        showBadge
+                        showSaved
                     />
 
-                    {/* ── Info ── */}
-                    <div className="flex flex-col gap-5">
-                        <p className="text-sm font-medium uppercase tracking-wider text-apple-blue">
-                            {categoryDisplay}
-                        </p>
+                    <Separator />
 
-                        <h1 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
-                            {product.name}
-                        </h1>
-
-                        {product.rating > 0 && (
-                            <StarRating
-                                rating={product.rating}
-                                showCount
-                                count={product.reviewCount}
-                            />
-                        )}
-
-                        <PriceDisplay
-                            price={currentPrice}
-                            originalPrice={product.originalPrice}
-                            salePrice={product.salePrice}
-                            size="xl"
-                            showBadge
-                            showSaved
-                        />
-
-                        <Separator />
-
-                        {/* Color picker */}
-                        <ProductColorPicker
-                            colors={product.colors}
-                            selectedColor={currentColor}
-                            onChange={setSelectedColor}
-                        />
-
-                        {/* Storage picker */}
-                        <ProductStoragePicker
-                            storage={product.storage}
-                            selectedStorage={currentStorage}
-                            onChange={setSelectedStorage}
-                        />
-
-                        {/* Quantity */}
+                    {/* Color */}
+                    {product.color && (
                         <div>
-                            <p className="mb-3 text-sm font-medium text-foreground">
-                                {t("detail.quantity")}
+                            <p className="mb-1 text-sm font-medium text-foreground">
+                                {t("filter.color")}
                             </p>
-                            <QuantityInput
-                                value={quantity}
-                                min={1}
-                                max={product.stock || 99}
-                                onChange={setQuantity}
-                                disabled={!product.inStock}
-                            />
+                            <p className="text-sm text-muted-foreground">
+                                {product.color}
+                            </p>
                         </div>
+                    )}
 
-                        {/* Actions */}
-                        <div className="flex gap-3">
-                            {product.inStock ? (
-                                <Button
-                                    size="lg"
-                                    className="flex-1 rounded-full text-base"
-                                    asChild
-                                >
-                                    <Link to={ROUTES.CHECKOUT}>
-                                        {t("detail.buyNow")}
-                                    </Link>
-                                </Button>
-                            ) : (
-                                <Button
-                                    size="lg"
-                                    className="flex-1 rounded-full text-base"
-                                    disabled
-                                >
-                                    {t("detail.outOfStock")}
-                                </Button>
-                            )}
+                    {/* Storage */}
+                    {product.storage && (
+                        <div>
+                            <p className="mb-1 text-sm font-medium text-foreground">
+                                {t("filter.storage")}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {product.storage}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Quantity */}
+                    <div>
+                        <p className="mb-3 text-sm font-medium text-foreground">
+                            {t("detail.quantity")}
+                        </p>
+                        <QuantityInput
+                            value={quantity}
+                            min={1}
+                            max={product.stock || 99}
+                            onChange={setQuantity}
+                            disabled={!product.inStock}
+                        />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3">
+                        {product.inStock ? (
                             <Button
                                 size="lg"
-                                variant="outline"
-                                className="flex-1 gap-2 rounded-full text-base"
-                                onClick={handleAddToCart}
-                                disabled={!product.inStock}
+                                className="flex-1 rounded-full text-base"
+                                asChild
                             >
-                                <ShoppingCart className="h-5 w-5" />
-                                {t("detail.addToCart")}
+                                <Link to={ROUTES.CHECKOUT}>
+                                    {t("detail.buyNow")}
+                                </Link>
                             </Button>
+                        ) : (
                             <Button
                                 size="lg"
-                                variant="outline"
-                                className="rounded-full"
-                                onClick={handleToggleWishlist}
+                                className="flex-1 rounded-full text-base"
+                                disabled
                             >
-                                <Heart
-                                    className={cn(
-                                        "h-5 w-5",
-                                        isInWishlist &&
-                                            "fill-red-500 text-red-500",
-                                    )}
-                                />
+                                {t("detail.outOfStock")}
                             </Button>
-                        </div>
-
-                        {/* Trust badges */}
-                        <div className="space-y-3 rounded-2xl bg-muted/30 p-5">
-                            <div className="flex items-center gap-3">
-                                <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                <div>
-                                    <p className="text-sm font-medium text-foreground">
-                                        Giao hàng miễn phí
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Đơn từ{" "}
-                                        {formatPrice(SHIPPING.FREE_THRESHOLD)}
-                                    </p>
-                                </div>
-                            </div>
-                            <Separator />
-                            <div className="flex items-center gap-3">
-                                <ShieldCheck className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                <div>
-                                    <p className="text-sm font-medium text-foreground">
-                                        Bảo hành chính hãng 12 tháng
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Tại các trung tâm Apple ủy quyền
-                                    </p>
-                                </div>
-                            </div>
-                            <Separator />
-                            <div className="flex items-center gap-3">
-                                <RotateCcw className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                <div>
-                                    <p className="text-sm font-medium text-foreground">
-                                        Đổi trả trong 7 ngày
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Hoàn tiền 100% nếu sản phẩm lỗi
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <ProductDescription
-                                description={product.description}
+                        )}
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            className="flex-1 gap-2 rounded-full text-base"
+                            onClick={handleAddToCart}
+                            disabled={!product.inStock}
+                        >
+                            <ShoppingCart className="h-5 w-5" />
+                            {t("detail.addToCart")}
+                        </Button>
+                        <Button
+                            size="lg"
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={handleToggleWishlist}
+                        >
+                            <Heart
+                                className={cn(
+                                    "h-5 w-5",
+                                    isInWishlist && "fill-red-500 text-red-500",
+                                )}
                             />
-                            <ProductSpecification
-                                specifications={product.specifications}
-                            />
+                        </Button>
+                    </div>
+
+                    {/* Trust badges */}
+                    <div className="space-y-3 rounded-2xl bg-muted/30 p-5">
+                        <div className="flex items-center gap-3">
+                            <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
+                            <div>
+                                <p className="text-sm font-medium text-foreground">
+                                    {t("trust.freeShipping", { ns: "common" })}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {t("trust.freeShippingDesc", { ns: "common", defaultValue: "Đơn từ" })}{" "}
+                                    {formatPrice(SHIPPING.FREE_THRESHOLD)}
+                                </p>
+                            </div>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center gap-3">
+                            <ShieldCheck className="h-5 w-5 shrink-0 text-muted-foreground" />
+                            <div>
+                                <p className="text-sm font-medium text-foreground">
+                                    {t("trust.warranty", { ns: "common" })}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {t("trust.warrantyDesc", { ns: "common" })}
+                                </p>
+                            </div>
+                        </div>
+                        <Separator />
+                        <div className="flex items-center gap-3">
+                            <RotateCcw className="h-5 w-5 shrink-0 text-muted-foreground" />
+                            <div>
+                                <p className="text-sm font-medium text-foreground">
+                                    {t("trust.returns", { ns: "common" })}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {t("trust.returnsDesc", { ns: "common" })}
+                                </p>
+                            </div>
                         </div>
                     </div>
+
+                    <div className="space-y-2">
+                        <ProductDescription description={product.description} />
+                        <ProductSpecification
+                            specifications={product.specifications || {}}
+                        />
+                    </div>
                 </div>
-
-                {/* Reviews — truyền product.id (integer) */}
-                <Separator className="my-12" />
-                <ProductReviews product={product} />
-
-                {/* Related — dùng categorySlug */}
-                <Separator className="my-12" />
-                <RelatedProducts slug={slug} category={categoryDisplay} />
             </div>
+
+            {/* Reviews — truyền product.id (integer) */}
+            <Separator className="my-12" />
+            <ProductReviews product={product} />
+
+            {/* Related — dùng categorySlug */}
+            <Separator className="my-12" />
+            <RelatedProducts slug={slug} category={categoryDisplay} />
         </div>
     );
 }

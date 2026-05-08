@@ -13,20 +13,20 @@ import {
     toggleSearch,
     selectSearchOpen,
 } from "@/store/uiSlice";
+import { useTranslation } from "react-i18next";
 import { useScrolled } from "@/hooks/useScrollToTop";
-import { ROUTES } from "@/lib/constants";
+import { CATEGORIES, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import appleLogo from "@/assets/images/icons/apple.svg";
-import { useCategories } from "@/hooks/useCategories";
-// Link đơn giản không có dropdown
-const SIMPLE_NAV_LINKS = [{ label: "Tin tức", href: "/news" }];
 
 export default function Navbar() {
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const mobileOpen = useSelector(selectMobileMenuOpen);
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
-    const { categories } = useCategories();
+    const SIMPLE_NAV_LINKS = [{ label: t("nav.news"), href: "/news" }];
+
     return (
         <header
             className={cn(
@@ -60,8 +60,8 @@ export default function Navbar() {
                         {/* Desktop nav */}
                         <nav className="hidden items-center gap-1 md:flex">
                             {/* Category mega menus */}
-                            {categories.map((cat) => (
-                                <MegaMenu key={cat.slug} category={cat} />
+                            {CATEGORIES.map((cat) => (
+                                <MegaMenu key={cat.value} category={cat} />
                             ))}
 
                             {/* Divider */}

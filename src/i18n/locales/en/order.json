@@ -31,6 +31,7 @@
     },
 
     "detail": {
+        "title": "Order detail",
         "orderInfo": "Order information",
         "orderCode": "Order number",
         "orderDate": "Order date",
@@ -70,11 +71,9 @@
         "paid": "Paid",
         "unpaid": "Unpaid",
         "refunded": "Refunded",
+        "unknown": "Unknown",
         "cod": "Cash on delivery",
-        "vnpay": "VNPay",
-        "momo": "MoMo",
-        "zalopay": "ZaloPay",
-        "bankTransfer": "Bank transfer"
+        "momo": "MoMo"
     },
 
     "toast": {

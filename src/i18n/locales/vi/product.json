@@ -110,7 +110,8 @@
         "noResults": "Không tìm thấy sản phẩm",
         "noResultsDesc": "Thử tìm với từ khoá khác",
         "viewAll": "Xem tất cả kết quả cho",
-        "clear": "Xoá"
+        "clear": "Xoá",
+        "submit": "Tìm kiếm"
     },
 
     "category": {
@@ -127,6 +128,7 @@
         "featured": "Sản phẩm nổi bật",
         "newest": "Mới nhất",
         "bestSeller": "Bán chạy",
+        "onSale": "Đang giảm giá",
         "shopByCategory": "Mua theo danh mục",
         "discoverMore": "Khám phá thêm"
     }

@@ -52,7 +52,7 @@ export function ThemeProvider({
     const setTheme = (newTheme) => {
         try {
             localStorage.setItem(storageKey, newTheme);
-        } catch {}
+        } catch { /* noop */ }
         setThemeState(newTheme);
     };
 

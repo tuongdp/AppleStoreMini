@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useTranslation } from "react-i18next";
 
 const LANGUAGES = [
     { value: "vi", label: "Tiếng Việt", short: "VN", flag: "🇻🇳" },
@@ -15,7 +14,6 @@ const LANGUAGES = [
 
 export default function LanguageSwitcher() {
     const { currentLanguage, changeLanguage } = useLanguage();
-    const { t } = useTranslation();
 
     const current = LANGUAGES.find((l) => l.value === currentLanguage);
 

@@ -19,7 +19,7 @@ export default function ConfirmStep({
     isLoading,
 }) {
     const { t } = useTranslation("checkout");
-    const { address, paymentMethod } = checkoutData;
+    const { fullName, phone, address, paymentMethod } = checkoutData;
 
     return (
         <div className="space-y-4">
@@ -31,15 +31,14 @@ export default function ConfirmStep({
                         {t("confirm.shippingAddress")}
                     </h3>
                 </div>
-                {address && (
+                {fullName && (
                     <div className="space-y-0.5 text-sm">
                         <p className="font-medium text-foreground">
-                            {address.fullName}
+                            {fullName}
                         </p>
-                        <p className="text-muted-foreground">{address.phone}</p>
+                        <p className="text-muted-foreground">{phone}</p>
                         <p className="text-muted-foreground">
-                            {address.address}, {address.ward},{" "}
-                            {address.district}, {address.province}
+                            {address}
                         </p>
                     </div>
                 )}

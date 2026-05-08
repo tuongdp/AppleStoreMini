@@ -27,7 +27,7 @@ export default function SearchPage() {
         { skip: !keyword },
     );
 
-    const products = data?.data || [];
+    const products = data?.products || [];
     const pagination = data?.pagination || {};
 
     const handleSearch = (e) => {

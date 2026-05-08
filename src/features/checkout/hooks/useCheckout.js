@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { useCreateOrderMutation } from "@/store/api/ordersApi";
+import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
 import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";
-import { SHIPPING } from "@/lib/constants";
+import { SHIPPING, PAYMENT_METHODS } from "@/lib/constants";
 
 export function useCheckout() {
     const { t } = useTranslation("checkout");
@@ -17,18 +17,18 @@ export function useCheckout() {
     const [isSuccess, setIsSuccess] = useState(false);
     const [createdOrder, setCreatedOrder] = useState(null);
     const [checkoutData, setCheckoutData] = useState({
-        addressId: null,
-        address: null,
+        fullName: "",
+        phone: "",
+        address: "",
         paymentMethod: null,
         note: "",
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
-    // appliedCoupon shape: { code, discountAmount, description }
 
     const [createOrder, { isLoading }] = useCreateOrderMutation();
+    const [createPayment, { isLoading: isPaying }] = useCreatePaymentMutation();
 
-    // ── Computed ───────────────────────────────────────
     const shippingFee =
         total >= SHIPPING.FREE_THRESHOLD ? 0 : SHIPPING.DEFAULT_FEE;
 
@@ -38,7 +38,6 @@ export function useCheckout() {
 
     const canProceed = items.length > 0;
 
-    // ── Step navigation ────────────────────────────────
     const goNext = () => setCurrentStep((s) => Math.min(s + 1, 2));
     const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
@@ -52,7 +51,6 @@ export function useCheckout() {
         goNext();
     };
 
-    // ── Coupon handlers ────────────────────────────────
     const handleApplyCoupon = (couponData) => {
         setAppliedCoupon(couponData);
     };
@@ -61,7 +59,19 @@ export function useCheckout() {
         setAppliedCoupon(null);
     };
 
-    // ── Place order ────────────────────────────────────
+    const handleMoMoPayment = async (orderId) => {
+        try {
+            const result = await createPayment(orderId).unwrap();
+            if (result?.paymentUrl) {
+                window.location.href = result.paymentUrl;
+            }
+        } catch (error) {
+            toast.error(t("error.paymentFailed"), {
+                description: error?.data?.message,
+            });
+        }
+    };
+
     const handlePlaceOrder = async () => {
         if (items.length === 0) {
             toast.error(t("error.emptyCart"));
@@ -73,17 +83,13 @@ export function useCheckout() {
         }
 
         try {
-            // ✅ ordersApi transformResponse → trả về order object trực tiếp
             const order = await createOrder({
-                // BE nhận addressId hoặc address object
-                ...(checkoutData.addressId
-                    ? { addressId: checkoutData.addressId }
-                    : { address: checkoutData.address }),
-                // BE sẽ .toUpperCase() → không cần FE làm thủ công
+                fullName: checkoutData.fullName,
+                phone: checkoutData.phone,
+                address: checkoutData.address,
                 paymentMethod: checkoutData.paymentMethod,
                 note: checkoutData.note || "",
                 couponCode: appliedCoupon?.code || undefined,
-                // ✅ MySQL dùng integer id — không có _id
                 items: items.map((item) => ({
                     productId: item.product.id,
                     quantity: item.quantity,
@@ -92,11 +98,15 @@ export function useCheckout() {
                 })),
             }).unwrap();
 
-            // order đã được unwrap từ transformResponse → object trực tiếp
             setCreatedOrder(order);
             dispatch(clearCart());
             setIsSuccess(true);
-            toast.success(t("success.placeOrder"));
+
+            if (checkoutData.paymentMethod === PAYMENT_METHODS.MOMO) {
+                await handleMoMoPayment(order.id);
+            } else {
+                toast.success(t("success.placeOrder"));
+            }
         } catch (error) {
             toast.error(t("error.placeOrderFailed"), {
                 description: error?.data?.message,
@@ -104,15 +114,15 @@ export function useCheckout() {
         }
     };
 
-    // ── Reset ──────────────────────────────────────────
     const reset = () => {
         setCurrentStep(0);
         setIsSuccess(false);
         setCreatedOrder(null);
         setAppliedCoupon(null);
         setCheckoutData({
-            addressId: null,
-            address: null,
+            fullName: "",
+            phone: "",
+            address: "",
             paymentMethod: null,
             note: "",
         });
@@ -130,10 +140,12 @@ export function useCheckout() {
         grandTotal,
         canProceed,
         isLoading,
+        isPaying,
         appliedCoupon,
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,
+        handleMoMoPayment,
         handleApplyCoupon,
         handleRemoveCoupon,
         goBack,

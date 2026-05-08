@@ -40,8 +40,10 @@ import CheckoutPage from "@/pages/CheckoutPage";
 import ProfilePage from "@/pages/ProfilePage";
 import OrderHistoryPage from "@/pages/OrderHistoryPage";
 import OrderDetailPage from "@/pages/OrderDetailPage";
-import AddressBookPage from "@/pages/AddressBookPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import VerifyEmailPage from "@/pages/VerifyEmailPage";
+import PointsPage from "@/pages/PointsPage";
+import PaymentResult from "@/pages/PaymentResult";
 
 // Pages — admin
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -82,6 +84,9 @@ export const router = createBrowserRouter([
             { path: "terms", element: <TermsPage /> },
             { path: "news", element: <NewsPage /> },
             { path: "news/:slug", element: <NewsDetailPage /> },
+            { path: "verify-email", element: <VerifyEmailPage /> },
+            { path: "payment/success", element: <PaymentResult status="success" /> },
+            { path: "payment/fail", element: <PaymentResult status="fail" /> },
 
             // ── Profile ──────────────────────────────────────────
             {
@@ -96,10 +101,13 @@ export const router = createBrowserRouter([
                     { path: "wishlist", element: <WishlistPage /> },
                     { path: "orders", element: <OrderHistoryPage /> },
                     { path: "orders/:id", element: <OrderDetailPage /> },
-                    { path: "addresses", element: <AddressBookPage /> },
                     {
                         path: "change-password",
                         element: <ChangePasswordPage />,
+                    },
+                    {
+                        path: "points",
+                        element: <PointsPage />,
                     },
                 ],
             },

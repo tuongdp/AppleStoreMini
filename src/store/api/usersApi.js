@@ -23,7 +23,7 @@ export const usersApi = baseApi.injectEndpoints({
                     const { data } = await queryFulfilled;
                     // data đã qua transformResponse → là user object trực tiếp
                     dispatch(updateUser(data));
-                } catch {}
+                } catch { /* noop */ }
             },
             transformResponse: (response) => response.data,
         }),
@@ -42,56 +42,8 @@ export const usersApi = baseApi.injectEndpoints({
                     const { data } = await queryFulfilled;
                     // data đã qua transformResponse → { avatar } object
                     dispatch(updateUser({ avatar: data.avatar }));
-                } catch {}
+                } catch { /* noop */ }
             },
-            transformResponse: (response) => response.data,
-        }),
-
-        // GET /users/addresses
-        getAddresses: builder.query({
-            query: () => "/users/addresses",
-            providesTags: ["Addresses"],
-            transformResponse: (response) => response.data,
-        }),
-
-        // POST /users/addresses
-        addAddress: builder.mutation({
-            query: (data) => ({
-                url: "/users/addresses",
-                method: "POST",
-                body: data,
-            }),
-            invalidatesTags: ["Addresses"],
-            transformResponse: (response) => response.data,
-        }),
-
-        // PUT /users/addresses/:addressId
-        updateAddress: builder.mutation({
-            query: ({ addressId, ...data }) => ({
-                url: `/users/addresses/${addressId}`,
-                method: "PUT",
-                body: data,
-            }),
-            invalidatesTags: ["Addresses"],
-            transformResponse: (response) => response.data,
-        }),
-
-        // DELETE /users/addresses/:addressId
-        deleteAddress: builder.mutation({
-            query: (addressId) => ({
-                url: `/users/addresses/${addressId}`,
-                method: "DELETE",
-            }),
-            invalidatesTags: ["Addresses"],
-        }),
-
-        // PATCH /users/addresses/:addressId/default
-        setDefaultAddress: builder.mutation({
-            query: (addressId) => ({
-                url: `/users/addresses/${addressId}/default`,
-                method: "PATCH",
-            }),
-            invalidatesTags: ["Addresses"],
             transformResponse: (response) => response.data,
         }),
 
@@ -152,11 +104,6 @@ export const {
     useGetProfileQuery,
     useUpdateProfileMutation,
     useUploadAvatarMutation,
-    useGetAddressesQuery,
-    useAddAddressMutation,
-    useUpdateAddressMutation,
-    useDeleteAddressMutation,
-    useSetDefaultAddressMutation,
     useGetAllUsersQuery,
     useGetUserByIdQuery,
     useUpdateUserRoleMutation,

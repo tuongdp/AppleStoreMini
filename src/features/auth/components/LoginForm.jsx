@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { loginSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useSendVerificationMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,16 +18,17 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import SocialLoginButtons from "./SocialLoginButtons";
 import { ROUTES } from "@/lib/constants";
 
 export default function LoginForm() {
     const { t } = useTranslation("auth");
     const { login, isLoginLoading } = useAuth();
+    const [sendVerification] = useSendVerificationMutation();
     const navigate = useNavigate();
     const location = useLocation();
     const [showPassword, setShowPassword] = useState(false);
     const [serverError, setServerError] = useState("");
+    const [resending, setResending] = useState(false);
 
     const from = location.state?.from || ROUTES.HOME;
 
@@ -47,7 +49,20 @@ export default function LoginForm() {
             navigate(from, { replace: true });
         } else {
             setServerError(result.message);
-            // toast.error(result.message);
+        }
+    };
+
+    const handleResendVerification = async () => {
+        const email = form.getValues("email");
+        if (!email) return toast.error(t("verify.enterEmail"));
+        setResending(true);
+        try {
+            await sendVerification({ email }).unwrap();
+            toast.success(t("verify.resendSuccess"));
+        } catch (err) {
+            toast.error(err?.data?.message || t("verify.resendFailed"));
+        } finally {
+            setResending(false);
         }
     };
 
@@ -70,6 +85,25 @@ export default function LoginForm() {
                     {serverError && (
                         <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
                             {serverError}
+                        </div>
+                    )}
+
+                    {serverError?.includes("xác thực email") && (
+                        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+                            <div className="flex items-start gap-2">
+                                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                                <div>
+                                    <p className="font-medium">{t("verify.warning")}</p>
+                                    <button
+                                        type="button"
+                                        onClick={handleResendVerification}
+                                        disabled={resending}
+                                        className="mt-1 text-apple-blue hover:opacity-70 disabled:opacity-50"
+                                    >
+                                        {resending ? t("verify.resending") : t("verify.resend")}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -163,10 +197,6 @@ export default function LoginForm() {
                     </Button>
                 </form>
             </Form>
-
-            <div className="mt-6">
-                <SocialLoginButtons />
-            </div>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
                 {t("login.noAccount")}{" "}

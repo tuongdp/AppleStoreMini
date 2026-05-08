@@ -13,7 +13,7 @@ export const authApi = baseApi.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
                     dispatch(setCredentials(data.data));
-                } catch {}
+                } catch { /* noop */ }
             },
         }),
 
@@ -23,7 +23,6 @@ export const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            // Không auto login sau register
         }),
 
         logout: builder.mutation({
@@ -42,7 +41,7 @@ export const authApi = baseApi.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled;
                     dispatch(setCredentials({ user: data.data }));
-                } catch {}
+                } catch { /* noop */ }
             },
         }),
 
@@ -69,6 +68,22 @@ export const authApi = baseApi.injectEndpoints({
                 body: data,
             }),
         }),
+
+        verifyEmail: builder.mutation({
+            query: (data) => ({
+                url: "/auth/verify-email",
+                method: "POST",
+                body: data,
+            }),
+        }),
+
+        sendVerification: builder.mutation({
+            query: (data) => ({
+                url: "/auth/send-verification",
+                method: "POST",
+                body: data,
+            }),
+        }),
     }),
 });
 
@@ -80,4 +95,6 @@ export const {
     useForgotPasswordMutation,
     useResetPasswordMutation,
     useChangePasswordMutation,
+    useVerifyEmailMutation,
+    useSendVerificationMutation,
 } = authApi;

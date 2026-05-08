@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
     useLoginMutation,
     useRegisterMutation,
     useLogoutMutation,
+    useSendVerificationMutation,
 } from "@/store/api/authApi";
 import {
     selectCurrentUser,
@@ -22,6 +24,7 @@ export function useAuth() {
     const user = useSelector(selectCurrentUser);
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const isAdmin = useSelector(selectIsAdmin);
+    const isVerified = user?.isVerified ?? true;
     const cartItems = useSelector(selectCartItems);
 
     const [loginMutation, { isLoading: isLoginLoading }] = useLoginMutation();
@@ -29,6 +32,7 @@ export function useAuth() {
         useRegisterMutation();
     const [logoutMutation, { isLoading: isLogoutLoading }] =
         useLogoutMutation();
+    const [sendVerificationMutation] = useSendVerificationMutation();
     const [syncCart] = useSyncCartMutation();
 
     const login = async (credentials, redirectTo = ROUTES.HOME) => {
@@ -62,14 +66,29 @@ export function useAuth() {
         }
     };
 
+    const [registerSuccess, setRegisterSuccess] = useState(false);
+
     const register = async (data) => {
         try {
             await registerMutation(data).unwrap();
+            setRegisterSuccess(true);
             return { success: true };
         } catch (error) {
             return {
                 success: false,
                 message: error?.data?.message || "Đăng ký thất bại",
+            };
+        }
+    };
+
+    const sendVerification = async (email) => {
+        try {
+            await sendVerificationMutation({ email }).unwrap();
+            return { success: true };
+        } catch (error) {
+            return {
+                success: false,
+                message: error?.data?.message || "Gửi email thất bại",
             };
         }
     };
@@ -90,6 +109,8 @@ export function useAuth() {
         user,
         isAuthenticated,
         isAdmin,
+        isVerified,
+        registerSuccess,
 
         isLoginLoading,
         isRegisterLoading,
@@ -98,5 +119,6 @@ export function useAuth() {
         login,
         register,
         logout: logoutUser,
+        sendVerification,
     };
 }

@@ -1,10 +1,9 @@
-import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 import OrderCard from "./OrderCard";
 import OrderEmpty from "./OrderEmpty";
 
 export default function OrderList({ orders = [], isLoading = false }) {
-    const { t } = useTranslation("order");
+
 
     if (isLoading) {
         return (

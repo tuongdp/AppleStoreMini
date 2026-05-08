@@ -7,6 +7,7 @@ export default function ProductStoragePicker({
     onChange,
 }) {
     const { t } = useTranslation("product");
+
     if (!storage.length) return null;
 
     return (
@@ -19,14 +20,14 @@ export default function ProductStoragePicker({
                     <button
                         key={option.label}
                         type="button"
-                        onClick={() => onChange(option)}
-                        disabled={option.inStock === false}
+                        onClick={() => option.inStock && onChange(option)}
+                        disabled={!option.inStock}
                         className={cn(
                             "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
                             selectedStorage?.label === option.label
                                 ? "border-foreground bg-foreground text-background"
                                 : "border-border text-foreground hover:border-foreground/50",
-                            option.inStock === false &&
+                            !option.inStock &&
                                 "cursor-not-allowed opacity-40 line-through",
                         )}
                     >

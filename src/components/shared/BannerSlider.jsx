@@ -65,7 +65,10 @@ export default function BannerSlider({ slides = [] }) {
                 className="w-full"
             >
                 {slides.map((slide) => {
-                    const light = slide.textColor === "light";
+                    const light = slide.textColor !== "dark";
+
+                    const bgFrom = slide.bgFrom || "#1d1d1f";
+                    const bgTo = slide.bgTo || "#3a3a3c";
 
                     return (
                         <SwiperSlide key={slide.id}>
@@ -81,7 +84,7 @@ export default function BannerSlider({ slides = [] }) {
                                     <div
                                         className="absolute inset-0"
                                         style={{
-                                            background: `linear-gradient(135deg, ${slide.bgFrom}, ${slide.bgTo})`,
+                                            background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})`,
                                         }}
                                     />
                                 )}

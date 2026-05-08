@@ -22,7 +22,7 @@ export function useIntersectionObserver(options = {}) {
 
         observer.observe(element);
         return () => observer.disconnect();
-    }, []);
+    }, [options]);
 
     return { ref, isIntersecting, hasIntersected };
 }

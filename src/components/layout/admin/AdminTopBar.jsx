@@ -102,7 +102,7 @@ export default function AdminTopBar() {
                                 className="flex items-center gap-2"
                             >
                                 <Store className="h-4 w-4" />
-                                Về trang Store
+                                {t("sidebar.backToStore")}
                             </Link>
                         </DropdownMenuItem>
 

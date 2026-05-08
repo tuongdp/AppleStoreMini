@@ -6,6 +6,7 @@ import { useUpdateProfileMutation } from "@/store/api/usersApi";
 import { profileSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -38,6 +39,7 @@ export default function ProfileForm({ user }) {
       phone: "",
       birthday: "",
       gender: undefined,
+      address: "",
     },
   });
 
@@ -48,6 +50,7 @@ export default function ProfileForm({ user }) {
         phone: user.phone || "",
         birthday: user.birthday || "",
         gender: user.gender || undefined,
+        address: user.address || "",
       });
     }
   }, [user, form]);
@@ -152,6 +155,25 @@ export default function ProfileForm({ user }) {
                   <SelectItem value="other">{t("info.other")}</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{t("info.address")}</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={t("info.addressPlaceholder")}
+                  rows={3}
+                  disabled={isLoading}
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

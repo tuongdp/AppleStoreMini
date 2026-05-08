@@ -15,7 +15,7 @@ export function useProductSearch() {
       skip: debouncedKeyword.length < 2,
     });
 
-    const suggestions = data?.data || [];
+    const suggestions = data || [];
 
     const handleKeywordChange = useCallback((value) => {
         setKeyword(value);

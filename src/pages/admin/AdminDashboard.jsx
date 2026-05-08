@@ -70,9 +70,7 @@ export default function AdminDashboard() {
             titleKey: "dashboard.totalUsers",
             // usersApi chưa có transformResponse → data?.data?.pagination
             value: formatNumber(
-                usersData?.data?.pagination?.total ??
-                    usersData?.pagination?.total ??
-                    0,
+                usersData?.pagination?.total ?? 0,
             ),
             change: 0,
             icon: Users,

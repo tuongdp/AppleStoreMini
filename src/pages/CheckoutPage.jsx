@@ -29,10 +29,12 @@ export default function CheckoutPage() {
         discountAmount,
         grandTotal,
         isLoading,
+        isPaying,
         appliedCoupon,
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,
+        handleMoMoPayment,
         handleApplyCoupon,
         handleRemoveCoupon,
         goBack,
@@ -53,7 +55,7 @@ export default function CheckoutPage() {
     }
 
     if (isSuccess && createdOrder) {
-        return <OrderSuccess order={createdOrder} />;
+        return <OrderSuccess order={createdOrder} onMoMoPayment={handleMoMoPayment} isPaying={isPaying} />;
     }
 
     return (

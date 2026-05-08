@@ -31,6 +31,7 @@
     },
 
     "detail": {
+        "title": "Chi tiết đơn hàng",
         "orderInfo": "Thông tin đơn hàng",
         "orderCode": "Mã đơn hàng",
         "orderDate": "Ngày đặt hàng",
@@ -70,11 +71,9 @@
         "paid": "Đã thanh toán",
         "unpaid": "Chưa thanh toán",
         "refunded": "Đã hoàn tiền",
+        "unknown": "Không xác định",
         "cod": "Thanh toán khi nhận hàng",
-        "vnpay": "VNPay",
-        "momo": "MoMo",
-        "zalopay": "ZaloPay",
-        "bankTransfer": "Chuyển khoản"
+        "momo": "MoMo"
     },
 
     "toast": {

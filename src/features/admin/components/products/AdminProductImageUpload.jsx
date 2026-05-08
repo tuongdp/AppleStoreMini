@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Upload, X, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { useUploadProductImagesMutation } from "@/store/api/productsApi";
 import { toast } from "sonner";
 import { IMAGE } from "@/lib/constants";
 import { cn, formatFileSize } from "@/lib/utils";
+import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
 
 export default function AdminProductImageUpload({
     productId,
@@ -18,6 +19,10 @@ export default function AdminProductImageUpload({
     const [isDragging, setIsDragging] = useState(false);
     const [uploadImages, { isLoading: isUploading }] =
         useUploadProductImagesMutation();
+
+    useEffect(() => {
+        setPreviews(images.slice(0, IMAGE.MAX_COUNT));
+    }, [images]);
 
     const handleFiles = async (files) => {
         const validFiles = Array.from(files).filter((file) => {
@@ -63,9 +68,17 @@ export default function AdminProductImageUpload({
                 const formData = new FormData();
                 validFiles.forEach((file) => formData.append("images", file));
 
-                await uploadImages({ id: productId, formData }).unwrap();
+                const result = await uploadImages({ id: productId, formData }).unwrap();
+                // Server đã gộp ảnh cũ + mới → dùng trực tiếp
+                const serverImages = result?.images || [];
+                setPreviews(serverImages);
+                onImagesChange?.(serverImages);
                 toast.success(t("product.updateSuccess"));
             } catch {
+                // Upload thất bại → xoá preview blob
+                const reverted = updated.slice(0, updated.length - validFiles.length);
+                setPreviews(reverted);
+                onImagesChange?.(reverted);
                 toast.error(t("status.error", { ns: "common" }));
             }
         }
@@ -153,6 +166,7 @@ export default function AdminProductImageUpload({
                                 src={src}
                                 alt={`Preview ${index + 1}`}
                                 className="h-full w-full object-contain p-1"
+                                onError={(e) => { if (!src.startsWith('blob:')) e.currentTarget.src = productPlaceholder; }}
                             />
 
                             {/* Order badge */}

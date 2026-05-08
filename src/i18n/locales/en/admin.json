@@ -10,7 +10,8 @@
         "settings": "Settings",
         "coupons": "Coupons",
         "categories": "Categories",
-        "news": "News"
+        "news": "News",
+        "backToStore": "Back to Store"
     },
 
     "dashboard": {
@@ -81,7 +82,9 @@
         "deleteConfirm": "Are you sure you want to delete this product?",
         "totalProducts": "Total products",
         "soldCount": "Sold",
+        "salePrice": "Sale Price",
         "stock": "Stock",
+        "stockPlaceholder": "Stock quantity",
         "outOfStock": "Out of stock",
         "inStockNote": "Auto-synced with stock",
         "basicInfo": "Basic information",
@@ -139,6 +142,7 @@
 
     "review": {
         "title": "Review management",
+        "subtitle": "Approve, hide or delete product reviews from customers",
         "search": "Search reviews...",
         "filterRating": "Filter by rating",
         "product": "Product",
@@ -159,28 +163,88 @@
         "rowsPerPage": "Rows per page",
         "of": "of"
     },
+
     "coupon": {
         "title": "Coupon management",
+        "subtitle": "Create and manage discount coupons for customers",
         "addNew": "Add coupon",
-        "typePercent": "Percentage",
-        "typeFixed": "Fixed amount",
+        "code": "Coupon code",
+        "description": "Description",
+        "discountType": "Discount type",
+        "discountValue": "Discount value",
+        "maxDiscount": "Max discount",
+        "minOrder": "Min order",
+        "maxUsage": "Max usage",
+        "expiresAt": "Expiry date",
+        "usedCount": "Used count",
+        "status": "Status",
         "active": "Active",
         "inactive": "Inactive",
         "expired": "Expired",
         "usedUp": "Used up",
+        "typePercent": "Percentage",
+        "typeFixed": "Fixed amount",
         "createSuccess": "Coupon created",
         "updateSuccess": "Coupon updated",
         "deleteSuccess": "Coupon deleted",
         "deleteConfirm": "Are you sure you want to delete this coupon?"
     },
+
+    "category": {
+        "title": "Category management",
+        "subtitle": "Manage product categories — add, edit, hide or delete categories",
+        "addNew": "Add category",
+        "name": "Category name",
+        "slug": "Slug",
+        "description": "Description",
+        "productCount": "Product count",
+        "status": "Status",
+        "visible": "Visible",
+        "hidden": "Hidden",
+        "createSuccess": "Category created",
+        "updateSuccess": "Category updated",
+        "deleteSuccess": "Category deleted",
+        "deleteConfirm": "Category with products cannot be deleted. Are you sure?"
+    },
+
     "news": {
         "title": "News management",
+        "subtitle": "Create and manage news articles",
         "addNew": "Add article",
+        "edit": "Edit article",
+        "create": "Create new article",
+        "search": "Search articles...",
+        "articleTitle": "Title",
+        "slug": "Slug",
+        "excerpt": "Excerpt",
+        "thumbnail": "Thumbnail image",
+        "content": "Content",
+        "category": "Category",
+        "author": "Author",
+        "readTime": "Read time (minutes)",
         "published": "Published",
         "draft": "Draft",
+        "publish": "Publish",
+        "unpublish": "Unpublish",
         "createSuccess": "Article created",
         "updateSuccess": "Article updated",
         "deleteSuccess": "Article deleted",
         "deleteConfirm": "Are you sure you want to delete this article?"
+    },
+
+    "login": {
+        "panelTitle": "Admin Panel",
+        "title": "Admin login",
+        "subtitle": "Enter your admin credentials to continue",
+        "description": "Manage all operations of Apple Store Vietnam — products, orders, customers, and revenue.",
+        "restricted": "For authorized administrators only.",
+        "email": "Email",
+        "password": "Password",
+        "submitting": "Authenticating...",
+        "submit": "Log in",
+        "backToStore": "← Back to Store",
+        "notAdmin": "You don't have permission to access the admin panel.",
+        "invalid": "Invalid email or password.",
+        "welcome": "Welcome, {{name}}!"
     }
 }

@@ -1,13 +1,16 @@
+import { useTranslation } from "react-i18next";
 import AdminNewsList from "@/features/admin/components/news/AdminNewsList";
+
 export default function AdminNewsPage() {
+    const { t } = useTranslation("admin");
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    Quản lý tin tức
+                    {t("news.title")}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    Tạo và quản lý các bài viết tin tức
+                    {t("news.subtitle")}
                 </p>
             </div>
             <AdminNewsList />

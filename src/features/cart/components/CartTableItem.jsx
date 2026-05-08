@@ -18,8 +18,7 @@ const getFirstImage = (images) => {
   }
 };
 
-export default function CartTableItem({ item, index, isLast }) {
-  // ✅ MySQL integer id thuần
+export default function CartTableItem({ item, isLast }) {
   const productId = item.product.id;
   const { t } = useTranslation("cart");
   const dispatch = useDispatch();

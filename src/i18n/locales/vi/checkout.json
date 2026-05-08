@@ -8,41 +8,24 @@
     },
 
     "address": {
-        "title": "Địa chỉ giao hàng",
-        "savedAddresses": "Địa chỉ đã lưu",
-        "useThisAddress": "Dùng địa chỉ này",
-        "addNewAddress": "Thêm địa chỉ mới",
+        "title": "Thông tin giao hàng",
         "fullName": "Họ và tên",
         "fullNamePlaceholder": "Nhập họ và tên người nhận",
         "phone": "Số điện thoại",
         "phonePlaceholder": "Nhập số điện thoại",
-        "province": "Tỉnh / Thành phố",
-        "provincePlaceholder": "Chọn tỉnh / thành phố",
-        "district": "Quận / Huyện",
-        "districtPlaceholder": "Chọn quận / huyện",
-        "ward": "Phường / Xã",
-        "wardPlaceholder": "Chọn phường / xã",
-        "address": "Địa chỉ cụ thể",
-        "addressPlaceholder": "Số nhà, tên đường...",
-        "saveAddress": "Lưu địa chỉ này",
-        "setDefault": "Đặt làm địa chỉ mặc định",
-        "continue": "Tiếp tục",
+        "address": "Địa chỉ",
+        "addressPlaceholder": "Nhập địa chỉ giao hàng (số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố)",
         "note": "Ghi chú",
-        "notePlaceholder": "Ghi chú cho đơn hàng (tuỳ chọn)"
+        "notePlaceholder": "Ghi chú cho đơn hàng (tuỳ chọn)",
+        "continue": "Tiếp tục"
     },
 
     "payment": {
         "title": "Phương thức thanh toán",
-        "vnpay": "VNPay",
-        "vnpayDesc": "Thanh toán qua cổng VNPay",
         "momo": "MoMo",
         "momoDesc": "Thanh toán qua ví MoMo",
-        "zalopay": "ZaloPay",
-        "zalopayDesc": "Thanh toán qua ví ZaloPay",
         "cod": "Thanh toán khi nhận hàng",
         "codDesc": "Trả tiền mặt khi nhận hàng",
-        "bankTransfer": "Chuyển khoản ngân hàng",
-        "bankTransferDesc": "Chuyển khoản trực tiếp vào tài khoản",
         "selectMethod": "Vui lòng chọn phương thức thanh toán",
         "continue": "Tiếp tục",
         "back": "Quay lại",
@@ -77,12 +60,20 @@
         "estimatedDelivery": "Dự kiến giao hàng",
         "trackOrder": "Theo dõi đơn hàng",
         "continueShopping": "Tiếp tục mua sắm",
+        "placeOrder": "Đặt hàng thành công",
         "days": "ngày làm việc"
     },
+
+    "momoPayNow": "Thanh toán MoMo",
+    "paymentSuccess": "Thanh toán thành công!",
+    "paymentSuccessDesc": "Cảm ơn bạn, đơn hàng đã được thanh toán.",
+    "paymentFailed": "Thanh toán thất bại",
+    "paymentFailedDesc": "Có lỗi xảy ra trong quá trình thanh toán, vui lòng thử lại.",
 
     "error": {
         "placeOrderFailed": "Đặt hàng thất bại, vui lòng thử lại",
         "paymentFailed": "Thanh toán thất bại",
+        "emptyCart": "Giỏ hàng trống",
         "outOfStock": "Một số sản phẩm trong giỏ hàng đã hết hàng"
     }
 }

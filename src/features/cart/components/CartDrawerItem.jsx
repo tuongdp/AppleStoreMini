@@ -1,5 +1,4 @@
 import { useDispatch } from "react-redux";
-import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import QuantityInput from "@/components/shared/QuantityInput";
@@ -20,7 +19,8 @@ const getFirstImage = (images) => {
 };
 
 export default function CartDrawerItem({ item }) {
-  const { t } = useTranslation("cart");
+
+
   const dispatch = useDispatch();
 
   // ✅ MySQL integer id thuần

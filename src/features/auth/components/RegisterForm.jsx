@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, MailCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -22,10 +22,12 @@ import { ROUTES } from "@/lib/constants";
 
 export default function RegisterForm() {
     const { t } = useTranslation("auth");
-    const { register, isRegisterLoading } = useAuth();
+    const { register, registerSuccess, sendVerification, isRegisterLoading } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [serverError, setServerError] = useState("");
+    const [resending, setResending] = useState(false);
+    const [registeredEmail, setRegisteredEmail] = useState("");
 
     const form = useForm({
         resolver: zodResolver(registerSchema),
@@ -42,10 +44,48 @@ export default function RegisterForm() {
     const onSubmit = async (values) => {
         setServerError("");
         const result = await register(values);
-        if (!result.success) {
+        if (result.success) {
+            setRegisteredEmail(values.email);
+        } else {
             setServerError(result.message);
         }
     };
+
+    const handleResend = async () => {
+        setResending(true);
+        await sendVerification(registeredEmail);
+        setResending(false);
+    };
+
+    if (registerSuccess) {
+        return (
+            <div className="w-full max-w-sm text-center">
+                <div className="mb-6 mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/30">
+                    <MailCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h1 className="mb-2 text-xl font-semibold text-foreground">
+                    {t("verify.title")}
+                </h1>
+                <p className="mb-6 text-sm text-muted-foreground">
+                    {t("verify.sentDesc")}
+                </p>
+                <Button
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={handleResend}
+                    disabled={resending}
+                >
+                    {resending ? t("verify.resending") : t("verify.resend")}
+                </Button>
+                <p className="mt-6 text-center text-sm text-muted-foreground">
+                    {t("register.hasAccount")}{" "}
+                    <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">
+                        {t("register.loginNow")}
+                    </Link>
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-sm">
@@ -244,23 +284,25 @@ export default function RegisterForm() {
                                         disabled={isRegisterLoading}
                                     />
                                 </FormControl>
-                                <FormLabel className="text-sm font-normal leading-snug text-muted-foreground">
-                                    {t("register.agreeTerms")}{" "}
-                                    <Link
-                                        to="/terms"
-                                        className="text-apple-blue hover:opacity-70"
-                                        target="_blank"
-                                    >
-                                        {t("register.terms")}
-                                    </Link>{" "}
-                                    {t("register.and")}{" "}
-                                    <Link
-                                        to="/privacy"
-                                        className="text-apple-blue hover:opacity-70"
-                                        target="_blank"
-                                    >
-                                        {t("register.privacy")}
-                                    </Link>
+                                <FormLabel className="inline text-sm font-normal leading-relaxed text-muted-foreground cursor-pointer">
+                                    <span>
+                                        {t("register.agreeTerms")}{" "}
+                                        <Link
+                                            to="/terms"
+                                            className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium"
+                                            target="_blank"
+                                        >
+                                            {t("register.terms")}
+                                        </Link>{" "}
+                                        {t("register.and")}{" "}
+                                        <Link
+                                            to="/privacy"
+                                            className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium"
+                                            target="_blank"
+                                        >
+                                            {t("register.privacy")}
+                                        </Link>
+                                    </span>
                                 </FormLabel>
                                 <FormMessage />
                             </FormItem>

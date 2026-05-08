@@ -107,13 +107,13 @@ export function getLocalStorage(key, defaultValue = null) {
 export function setLocalStorage(key, value) {
     try {
         localStorage.setItem(key, JSON.stringify(value));
-    } catch {}
+    } catch { /* noop */ }
 }
 
 export function removeLocalStorage(key) {
     try {
         localStorage.removeItem(key);
-    } catch {}
+    } catch { /* noop */ }
 }
 
 // ── Validation helpers ─────────────────────────────────

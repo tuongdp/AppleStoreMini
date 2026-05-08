@@ -15,6 +15,13 @@ import { ROUTES } from "@/lib/constants";
 import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
 
 const LOW_STOCK_THRESHOLD = 5;
+const NEW_PRODUCT_DAYS = 30;
+
+function isNewProduct(createdAt) {
+    if (!createdAt) return false;
+    const age = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
+    return age <= NEW_PRODUCT_DAYS;
+}
 
 export default function ProductCard({ product }) {
     const { t } = useTranslation();
@@ -47,8 +54,8 @@ export default function ProductCard({ product }) {
             addToCart({
                 product,
                 quantity: 1,
-                selectedColor: product.colors?.[0]?.name || "",
-                selectedStorage: product.storage?.[0]?.label || "",
+                selectedColor: product.color || "",
+                selectedStorage: product.storage || "",
             }),
         );
         dispatch(toggleCartDrawer(true));
@@ -73,9 +80,14 @@ export default function ProductCard({ product }) {
                 >
                     {/* Badges */}
                     <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
-                        {product.isNew && !isOutOfStock && (
+                        {isNewProduct(product.createdAt) && !isOutOfStock && (
                             <Badge variant="secondary" className="text-[10px]">
                                 {t("product.new")}
+                            </Badge>
+                        )}
+                        {product.featured && !isOutOfStock && (
+                            <Badge className="bg-blue-100 text-[10px] text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400">
+                                {t("product.featured")}
                             </Badge>
                         )}
                         {discount > 0 && !isOutOfStock && (

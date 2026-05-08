@@ -20,6 +20,7 @@ export const ROUTES = {
     ORDER_DETAIL: (id) => `/profile/orders/${id}`,
     ADDRESSES: "/profile/addresses",
     CHANGE_PASSWORD: "/profile/change-password",
+    POINTS: "/profile/points",
 
     // Admin
     ADMIN: "/admin",
@@ -39,7 +40,7 @@ export const CATEGORIES = [
     { label: "iPhone", value: "iphone", href: "/products?category=iphone" },
     { label: "iPad", value: "ipad", href: "/products?category=ipad" },
     { label: "Mac", value: "mac", href: "/products?category=mac" },
-    { label: "Apple Watch", value: "watch", href: "/products?category=watch" },
+    { label: "Apple Watch", value: "apple-watch", href: "/products?category=apple-watch" },
     { label: "AirPods", value: "airpods", href: "/products?category=airpods" },
 ];
 
@@ -134,10 +135,7 @@ export const ORDER_STATUS_COLOR = {
 // ── Payment methods ───────────────────────────────────
 export const PAYMENT_METHODS = {
     COD: "cod",
-    VNPAY: "vnpay",
     MOMO: "momo",
-    ZALOPAY: "zalopay",
-    BANK_TRANSFER: "bank_transfer",
 };
 
 // ── User roles ────────────────────────────────────────

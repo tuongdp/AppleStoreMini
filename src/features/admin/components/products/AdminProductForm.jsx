@@ -24,16 +24,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import AdminProductImageUpload from "./AdminProductImageUpload";
-import AdminColorVariantForm from "./AdminColorVariantForm";
-import AdminStorageVariantForm from "./AdminStorageVariantForm";
 import { CATEGORIES } from "@/lib/constants";
 import { slugify } from "@/lib/utils";
 
 export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const { t } = useTranslation("admin");
 
-    // ✅ MySQL: product.id (integer), không có _id
-    // images/colors/storage BE lưu dạng JSON string → parse khi edit
     const parseJsonField = (field) => {
         if (!field) return [];
         if (Array.isArray(field)) return field;
@@ -45,10 +41,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     };
 
     const [images, setImages] = useState(() => parseJsonField(product?.images));
-    const [colors, setColors] = useState(() => parseJsonField(product?.colors));
-    const [storage, setStorage] = useState(() =>
-        parseJsonField(product?.storage),
-    );
+    const [color, setColor] = useState(product?.color || "");
+    const [storage, setStorage] = useState(product?.storage || "");
 
     const form = useForm({
         resolver: zodResolver(productSchema),
@@ -87,8 +81,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                 featured: product.featured ?? false,
             });
             setImages(parseJsonField(product.images));
-            setColors(parseJsonField(product.colors));
-            setStorage(parseJsonField(product.storage));
+            setColor(product.color || "");
+            setStorage(product.storage || "");
         }
     }, [product, form]);
 
@@ -109,14 +103,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     };
 
     const handleSubmit = (values) => {
-        // ✅ Gửi đúng field names theo BE product.service.js:
-        // createProduct nhận: { name, slug, category/categorySlug, price, salePrice?,
-        //   originalPrice?, stock?, images?, colors?, storage?, featured?, inStock?, description? }
         onSubmit({
             ...values,
             images,
-            // colors và storage BE lưu JSON string → gửi array, BE tự xử lý
-            colors,
+            color,
             storage,
         });
     };
@@ -371,20 +361,29 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                         />
                     </div>
 
-                    {/* Color variants */}
+                    {/* Color */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <AdminColorVariantForm
-                            colors={colors}
-                            onChange={setColors}
+                        <h3 className="mb-4 text-sm font-medium text-foreground">
+                            {t("product.color", { defaultValue: "Màu sắc" })}
+                        </h3>
+                        <Input
+                            placeholder="Ví dụ: Black Titanium"
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                            disabled={isLoading}
                         />
                     </div>
 
-                    {/* Storage variants */}
+                    {/* Storage */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <AdminStorageVariantForm
-                            storage={storage}
-                            basePrice={watchPrice}
-                            onChange={setStorage}
+                        <h3 className="mb-4 text-sm font-medium text-foreground">
+                            {t("product.storage", { defaultValue: "Dung lượng" })}
+                        </h3>
+                        <Input
+                            placeholder="Ví dụ: 256GB"
+                            value={storage}
+                            onChange={(e) => setStorage(e.target.value)}
+                            disabled={isLoading}
                         />
                     </div>
                 </div>

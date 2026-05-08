@@ -2,14 +2,15 @@ import { useEffect, useRef } from "react";
 
 export function useClickOutside(handler) {
     const ref = useRef();
+    const handlerRef = useRef(handler);
+    handlerRef.current = handler;
 
     useEffect(() => {
         const listener = (event) => {
-            // Bỏ qua nếu click vào chính phần tử đó hoặc các phần tử con của nó
             if (!ref.current || ref.current.contains(event.target)) {
                 return;
             }
-            handler(event);
+            handlerRef.current(event);
         };
 
         document.addEventListener("mousedown", listener);
@@ -19,7 +20,7 @@ export function useClickOutside(handler) {
             document.removeEventListener("mousedown", listener);
             document.removeEventListener("touchstart", listener);
         };
-    }, [handler]);
+    }, []);
 
     return ref;
 }

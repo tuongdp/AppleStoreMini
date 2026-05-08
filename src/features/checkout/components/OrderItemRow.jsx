@@ -1,17 +1,11 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { ROUTES } from "@/lib/constants";
 
-export default function OrderItemRow({ item, index, total, isLast }) {
-    const { t } = useTranslation("checkout");
+export default function OrderItemRow({ item, isLast }) {
     const unitPrice = item.price ?? item.product?.price ?? 0;
     const lineTotal = unitPrice * item.quantity;
-    const effectivePrice =
-        item.product?.salePrice && item.product.salePrice < item.product?.price
-            ? item.product.salePrice
-            : item.product?.price || item.price || 0;
     return (
         <div>
             <div className="flex gap-4">

@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { ROUTES } from "@/lib/constants";
 
 export default function OrderItemRow({ item, isLast }) {
-    const { t } = useTranslation("order");
+
 
     return (
         <div>

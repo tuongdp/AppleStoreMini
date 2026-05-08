@@ -58,7 +58,7 @@
 
     "language": {
         "label": "Language",
-        "vi": "Tiếng Việt",
+        "vi": "Vietnamese",
         "en": "English"
     },
 
@@ -140,7 +140,8 @@
         "page": "Page",
         "of": "of",
         "total": "Total",
-        "results": "results"
+        "results": "results",
+        "and": "and"
     },
 
     "footer": {
@@ -165,5 +166,25 @@
         "serverErrorDesc": "Something went wrong, please try again later.",
         "networkError": "Network error",
         "networkErrorDesc": "Please check your internet connection."
+    },
+
+    "trust": {
+        "freeShipping": "Free shipping",
+        "freeShippingDesc": "Orders over 500.000₫",
+        "warranty": "Official warranty",
+        "warrantyDesc": "1 - 2 years depending on product",
+        "returns": "Easy returns",
+        "returnsDesc": "Within 14 days",
+        "payment": "Secure payment",
+        "paymentDesc": "MoMo, Cash on delivery"
+    },
+
+    "home": {
+        "ctaBadge": "Exclusive offers",
+        "ctaTitle": "Don't miss hot deals",
+        "ctaDesc": "Discover thousands of genuine Apple products at the best prices, fast delivery, reliable warranty.",
+        "ctaExplore": "Explore now",
+        "ctaContact": "Contact us",
+        "saleEmpty": "No products on sale yet"
     }
 }

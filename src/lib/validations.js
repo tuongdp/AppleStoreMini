@@ -101,6 +101,7 @@ export const profileSchema = z.object({
         }),
     birthday: z.string().optional(),
     gender: z.enum(["male", "female", "other"]).optional(),
+    address: z.string().optional(),
 });
 
 // ── Address ───────────────────────────────────────────
@@ -112,20 +113,22 @@ export const addressSchema = z.object({
         .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, {
             message: "Số điện thoại không đúng định dạng",
         }),
-    province: z.string().min(1, { message: "Vui lòng chọn tỉnh / thành phố" }),
-    district: z.string().min(1, { message: "Vui lòng chọn quận / huyện" }),
-    ward: z.string().min(1, { message: "Vui lòng chọn phường / xã" }),
     address: z.string().min(10, { message: "Vui lòng nhập địa chỉ cụ thể" }),
-    isDefault: z.boolean().optional(),
+    note: z.string().max(200).optional(),
 });
 
 // ── Checkout ──────────────────────────────────────────
 export const checkoutSchema = z.object({
-    addressId: z
+    fullName: z.string().min(2, { message: "Vui lòng nhập tên người nhận" }),
+    phone: z
         .string()
-        .min(1, { message: "Vui lòng chọn địa chỉ giao hàng" }),
+        .min(1, { message: "Vui lòng nhập số điện thoại" })
+        .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, {
+            message: "Số điện thoại không đúng định dạng",
+        }),
+    address: z.string().min(10, { message: "Vui lòng nhập địa chỉ cụ thể" }),
     paymentMethod: z.enum(
-        ["cod", "vnpay", "momo", "zalopay", "bank_transfer"],
+        ["cod", "momo"],
         { required_error: "Vui lòng chọn phương thức thanh toán" },
     ),
     note: z.string().max(200).optional(),

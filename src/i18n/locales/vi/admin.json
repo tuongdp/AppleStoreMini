@@ -10,7 +10,8 @@
         "settings": "Cài đặt",
         "coupons": "Khuyến mãi",
         "categories": "Danh mục",
-        "news": "Tin tức"
+        "news": "Tin tức",
+        "backToStore": "Về trang Store"
     },
 
     "dashboard": {
@@ -81,6 +82,7 @@
         "deleteConfirm": "Bạn có chắc muốn xoá sản phẩm này không?",
         "totalProducts": "Tổng sản phẩm",
         "soldCount": "Đã bán",
+        "salePrice": "Giá bán",
         "stock": "Tồn kho",
         "outOfStock": "Hết hàng",
         "inStockNote": "Tự động theo tồn kho",
@@ -140,6 +142,7 @@
 
     "review": {
         "title": "Quản lý đánh giá",
+        "subtitle": "Duyệt, ẩn hoặc xóa đánh giá sản phẩm từ khách hàng",
         "search": "Tìm kiếm đánh giá...",
         "filterRating": "Lọc theo sao",
         "product": "Sản phẩm",
@@ -162,6 +165,7 @@
     },
     "coupon": {
         "title": "Quản lý khuyến mãi",
+        "subtitle": "Tạo và quản lý mã giảm giá cho khách hàng",
         "addNew": "Thêm mã mới",
         "code": "Mã giảm giá",
         "description": "Mô tả",
@@ -187,6 +191,7 @@
 
     "category": {
         "title": "Quản lý danh mục",
+        "subtitle": "Quản lý danh mục sản phẩm — thêm, sửa, ẩn hoặc xóa danh mục",
         "addNew": "Thêm danh mục",
         "name": "Tên danh mục",
         "slug": "Slug",
@@ -203,6 +208,7 @@
 
     "news": {
         "title": "Quản lý tin tức",
+        "subtitle": "Tạo và quản lý các bài viết tin tức",
         "addNew": "Thêm bài viết",
         "edit": "Chỉnh sửa bài viết",
         "create": "Tạo bài viết mới",
@@ -223,5 +229,21 @@
         "updateSuccess": "Đã cập nhật bài viết",
         "deleteSuccess": "Đã xóa bài viết",
         "deleteConfirm": "Bạn có chắc muốn xóa bài viết này?"
+    },
+
+    "login": {
+        "panelTitle": "Admin Panel",
+        "title": "Đăng nhập quản trị",
+        "subtitle": "Nhập thông tin tài khoản admin để tiếp tục",
+        "description": "Quản lý toàn bộ hoạt động của Apple Store Vietnam — sản phẩm, đơn hàng, khách hàng và doanh thu.",
+        "restricted": "Chỉ dành cho quản trị viên được ủy quyền.",
+        "email": "Email",
+        "password": "Mật khẩu",
+        "submitting": "Đang xác thực...",
+        "submit": "Đăng nhập",
+        "backToStore": "← Quay về trang Store",
+        "notAdmin": "Bạn không có quyền truy cập trang quản trị.",
+        "invalid": "Email hoặc mật khẩu không đúng.",
+        "welcome": "Xin chào, {{name}}!"
     }
 }

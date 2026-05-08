@@ -110,7 +110,8 @@
         "noResults": "No products found",
         "noResultsDesc": "Try searching with a different keyword",
         "viewAll": "View all results for",
-        "clear": "Clear"
+        "clear": "Clear",
+        "submit": "Search"
     },
 
     "category": {
@@ -127,6 +128,7 @@
         "featured": "Featured products",
         "newest": "New arrivals",
         "bestSeller": "Best sellers",
+        "onSale": "On sale",
         "shopByCategory": "Shop by category",
         "discoverMore": "Discover more"
     }

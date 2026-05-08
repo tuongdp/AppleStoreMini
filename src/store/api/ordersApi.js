@@ -48,6 +48,15 @@ export const ordersApi = baseApi.injectEndpoints({
 
         // POST /orders/:id/confirm-delivered
         // Chỉ dùng được khi status === "SHIPPING"
+        createPayment: builder.mutation({
+            query: (id) => ({
+                url: `/orders/${id}/payment`,
+                method: "POST",
+            }),
+            invalidatesTags: ["Orders", "Order"],
+            transformResponse: (response) => response.data,
+        }),
+
         confirmDelivered: builder.mutation({
             query: (id) => ({
                 url: `/orders/${id}/confirm-delivered`,
@@ -102,6 +111,7 @@ export const {
     useGetOrdersQuery,
     useGetOrderByIdQuery,
     useCreateOrderMutation,
+    useCreatePaymentMutation,
     useCancelOrderMutation,
     useConfirmDeliveredMutation,
     useGetAllOrdersQuery,

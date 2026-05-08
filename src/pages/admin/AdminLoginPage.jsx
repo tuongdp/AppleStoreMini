@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useLoginMutation } from "@/store/api/authApi";
@@ -26,6 +27,7 @@ const adminLoginSchema = z.object({
 });
 
 export default function AdminLoginPage() {
+    const { t } = useTranslation("admin");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
@@ -41,18 +43,17 @@ export default function AdminLoginPage() {
             const response = await login(values).unwrap();
             const { user, accessToken, refreshToken } = response.data;
 
-            // Chỉ cho phép admin đăng nhập
             if (user.role !== "admin") {
-                toast.error("Bạn không có quyền truy cập trang quản trị.");
+                toast.error(t("login.notAdmin"));
                 return;
             }
 
             dispatch(setCredentials({ user, accessToken, refreshToken }));
-            toast.success(`Xin chào, ${user.fullName}!`);
+            toast.success(t("login.welcome", { name: user.fullName }));
             navigate(ROUTES.ADMIN_DASHBOARD);
         } catch (error) {
             toast.error(
-                error?.data?.message || "Email hoặc mật khẩu không đúng.",
+                error?.data?.message || t("login.invalid"),
             );
         }
     };
@@ -88,18 +89,17 @@ export default function AdminLoginPage() {
                         <ShieldCheck className="h-7 w-7 text-white" />
                     </div>
                     <h1 className="mb-3 text-3xl font-semibold tracking-tight text-white">
-                        Admin Panel
+                        {t("login.panelTitle")}
                     </h1>
                     <p className="max-w-xs text-sm leading-relaxed text-white/50">
-                        Quản lý toàn bộ hoạt động của Apple Store Vietnam — sản
-                        phẩm, đơn hàng, khách hàng và doanh thu.
+                        {t("login.description")}
                     </p>
                 </div>
 
                 {/* Bottom note */}
                 <div className="relative">
                     <p className="text-xs text-white/30">
-                        Chỉ dành cho quản trị viên được ủy quyền.
+                        {t("login.restricted")}
                     </p>
                 </div>
             </div>
@@ -121,10 +121,10 @@ export default function AdminLoginPage() {
                     {/* Header */}
                     <div className="mb-8">
                         <h2 className="text-2xl font-semibold text-foreground">
-                            Đăng nhập quản trị
+                            {t("login.title")}
                         </h2>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Nhập thông tin tài khoản admin để tiếp tục
+                            {t("login.subtitle")}
                         </p>
                     </div>
 
@@ -139,7 +139,7 @@ export default function AdminLoginPage() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Email</FormLabel>
+                                        <FormLabel>{t("login.email")}</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="email"
@@ -159,7 +159,7 @@ export default function AdminLoginPage() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Mật khẩu</FormLabel>
+                                        <FormLabel>{t("login.password")}</FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Input
@@ -202,7 +202,7 @@ export default function AdminLoginPage() {
                                 className="mt-2 w-full rounded-full"
                                 disabled={isLoading}
                             >
-                                {isLoading ? "Đang xác thực..." : "Đăng nhập"}
+                                {isLoading ? t("login.submitting") : t("login.submit")}
                             </Button>
                         </form>
                     </Form>
@@ -213,7 +213,7 @@ export default function AdminLoginPage() {
                             href="/"
                             className="hover:text-foreground hover:underline"
                         >
-                            ← Quay về trang Store
+                            {t("login.backToStore")}
                         </a>
                     </p>
                 </div>

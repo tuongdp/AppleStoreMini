@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -47,8 +47,10 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
         },
     });
 
+    const newsIdRef = useRef(news?.id);
     useEffect(() => {
-        if (news) {
+        if (news && news.id !== newsIdRef.current) {
+            newsIdRef.current = news.id;
             form.reset({
                 title: news.title || "",
                 slug: news.slug || "",

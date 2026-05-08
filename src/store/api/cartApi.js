@@ -12,7 +12,7 @@ export const cartApi = baseApi.injectEndpoints({
                     const { data } = await queryFulfilled;
                     // Sync server cart → Redux local state
                     dispatch(setCartFromServer(data.data));
-                } catch {}
+                } catch { /* noop */ }
             },
         }),
 

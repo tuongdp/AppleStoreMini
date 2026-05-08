@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { User, ShoppingBag, Heart, MapPin, Lock, LogOut } from "lucide-react";
+import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import ProfileSidebarItem from "./ProfileSidebarItem";
@@ -28,15 +28,15 @@ const NAV_ITEMS = [
         end: true,
     },
     {
-        key: "addresses",
-        href: `${ROUTES.PROFILE}/addresses`,
-        icon: MapPin,
-        end: true,
-    },
-    {
         key: "changePassword",
         href: `${ROUTES.PROFILE}/change-password`,
         icon: Lock,
+        end: true,
+    },
+    {
+        key: "points",
+        href: ROUTES.POINTS,
+        icon: Coins,
         end: true,
     },
 ];

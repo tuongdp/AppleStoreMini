@@ -16,12 +16,8 @@ export default function AdminProductEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const { data, isLoading, isError } = useGetProductByIdQuery(id);
-    const [updateProduct, { isLoading: isUpdating }] =
-        useUpdateProductMutation();
-
-    // ✅ getProductByIdQuery transformResponse → response.data trực tiếp
-    const product = data;
+    const { data: product, isLoading, isError } = useGetProductByIdQuery(id);
+    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
 
     const handleSubmit = async (values) => {
         try {
@@ -52,6 +48,7 @@ export default function AdminProductEdit() {
 
     return (
         <div className="space-y-6">
+            {/* Back */}
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_PRODUCTS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
@@ -59,6 +56,7 @@ export default function AdminProductEdit() {
                 </Link>
             </Button>
 
+            {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">
@@ -69,6 +67,7 @@ export default function AdminProductEdit() {
                     </p>
                 </div>
 
+                {/* Preview link */}
                 <Button
                     variant="outline"
                     size="sm"
@@ -84,6 +83,7 @@ export default function AdminProductEdit() {
                 </Button>
             </div>
 
+            {/* Form */}
             <AdminProductForm
                 product={product}
                 onSubmit={handleSubmit}

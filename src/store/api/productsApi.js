@@ -77,7 +77,7 @@ export const productsApi = baseApi.injectEndpoints({
 
         // POST /admin/products
         // BE nhận: { name, slug, description, price, salePrice?, category/categorySlug,
-        //            images?, colors?, storage?, featured?, inStock?, stock?, ... }
+        //            images?, color?, storage?, featured?, inStock?, stock?, ... }
         createProduct: builder.mutation({
             query: (data) => ({
                 url: "/admin/products",

@@ -13,13 +13,8 @@ export default function RelatedProducts({ slug, category }) {
         { skip: !slug },
     );
 
-    const products = (data || []).map((p) => ({
-        ...p,
-        images: typeof p.images === "string" ? JSON.parse(p.images) : p.images,
-        colors: typeof p.colors === "string" ? JSON.parse(p.colors) : p.colors,
-        storage:
-            typeof p.storage === "string" ? JSON.parse(p.storage) : p.storage,
-    }));
+    const products = data || [];
+
     if (!isLoading && products.length === 0) return null;
 
     return (

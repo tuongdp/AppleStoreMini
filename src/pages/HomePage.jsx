@@ -28,37 +28,51 @@ import ProductCardSkeleton from "@/components/shared/ProductCardSkeleton";
 import ProductCard from "@/components/shared/ProductCard";
 
 // Constants & utils
-import { ROUTES } from "@/lib/constants";
+import { ROUTES, CATEGORIES, BANNER_SLIDES } from "@/lib/constants";
 
+
+
+// Category images
+import iphoneImg from "@/assets/images/categories/iphone.jpg";
+import ipadImg from "@/assets/images/categories/ipad.jpg";
+import macImg from "@/assets/images/categories/mac.jpg";
+import watchImg from "@/assets/images/categories/watch.jpg";
+import airpodsImg from "@/assets/images/categories/airpods.jpg";
 import { useGetBannersQuery } from "@/store/api/bannersApi";
-import { useCategories } from "@/hooks/useCategories";
-const TRUST_BADGES = [
+
+const CATEGORY_IMAGES = {
+    iphone: iphoneImg,
+    ipad: ipadImg,
+    mac: macImg,
+    watch: watchImg,
+    airpods: airpodsImg,
+};
+
+const TRUST_BADGES = (t) => [
     {
         icon: Truck,
-        title: "Miễn phí vận chuyển",
-        desc: "Đơn hàng từ 500.000₫",
+        title: t("trust.freeShipping"),
+        desc: t("trust.freeShippingDesc"),
     },
     {
         icon: ShieldCheck,
-        title: "Bảo hành chính hãng",
-        desc: "1 - 2 năm theo sản phẩm",
+        title: t("trust.warranty"),
+        desc: t("trust.warrantyDesc"),
     },
     {
         icon: RefreshCw,
-        title: "Đổi trả dễ dàng",
-        desc: "Trong vòng 14 ngày",
+        title: t("trust.returns"),
+        desc: t("trust.returnsDesc"),
     },
     {
         icon: CreditCard,
-        title: "Thanh toán an toàn",
-        desc: "VNPay, Momo, ZaloPay",
+        title: t("trust.payment"),
+        desc: t("trust.paymentDesc"),
     },
 ];
 
 export default function HomePage() {
-    const { categories, isLoading: isCategoriesLoading } = useCategories();
-    const getCatImage = (slug) =>
-        categories.find((c) => c.slug === slug)?.image || "";
+    const { t: tc } = useTranslation();
     const { t } = useTranslation("product");
 
     const { data: featuredData, isLoading: isFeaturedLoading } =
@@ -76,7 +90,7 @@ export default function HomePage() {
         useGetBannersQuery();
 
     const banners =
-        bannerData
+        bannerData?.data
             ?.filter((item) => item.isActive)
             ?.sort((a, b) => a.order - b.order)
             ?.map((item) => ({
@@ -85,9 +99,6 @@ export default function HomePage() {
                 subtitle: item.subtitle,
                 description: item.description,
                 image: item.image,
-                textColor: item.textColor,
-                bgFrom: item.bgFrom,
-                bgTo: item.bgTo,
                 cta: item.ctaText,
                 ctaLink: item.ctaLink,
             })) || [];
@@ -104,40 +115,26 @@ export default function HomePage() {
             {/* ── 2. Category Bar ── */}
             <section className="section-padding border-b border-border bg-muted/20 py-8">
                 <div className="mx-auto max-w-7xl">
-                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 md:gap-4">
-                        {isCategoriesLoading
-                            ? [...Array(5)].map((_, i) => (
-                                  <div
-                                      key={i}
-                                      className="flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 md:p-5"
-                                  >
-                                      <div className="h-14 w-14 animate-pulse rounded-xl bg-muted md:h-20 md:w-20" />
-                                      <div className="h-3 w-12 animate-pulse rounded bg-muted" />
-                                  </div>
-                              ))
-                            : categories.map((cat) => (
-                                  <Link
-                                      key={cat.slug}
-                                      to={cat.href}
-                                      className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-sm md:p-5"
-                                  >
-                                      <div className="h-14 w-14 overflow-hidden rounded-xl bg-muted md:h-20 md:w-20">
-                                          {cat.image ? (
-                                              <img
-                                                  src={cat.image}
-                                                  alt={cat.name}
-                                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                                  loading="lazy"
-                                              />
-                                          ) : (
-                                              <div className="h-full w-full bg-muted" />
-                                          )}
-                                      </div>
-                                      <span className="text-xs font-medium text-foreground md:text-sm">
-                                          {cat.name}
-                                      </span>
-                                  </Link>
-                              ))}
+                    <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:gap-4">
+                        {CATEGORIES.map((cat) => (
+                            <Link
+                                key={cat.value}
+                                to={cat.href}
+                                className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-sm md:p-5"
+                            >
+                                <div className="h-14 w-14 overflow-hidden rounded-xl bg-muted md:h-20 md:w-20">
+                                    <img
+                                        src={CATEGORY_IMAGES[cat.value]}
+                                        alt={cat.label}
+                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <span className="text-xs font-medium text-foreground md:text-sm">
+                                    {cat.label}
+                                </span>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -191,7 +188,7 @@ export default function HomePage() {
                                 </span>
                             </div>
                             <img
-                                src={getCatImage("iphone")}
+                                src={CATEGORY_IMAGES.iphone}
                                 alt=""
                                 aria-hidden
                                 className="absolute -bottom-4 -right-4 h-44 w-44 object-cover opacity-15 transition-all duration-500 group-hover:scale-110 group-hover:opacity-25"
@@ -224,7 +221,7 @@ export default function HomePage() {
                                 </span>
                             </div>
                             <img
-                                src={getCatImage("mac")}
+                                src={CATEGORY_IMAGES.mac}
                                 alt=""
                                 aria-hidden
                                 className="absolute -bottom-4 -right-4 h-44 w-44 object-cover opacity-15 transition-all duration-500 group-hover:scale-110 group-hover:opacity-25"
@@ -241,7 +238,7 @@ export default function HomePage() {
                         title={t("home.newest", {
                             defaultValue: "Sản phẩm mới",
                         })}
-                        subtitle="Mới nhất"
+                        subtitle="Mới về"
                         viewAllHref={`${ROUTES.PRODUCTS}?sort=newest`}
                         className="mb-8"
                     />
@@ -310,7 +307,7 @@ export default function HomePage() {
                     ) : (
                         <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-border">
                             <p className="text-sm text-muted-foreground">
-                                Chưa có sản phẩm đang giảm giá
+                                {tc("home.saleEmpty")}
                             </p>
                         </div>
                     )}
@@ -321,7 +318,9 @@ export default function HomePage() {
             <section className="section-padding border-t border-border bg-muted/20 py-12">
                 <div className="mx-auto max-w-7xl">
                     <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-                        {TRUST_BADGES.map(({ icon: Icon, title, desc }) => (
+                        {TRUST_BADGES(tc).map(({ icon, title, desc }) => {
+                            const Icon = icon;
+                            return (
                             <div
                                 key={title}
                                 className="flex flex-col items-center gap-3 text-center"
@@ -341,7 +340,8 @@ export default function HomePage() {
                                     </p>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -350,19 +350,18 @@ export default function HomePage() {
             <section className="section-padding py-20 text-center">
                 <div className="mx-auto max-w-lg">
                     <p className="mb-2 text-sm font-medium text-apple-blue">
-                        Ưu đãi độc quyền
+                        {tc("home.ctaBadge")}
                     </p>
                     <h2 className="mb-4 text-3xl font-semibold tracking-tight text-foreground">
-                        Đừng bỏ lỡ deal hot
+                        {tc("home.ctaTitle")}
                     </h2>
                     <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
-                        Khám phá hàng nghìn sản phẩm Apple chính hãng với giá
-                        tốt nhất, giao hàng nhanh, bảo hành uy tín.
+                        {tc("home.ctaDesc")}
                     </p>
                     <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                         <Button asChild size="lg" className="rounded-full px-8">
                             <Link to={ROUTES.PRODUCTS}>
-                                Khám phá ngay
+                                {tc("home.ctaExplore")}
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
@@ -372,7 +371,7 @@ export default function HomePage() {
                             size="lg"
                             className="rounded-full px-8"
                         >
-                            <Link to="/contact">Liên hệ tư vấn</Link>
+                            <Link to="/contact">{tc("home.ctaContact")}</Link>
                         </Button>
                     </div>
                 </div>

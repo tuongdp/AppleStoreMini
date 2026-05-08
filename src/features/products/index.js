@@ -1,8 +1,6 @@
 export { default as ProductGrid } from "./components/ProductGrid";
 export { default as ProductFilter } from "./components/ProductFilter";
 export { default as ProductSort } from "./components/ProductSort";
-export { default as ProductColorPicker } from "./components/ProductColorPicker";
-export { default as ProductStoragePicker } from "./components/ProductStoragePicker";
 export { default as ProductImageGallery } from "./components/ProductImageGallery";
 export { default as ProductDescription } from "./components/ProductDescription";
 export { default as ProductSpecification } from "./components/ProductSpecification";

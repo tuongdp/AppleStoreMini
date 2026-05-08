@@ -44,7 +44,7 @@ export default function AvatarUpload({ user }) {
             const formData = new FormData();
             formData.append("avatar", file);
             const response = await uploadAvatar(formData).unwrap();
-            dispatch(setCredentials(response.data));
+            dispatch(setCredentials(response));
             toast.success(t("avatar.uploadSuccess"));
         } catch {
             setPreview(null);

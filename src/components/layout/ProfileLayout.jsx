@@ -9,6 +9,7 @@ const BREADCRUMB_MAP = {
     "/profile/addresses": "sidebar.addresses",
     "/profile/change-password": "sidebar.changePassword",
     "/profile/wishlist": "sidebar.wishlist",
+    "/profile/points": "sidebar.points",
 };
 
 export default function ProfileLayout() {

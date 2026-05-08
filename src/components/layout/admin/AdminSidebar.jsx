@@ -97,7 +97,7 @@ export default function AdminSidebar({ onClose }) {
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                     <Store className="h-4 w-4 shrink-0" />
-                    Về trang Store
+                    {t("sidebar.backToStore")}
                 </Link>
 
                 <Separator className="my-1" />

@@ -59,7 +59,7 @@
     "language": {
         "label": "Ngôn ngữ",
         "vi": "Tiếng Việt",
-        "en": "English"
+        "en": "Tiếng Anh"
     },
 
     "status": {
@@ -140,7 +140,8 @@
         "page": "Trang",
         "of": "trong",
         "total": "Tổng",
-        "results": "kết quả"
+        "results": "kết quả",
+        "and": "và"
     },
 
     "footer": {
@@ -165,5 +166,25 @@
         "serverErrorDesc": "Đã có lỗi xảy ra, vui lòng thử lại sau.",
         "networkError": "Lỗi kết nối",
         "networkErrorDesc": "Vui lòng kiểm tra kết nối internet của bạn."
+    },
+
+    "trust": {
+        "freeShipping": "Miễn phí vận chuyển",
+        "freeShippingDesc": "Đơn hàng từ 500.000₫",
+        "warranty": "Bảo hành chính hãng",
+        "warrantyDesc": "1 - 2 năm theo sản phẩm",
+        "returns": "Đổi trả dễ dàng",
+        "returnsDesc": "Trong vòng 14 ngày",
+        "payment": "Thanh toán an toàn",
+        "paymentDesc": "MoMo, Thanh toán khi nhận hàng"
+    },
+
+    "home": {
+        "ctaBadge": "Ưu đãi độc quyền",
+        "ctaTitle": "Đừng bỏ lỡ deal hot",
+        "ctaDesc": "Khám phá hàng nghìn sản phẩm Apple chính hãng với giá tốt nhất, giao hàng nhanh, bảo hành uy tín.",
+        "ctaExplore": "Khám phá ngay",
+        "ctaContact": "Liên hệ tư vấn",
+        "saleEmpty": "Chưa có sản phẩm đang giảm giá"
     }
 }
