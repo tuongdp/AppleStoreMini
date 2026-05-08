@@ -36,12 +36,20 @@ export const ROUTES = {
 };
 
 // ── Categories ────────────────────────────────────────
+import iphoneImg from "@/assets/images/categories/iphone.jpg";
+import ipadImg from "@/assets/images/categories/ipad.jpg";
+import macImg from "@/assets/images/categories/mac.jpg";
+import watchImg from "@/assets/images/categories/watch.jpg";
+import airpodsImg from "@/assets/images/categories/airpods.jpg";
+import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
+
 export const CATEGORIES = [
-    { label: "iPhone", value: "iphone", href: "/products?category=iphone" },
-    { label: "iPad", value: "ipad", href: "/products?category=ipad" },
-    { label: "Mac", value: "mac", href: "/products?category=mac" },
-    { label: "Apple Watch", value: "apple-watch", href: "/products?category=apple-watch" },
-    { label: "AirPods", value: "airpods", href: "/products?category=airpods" },
+    { label: "iPhone", value: "iphone", href: "/products?category=iphone", image: iphoneImg },
+    { label: "iPad", value: "ipad", href: "/products?category=ipad", image: ipadImg },
+    { label: "Mac", value: "mac", href: "/products?category=mac", image: macImg },
+    { label: "Apple Watch", value: "apple-watch", href: "/products?category=apple-watch", image: watchImg },
+    { label: "AirPods", value: "airpods", href: "/products?category=airpods", image: airpodsImg },
+    { label: "Phụ kiện", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
 ];
 
 
