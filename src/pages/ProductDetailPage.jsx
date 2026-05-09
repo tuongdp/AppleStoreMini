@@ -7,6 +7,7 @@ import {
     Heart,
 } from "lucide-react";
 import { useGetProductBySlugQuery } from "@/store/api/productsApi";
+import { useAddToCartMutation } from "@/store/api/cartApi";
 import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleCartDrawer, toggleAuthModal } from "@/store/uiSlice";
@@ -81,16 +82,16 @@ export default function ProductDetailPage() {
     const stock = selectedVariant?.stock ?? 0;
 
     const productImages = useMemo(() => {
-        return Array.isArray(product?.images) && product.images.length > 0
-            ? product.images
-            : [];
-    }, [product]);
+        const variantImages = selectedVariant?.images || [];
+        const productImgs = Array.isArray(product?.images) ? product.images : [];
+        return [...variantImages, ...productImgs];
+    }, [selectedVariant, product]);
 
     useEffect(() => {
         if (variants.length > 0) {
-            const first = variants[0];
-            setSelectedColor(first.color || allColors[0] || "");
-            setSelectedStorage(first.storage || allStorages[0] || "");
+            const defaultVariant = variants.find((v) => v.inStock) || variants[0];
+            setSelectedColor(defaultVariant.color || allColors[0] || "");
+            setSelectedStorage(defaultVariant.storage || allStorages[0] || "");
         }
     }, [variants, allColors, allStorages]);
 
@@ -99,6 +100,7 @@ export default function ProductDetailPage() {
 
     const slugRef = useRef(slug);
     const [quantity, setQuantity] = useState(1);
+    const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
 
     useEffect(() => {
         if (slugRef.current !== slug) {
@@ -107,8 +109,9 @@ export default function ProductDetailPage() {
         }
     }, [slug]);
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (!product || !selectedVariant?.id) return;
+
         dispatch(
             addToCart({
                 product: {
@@ -122,6 +125,15 @@ export default function ProductDetailPage() {
             }),
         );
         dispatch(toggleCartDrawer(true));
+
+        try {
+            await addToCartApi({
+                variantId: selectedVariant.id,
+                quantity,
+            }).unwrap();
+        } catch {
+            // Server sync failed — UI already updated locally
+        }
     };
 
     const handleToggleWishlist = () => {
@@ -179,6 +191,12 @@ export default function ProductDetailPage() {
                         {product.name}
                     </h1>
 
+                    {selectedColor && selectedStorage && (
+                        <p className="text-sm text-muted-foreground">
+                            {selectedColor} · {selectedStorage}
+                        </p>
+                    )}
+
                     {product.rating > 0 && (
                         <StarRating
                             rating={product.rating}
@@ -213,11 +231,11 @@ export default function ProductDetailPage() {
                                             key={color}
                                             onClick={() => {
                                                 setSelectedColor(color);
-                                                if (
-                                                    selectedStorage &&
-                                                    !variants.some((v) => v.color === color && v.storage === selectedStorage)
-                                                ) {
-                                                    setSelectedStorage("");
+                                                const hasStorage = selectedStorage &&
+                                                    variants.some((v) => v.color === color && v.storage === selectedStorage);
+                                                if (!hasStorage) {
+                                                    const first = variants.find((v) => v.color === color)?.storage || "";
+                                                    setSelectedStorage(first);
                                                 }
                                             }}
                                             disabled={disabled}
@@ -255,12 +273,6 @@ export default function ProductDetailPage() {
                                             key={storage}
                                             onClick={() => {
                                                 setSelectedStorage(storage);
-                                                if (
-                                                    selectedColor &&
-                                                    !variants.some((v) => v.storage === storage && v.color === selectedColor)
-                                                ) {
-                                                    setSelectedColor("");
-                                                }
                                             }}
                                             disabled={disabled}
                                             className={cn(
@@ -357,7 +369,7 @@ export default function ProductDetailPage() {
                             variant="outline"
                             className="flex-1 gap-2 rounded-full text-base"
                             onClick={handleAddToCart}
-                            disabled={!selectedVariant || !inStock}
+                            disabled={!selectedVariant || !inStock || isAddingToCart}
                         >
                             <ShoppingCart className="h-5 w-5" />
                             {t("detail.addToCart")}
