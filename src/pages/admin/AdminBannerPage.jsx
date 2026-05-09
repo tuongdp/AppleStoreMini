@@ -30,6 +30,7 @@ function BannerForm({ banner, onClose }) {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(banner?.image || null);
     const [order, setOrder] = useState(banner?.order ?? 0);
+    const [ctaLink, setCtaLink] = useState(banner?.ctaLink || "/products");
 
     const [createBanner, { isLoading: isCreating }] = useCreateBannerMutation();
     const [updateBanner, { isLoading: isUpdating }] = useUpdateBannerMutation();
@@ -46,6 +47,7 @@ function BannerForm({ banner, onClose }) {
         try {
             const formData = new FormData();
             if (order !== undefined) formData.append("order", String(order));
+            if (ctaLink) formData.append("ctaLink", ctaLink);
             if (imageFile) formData.append("image", imageFile);
 
             if (isEditing) {
@@ -105,6 +107,18 @@ function BannerForm({ banner, onClose }) {
                     value={order}
                     onChange={(e) => setOrder(Number(e.target.value))}
                     className="w-24"
+                />
+            </div>
+
+            {/* CTA Link */}
+            <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                    Link liên kết
+                </label>
+                <Input
+                    value={ctaLink}
+                    onChange={(e) => setCtaLink(e.target.value)}
+                    placeholder="/products?category=iphone"
                 />
             </div>
 
