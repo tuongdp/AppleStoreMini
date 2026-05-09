@@ -31,10 +31,16 @@ import {
 } from "@/components/ui/select";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation } from "@/store/api/productsApi";
 import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
-import { IMAGE, COLOR_OPTIONS, STORAGE_OPTIONS } from "@/lib/constants";
+import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 
 const EMPTY_VARIANT = { color: "", storage: "", price: "", salePrice: "", stock: 0 };
+
+const hexPresets = [
+    "#000000", "#1d1d1f", "#3a3a3c", "#636366", "#aeaeb2",
+    "#f5f5f7", "#ffffff", "#ff3b30", "#ff9500", "#ffcc00",
+    "#34c759", "#007aff", "#5856d6", "#af52de", "#ff2d55",
+];
 
 export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const { t } = useTranslation("admin");
@@ -43,6 +49,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const { data: categories } = useGetAdminCategoriesQuery();
 
     const [specs, setSpecs] = useState([]);
+    const [colors, setColors] = useState([]);
+    const [storages, setStorages] = useState([]);
     const [variants, setVariants] = useState([]);
     const [editingVariantIdx, setEditingVariantIdx] = useState(null);
     const [showVariantForm, setShowVariantForm] = useState(false);
@@ -50,6 +58,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const [blockedVariant, setBlockedVariant] = useState(null);
 
     const [deleteVariant] = useDeleteVariantMutation();
+
+    const [newColorName, setNewColorName] = useState("");
+    const [newColorHex, setNewColorHex] = useState("#");
+    const [newStorageLabel, setNewStorageLabel] = useState("");
 
     const form = useForm({
         resolver: zodResolver(productSchema),
@@ -77,10 +89,25 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                 : [];
             setSpecs(specArray);
 
+            const productColors = (product.colors || []).map((c) => ({
+                id: c.id,
+                name: c.name,
+                hex: c.hex || "",
+            }));
+            setColors(productColors);
+
+            const productStorages = (product.storages || []).map((s) => ({
+                id: s.id,
+                label: s.label,
+            }));
+            setStorages(productStorages);
+
             const productVariants = (product.variants || []).map((v) => ({
                 id: v.id,
                 color: v.color || "",
                 storage: v.storage || "",
+                colorRel: v.colorRel || null,
+                storageRel: v.storageRel || null,
                 price: v.price ?? 0,
                 salePrice: v.salePrice ?? "",
                 stock: v.stock ?? 0,
@@ -121,6 +148,37 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         });
         return obj;
     };
+
+    // ── Color management ──
+    const addColor = () => {
+        if (!newColorName.trim()) { toast.error("Tên màu không được để trống"); return; }
+        if (colors.some((c) => c.name.toLowerCase() === newColorName.trim().toLowerCase())) {
+            toast.error("Màu này đã tồn tại"); return;
+        }
+        setColors([...colors, { name: newColorName.trim(), hex: newColorHex, id: null }]);
+        setNewColorName("");
+        setNewColorHex("#");
+    };
+
+    const removeColor = (idx) => setColors(colors.filter((_, i) => i !== idx));
+
+    const updateColorHex = (idx, hex) => {
+        const next = [...colors];
+        next[idx] = { ...next[idx], hex };
+        setColors(next);
+    };
+
+    // ── Storage management ──
+    const addStorage = () => {
+        if (!newStorageLabel.trim()) { toast.error("Dung lượng không được để trống"); return; }
+        if (storages.some((s) => s.label.toLowerCase() === newStorageLabel.trim().toLowerCase())) {
+            toast.error("Dung lượng này đã tồn tại"); return;
+        }
+        setStorages([...storages, { label: newStorageLabel.trim(), id: null }]);
+        setNewStorageLabel("");
+    };
+
+    const removeStorage = (idx) => setStorages(storages.filter((_, i) => i !== idx));
 
     const openVariantForm = (idx) => {
         setEditingVariantIdx(idx);
@@ -225,6 +283,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         onSubmit({
             ...values,
             specifications: buildSpecsObject(),
+            colors: colors.map(({ name, hex }) => ({ name, hex: hex || "" })),
+            storages: storages.map(({ label }) => ({ label })),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
                 price: Number(rest.price) || 0,
@@ -321,7 +381,56 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                             </div>
                         </div>
 
-                        {/* ── Section 3: Variants ── */}
+                        {/* ── Section 3: Colors ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-4 text-sm font-medium text-foreground">Màu sắc</h3>
+                            <div className="space-y-2">
+                                {colors.map((c, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
+                                        <input type="color" value={c.hex || "#ccc"} onChange={(e) => updateColorHex(idx, e.target.value)} className="h-7 w-7 cursor-pointer rounded border-0 p-0" />
+                                        <span className="flex-1 text-sm text-foreground">{c.name}</span>
+                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:text-destructive" onClick={() => removeColor(idx)}>
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-3 flex items-center gap-2">
+                                <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} className="h-8 w-8 cursor-pointer rounded border-0 p-0" />
+                                <Input placeholder="Thêm màu..." value={newColorName} onChange={(e) => setNewColorName(e.target.value)} className="h-8 flex-1 text-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addColor(); } }} />
+                                <Button type="button" size="icon" className="h-8 w-8 shrink-0 rounded-full" onClick={addColor} disabled={!newColorName.trim()}>
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                                {hexPresets.map((hex) => (
+                                    <button key={hex} type="button" onClick={() => setNewColorHex(hex)} className="h-5 w-5 rounded-full border border-border transition-transform hover:scale-110" style={{ backgroundColor: hex }} />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* ── Section 4: Storages ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-4 text-sm font-medium text-foreground">Dung lượng</h3>
+                            <div className="space-y-2">
+                                {storages.map((s, idx) => (
+                                    <div key={s.id || idx} className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
+                                        <span className="flex-1 text-sm text-foreground">{s.label}</span>
+                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:text-destructive" onClick={() => removeStorage(idx)}>
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-3 flex items-center gap-2">
+                                <Input placeholder="Thêm dung lượng..." value={newStorageLabel} onChange={(e) => setNewStorageLabel(e.target.value)} className="h-8 flex-1 text-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addStorage(); } }} />
+                                <Button type="button" size="icon" className="h-8 w-8 shrink-0 rounded-full" onClick={addStorage} disabled={!newStorageLabel.trim()}>
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* ── Section 5: Variants ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
 
@@ -404,6 +513,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
                                     onSave={saveVariant}
                                     onCancel={cancelVariantForm}
+                                    colors={colors}
+                                    storages={storages}
                                 />
                             )}
 
@@ -503,76 +614,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     );
 }
 
-function SelectWithCustom({ value, onChange, options, placeholder, label }) {
-    const [isCustom, setIsCustom] = useState(false);
-    const [customVal, setCustomVal] = useState("");
-
-    const mergedOptions = [...new Set([...options, ...(value && !options.includes(value) ? [value] : [])])];
-
-    const handleSelect = (val) => {
-        if (val === "__custom__") {
-            setIsCustom(true);
-            setCustomVal("");
-        } else {
-            onChange(val);
-        }
-    };
-
-    const handleCustomSave = () => {
-        if (customVal.trim()) {
-            onChange(customVal.trim());
-        }
-        setIsCustom(false);
-    };
-
-    if (isCustom) {
-        return (
-            <div className="flex gap-1">
-                <Input
-                    placeholder={`Nhập ${label.toLowerCase()}...`}
-                    value={customVal}
-                    onChange={(e) => setCustomVal(e.target.value)}
-                    className="h-9 text-xs flex-1"
-                    autoFocus
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCustomSave(); } }}
-                />
-                <Button type="button" size="icon" className="h-9 w-9 shrink-0 rounded-full" onClick={handleCustomSave}>
-                    <Save className="h-3.5 w-3.5" />
-                </Button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex gap-1">
-            <Select value={value || ""} onValueChange={handleSelect}>
-                <SelectTrigger className="h-9 text-xs flex-1">
-                    <SelectValue placeholder={placeholder} />
-                </SelectTrigger>
-                <SelectContent>
-                    {mergedOptions.map((opt) => (
-                        <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
-                    ))}
-                    <SelectItem value="__custom__" className="text-xs text-apple-blue">
-                        + Thêm mới...
-                    </SelectItem>
-                </SelectContent>
-            </Select>
-            <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 shrink-0 rounded-full"
-                onClick={() => setIsCustom(true)}
-                title={`Thêm ${label.toLowerCase()} mới`}
-            >
-                <Plus className="h-3.5 w-3.5" />
-            </Button>
-        </div>
-    );
-}
-
-function VariantInlineForm({ initial, onSave, onCancel }) {
+function VariantInlineForm({ initial, onSave, onCancel, colors = [], storages = [] }) {
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
     const [price, setPrice] = useState(initial?.price || "");
@@ -604,25 +646,32 @@ function VariantInlineForm({ initial, onSave, onCancel }) {
                 <div>
                     <Label className="text-xs">Màu sắc <span className="text-destructive">*</span></Label>
                     <div className="mt-1">
-                        <SelectWithCustom
-                            value={color}
-                            onChange={setColor}
-                            options={COLOR_OPTIONS}
-                            placeholder="Chọn màu sắc"
-                            label="Màu sắc"
-                        />
+                        <Select value={color} onValueChange={setColor}>
+                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn màu sắc" /></SelectTrigger>
+                            <SelectContent>
+                                {colors.map((c, i) => (
+                                    <SelectItem key={c.id || i} value={c.name} className="text-xs">
+                                        <span className="flex items-center gap-2">
+                                            <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: c.hex || "#ccc" }} />
+                                            {c.name}
+                                        </span>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
                 <div>
                     <Label className="text-xs">Dung lượng <span className="text-destructive">*</span></Label>
                     <div className="mt-1">
-                        <SelectWithCustom
-                            value={storage}
-                            onChange={setStorage}
-                            options={STORAGE_OPTIONS}
-                            placeholder="Chọn dung lượng"
-                            label="Dung lượng"
-                        />
+                        <Select value={storage} onValueChange={setStorage}>
+                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn dung lượng" /></SelectTrigger>
+                            <SelectContent>
+                                {storages.map((s, i) => (
+                                    <SelectItem key={s.id || i} value={s.label} className="text-xs">{s.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
                 <div>

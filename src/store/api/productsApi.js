@@ -163,6 +163,70 @@ export const productsApi = baseApi.injectEndpoints({
             }),
             transformResponse: (response) => response.data,
         }),
+
+        // ── Colors ─────────────────────────────────────
+        getColors: builder.query({
+            query: (productId) => `/admin/products/${productId}/colors`,
+            providesTags: (_, __, productId) => [{ type: "Colors", id: productId }],
+            transformResponse: (response) => response.data,
+        }),
+
+        createColor: builder.mutation({
+            query: ({ productId, ...data }) => ({
+                url: `/admin/products/${productId}/colors`,
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: (_, __, { productId }) => [{ type: "Colors", id: productId }],
+            transformResponse: (response) => response.data,
+        }),
+
+        updateColor: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/admin/colors/${id}`,
+                method: "PUT",
+                body: data,
+            }),
+            invalidatesTags: ["Colors"],
+            transformResponse: (response) => response.data,
+        }),
+
+        deleteColor: builder.mutation({
+            query: (id) => ({ url: `/admin/colors/${id}`, method: "DELETE" }),
+            invalidatesTags: ["Colors"],
+        }),
+
+        // ── Storages ───────────────────────────────────
+        getStorages: builder.query({
+            query: (productId) => `/admin/products/${productId}/storages`,
+            providesTags: (_, __, productId) => [{ type: "Storages", id: productId }],
+            transformResponse: (response) => response.data,
+        }),
+
+        createStorage: builder.mutation({
+            query: ({ productId, ...data }) => ({
+                url: `/admin/products/${productId}/storages`,
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: (_, __, { productId }) => [{ type: "Storages", id: productId }],
+            transformResponse: (response) => response.data,
+        }),
+
+        updateStorage: builder.mutation({
+            query: ({ id, ...data }) => ({
+                url: `/admin/storages/${id}`,
+                method: "PUT",
+                body: data,
+            }),
+            invalidatesTags: ["Storages"],
+            transformResponse: (response) => response.data,
+        }),
+
+        deleteStorage: builder.mutation({
+            query: (id) => ({ url: `/admin/storages/${id}`, method: "DELETE" }),
+            invalidatesTags: ["Storages"],
+        }),
     }),
 });
 
@@ -185,4 +249,12 @@ export const {
     useDeleteVariantMutation,
     useCheckVariantOrdersQuery,
     useUploadEditorImageMutation,
+    useGetColorsQuery,
+    useCreateColorMutation,
+    useUpdateColorMutation,
+    useDeleteColorMutation,
+    useGetStoragesQuery,
+    useCreateStorageMutation,
+    useUpdateStorageMutation,
+    useDeleteStorageMutation,
 } = productsApi;
