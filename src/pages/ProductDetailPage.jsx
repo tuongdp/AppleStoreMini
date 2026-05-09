@@ -40,29 +40,47 @@ export default function ProductDetailPage() {
 
     const variants = useMemo(() => product?.variants || [], [product]);
 
-    const availableColors = useMemo(() => {
-        const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
-        return colors;
+    const allColors = useMemo(() => {
+        return [...new Set(variants.map((v) => v.color).filter(Boolean))];
     }, [variants]);
 
-    const availableStorages = useMemo(() => {
-        const storages = [...new Set(variants.map((v) => v.storage).filter(Boolean))];
-        return storages;
+    const allStorages = useMemo(() => {
+        return [...new Set(variants.map((v) => v.storage).filter(Boolean))];
     }, [variants]);
 
     const [selectedColor, setSelectedColor] = useState("");
     const [selectedStorage, setSelectedStorage] = useState("");
 
+    const availableColors = useMemo(() => {
+        if (selectedStorage) {
+            return allColors.filter((c) =>
+                variants.some((v) => v.color === c && v.storage === selectedStorage),
+            );
+        }
+        return allColors;
+    }, [allColors, variants, selectedStorage]);
+
+    const availableStorages = useMemo(() => {
+        if (selectedColor) {
+            return allStorages.filter((s) =>
+                variants.some((v) => v.storage === s && v.color === selectedColor),
+            );
+        }
+        return allStorages;
+    }, [allStorages, variants, selectedColor]);
+
     const selectedVariant = useMemo(() => {
-        return variants.find(
+        const match = variants.find(
             (v) =>
-                (!selectedColor || v.color === selectedColor) &&
-                (!selectedStorage || v.storage === selectedStorage),
-        ) || variants[0] || {};
+                v.color === selectedColor && v.storage === selectedStorage,
+        );
+        return match || null;
     }, [variants, selectedColor, selectedStorage]);
 
+    const invalidSelection = !selectedVariant && selectedColor && selectedStorage;
+
     const currentPrice = selectedVariant?.salePrice || selectedVariant?.price;
-    const inStock = selectedVariant?.inStock ?? true;
+    const inStock = selectedVariant?.inStock ?? false;
     const stock = selectedVariant?.stock ?? 0;
 
     const productImages = useMemo(() => {
@@ -75,10 +93,11 @@ export default function ProductDetailPage() {
 
     useEffect(() => {
         if (variants.length > 0) {
-            setSelectedColor(variants[0].color || "");
-            setSelectedStorage(variants[0].storage || "");
+            const first = variants[0];
+            setSelectedColor(first.color || allColors[0] || "");
+            setSelectedStorage(first.storage || allStorages[0] || "");
         }
-    }, [variants]);
+    }, [variants, allColors, allStorages]);
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const isInWishlist = useSelector(selectIsInWishlist(product?.id));
@@ -184,75 +203,117 @@ export default function ProductDetailPage() {
                     <Separator />
 
                     {/* Color selector */}
-                    {availableColors.length > 1 && (
+                    {allColors.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
                                 {t("filter.color")}
                             </p>
                             <div className="flex flex-wrap gap-2">
-                                {availableColors.map((color) => (
-                                    <button
-                                        key={color}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={cn(
-                                            "rounded-full border px-4 py-1.5 text-sm transition-all",
-                                            selectedColor === color
-                                                ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
-                                                : "border-border text-muted-foreground hover:border-foreground",
-                                        )}
-                                    >
-                                        {color}
-                                    </button>
-                                ))}
+                                {allColors.map((color) => {
+                                    const disabled = selectedStorage
+                                        ? !variants.some((v) => v.color === color && v.storage === selectedStorage)
+                                        : false;
+                                    return (
+                                        <button
+                                            key={color}
+                                            onClick={() => {
+                                                setSelectedColor(color);
+                                                if (
+                                                    selectedStorage &&
+                                                    !variants.some((v) => v.color === color && v.storage === selectedStorage)
+                                                ) {
+                                                    setSelectedStorage("");
+                                                }
+                                            }}
+                                            disabled={disabled}
+                                            className={cn(
+                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                !disabled && "hover:border-foreground",
+                                                selectedColor === color
+                                                    ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
+                                                    : disabled
+                                                        ? "cursor-not-allowed border-dashed border-border text-muted-foreground/40 line-through"
+                                                        : "border-border text-muted-foreground",
+                                            )}
+                                        >
+                                            {color}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
 
                     {/* Storage selector */}
-                    {availableStorages.length > 1 && (
+                    {allStorages.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
                                 {t("filter.storage")}
                             </p>
                             <div className="flex flex-wrap gap-2">
-                                {availableStorages.map((storage) => (
-                                    <button
-                                        key={storage}
-                                        onClick={() => setSelectedStorage(storage)}
-                                        className={cn(
-                                            "rounded-full border px-4 py-1.5 text-sm transition-all",
-                                            selectedStorage === storage
-                                                ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
-                                                : "border-border text-muted-foreground hover:border-foreground",
-                                        )}
-                                    >
-                                        {storage}
-                                    </button>
-                                ))}
+                                {allStorages.map((storage) => {
+                                    const disabled = selectedColor
+                                        ? !variants.some((v) => v.storage === storage && v.color === selectedColor)
+                                        : false;
+                                    return (
+                                        <button
+                                            key={storage}
+                                            onClick={() => {
+                                                setSelectedStorage(storage);
+                                                if (
+                                                    selectedColor &&
+                                                    !variants.some((v) => v.storage === storage && v.color === selectedColor)
+                                                ) {
+                                                    setSelectedColor("");
+                                                }
+                                            }}
+                                            disabled={disabled}
+                                            className={cn(
+                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                !disabled && "hover:border-foreground",
+                                                selectedStorage === storage
+                                                    ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
+                                                    : disabled
+                                                        ? "cursor-not-allowed border-dashed border-border text-muted-foreground/40 line-through"
+                                                        : "border-border text-muted-foreground",
+                                            )}
+                                        >
+                                            {storage}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
 
                     {/* Single color display */}
-                    {availableColors.length === 1 && availableColors[0] && (
+                    {allColors.length === 1 && allColors[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
                                 {t("filter.color")}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                {availableColors[0]}
+                                {allColors[0]}
                             </p>
                         </div>
                     )}
 
                     {/* Single storage display */}
-                    {availableStorages.length === 1 && availableStorages[0] && (
+                    {allStorages.length === 1 && allStorages[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
                                 {t("filter.storage")}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                {availableStorages[0]}
+                                {allStorages[0]}
+                            </p>
+                        </div>
+                    )}
+
+                    {invalidSelection && (
+                        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2">
+                            <p className="text-sm font-medium text-destructive">
+                                Tổ hợp màu sắc và dung lượng này không tồn tại
                             </p>
                         </div>
                     )}
@@ -273,7 +334,11 @@ export default function ProductDetailPage() {
 
                     {/* Actions */}
                     <div className="flex gap-3">
-                        {inStock ? (
+                        {!selectedVariant ? (
+                            <Button size="lg" className="flex-1 rounded-full text-base" disabled>
+                                Không có sẵn
+                            </Button>
+                        ) : inStock ? (
                             <Button
                                 size="lg"
                                 className="flex-1 rounded-full text-base"
@@ -297,7 +362,7 @@ export default function ProductDetailPage() {
                             variant="outline"
                             className="flex-1 gap-2 rounded-full text-base"
                             onClick={handleAddToCart}
-                            disabled={!inStock}
+                            disabled={!selectedVariant || !inStock}
                         >
                             <ShoppingCart className="h-5 w-5" />
                             {t("detail.addToCart")}
