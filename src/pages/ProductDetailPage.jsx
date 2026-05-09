@@ -49,33 +49,27 @@ export default function ProductDetailPage() {
     const [selectedColor, setSelectedColor] = useState("");
     const [selectedStorage, setSelectedStorage] = useState("");
 
-    const availableColors = useMemo(() => {
-        if (selectedStorage) {
-            return allColors.filter((c) =>
-                variants.some((v) => v.color === c && v.storage === selectedStorage),
-            );
-        }
-        return allColors;
-    }, [allColors, variants, selectedStorage]);
+    const defaultVariant = useMemo(() => {
+        if (!variants.length) return null;
+        return variants.find((v) => v.inStock) || variants[0];
+    }, [variants]);
 
-    const availableStorages = useMemo(() => {
-        if (selectedColor) {
-            return allStorages.filter((s) =>
-                variants.some((v) => v.storage === s && v.color === selectedColor),
-            );
-        }
-        return allStorages;
-    }, [allStorages, variants, selectedColor]);
+    const defaultColor = defaultVariant?.color || "";
+    const defaultStorage = defaultVariant?.storage || "";
+
+    const effectiveColor = selectedColor || defaultColor;
+    const effectiveStorage = selectedStorage || defaultStorage;
 
     const selectedVariant = useMemo(() => {
+        if (!effectiveColor && !effectiveStorage) return null;
         const match = variants.find(
             (v) =>
-                v.color === selectedColor && v.storage === selectedStorage,
+                v.color === effectiveColor && v.storage === effectiveStorage,
         );
         return match || null;
-    }, [variants, selectedColor, selectedStorage]);
+    }, [variants, effectiveColor, effectiveStorage]);
 
-    const invalidSelection = !selectedVariant && selectedColor && selectedStorage;
+    const invalidSelection = !selectedVariant && effectiveColor && effectiveStorage;
 
     const currentPrice = selectedVariant?.salePrice || selectedVariant?.price;
     const inStock = selectedVariant?.inStock ?? false;
@@ -83,17 +77,11 @@ export default function ProductDetailPage() {
 
     const productImages = useMemo(() => {
         const variantImages = selectedVariant?.images || [];
-        const productImgs = Array.isArray(product?.images) ? product.images : [];
-        return [...variantImages, ...productImgs];
-    }, [selectedVariant, product]);
-
-    useEffect(() => {
-        if (variants.length > 0) {
-            const defaultVariant = variants.find((v) => v.inStock) || variants[0];
-            setSelectedColor(defaultVariant.color || allColors[0] || "");
-            setSelectedStorage(defaultVariant.storage || allStorages[0] || "");
+        if (Array.isArray(variantImages) && variantImages.length > 0) {
+            return variantImages;
         }
-    }, [variants, allColors, allStorages]);
+        return Array.isArray(product?.images) ? product.images : [];
+    }, [selectedVariant, product]);
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const isInWishlist = useSelector(selectIsInWishlist(product?.id));
@@ -105,6 +93,8 @@ export default function ProductDetailPage() {
     useEffect(() => {
         if (slugRef.current !== slug) {
             slugRef.current = slug;
+            setSelectedColor("");
+            setSelectedStorage("");
             setQuantity(1);
         }
     }, [slug]);
@@ -191,9 +181,9 @@ export default function ProductDetailPage() {
                         {product.name}
                     </h1>
 
-                    {selectedColor && selectedStorage && (
+                    {effectiveColor && effectiveStorage && (
                         <p className="text-sm text-muted-foreground">
-                            {selectedColor} · {selectedStorage}
+                            {effectiveColor} · {effectiveStorage}
                         </p>
                     )}
 
@@ -223,16 +213,16 @@ export default function ProductDetailPage() {
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allColors.map((color) => {
-                                    const disabled = selectedStorage
-                                        ? !variants.some((v) => v.color === color && v.storage === selectedStorage)
+                                    const disabled = effectiveStorage
+                                        ? !variants.some((v) => v.color === color && v.storage === effectiveStorage)
                                         : false;
                                     return (
                                         <button
                                             key={color}
                                             onClick={() => {
                                                 setSelectedColor(color);
-                                                const hasStorage = selectedStorage &&
-                                                    variants.some((v) => v.color === color && v.storage === selectedStorage);
+                                                const hasStorage = effectiveStorage &&
+                                                    variants.some((v) => v.color === color && v.storage === effectiveStorage);
                                                 if (!hasStorage) {
                                                     const first = variants.find((v) => v.color === color)?.storage || "";
                                                     setSelectedStorage(first);
@@ -242,7 +232,7 @@ export default function ProductDetailPage() {
                                             className={cn(
                                                 "rounded-full border px-4 py-1.5 text-sm transition-all",
                                                 !disabled && "hover:border-foreground",
-                                                selectedColor === color
+                                                effectiveColor === color
                                                     ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
                                                     : disabled
                                                         ? "cursor-not-allowed border-dashed border-border text-muted-foreground/40 line-through"
@@ -265,8 +255,8 @@ export default function ProductDetailPage() {
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allStorages.map((storage) => {
-                                    const disabled = selectedColor
-                                        ? !variants.some((v) => v.storage === storage && v.color === selectedColor)
+                                    const disabled = effectiveColor
+                                        ? !variants.some((v) => v.storage === storage && v.color === effectiveColor)
                                         : false;
                                     return (
                                         <button
@@ -278,7 +268,7 @@ export default function ProductDetailPage() {
                                             className={cn(
                                                 "rounded-full border px-4 py-1.5 text-sm transition-all",
                                                 !disabled && "hover:border-foreground",
-                                                selectedStorage === storage
+                                                effectiveStorage === storage
                                                     ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
                                                     : disabled
                                                         ? "cursor-not-allowed border-dashed border-border text-muted-foreground/40 line-through"
