@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 export default function ProductSpecification({ specifications = {} }) {
     const { t } = useTranslation("product");
@@ -22,9 +20,12 @@ export default function ProductSpecification({ specifications = {} }) {
 
     return (
         <div>
-            <h3 className="mb-3 text-lg font-semibold text-foreground">
-                {t("detail.specification")}
-            </h3>
+            <div className="mb-6 text-center">
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+                    {t("detail.specification")}
+                </h2>
+                <div className="mx-auto mt-2 h-0.5 w-12 rounded-full bg-apple-blue/60" />
+            </div>
             <div
                 ref={contentRef}
                 className={cn(
@@ -43,7 +44,7 @@ export default function ProductSpecification({ specifications = {} }) {
                                     {value}
                                 </span>
                             </div>
-                            {index < entries.length - 1 && <Separator />}
+                            {index < entries.length - 1 && <div className="border-t border-border/50" />}
                         </div>
                     ))}
                 </div>
@@ -52,20 +53,20 @@ export default function ProductSpecification({ specifications = {} }) {
                 )}
             </div>
             {needsTruncation && (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setExpanded(!expanded)}
-                    className="mt-1 h-auto px-0 text-sm text-apple-blue hover:text-apple-blue/80 hover:bg-transparent"
-                >
-                    {expanded ? "Thu gọn" : "Xem thêm"}
-                    <ChevronDown
-                        className={cn(
-                            "ml-1 h-4 w-4 transition-transform",
-                            expanded && "rotate-180",
-                        )}
-                    />
-                </Button>
+                <div className="mt-3 text-center">
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-apple-blue transition-colors hover:text-apple-blue/70"
+                    >
+                        {expanded ? "Thu gọn" : "Xem thêm"}
+                        <ChevronDown
+                            className={cn(
+                                "h-4 w-4 transition-transform",
+                                expanded && "rotate-180",
+                            )}
+                        />
+                    </button>
+                </div>
             )}
         </div>
     );
