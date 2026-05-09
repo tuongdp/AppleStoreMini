@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import {
-    Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle, Loader2
+    Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle, Loader2, FileSpreadsheet
 } from "lucide-react";
 import { productSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVaria
 import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
+import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 
 const EMPTY_VARIANT = { color: "", storage: "", ram: "", price: "", salePrice: "", stock: 0 };
 
@@ -57,6 +58,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [blockedVariant, setBlockedVariant] = useState(null);
     const [autoCreatedId, setAutoCreatedId] = useState(null);
     const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+    const [showImportSpecs, setShowImportSpecs] = useState(false);
 
     const [deleteVariant] = useDeleteVariantMutation();
     const [checkOrders] = useLazyCheckVariantOrdersQuery();
@@ -153,6 +155,17 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             if (key.trim()) obj[key.trim()] = value;
         });
         return obj;
+    };
+
+    const handleImportSpecs = (importedSpecs) => {
+        const existingKeys = new Set(specs.map((s) => s.key));
+        const newSpecs = importedSpecs.filter((s) => !existingKeys.has(s.key));
+        setSpecs([...specs, ...newSpecs]);
+        setShowImportSpecs(false);
+        if (newSpecs.length < importedSpecs.length) {
+            toast.info(t("productForm.importSpecsDupSkipped", { count: importedSpecs.length - newSpecs.length }));
+        }
+        toast.success(t("productForm.importSpecsSuccess", { count: newSpecs.length }));
     };
 
     // ── Option management ──
@@ -466,11 +479,23 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         </Button>
                                     </div>
                                 ))}
-                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
-                                    <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addSpec")}
-                                </Button>
+                                <div className="flex flex-wrap gap-2">
+                                    <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
+                                        <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addSpec")}
+                                    </Button>
+                                    <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowImportSpecs(true)}>
+                                        <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {t("productForm.importSpecsSelectFile")}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
+
+                        {showImportSpecs && (
+                            <ImportSpecsFromExcel
+                                onImport={handleImportSpecs}
+                                onCancel={() => setShowImportSpecs(false)}
+                            />
+                        )}
 
                         {/* ── Section 3: Options ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">

@@ -22,6 +22,7 @@ import QuantityInput from "@/components/shared/QuantityInput";
 import ProductImageGallery from "@/features/products/components/ProductImageGallery";
 import ProductDescription from "@/features/products/components/ProductDescription";
 import ProductSpecification from "@/features/products/components/ProductSpecification";
+import SpecsAccordion from "@/components/shared/SpecsAccordion";
 import ProductReviews from "@/features/products/components/ProductReviews";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn } from "@/lib/utils";
@@ -430,8 +431,8 @@ export default function ProductDetailPage() {
                         </Button>
                     </div>
 
-                    <ProductSpecification
-                        specifications={product.specifications || {}}
+                    <SpecsAccordion
+                        specs={product.specifications || {}}
                     />
                 </div>
             </div>
