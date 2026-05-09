@@ -180,7 +180,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         const hex = newOptionType === "COLOR" ? newOptionHex : null;
         if (isEdit) {
             try {
-                const created = await createOption({ productId: product.id, type: newOptionType, value, hex }).unwrap();
+                const payload = { productId: product.id, type: newOptionType, value };
+                if (hex) payload.hex = hex;
+                const created = await createOption(payload).unwrap();
                 setOptions([...options, { id: created.id, type: created.type, value: created.value, hex: created.hex || null }]);
                 toast.success(newOptionType === "COLOR" ? t("productForm.toast.addColorSuccess") : t("productForm.toast.addOptionSuccess", { type: getOptionLabel(newOptionType) }));
             } catch (err) {
@@ -291,7 +293,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     description: formValues.description || "",
                     featured: formValues.featured ?? false,
                     specifications: buildSpecsArray(),
-                    options: options.map(({ type, value, hex }) => ({ type, value, hex })),
+                    options: options.map(({ type, value, hex }) => hex ? { type, value, hex } : { type, value }),
                     variants: [{
                         color: color.trim(),
                         storage: storage.trim(),
@@ -395,7 +397,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             ...values,
             productId: autoCreatedId,
             specifications: buildSpecsArray(),
-            options: options.map(({ type, value, hex }) => ({ type, value, hex })),
+            options: options.map(({ type, value, hex }) => hex ? { type, value, hex } : { type, value }),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
                 price: Number(rest.price) || 0,
