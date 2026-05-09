@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Clock, Zap, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/lib/constants";
 import ProductSlider from "@/components/shared/ProductSlider";
 import ProductCard from "@/components/shared/ProductCard";
@@ -122,13 +121,6 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                     renderItem={(product) => (
                         <div className="group relative">
                             <ProductCard product={product} />
-                            {product._flashSaleItem && (
-                                <div className="absolute left-3 top-3 z-10">
-                                    <Badge variant="destructive" className="text-[10px] font-bold shadow-sm">
-                                        -{product._flashSaleItem.discountPercent}%
-                                    </Badge>
-                                </div>
-                            )}
                             {product._flashSaleItem?.quantityLimit > 0 && (
                                 <div className="px-3 pb-1">
                                     <div className="flex items-center justify-between text-[10px] text-muted-foreground">
