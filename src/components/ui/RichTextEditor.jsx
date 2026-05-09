@@ -57,23 +57,34 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
     });
 
     const handleImageUpload = useCallback(async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        if (!file.type.startsWith("image/")) {
-            toast.error("Vui lòng chọn file ảnh");
-            return;
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
+        const valid = files.filter(
+            (f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024,
+        );
+        if (valid.length !== files.length) {
+            toast.error("Chỉ chấp nhận file ảnh dưới 5MB");
         }
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error("Ảnh không được vượt quá 5MB");
-            return;
-        }
-        const formData = new FormData();
-        formData.append("image", file);
+        if (!valid.length) return;
+
+        const toastId = toast.loading(`Đang upload ${valid.length} ảnh...`);
+
         try {
-            const res = await uploadImage(formData).unwrap();
-            editor?.chain().focus().setImage({ src: res.url }).run();
+            const results = await Promise.all(
+                valid.map((file) => {
+                    const fd = new FormData();
+                    fd.append("image", file);
+                    return uploadImage(fd).unwrap();
+                }),
+            );
+            editor?.chain().focus();
+            results.forEach((res) => {
+                editor?.chain().focus().setImage({ src: res.url }).run();
+            });
+            toast.success(`Đã upload ${results.length} ảnh`, { id: toastId });
         } catch {
-            toast.error("Upload ảnh thất bại");
+            toast.error("Upload ảnh thất bại", { id: toastId });
         }
         if (fileRef.current) fileRef.current.value = "";
     }, [editor, uploadImage]);
@@ -186,6 +197,7 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
                 ref={fileRef}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={handleImageUpload}
             />
