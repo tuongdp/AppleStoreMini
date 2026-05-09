@@ -389,12 +389,12 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Description */}
-            <div className="mx-auto mt-12 max-w-4xl">
+            <div className="mt-12">
                 <ProductDescription description={product.description} />
             </div>
 
             {/* Trust badges */}
-            <div className="mx-auto mt-8 max-w-4xl">
+            <div className="mt-8">
                 <div className="grid grid-cols-1 gap-4 rounded-2xl bg-muted/30 p-5 md:grid-cols-3">
                     <div className="flex items-center gap-3">
                         <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
