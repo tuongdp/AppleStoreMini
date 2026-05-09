@@ -585,7 +585,7 @@ function VariantInlineForm({ initial, onSave, onCancel }) {
         const files = Array.from(e.target.files || []);
         const valid = files.filter((f) => IMAGE.VALID_TYPES.includes(f.type) && f.size <= IMAGE.MAX_SIZE);
         const newUrls = valid.map((f) => URL.createObjectURL(f));
-        setVImages([...vImages, ...newUrls].slice(0, 5));
+        setVImages([...vImages, ...newUrls].slice(0, IMAGE.MAX_COUNT));
         if (fileRef.current) fileRef.current.value = "";
     };
 
@@ -640,7 +640,7 @@ function VariantInlineForm({ initial, onSave, onCancel }) {
             </div>
 
             <div>
-                <Label className="text-xs">Ảnh riêng (tối đa 5 ảnh)</Label>
+                <Label className="text-xs">Ảnh riêng (tối đa {IMAGE.MAX_COUNT} ảnh)</Label>
                 <div className="mt-1 flex flex-wrap gap-2">
                     {vImages.map((src, idx) => (
                         <div key={idx} className="group relative h-14 w-14 overflow-hidden rounded-lg bg-muted/30">
@@ -650,7 +650,7 @@ function VariantInlineForm({ initial, onSave, onCancel }) {
                             </button>
                         </div>
                     ))}
-                    {vImages.length < 5 && (
+                    {vImages.length < IMAGE.MAX_COUNT && (
                         <button type="button" onClick={() => fileRef.current?.click()} className="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:border-foreground hover:text-foreground">
                             <Upload className="h-4 w-4" />
                         </button>
