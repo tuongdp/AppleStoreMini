@@ -22,6 +22,7 @@ export default function CartDrawerItem({ item }) {
   const color = variant?.color || product?.color || "";
   const storage = variant?.storage || product?.storage || "";
   const ram = variant?.ram || product?.ram || "";
+  const edition = variant?.edition || product?.edition || "";
 
   const handleRemove = () => {
     dispatch(removeFromCart({ variantId }));
@@ -60,7 +61,7 @@ export default function CartDrawerItem({ item }) {
               {product?.name}
             </Link>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {[color, storage, ram].filter(Boolean).join(" · ")}
+              {[color, storage, ram, edition].filter(Boolean).join(" · ")}
             </p>
           </div>
 

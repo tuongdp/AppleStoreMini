@@ -51,9 +51,14 @@ export default function ProductDetailPage() {
         return [...new Set(variants.map((v) => v.ram).filter(Boolean))];
     }, [variants]);
 
+    const allEditions = useMemo(() => {
+        return [...new Set(variants.map((v) => v.edition).filter(Boolean))];
+    }, [variants]);
+
     const [selectedColor, setSelectedColor] = useState("");
     const [selectedStorage, setSelectedStorage] = useState("");
     const [selectedRam, setSelectedRam] = useState("");
+    const [selectedEdition, setSelectedEdition] = useState("");
 
     const defaultVariant = useMemo(() => {
         if (!variants.length) return null;
@@ -63,21 +68,23 @@ export default function ProductDetailPage() {
     const defaultColor = defaultVariant?.color || "";
     const defaultStorage = defaultVariant?.storage || "";
     const defaultRam = defaultVariant?.ram || "";
+    const defaultEdition = defaultVariant?.edition || "";
 
     const effectiveColor = selectedColor || defaultColor;
     const effectiveStorage = selectedStorage || defaultStorage;
     const effectiveRam = selectedRam || defaultRam;
+    const effectiveEdition = selectedEdition || defaultEdition;
 
     const selectedVariant = useMemo(() => {
-        if (!effectiveColor && !effectiveStorage && !effectiveRam) return null;
+        if (!effectiveColor && !effectiveStorage && !effectiveRam && !effectiveEdition) return null;
         const match = variants.find(
             (v) =>
-                v.color === effectiveColor && v.storage === effectiveStorage && v.ram === effectiveRam,
+                v.color === effectiveColor && v.storage === effectiveStorage && v.ram === effectiveRam && v.edition === effectiveEdition,
         );
         return match || null;
-    }, [variants, effectiveColor, effectiveStorage, effectiveRam]);
+    }, [variants, effectiveColor, effectiveStorage, effectiveRam, effectiveEdition]);
 
-    const invalidSelection = !selectedVariant && effectiveColor && effectiveStorage;
+    const invalidSelection = !selectedVariant && (effectiveColor || effectiveStorage || effectiveRam || effectiveEdition);
 
     const currentPrice = selectedVariant?.salePrice || selectedVariant?.price;
     const inStock = selectedVariant?.inStock ?? false;
@@ -104,6 +111,7 @@ export default function ProductDetailPage() {
             setSelectedColor("");
             setSelectedStorage("");
             setSelectedRam("");
+            setSelectedEdition("");
             setQuantity(1);
         }
     }, [slug]);
@@ -232,6 +240,7 @@ export default function ProductDetailPage() {
                                                         onClick={() => {
                                                             setSelectedColor(color);
                                                             setSelectedRam("");
+                                                            setSelectedEdition("");
                                                             const hasStorage = effectiveStorage &&
                                                                 variants.some((v) => v.color === color && v.storage === effectiveStorage);
                                                             if (!hasStorage) {
@@ -275,6 +284,7 @@ export default function ProductDetailPage() {
                                                         onClick={() => {
                                                             setSelectedStorage(storage);
                                                             setSelectedRam("");
+                                                            setSelectedEdition("");
                                                         }}
                                             disabled={disabled}
                                             className={cn(
@@ -327,6 +337,38 @@ export default function ProductDetailPage() {
                         </div>
                     )}
 
+                    {/* Edition selector */}
+                    {allEditions.length > 1 && (
+                        <div>
+                            <p className="mb-2 text-sm font-medium text-foreground">{t("specification.edition")}</p>
+                            <div className="flex flex-wrap gap-2">
+                                {allEditions.map((edition) => {
+                                    const disabled = effectiveColor && effectiveStorage && effectiveRam
+                                        ? !variants.some((v) => v.edition === edition && v.color === effectiveColor && v.storage === effectiveStorage && v.ram === effectiveRam)
+                                        : false;
+                                    return (
+                                        <button
+                                            key={edition}
+                                            onClick={() => setSelectedEdition(edition)}
+                                            disabled={disabled}
+                                            className={cn(
+                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                !disabled && "hover:border-foreground",
+                                                effectiveEdition === edition
+                                                    ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
+                                                    : disabled
+                                                        ? "cursor-not-allowed border-dashed border-border text-muted-foreground/40 line-through"
+                                                        : "border-border text-muted-foreground",
+                                            )}
+                                        >
+                                            {edition}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Single color display */}
                     {allColors.length === 1 && allColors[0] && (
                         <div>
@@ -356,6 +398,14 @@ export default function ProductDetailPage() {
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">{t("specification.ram")}</p>
                             <p className="text-sm text-muted-foreground">{allRams[0]}</p>
+                        </div>
+                    )}
+
+                    {/* Single edition display */}
+                    {allEditions.length === 1 && allEditions[0] && (
+                        <div>
+                            <p className="mb-1 text-sm font-medium text-foreground">{t("specification.edition")}</p>
+                            <p className="text-sm text-muted-foreground">{allEditions[0]}</p>
                         </div>
                     )}
 

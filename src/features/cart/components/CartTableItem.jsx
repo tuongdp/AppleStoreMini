@@ -24,6 +24,7 @@ export default function CartTableItem({ item, isLast }) {
   const color = variant?.color || product?.color || "";
   const storage = variant?.storage || product?.storage || "";
   const ram = variant?.ram || product?.ram || "";
+  const edition = variant?.edition || product?.edition || "";
 
   const handleRemove = () => {
     dispatch(removeFromCart({ variantId }));
@@ -62,7 +63,7 @@ export default function CartTableItem({ item, isLast }) {
               {product?.name}
             </Link>
             <p className="mt-1 text-xs text-muted-foreground">
-              {[color && `${t("item.color")}: ${color}`, storage && `${t("item.storage")}: ${storage}`, ram && `${t("item.ram")}: ${ram}`].filter(Boolean).join(" · ")}
+              {[color && `${t("item.color")}: ${color}`, storage && `${t("item.storage")}: ${storage}`, ram && `${t("item.ram")}: ${ram}`, edition && `${t("item.edition")}: ${edition}`].filter(Boolean).join(" · ")}
             </p>
             <button
               onClick={handleRemove}

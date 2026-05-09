@@ -9,6 +9,7 @@
         "color": "Color",
         "storage": "Storage",
         "ram": "RAM",
+        "edition": "Edition",
         "quantity": "Quantity",
         "price": "Unit price",
         "total": "Total",

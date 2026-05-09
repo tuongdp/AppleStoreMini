@@ -121,6 +121,7 @@ export default function OrderCard({ order }) {
                                         item.color || item.selectedColor || "",
                                         item.storage || item.selectedStorage || "",
                                         item.ram || "",
+                                        item.edition || "",
                                     ].filter(Boolean);
                                     return parts.length > 0 ? (
                                         <span className="ml-1 text-xs text-muted-foreground">

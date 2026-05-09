@@ -35,7 +35,7 @@ import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 
-const EMPTY_VARIANT = { color: "", storage: "", ram: "", price: "", salePrice: "", stock: 0 };
+const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
 
 const hexPresets = [
     "#000000", "#1d1d1f", "#3a3a3c", "#636366", "#aeaeb2",
@@ -76,6 +76,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const colorOptions = useMemo(() => options.filter((o) => o.type === "COLOR"), [options]);
     const storageOptions = useMemo(() => options.filter((o) => o.type === "STORAGE"), [options]);
     const ramOptions = useMemo(() => options.filter((o) => o.type === "RAM"), [options]);
+    const editionOptions = useMemo(() => options.filter((o) => o.type === "EDITION"), [options]);
 
     const form = useForm({
         resolver: zodResolver(productSchema),
@@ -217,6 +218,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             case "COLOR": return t("productForm.colorLabel");
             case "STORAGE": return t("productForm.storageLabel");
             case "RAM": return t("productForm.ramLabel");
+            case "EDITION": return t("productForm.editionLabel");
             default: return type;
         }
     };
@@ -233,10 +235,11 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     };
 
     const saveVariant = async (data) => {
-        const { color, storage, ram, price, salePrice, stock, images: vImages } = data;
+        const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
         if (!color.trim()) { toast.error(t("productForm.toast.colorRequired")); return; }
         if (storageOptions.length > 0 && !storage.trim()) { toast.error(t("productForm.toast.storageRequired")); return; }
         if (ramOptions.length > 0 && !ram.trim()) { toast.error(t("productForm.toast.ramRequired")); return; }
+        if (editionOptions.length > 0 && !edition.trim()) { toast.error(t("productForm.toast.editionRequired")); return; }
         if (!price || Number(price) < 1000) { toast.error(t("productForm.toast.priceMinError")); return; }
         if (salePrice && Number(salePrice) >= Number(price)) { toast.error(t("productForm.toast.salePriceError")); return; }
 
@@ -244,7 +247,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             i !== editingVariantIdx &&
             v.color?.toLowerCase() === color.trim().toLowerCase() &&
             v.storage?.toLowerCase() === storage.trim().toLowerCase() &&
-            v.ram?.toLowerCase() === ram.trim().toLowerCase()
+            v.ram?.toLowerCase() === ram.trim().toLowerCase() &&
+            v.edition?.toLowerCase() === edition.trim().toLowerCase()
         );
         if (dup >= 0) { toast.error(t("productForm.toast.variantExists")); return; }
 
@@ -257,14 +261,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 if (editingVariantIdx !== null) {
                     const existing = variants[editingVariantIdx];
                     if (existing?.id) {
-                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
                         savedId = existing.id;
                     } else {
-                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
                         savedId = created.id;
                     }
                 } else {
-                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
                     savedId = created.id;
                 }
              } catch (err) {
@@ -292,6 +296,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         color: color.trim(),
                         storage: storage.trim(),
                         ram: ram.trim(),
+                        edition: edition.trim(),
                         price: Number(price),
                         salePrice: salePrice ? Number(salePrice) : null,
                         stock: Number(stock) || 0,
@@ -316,6 +321,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             color: color.trim(),
             storage: storage.trim(),
             ram: ram.trim(),
+            edition: edition.trim(),
             price: Number(price),
             salePrice: salePrice ? Number(salePrice) : null,
             stock: Number(stock) || 0,
@@ -527,6 +533,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         <SelectItem value="COLOR" className="text-xs">{t("productForm.colorLabel")}</SelectItem>
                                         <SelectItem value="STORAGE" className="text-xs">{t("productForm.storageLabel")}</SelectItem>
                                         <SelectItem value="RAM" className="text-xs">{t("productForm.ramLabel")}</SelectItem>
+                                        <SelectItem value="EDITION" className="text-xs">{t("productForm.editionLabel")}</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 {newOptionType === "COLOR" && (
@@ -572,6 +579,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                 <th className="px-4 py-3">{t("productForm.variantColor")}</th>
                                                 <th className="px-4 py-3">{t("productForm.variantStorage")}</th>
                                                 <th className="px-4 py-3">{t("productForm.variantRam")}</th>
+                                                <th className="px-4 py-3">{t("productForm.variantEdition")}</th>
                                                 <th className="px-4 py-3">{t("productForm.priceColumn")}</th>
                                                 <th className="px-4 py-3">{t("productForm.salePriceColumn")}</th>
                                                 <th className="px-4 py-3">{t("productForm.stockColumn")}</th>
@@ -586,6 +594,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                     <td className="px-4 py-3 font-medium text-foreground">{v.color || "—"}</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.storage || "—"}</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.ram || "—"}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.edition || "—"}</td>
                                                     <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
                                                     <td className="px-4 py-3 text-foreground">{v.stock}</td>
@@ -641,6 +650,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                     colorOptions={colorOptions}
                                     storageOptions={storageOptions}
                                     ramOptions={ramOptions}
+                                    editionOptions={editionOptions}
                                     uploadImage={uploadImage}
                                     isSaving={isCreatingProduct}
                                 />
@@ -742,11 +752,12 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     );
 }
 
-function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [], uploadImage, isSaving }) {
+function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [], editionOptions = [], uploadImage, isSaving }) {
     const { t } = useTranslation("admin");
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
     const [ram, setRam] = useState(initial?.ram || "");
+    const [edition, setEdition] = useState(initial?.edition || "");
     const [price, setPrice] = useState(initial?.price || "");
     const [salePrice, setSalePrice] = useState(initial?.salePrice || "");
     const [stock, setStock] = useState(initial?.stock ?? 0);
@@ -793,7 +804,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
     const removeVImage = (idx) => setVImages(vImages.filter((_, i) => i !== idx));
 
     const handleSave = () => {
-        onSave({ color, storage, ram, price, salePrice, stock, images: vImages });
+        onSave({ color, storage, ram, edition, price, salePrice, stock, images: vImages });
     };
 
     return (
@@ -845,6 +856,21 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                                 <SelectTrigger className="h-9 text-xs"><SelectValue placeholder={t("productForm.selectRam")} /></SelectTrigger>
                                 <SelectContent>
                                     {ramOptions.map((o, i) => (
+                                        <SelectItem key={o.id || i} value={o.value} className="text-xs">{o.value}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                )}
+                {editionOptions.length > 0 && (
+                    <div>
+                        <Label className="text-xs">{t("productForm.editionLabel")} <span className="text-destructive">*</span></Label>
+                        <div className="mt-1">
+                            <Select value={edition} onValueChange={setEdition}>
+                                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder={t("productForm.selectEdition")} /></SelectTrigger>
+                                <SelectContent>
+                                    {editionOptions.map((o, i) => (
                                         <SelectItem key={o.id || i} value={o.value} className="text-xs">{o.value}</SelectItem>
                                     ))}
                                 </SelectContent>
