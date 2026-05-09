@@ -381,11 +381,20 @@ export default function ProductDetailPage() {
                             />
                         </Button>
                     </div>
+
+                    <ProductSpecification
+                        specifications={product.specifications || {}}
+                    />
                 </div>
             </div>
 
-            {/* Trust badges, Description & Specs */}
-            <div className="mx-auto mt-12 max-w-3xl space-y-8">
+            {/* Description */}
+            <div className="mx-auto mt-12 max-w-4xl">
+                <ProductDescription description={product.description} />
+            </div>
+
+            {/* Trust badges */}
+            <div className="mx-auto mt-8 max-w-4xl">
                 <div className="grid grid-cols-1 gap-4 rounded-2xl bg-muted/30 p-5 md:grid-cols-3">
                     <div className="flex items-center gap-3">
                         <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -422,11 +431,6 @@ export default function ProductDetailPage() {
                         </div>
                     </div>
                 </div>
-
-                <ProductDescription description={product.description} />
-                <ProductSpecification
-                    specifications={product.specifications || {}}
-                />
             </div>
             <Separator className="my-12" />
             <ProductReviews product={product} />
