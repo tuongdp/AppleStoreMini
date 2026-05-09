@@ -421,17 +421,16 @@ export default function ProductDetailPage() {
                             </div>
                         </div>
                     </div>
-
-                    <div className="space-y-2">
-                        <ProductDescription description={product.description} />
-                        <ProductSpecification
-                            specifications={product.specifications || {}}
-                        />
-                    </div>
                 </div>
             </div>
 
-            {/* Reviews */}
+            {/* Description & Specs */}
+            <div className="mx-auto mt-12 max-w-3xl space-y-6">
+                <ProductDescription description={product.description} />
+                <ProductSpecification
+                    specifications={product.specifications || {}}
+                />
+            </div>
             <Separator className="my-12" />
             <ProductReviews product={product} />
 
