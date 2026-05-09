@@ -127,12 +127,15 @@ export default function ImageGallery({ images = [], productName = "" }) {
 
             {/* Zoom dialog */}
             <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
-                <DialogContent className="max-w-3xl border-none bg-background/95 p-2 backdrop-blur-md">
-                    <div className="relative aspect-square">
+                <DialogContent
+                    className="border-none bg-black/95 p-0 max-w-[95vw] sm:max-w-[95vw] rounded-2xl"
+                    showCloseButton={false}
+                >
+                    <div className="relative flex h-[85vh] w-full items-center justify-center">
                         <img
                             src={images[zoomIndex]}
                             alt={`${productName} - zoom ${zoomIndex + 1}`}
-                            className="h-full w-full object-contain"
+                            className="max-h-[90%] max-w-[90%] object-contain"
                             onError={(e) => { e.currentTarget.src = productPlaceholder; }}
                         />
 
@@ -141,35 +144,35 @@ export default function ImageGallery({ images = [], productName = "" }) {
                             variant="ghost"
                             size="icon"
                             onClick={() => setZoomOpen(false)}
-                            className="absolute right-2 top-2 rounded-full bg-background/80"
+                            className="absolute right-4 top-4 size-10 rounded-full bg-white/10 text-white hover:bg-white/20"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         </Button>
 
-                        {/* Prev / Next trong zoom */}
+                        {/* Prev / Next */}
                         {images.length > 1 && (
                             <>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={handleZoomPrev}
-                                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80"
+                                    className="absolute left-4 top-1/2 size-10 -translate-y-1/2 rounded-full bg-white/10 text-white hover:bg-white/20"
                                 >
-                                    <ChevronLeft className="h-4 w-4" />
+                                    <ChevronLeft className="h-5 w-5" />
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={handleZoomNext}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/80"
+                                    className="absolute right-4 top-1/2 size-10 -translate-y-1/2 rounded-full bg-white/10 text-white hover:bg-white/20"
                                 >
-                                    <ChevronRight className="h-4 w-4" />
+                                    <ChevronRight className="h-5 w-5" />
                                 </Button>
                             </>
                         )}
 
                         {/* Counter */}
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs backdrop-blur-sm">
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-white backdrop-blur-sm">
                             {zoomIndex + 1} / {images.length}
                         </div>
                     </div>
