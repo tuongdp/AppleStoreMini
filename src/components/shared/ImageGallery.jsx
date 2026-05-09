@@ -40,12 +40,15 @@ export default function ImageGallery({ images = [], productName = "" }) {
             <div className="flex flex-col gap-4">
                 {/* Main image */}
                 <div className="group relative aspect-square overflow-hidden rounded-2xl bg-muted/30">
-                    <img
-                        src={selectedImage}
-                        alt={`${productName} - ảnh ${selectedIndex + 1}`}
-                        className="h-full w-full object-contain p-6 transition-transform duration-500"
-                        onError={(e) => { e.currentTarget.src = productPlaceholder; }}
-                    />
+                    <div className="absolute inset-0 p-6">
+                        <img
+                            key={selectedIndex}
+                            src={selectedImage}
+                            alt={`${productName} - ảnh ${selectedIndex + 1}`}
+                            className="h-full w-full object-contain"
+                            onError={(e) => { e.currentTarget.src = productPlaceholder; }}
+                        />
+                    </div>
 
                     {/* Zoom button */}
                     <button
