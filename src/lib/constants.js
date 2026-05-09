@@ -107,6 +107,27 @@ export const PAGINATION = {
     LIMIT_OPTIONS: [12, 24, 36, 48],
 };
 
+// ── Color options ─────────────────────────────────────
+export const COLOR_OPTIONS = [
+    "Black Titanium",
+    "White Titanium",
+    "Natural Titanium",
+    "Blue Titanium",
+    "Pink",
+    "Midnight",
+    "Starlight",
+    "Space Gray",
+    "Silver",
+    "Gold",
+    "Purple",
+    "Green",
+    "Yellow",
+    "Red",
+    "Blue",
+    "White",
+    "Black",
+];
+
 // ── Storage options ───────────────────────────────────
 export const STORAGE_OPTIONS = [
     "64GB",
@@ -115,6 +136,8 @@ export const STORAGE_OPTIONS = [
     "512GB",
     "1TB",
     "2TB",
+    "41mm",
+    "45mm",
 ];
 
 // ── Price ranges ──────────────────────────────────────

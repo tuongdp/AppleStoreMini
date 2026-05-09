@@ -148,7 +148,8 @@ export const productSchema = z.object({
     category: z.string().min(1, { message: "Vui lòng chọn danh mục" }),
     description: z
         .string()
-        .min(10, { message: "Mô tả phải có ít nhất 10 ký tự" }),
+        .min(10, { message: "Mô tả phải có ít nhất 10 ký tự" })
+        .or(z.literal("")),
     featured: z.boolean().default(false),
 });
 

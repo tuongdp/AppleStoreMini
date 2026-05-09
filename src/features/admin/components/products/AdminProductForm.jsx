@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { useGetAdminCategoriesQuery, useUploadProductImagesMutation, useDeleteVariantMutation } from "@/store/api/productsApi";
 import { slugify, formatNumber, formatDateTime, cn, parseJsonField, formatFileSize } from "@/lib/utils";
-import { IMAGE } from "@/lib/constants";
+import { IMAGE, COLOR_OPTIONS, STORAGE_OPTIONS } from "@/lib/constants";
 import { toast } from "sonner";
 
 const EMPTY_VARIANT = { color: "", storage: "", price: "", salePrice: "", stock: 0 };
@@ -72,7 +72,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             form.reset({
                 name: product.name || "",
                 slug: product.slug || "",
-                category: product.categorySlug || product.category || "",
+                category: product.category?.slug || product.categorySlug || "",
                 description: product.description || "",
                 featured: product.featured ?? false,
             });
@@ -535,6 +535,75 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     );
 }
 
+function SelectWithCustom({ value, onChange, options, placeholder, label }) {
+    const [isCustom, setIsCustom] = useState(false);
+    const [customVal, setCustomVal] = useState("");
+
+    const mergedOptions = [...new Set([...options, ...(value && !options.includes(value) ? [value] : [])])];
+
+    const handleSelect = (val) => {
+        if (val === "__custom__") {
+            setIsCustom(true);
+            setCustomVal("");
+        } else {
+            onChange(val);
+        }
+    };
+
+    const handleCustomSave = () => {
+        if (customVal.trim()) {
+            onChange(customVal.trim());
+        }
+        setIsCustom(false);
+    };
+
+    if (isCustom) {
+        return (
+            <div className="flex gap-1">
+                <Input
+                    placeholder={`Nhập ${label.toLowerCase()}...`}
+                    value={customVal}
+                    onChange={(e) => setCustomVal(e.target.value)}
+                    className="h-9 text-xs flex-1"
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCustomSave(); } }}
+                />
+                <Button type="button" size="icon" className="h-9 w-9 shrink-0 rounded-full" onClick={handleCustomSave}>
+                    <Save className="h-3.5 w-3.5" />
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex gap-1">
+            <Select value={value || ""} onValueChange={handleSelect}>
+                <SelectTrigger className="h-9 text-xs flex-1">
+                    <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+                <SelectContent>
+                    {mergedOptions.map((opt) => (
+                        <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
+                    ))}
+                    <SelectItem value="__custom__" className="text-xs text-apple-blue">
+                        + Thêm mới...
+                    </SelectItem>
+                </SelectContent>
+            </Select>
+            <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 shrink-0 rounded-full"
+                onClick={() => setIsCustom(true)}
+                title={`Thêm ${label.toLowerCase()} mới`}
+            >
+                <Plus className="h-3.5 w-3.5" />
+            </Button>
+        </div>
+    );
+}
+
 function VariantInlineForm({ initial, onSave, onCancel }) {
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
@@ -566,27 +635,42 @@ function VariantInlineForm({ initial, onSave, onCancel }) {
             <div className="grid grid-cols-2 gap-3">
                 <div>
                     <Label className="text-xs">Màu sắc <span className="text-destructive">*</span></Label>
-                    <Input placeholder="VD: Black Titanium" value={color} onChange={(e) => setColor(e.target.value)} className="mt-1" />
+                    <div className="mt-1">
+                        <SelectWithCustom
+                            value={color}
+                            onChange={setColor}
+                            options={COLOR_OPTIONS}
+                            placeholder="Chọn màu sắc"
+                            label="Màu sắc"
+                        />
+                    </div>
                 </div>
                 <div>
                     <Label className="text-xs">Dung lượng <span className="text-destructive">*</span></Label>
-                    <Input placeholder="VD: 128GB" value={storage} onChange={(e) => setStorage(e.target.value)} className="mt-1" />
+                    <div className="mt-1">
+                        <SelectWithCustom
+                            value={storage}
+                            onChange={setStorage}
+                            options={STORAGE_OPTIONS}
+                            placeholder="Chọn dung lượng"
+                            label="Dung lượng"
+                        />
+                    </div>
                 </div>
                 <div>
                     <Label className="text-xs">Giá bán <span className="text-destructive">*</span></Label>
-                    <Input type="number" min={0} placeholder="VD: 34990000" value={price} onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1" />
+                    <Input type="number" min={0} placeholder="VD: 34990000" value={price} onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1 h-9 text-xs" />
                 </div>
                 <div>
                     <Label className="text-xs">Giá sale</Label>
-                    <Input type="number" min={0} placeholder="Để trống nếu không có khuyến mãi" value={salePrice} onChange={(e) => setSalePrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1" />
+                    <Input type="number" min={0} placeholder="Để trống nếu không có khuyến mãi" value={salePrice} onChange={(e) => setSalePrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1 h-9 text-xs" />
                 </div>
                 <div>
                     <Label className="text-xs">Tồn kho <span className="text-destructive">*</span></Label>
-                    <Input type="number" min={0} placeholder="0" value={stock} onChange={(e) => setStock(Number(e.target.value) || 0)} className="mt-1" />
+                    <Input type="number" min={0} placeholder="0" value={stock} onChange={(e) => setStock(Number(e.target.value) || 0)} className="mt-1 h-9 text-xs" />
                 </div>
             </div>
 
-            {/* Variant images */}
             <div>
                 <Label className="text-xs">Ảnh riêng (tối đa 5 ảnh)</Label>
                 <div className="mt-1 flex flex-wrap gap-2">
