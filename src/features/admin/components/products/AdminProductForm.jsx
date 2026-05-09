@@ -59,11 +59,11 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const form = useForm({
         resolver: zodResolver(productSchema),
         defaultValues: {
-            name: "",
-            slug: "",
-            category: "",
-            description: "",
-            featured: false,
+            name: product?.name || "",
+            slug: product?.slug || "",
+            category: product?.category?.slug || product?.categorySlug || "",
+            description: product?.description || "",
+            featured: product?.featured ?? false,
         },
     });
 
@@ -72,7 +72,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             form.reset({
                 name: product.name || "",
                 slug: product.slug || "",
-                category: product.category?.slug || product.categorySlug || "",
                 description: product.description || "",
                 featured: product.featured ?? false,
             });
@@ -97,6 +96,15 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             setVariants(productVariants);
         }
     }, [product, form]);
+
+    useEffect(() => {
+        if (product && categories?.length > 0) {
+            const catSlug = product.category?.slug || product.categorySlug || "";
+            if (catSlug) {
+                form.setValue("category", catSlug);
+            }
+        }
+    }, [categories, product, form]);
 
     const handleNameChange = (e) => {
         const name = e.target.value;
@@ -292,7 +300,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                 <FormField control={form.control} name="category" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Danh mục <span className="text-destructive">*</span></FormLabel>
-                                        <Select value={field.value} onValueChange={field.onChange} disabled={isLoading}>
+                                        <Select key={categories ? "loaded" : "loading"} value={field.value} onValueChange={field.onChange} disabled={isLoading}>
                                             <FormControl>
                                                 <SelectTrigger><SelectValue placeholder="Chọn danh mục" /></SelectTrigger>
                                             </FormControl>
