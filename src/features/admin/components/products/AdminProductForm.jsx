@@ -29,7 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery } from "@/store/api/productsApi";
+import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateOptionMutation, useDeleteOptionMutation } from "@/store/api/productsApi";
 import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
@@ -58,6 +58,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
 
     const [deleteVariant] = useDeleteVariantMutation();
     const [checkOrders] = useLazyCheckVariantOrdersQuery();
+    const [createOption] = useCreateOptionMutation();
+    const [deleteOption] = useDeleteOptionMutation();
 
     const [newOptionType, setNewOptionType] = useState("COLOR");
     const [newOptionValue, setNewOptionValue] = useState("");
@@ -148,16 +150,41 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     };
 
     // ── Option management ──
-    const addOption = () => {
+    const addOption = async () => {
         if (!newOptionValue.trim()) { toast.error("Giá trị không được để trống"); return; }
         if (options.some((o) => o.type === newOptionType && o.value.toLowerCase() === newOptionValue.trim().toLowerCase())) {
             toast.error("Giá trị này đã tồn tại"); return;
         }
-        setOptions([...options, { type: newOptionType, value: newOptionValue.trim(), hex: newOptionType === "COLOR" ? newOptionHex : null, id: null }]);
+        const value = newOptionValue.trim();
+        const hex = newOptionType === "COLOR" ? newOptionHex : null;
+        if (isEdit) {
+            try {
+                const created = await createOption({ productId: product.id, type: newOptionType, value, hex }).unwrap();
+                setOptions([...options, { id: created.id, type: created.type, value: created.value, hex: created.hex || null }]);
+                toast.success(getOptionLabel(newOptionType) === "Màu" ? "Thêm màu thành công" : `Thêm ${getOptionLabel(newOptionType)} thành công`);
+            } catch (err) {
+                toast.error(err?.data?.message || "Lỗi khi thêm option");
+                return;
+            }
+        } else {
+            setOptions([...options, { type: newOptionType, value, hex, id: null }]);
+        }
         setNewOptionValue("");
     };
 
-    const removeOption = (idx) => setOptions(options.filter((_, i) => i !== idx));
+    const removeOption = async (idx) => {
+        const option = options[idx];
+        if (option?.id) {
+            try {
+                await deleteOption(option.id).unwrap();
+                toast.success("Xoá thành công");
+            } catch (err) {
+                toast.error(err?.data?.message || "Lỗi khi xoá option");
+                return;
+            }
+        }
+        setOptions(options.filter((_, i) => i !== idx));
+    };
 
     const updateOptionHex = (idx, hex) => {
         const next = [...options];
