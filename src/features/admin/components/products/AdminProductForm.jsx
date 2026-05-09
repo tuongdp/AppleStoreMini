@@ -122,6 +122,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 color: v.color || "",
                 storage: v.storage || "",
                 ram: v.ram || "",
+                edition: v.edition || "",
                 price: v.price ?? 0,
                 salePrice: v.salePrice ?? "",
                 stock: v.stock ?? 0,
