@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./root/Navbar";
 import Footer from "./root/Footer";
+import TrustBadges from "@/components/shared/TrustBadges";
 import CartDrawer from "@/features/cart/components/CartDrawer";
 import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
@@ -23,6 +24,7 @@ export default function RootLayout() {
                 {/* Outlet là nơi React Router sẽ render các trang con (Home, Product,...) */}
                 <Outlet />
             </main>
+            <TrustBadges />
             <Footer />
             <ScrollToTopButton />
             <CartDrawer />
