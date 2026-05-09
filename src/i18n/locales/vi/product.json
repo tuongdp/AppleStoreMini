@@ -71,12 +71,7 @@
         "storage": "Bộ nhớ trong",
         "ram": "RAM",
         "simCard": "SIM",
-        "color": "Màu sắc",
-        "Chip": "Chip",
-        "Màn hình": "Màn hình",
-        "Camera": "Camera",
-        "Pin": "Pin",
-        "Hệ điều hành": "Hệ điều hành"
+        "color": "Màu sắc"
     },
 
     "review": {
