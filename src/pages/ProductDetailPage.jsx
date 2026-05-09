@@ -81,12 +81,10 @@ export default function ProductDetailPage() {
     const stock = selectedVariant?.stock ?? 0;
 
     const productImages = useMemo(() => {
-        const variantImages = selectedVariant?.images || [];
-        const productImages = product?.images || [];
-        return Array.isArray(variantImages) && variantImages.length > 0
-            ? variantImages
-            : productImages;
-    }, [selectedVariant, product]);
+        return Array.isArray(product?.images) && product.images.length > 0
+            ? product.images
+            : [];
+    }, [product]);
 
     useEffect(() => {
         if (variants.length > 0) {
