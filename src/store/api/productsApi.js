@@ -153,6 +153,16 @@ export const productsApi = baseApi.injectEndpoints({
             query: (variantId) => `/admin/variants/${variantId}/check-orders`,
             transformResponse: (response) => response.data,
         }),
+
+        uploadEditorImage: builder.mutation({
+            query: (formData) => ({
+                url: "/admin/upload-image",
+                method: "POST",
+                body: formData,
+                formData: true,
+            }),
+            transformResponse: (response) => response.data,
+        }),
     }),
 });
 
@@ -174,4 +184,5 @@ export const {
     useUpdateVariantMutation,
     useDeleteVariantMutation,
     useCheckVariantOrdersQuery,
+    useUploadEditorImageMutation,
 } = productsApi;

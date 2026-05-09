@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import {
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import RichTextEditor from "@/components/ui/RichTextEditor";
 import {
     Form,
     FormControl,
@@ -317,7 +318,17 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     <FormItem>
                                         <FormLabel>Mô tả sản phẩm</FormLabel>
                                         <FormControl>
-                                            <Textarea placeholder="Mô tả chi tiết sản phẩm..." rows={5} disabled={isLoading} {...field} />
+                                            <Controller
+                                                name="description"
+                                                control={form.control}
+                                                render={({ field: { onChange, value } }) => (
+                                                    <RichTextEditor
+                                                        value={value}
+                                                        onChange={onChange}
+                                                        disabled={isLoading}
+                                                    />
+                                                )}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

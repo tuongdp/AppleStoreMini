@@ -11,6 +11,8 @@ export default function ProductDescription({ description }) {
 
     if (!description) return null;
 
+    const isHtml = /<[a-z][\s\S]*>/i.test(description);
+
     return (
         <Accordion type="single" collapsible defaultValue="description">
             <AccordionItem value="description" className="border-border">
@@ -18,9 +20,16 @@ export default function ProductDescription({ description }) {
                     {t("detail.description")}
                 </AccordionTrigger>
                 <AccordionContent>
-                    <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                        {description}
-                    </p>
+                    {isHtml ? (
+                        <div
+                            className="prose prose-sm max-w-none text-muted-foreground"
+                            dangerouslySetInnerHTML={{ __html: description }}
+                        />
+                    ) : (
+                        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                            {description}
+                        </p>
+                    )}
                 </AccordionContent>
             </AccordionItem>
         </Accordion>
