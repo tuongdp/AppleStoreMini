@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -38,10 +38,49 @@ export default function ProductDetailPage() {
 
     const product = data;
 
-    const productImages = Array.isArray(product?.images) ? product.images : [];
+    const variants = useMemo(() => product?.variants || [], [product]);
+
+    const availableColors = useMemo(() => {
+        const colors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
+        return colors;
+    }, [variants]);
+
+    const availableStorages = useMemo(() => {
+        const storages = [...new Set(variants.map((v) => v.storage).filter(Boolean))];
+        return storages;
+    }, [variants]);
+
+    const [selectedColor, setSelectedColor] = useState("");
+    const [selectedStorage, setSelectedStorage] = useState("");
+
+    const selectedVariant = useMemo(() => {
+        return variants.find(
+            (v) =>
+                (!selectedColor || v.color === selectedColor) &&
+                (!selectedStorage || v.storage === selectedStorage),
+        ) || variants[0] || {};
+    }, [variants, selectedColor, selectedStorage]);
+
+    const currentPrice = selectedVariant?.salePrice || selectedVariant?.price;
+    const inStock = selectedVariant?.inStock ?? true;
+    const stock = selectedVariant?.stock ?? 0;
+
+    const productImages = useMemo(() => {
+        const variantImages = selectedVariant?.images || [];
+        const productImages = product?.images || [];
+        return Array.isArray(variantImages) && variantImages.length > 0
+            ? variantImages
+            : productImages;
+    }, [selectedVariant, product]);
+
+    useEffect(() => {
+        if (variants.length > 0) {
+            setSelectedColor(variants[0].color || "");
+            setSelectedStorage(variants[0].storage || "");
+        }
+    }, [variants]);
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
-
     const isInWishlist = useSelector(selectIsInWishlist(product?.id));
 
     const slugRef = useRef(slug);
@@ -54,19 +93,18 @@ export default function ProductDetailPage() {
         }
     }, [slug]);
 
-    const currentPrice = product?.salePrice || product?.price;
-
     const handleAddToCart = () => {
-        if (!product) return;
+        if (!product || !selectedVariant?.id) return;
         dispatch(
             addToCart({
                 product: {
                     ...product,
+                    ...selectedVariant,
+                    variantId: selectedVariant.id,
                     images: productImages,
                 },
+                variantId: selectedVariant.id,
                 quantity,
-                selectedColor: product.color || "",
-                selectedStorage: product.storage || "",
             }),
         );
         dispatch(toggleCartDrawer(true));
@@ -95,8 +133,7 @@ export default function ProductDetailPage() {
         );
     }
 
-    // ✅ BE trả categorySlug (vd: "iphone") — dùng để filter và display
-    const categoryDisplay = product.categorySlug || "";
+    const categoryDisplay = product.category?.slug || product.categorySlug || "";
 
     return (
         <div className="section-padding py-8 md:py-12">
@@ -138,7 +175,7 @@ export default function ProductDetailPage() {
 
                     <PriceDisplay
                         price={currentPrice}
-                        salePrice={product.salePrice}
+                        salePrice={selectedVariant?.salePrice}
                         size="xl"
                         showBadge
                         showSaved
@@ -146,26 +183,76 @@ export default function ProductDetailPage() {
 
                     <Separator />
 
-                    {/* Color */}
-                    {product.color && (
+                    {/* Color selector */}
+                    {availableColors.length > 1 && (
+                        <div>
+                            <p className="mb-2 text-sm font-medium text-foreground">
+                                {t("filter.color")}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {availableColors.map((color) => (
+                                    <button
+                                        key={color}
+                                        onClick={() => setSelectedColor(color)}
+                                        className={cn(
+                                            "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                            selectedColor === color
+                                                ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
+                                                : "border-border text-muted-foreground hover:border-foreground",
+                                        )}
+                                    >
+                                        {color}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Storage selector */}
+                    {availableStorages.length > 1 && (
+                        <div>
+                            <p className="mb-2 text-sm font-medium text-foreground">
+                                {t("filter.storage")}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {availableStorages.map((storage) => (
+                                    <button
+                                        key={storage}
+                                        onClick={() => setSelectedStorage(storage)}
+                                        className={cn(
+                                            "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                            selectedStorage === storage
+                                                ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
+                                                : "border-border text-muted-foreground hover:border-foreground",
+                                        )}
+                                    >
+                                        {storage}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Single color display */}
+                    {availableColors.length === 1 && availableColors[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
                                 {t("filter.color")}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                {product.color}
+                                {availableColors[0]}
                             </p>
                         </div>
                     )}
 
-                    {/* Storage */}
-                    {product.storage && (
+                    {/* Single storage display */}
+                    {availableStorages.length === 1 && availableStorages[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
                                 {t("filter.storage")}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                                {product.storage}
+                                {availableStorages[0]}
                             </p>
                         </div>
                     )}
@@ -178,15 +265,15 @@ export default function ProductDetailPage() {
                         <QuantityInput
                             value={quantity}
                             min={1}
-                            max={product.stock || 99}
+                            max={stock || 99}
                             onChange={setQuantity}
-                            disabled={!product.inStock}
+                            disabled={!inStock}
                         />
                     </div>
 
                     {/* Actions */}
                     <div className="flex gap-3">
-                        {product.inStock ? (
+                        {inStock ? (
                             <Button
                                 size="lg"
                                 className="flex-1 rounded-full text-base"
@@ -210,7 +297,7 @@ export default function ProductDetailPage() {
                             variant="outline"
                             className="flex-1 gap-2 rounded-full text-base"
                             onClick={handleAddToCart}
-                            disabled={!product.inStock}
+                            disabled={!inStock}
                         >
                             <ShoppingCart className="h-5 w-5" />
                             {t("detail.addToCart")}
@@ -279,11 +366,11 @@ export default function ProductDetailPage() {
                 </div>
             </div>
 
-            {/* Reviews — truyền product.id (integer) */}
+            {/* Reviews */}
             <Separator className="my-12" />
             <ProductReviews product={product} />
 
-            {/* Related — dùng categorySlug */}
+            {/* Related */}
             <Separator className="my-12" />
             <RelatedProducts slug={slug} category={categoryDisplay} />
         </div>

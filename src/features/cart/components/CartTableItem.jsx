@@ -11,45 +11,32 @@ import { ROUTES } from "@/lib/constants";
 const getFirstImage = (images) => {
   if (!images) return null;
   if (Array.isArray(images)) return images[0];
-  try {
-    return JSON.parse(images)[0];
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(images)[0]; } catch { return null; }
 };
 
 export default function CartTableItem({ item, isLast }) {
-  const productId = item.product.id;
+  const variantId = item.variantId || item.product?.variantId;
   const { t } = useTranslation("cart");
   const dispatch = useDispatch();
 
+  const product = item.product || item.variant?.product;
+  const variant = item.variant;
+  const color = variant?.color || product?.color || "";
+  const storage = variant?.storage || product?.storage || "";
+
   const handleRemove = () => {
-    dispatch(
-      removeFromCart({
-        productId,
-        selectedColor: item.selectedColor,
-        selectedStorage: item.selectedStorage,
-      }),
-    );
+    dispatch(removeFromCart({ variantId }));
   };
 
   const handleUpdateQty = (quantity) => {
-    dispatch(
-      updateQuantity({
-        productId,
-        selectedColor: item.selectedColor,
-        selectedStorage: item.selectedStorage,
-        quantity,
-      }),
-    );
+    dispatch(updateQuantity({ variantId, quantity }));
   };
 
-  const effectivePrice =
-    item.product.salePrice && item.product.salePrice < item.product.price
-      ? item.product.salePrice
-      : item.product.price;
+  const effectivePrice = variant
+    ? (variant.salePrice || variant.price)
+    : (product?.salePrice || product?.price);
 
-  const firstImage = getFirstImage(item.product.images);
+  const firstImage = getFirstImage(product?.images);
 
   return (
     <div>
@@ -57,34 +44,26 @@ export default function CartTableItem({ item, isLast }) {
         {/* Image + Info */}
         <div className="col-span-12 flex gap-4 md:col-span-6">
           <Link
-            to={ROUTES.PRODUCT_DETAIL(item.product.slug)}
+            to={ROUTES.PRODUCT_DETAIL(product?.slug)}
             className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
           >
             <img
               src={firstImage}
-              alt={item.product.name}
+              alt={product?.name}
               className="h-full w-full object-contain"
             />
           </Link>
           <div className="min-w-0 flex-1">
             <Link
-              to={ROUTES.PRODUCT_DETAIL(item.product.slug)}
+              to={ROUTES.PRODUCT_DETAIL(product?.slug)}
               className="line-clamp-2 text-sm font-medium text-foreground hover:text-apple-blue"
             >
-              {item.product.name}
+              {product?.name}
             </Link>
             <p className="mt-1 text-xs text-muted-foreground">
-              {item.selectedColor && (
-                <span>
-                  {t("item.color")}: {item.selectedColor}
-                </span>
-              )}
-              {item.selectedColor && item.selectedStorage && <span> · </span>}
-              {item.selectedStorage && (
-                <span>
-                  {t("item.storage")}: {item.selectedStorage}
-                </span>
-              )}
+              {color && <span>{t("item.color")}: {color}</span>}
+              {color && storage && <span> · </span>}
+              {storage && <span>{t("item.storage")}: {storage}</span>}
             </p>
             <button
               onClick={handleRemove}
@@ -99,7 +78,7 @@ export default function CartTableItem({ item, isLast }) {
         {/* Unit price — desktop */}
         <div className="col-span-2 hidden items-center justify-center md:flex">
           <PriceDisplay
-            price={item.product.price}
+            price={product?.price}
             salePrice={effectivePrice}
             size="sm"
           />
@@ -110,13 +89,13 @@ export default function CartTableItem({ item, isLast }) {
           <QuantityInput
             value={item.quantity}
             min={1}
-            max={item.product.stock || 99}
+            max={variant?.stock || product?.stock || 99}
             size="sm"
             onChange={handleUpdateQty}
           />
         </div>
 
-        {/* ✅ Total = effectivePrice * quantity (không dùng product.price gốc) */}
+        {/* Total */}
         <div className="col-span-5 flex items-center justify-end gap-3 md:col-span-2">
           <PriceDisplay price={effectivePrice * item.quantity} size="sm" />
           <button

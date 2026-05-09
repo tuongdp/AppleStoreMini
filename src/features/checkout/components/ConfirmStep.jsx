@@ -76,15 +76,17 @@ export default function ConfirmStep({
                 </div>
 
                 <div className="space-y-4">
-                    {items.map((item, index) => (
-                        // ✅ MySQL integer id — không dùng _id
-                        <OrderItemRow
-                            key={`${item.product.id}-${item.selectedColor}-${item.selectedStorage}-${index}`}
-                            item={item}
-                            index={index}
-                            isLast={index === items.length - 1}
-                        />
-                    ))}
+                    {items.map((item, index) => {
+                        const variantId = item.variantId || item.product?.variantId || index;
+                        return (
+                            <OrderItemRow
+                                key={variantId}
+                                item={item}
+                                index={index}
+                                isLast={index === items.length - 1}
+                            />
+                        );
+                    })}
                 </div>
 
                 <Separator className="my-4" />

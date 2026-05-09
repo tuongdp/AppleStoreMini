@@ -78,13 +78,21 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
 
     const products = useMemo(() => {
         if (!flashSale?.items?.length) return [];
-        return flashSale.items.map((item) => ({
-            ...item.product,
-            price: item.originalPrice,
-            salePrice: item.salePrice,
-            category: item.product.category?.name || item.product.category,
-            _flashSaleItem: item,
-        }));
+        return flashSale.items.map((item) => {
+            const product = item.variant?.product || item.product;
+            return {
+                ...product,
+                variantId: item.variant?.id || product?.variantId,
+                price: item.originalPrice,
+                salePrice: item.salePrice,
+                stock: item.variant?.stock || product?.stock || 0,
+                inStock: item.variant?.inStock ?? product?.inStock ?? true,
+                color: item.variant?.color || "",
+                storage: item.variant?.storage || "",
+                category: product?.category?.name || product?.category || "",
+                _flashSaleItem: item,
+            };
+        });
     }, [flashSale]);
 
     if (isLoading) return <FlashSaleSkeleton />;

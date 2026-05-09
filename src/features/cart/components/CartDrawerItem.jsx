@@ -7,62 +7,44 @@ import { removeFromCart, updateQuantity } from "@/store/cartSlice";
 import { ROUTES } from "@/lib/constants";
 import { Link } from "react-router-dom";
 
-// ✅ images có thể là JSON string (MySQL) hoặc array (đã parse)
 const getFirstImage = (images) => {
   if (!images) return null;
   if (Array.isArray(images)) return images[0];
-  try {
-    return JSON.parse(images)[0];
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(images)[0]; } catch { return null; }
 };
 
 export default function CartDrawerItem({ item }) {
-
-
   const dispatch = useDispatch();
+  const variantId = item.variantId || item.product?.variantId;
 
-  // ✅ MySQL integer id thuần
-  const productId = item.product.id;
+  const product = item.product || item.variant?.product;
+  const variant = item.variant;
+  const color = variant?.color || product?.color || "";
+  const storage = variant?.storage || product?.storage || "";
 
   const handleRemove = () => {
-    dispatch(
-      removeFromCart({
-        productId,
-        selectedColor: item.selectedColor,
-        selectedStorage: item.selectedStorage,
-      }),
-    );
+    dispatch(removeFromCart({ variantId }));
   };
 
   const handleUpdateQty = (quantity) => {
-    dispatch(
-      updateQuantity({
-        productId,
-        selectedColor: item.selectedColor,
-        selectedStorage: item.selectedStorage,
-        quantity,
-      }),
-    );
+    dispatch(updateQuantity({ variantId, quantity }));
   };
 
-  const effectivePrice =
-    item.product.salePrice && item.product.salePrice < item.product.price
-      ? item.product.salePrice
-      : item.product.price;
+  const effectivePrice = variant
+    ? (variant.salePrice || variant.price)
+    : (product?.salePrice || product?.price);
 
-  const firstImage = getFirstImage(item.product.images);
+  const firstImage = getFirstImage(product?.images);
 
   return (
     <div className="flex gap-4">
       <Link
-        to={ROUTES.PRODUCT_DETAIL(item.product.slug)}
+        to={ROUTES.PRODUCT_DETAIL(product?.slug)}
         className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
       >
         <img
           src={firstImage}
-          alt={item.product.name}
+          alt={product?.name}
           className="h-full w-full object-contain"
         />
       </Link>
@@ -71,15 +53,15 @@ export default function CartDrawerItem({ item }) {
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <Link
-              to={ROUTES.PRODUCT_DETAIL(item.product.slug)}
+              to={ROUTES.PRODUCT_DETAIL(product?.slug)}
               className="truncate text-sm font-medium text-foreground hover:text-apple-blue"
             >
-              {item.product.name}
+              {product?.name}
             </Link>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              {item.selectedColor && <span>{item.selectedColor}</span>}
-              {item.selectedColor && item.selectedStorage && <span> · </span>}
-              {item.selectedStorage && <span>{item.selectedStorage}</span>}
+              {color && <span>{color}</span>}
+              {color && storage && <span> · </span>}
+              {storage && <span>{storage}</span>}
             </p>
           </div>
 
@@ -95,14 +77,14 @@ export default function CartDrawerItem({ item }) {
 
         <div className="mt-2 flex items-center justify-between">
           <PriceDisplay
-            price={item.product.price}
+            price={product?.price}
             salePrice={effectivePrice}
             size="sm"
           />
           <QuantityInput
             value={item.quantity}
             min={1}
-            max={item.product.stock || 99}
+            max={variant?.stock || product?.stock || 99}
             size="sm"
             onChange={handleUpdateQty}
           />

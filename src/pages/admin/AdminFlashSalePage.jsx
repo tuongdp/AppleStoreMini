@@ -53,7 +53,7 @@ const flashSaleSchema = z.object({
 });
 
 const addItemSchema = z.object({
-    productId: z.string().min(1, "Chọn sản phẩm"),
+    variantId: z.string().min(1, "Chọn biến thể"),
     salePrice: z.coerce.number().min(1000, "Giá phải lớn hơn 0"),
     quantityLimit: z.coerce.number().min(1, "Số lượng tối thiểu là 1"),
     sortOrder: z.coerce.number().default(0),
@@ -188,7 +188,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 
     const selectProduct = (product) => {
         setSelectedProduct(product);
-        form.setValue("productId", product.id);
+        form.setValue("variantId", product.variantId);
         form.setValue("salePrice", product.salePrice || product.price);
     };
 
@@ -385,15 +385,27 @@ function FlashSaleDetail({ flashSale }) {
                     <div className="space-y-2">
                         {items.map((item) => {
                             const remaining = item.quantityLimit - item.quantitySold;
+                            const product = item.variant?.product || item.product;
+                            const variant = item.variant;
+                            const color = variant?.color || "";
+                            const storage = variant?.storage || "";
+                            const imgSrc = (Array.isArray(variant?.images) ? variant.images[0] : null)
+                                || product?.images?.[0]
+                                || "";
                             return (
                                 <div key={item.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
                                     <img
-                                        src={item.product?.images?.[0] || ""}
-                                        alt={item.product?.name}
+                                        src={imgSrc}
+                                        alt={product?.name}
                                         className="h-12 w-12 rounded-lg object-cover"
                                     />
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-medium text-foreground">{item.product?.name}</p>
+                                        <p className="text-sm font-medium text-foreground">{product?.name}</p>
+                                        {(color || storage) && (
+                                            <p className="text-xs text-muted-foreground">
+                                                {color}{color && storage && " · "}{storage}
+                                            </p>
+                                        )}
                                         <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
                                             <span className="line-through">{formatPrice(item.originalPrice)}</span>
                                             <span className="font-semibold text-red-500">{formatPrice(item.salePrice)}</span>

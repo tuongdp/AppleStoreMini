@@ -117,39 +117,38 @@ export default function CheckoutPage() {
                         {/* Items */}
                         <div className="mb-4 max-h-60 space-y-3 overflow-y-auto">
                             {items.map((item, index) => {
+                                const product = item.product || item.variant?.product;
+                                const variant = item.variant;
+                                const salePrice = variant?.salePrice || product?.salePrice;
+                                const price = variant?.price || product?.price;
                                 const effectivePrice =
-                                    item.product.salePrice &&
-                                    item.product.salePrice < item.product.price
-                                        ? item.product.salePrice
-                                        : item.product.price;
+                                    salePrice && salePrice < price
+                                        ? salePrice
+                                        : price;
+                                const color = variant?.color || product?.color || "";
+                                const storage = variant?.storage || product?.storage || "";
+                                const variantId = item.variantId || product?.variantId || index;
                                 return (
-                                    <div key={index} className="flex gap-3">
+                                    <div key={variantId} className="flex gap-3">
                                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1">
                                             <img
                                                 src={
-                                                    item.product.images?.[0] ||
-                                                    item.product.image
+                                                    product?.images?.[0] ||
+                                                    product?.image ||
+                                                    item.image
                                                 }
-                                                alt={item.product.name}
+                                                alt={product?.name || item.name}
                                                 className="h-full w-full object-contain"
                                             />
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <p className="truncate text-xs font-medium text-foreground">
-                                                {item.product.name}
+                                                {product?.name || item.name}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                {item.selectedColor && (
-                                                    <span>
-                                                        {item.selectedColor}
-                                                    </span>
-                                                )}
-                                                {item.selectedStorage && (
-                                                    <span>
-                                                        {" "}
-                                                        · {item.selectedStorage}
-                                                    </span>
-                                                )}
+                                                {color && <span>{color}</span>}
+                                                {color && storage && <span> · </span>}
+                                                {storage && <span>{storage}</span>}
                                             </p>
                                             <div className="mt-0.5 flex items-center justify-between">
                                                 <span className="text-xs text-muted-foreground">

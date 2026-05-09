@@ -53,9 +53,8 @@ export default function ProductCard({ product }) {
         dispatch(
             addToCart({
                 product,
+                variantId: product.variantId,
                 quantity: 1,
-                selectedColor: product.color || "",
-                selectedStorage: product.storage || "",
             }),
         );
         dispatch(toggleCartDrawer(true));

@@ -91,10 +91,8 @@ export function useCheckout() {
                 note: checkoutData.note || "",
                 couponCode: appliedCoupon?.code || undefined,
                 items: items.map((item) => ({
-                    productId: item.product.id,
+                    variantId: item.variantId || item.product.variantId,
                     quantity: item.quantity,
-                    selectedColor: item.selectedColor || "",
-                    selectedStorage: item.selectedStorage || "",
                 })),
             }).unwrap();
 

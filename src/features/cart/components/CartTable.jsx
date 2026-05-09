@@ -38,15 +38,17 @@ export default function CartTable() {
       <Separator className="mb-4" />
 
       <div className="space-y-6">
-        {items.map((item, index) => (
-          <CartTableItem
-            // ✅ MySQL integer id thuần
-            key={`${item.product.id}-${item.selectedColor}-${item.selectedStorage}`}
-            item={item}
-            index={index}
-            isLast={index === items.length - 1}
-          />
-        ))}
+        {items.map((item, index) => {
+          const variantId = item.variantId || item.product?.variantId;
+          return (
+            <CartTableItem
+              key={variantId || index}
+              item={item}
+              index={index}
+              isLast={index === items.length - 1}
+            />
+          );
+        })}
       </div>
     </div>
   );
