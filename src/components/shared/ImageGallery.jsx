@@ -104,10 +104,10 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                 key={i}
                                 onClick={() => setSelectedIndex(i)}
                                 className={cn(
-                                    "aspect-square overflow-hidden rounded-xl bg-muted/30 p-2 transition-all",
+                                    "aspect-square overflow-hidden rounded-xl bg-muted/30 p-2 transition-all ring-2",
                                     i === selectedIndex
-                                        ? "ring-2 ring-foreground"
-                                        : "opacity-60 hover:opacity-100",
+                                        ? "ring-foreground opacity-100"
+                                        : "ring-transparent opacity-60 hover:opacity-100",
                                 )}
                             >
                                 <img
