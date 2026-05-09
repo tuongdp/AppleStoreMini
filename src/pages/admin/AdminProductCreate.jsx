@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ChevronLeft } from "lucide-react";
-import { useCreateProductMutation, useCreateVariantMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
+import { useCreateProductMutation, useUpdateProductMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -13,34 +13,43 @@ export default function AdminProductCreate() {
     const { t } = useTranslation("admin");
     const navigate = useNavigate();
     const [createProduct] = useCreateProductMutation();
-    const [createVariant] = useCreateVariantMutation();
+    const [updateProduct] = useUpdateProductMutation();
     const [uploadImage] = useUploadEditorImageMutation();
     const [isSaving, setIsSaving] = useState(false);
+    const autoCreatedIdRef = useRef(null);
+
+    const handleProductAutoCreated = (productId) => {
+        autoCreatedIdRef.current = productId;
+    };
 
     const handleSubmit = async (values) => {
         setIsSaving(true);
         try {
-            const { variants, specifications, ...productData } = values;
+            const { productId, variants, specifications, ...productData } = values;
+            const autoCreatedId = productId || autoCreatedIdRef.current;
 
-            const product = await createProduct({
-                ...productData,
-                specifications,
-            }).unwrap();
+            if (autoCreatedId) {
+                await updateProduct({ id: autoCreatedId, ...productData, specifications }).unwrap();
+                toast.success(t("product.updateSuccess"));
+            } else {
+                const processedVariants = await Promise.all(
+                    (variants || []).map(async (v) => {
+                        let images = v.images || [];
+                        if (Array.isArray(images) && images.length > 0 && images.some((img) => typeof img === "string" && img.startsWith("blob:"))) {
+                            images = await uploadBlobImages(images, (fd) => uploadImage(fd).unwrap());
+                        }
+                        return { ...v, images, price: Number(v.price) || 0, salePrice: v.salePrice ? Number(v.salePrice) : null, stock: Number(v.stock) || 0 };
+                    })
+                );
 
-            const productId = product.id;
+                await createProduct({
+                    ...productData,
+                    specifications,
+                    variants: processedVariants,
+                }).unwrap();
 
-            for (const variant of variants) {
-                const variantData = { ...variant };
-                if (Array.isArray(variantData.images) && variantData.images.length > 0) {
-                    variantData.images = await uploadBlobImages(
-                        variantData.images,
-                        (fd) => uploadImage(fd).unwrap()
-                    );
-                }
-                await createVariant({ productId, ...variantData }).unwrap();
+                toast.success(t("product.createSuccess"));
             }
-
-            toast.success(t("product.createSuccess"));
             navigate(ROUTES.ADMIN_PRODUCTS);
         } catch (error) {
             toast.error(error?.data?.message || t("status.error", { ns: "common" }));
@@ -64,7 +73,7 @@ export default function AdminProductCreate() {
                 </h1>
             </div>
 
-            <AdminProductForm onSubmit={handleSubmit} isLoading={isSaving} />
+            <AdminProductForm onSubmit={handleSubmit} isLoading={isSaving} onProductAutoCreated={handleProductAutoCreated} />
         </div>
     );
 }

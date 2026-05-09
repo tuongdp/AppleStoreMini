@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import {
-    Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle
+    Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle, Loader2
 } from "lucide-react";
 import { productSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateOptionMutation, useDeleteOptionMutation } from "@/store/api/productsApi";
+import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateOptionMutation, useDeleteOptionMutation, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
 import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
@@ -42,8 +42,8 @@ const hexPresets = [
     "#34c759", "#007aff", "#5856d6", "#af52de", "#ff2d55",
 ];
 
-export default function AdminProductForm({ product, onSubmit, isLoading }) {
-    const { t } = useTranslation("admin");
+export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated }) {
+    const { t: _t } = useTranslation("admin");
     const isEdit = !!product;
 
     const { data: categories } = useGetAdminCategoriesQuery();
@@ -55,11 +55,17 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const [showVariantForm, setShowVariantForm] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [blockedVariant, setBlockedVariant] = useState(null);
+    const [autoCreatedId, setAutoCreatedId] = useState(null);
+    const [isCreatingProduct, setIsCreatingProduct] = useState(false);
 
     const [deleteVariant] = useDeleteVariantMutation();
     const [checkOrders] = useLazyCheckVariantOrdersQuery();
     const [createOption] = useCreateOptionMutation();
     const [deleteOption] = useDeleteOptionMutation();
+    const [createVariantApi] = useCreateVariantMutation();
+    const [updateVariantApi] = useUpdateVariantMutation();
+    const [uploadImage] = useUploadEditorImageMutation();
+    const [createProductApi] = useCreateProductMutation();
 
     const [newOptionType, setNewOptionType] = useState("COLOR");
     const [newOptionValue, setNewOptionValue] = useState("");
@@ -212,7 +218,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         setShowVariantForm(false);
     };
 
-    const saveVariant = (data) => {
+    const saveVariant = async (data) => {
         const { color, storage, ram, price, salePrice, stock, images: vImages } = data;
         if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
         if (storageOptions.length > 0 && !storage.trim()) { toast.error("Dung lượng không được để trống"); return; }
@@ -228,6 +234,70 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         );
         if (dup >= 0) { toast.error("Variant này đã tồn tại"); return; }
 
+        let images = vImages || [];
+        let savedId = null;
+        const productIdForApi = isEdit ? product.id : autoCreatedId;
+
+        if (productIdForApi) {
+            try {
+                if (editingVariantIdx !== null) {
+                    const existing = variants[editingVariantIdx];
+                    if (existing?.id) {
+                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                        savedId = existing.id;
+                    } else {
+                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                        savedId = created.id;
+                    }
+                } else {
+                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                    savedId = created.id;
+                }
+            } catch (err) {
+                toast.error(err?.data?.message || "Lỗi khi lưu variant");
+                return;
+            }
+        } else {
+            // Create mode — auto-create product first so variant can be saved via API
+            const formValues = form.getValues();
+            if (!formValues.name?.trim() || !formValues.slug?.trim() || !formValues.category) {
+                toast.error("Vui lòng nhập đầy đủ tên, slug và danh mục trước khi thêm variant");
+                return;
+            }
+            setIsCreatingProduct(true);
+            try {
+                const created = await createProductApi({
+                    name: formValues.name.trim(),
+                    slug: formValues.slug.trim(),
+                    category: formValues.category,
+                    description: formValues.description || "",
+                    featured: formValues.featured ?? false,
+                    specifications: buildSpecsObject(),
+                    options: options.map(({ type, value, hex }) => ({ type, value, hex })),
+                    variants: [{
+                        color: color.trim(),
+                        storage: storage.trim(),
+                        ram: ram.trim(),
+                        price: Number(price),
+                        salePrice: salePrice ? Number(salePrice) : null,
+                        stock: Number(stock) || 0,
+                        images,
+                    }],
+                }).unwrap();
+                const newProductId = created.id;
+                setAutoCreatedId(newProductId);
+                onProductAutoCreated?.(newProductId);
+                const createdVariant = created.variants?.[0];
+                if (createdVariant) { savedId = createdVariant.id; }
+                toast.success("Đã tạo sản phẩm và lưu variant");
+            } catch (err) {
+                toast.error(err?.data?.message || "Lỗi khi tạo sản phẩm");
+                setIsCreatingProduct(false);
+                return;
+            }
+            setIsCreatingProduct(false);
+        }
+
         const variant = {
             color: color.trim(),
             storage: storage.trim(),
@@ -235,13 +305,12 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             price: Number(price),
             salePrice: salePrice ? Number(salePrice) : null,
             stock: Number(stock) || 0,
-            images: vImages || [],
+            images,
             inStock: Number(stock) > 0,
+            id: savedId,
         };
 
         if (editingVariantIdx !== null) {
-            const existing = variants[editingVariantIdx];
-            variant.id = existing?.id;
             setVariants(variants.map((v, i) => i === editingVariantIdx ? variant : v));
         } else {
             setVariants([...variants, variant]);
@@ -304,6 +373,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         if (variants.length === 0) { toast.error("Cần có ít nhất 1 variant"); return; }
         onSubmit({
             ...values,
+            productId: autoCreatedId,
             specifications: buildSpecsObject(),
             options: options.map(({ type, value, hex }) => ({ type, value, hex })),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
@@ -361,7 +431,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                         <FormMessage />
                                     </FormItem>
                                 )} />
-                                <FormField control={form.control} name="description" render={({ field }) => (
+                                <FormField control={form.control} name="description" render={() => (
                                     <FormItem>
                                         <FormLabel>Mô tả sản phẩm</FormLabel>
                                         <FormControl>
@@ -545,6 +615,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     colorOptions={colorOptions}
                                     storageOptions={storageOptions}
                                     ramOptions={ramOptions}
+                                    uploadImage={uploadImage}
+                                    isSaving={isCreatingProduct}
                                 />
                             )}
 
@@ -577,9 +649,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                             <Button
                                 type="submit"
                                 className="w-full rounded-full"
-                                disabled={isLoading || !hasVariants}
+                                disabled={isLoading || isCreatingProduct || !hasVariants}
                             >
-                                {isLoading ? "Đang lưu..." : (
+                                {isLoading || isCreatingProduct ? "Đang lưu..." : (
                                     <><Save className="mr-1.5 h-4 w-4" /> Lưu sản phẩm</>
                                 )}
                             </Button>
@@ -644,7 +716,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     );
 }
 
-function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [] }) {
+function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [], uploadImage, isSaving }) {
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
     const [ram, setRam] = useState(initial?.ram || "");
@@ -652,13 +724,42 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
     const [salePrice, setSalePrice] = useState(initial?.salePrice || "");
     const [stock, setStock] = useState(initial?.stock ?? 0);
     const [vImages, setVImages] = useState(initial?.images || []);
+    const [uploadingIdx, setUploadingIdx] = useState({});
     const fileRef = useRef(null);
+
+    const uploadFile = async (file, idx) => {
+        setUploadingIdx((prev) => ({ ...prev, [idx]: true }));
+        try {
+            const fd = new FormData();
+            fd.append("image", file);
+            const result = await uploadImage(fd).unwrap();
+            const realUrl = result.url || result;
+            setVImages((prev) => prev.map((img, j) => j === idx ? realUrl : img));
+        } catch {
+            toast.error("Lỗi upload ảnh, có thể thử lại sau");
+        } finally {
+            setUploadingIdx((prev) => {
+                const next = { ...prev };
+                delete next[idx];
+                return next;
+            });
+        }
+    };
 
     const handleVImageUpload = (e) => {
         const files = Array.from(e.target.files || []);
         const valid = files.filter((f) => IMAGE.VALID_TYPES.includes(f.type) && f.size <= IMAGE.MAX_SIZE);
-        const newUrls = valid.map((f) => URL.createObjectURL(f));
-        setVImages([...vImages, ...newUrls].slice(0, IMAGE.MAX_COUNT));
+        const remaining = Math.max(0, IMAGE.MAX_COUNT - vImages.length);
+        const toUpload = valid.slice(0, remaining);
+
+        const blobUrls = toUpload.map((f) => URL.createObjectURL(f));
+        const startIdx = vImages.length;
+        setVImages((prev) => [...prev, ...blobUrls]);
+
+        toUpload.forEach((file, i) => {
+            uploadFile(file, startIdx + i);
+        });
+
         if (fileRef.current) fileRef.current.value = "";
     };
 
@@ -744,6 +845,11 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                     {vImages.map((src, idx) => (
                         <div key={idx} className="group relative h-14 w-14 overflow-hidden rounded-lg bg-muted/30">
                             <img src={src} alt="" className="h-full w-full object-contain p-1" />
+                            {uploadingIdx[idx] && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-background/60">
+                                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                                </div>
+                            )}
                             <button type="button" onClick={() => removeVImage(idx)} className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-background/80 hover:bg-destructive hover:text-white">
                                 <X className="h-2.5 w-2.5" />
                             </button>
@@ -760,8 +866,8 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
 
             <div className="flex justify-end gap-2 pt-1">
                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onCancel}>Hủy</Button>
-                <Button type="button" size="sm" className="rounded-full" onClick={handleSave}>
-                    <Save className="mr-1 h-3.5 w-3.5" /> Lưu variant
+                <Button type="button" size="sm" className="rounded-full" onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> Đang tạo...</> : <><Save className="mr-1 h-3.5 w-3.5" /> Lưu variant</>}
                 </Button>
             </div>
         </div>
