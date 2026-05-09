@@ -116,11 +116,18 @@ export default function OrderCard({ order }) {
                                 className="truncate text-sm text-foreground"
                             >
                                 {item.product?.name}
-                                {item.selectedStorage && (
-                                    <span className="ml-1 text-xs text-muted-foreground">
-                                        · {item.selectedStorage}
-                                    </span>
-                                )}
+                                {(() => {
+                                    const parts = [
+                                        item.color || item.selectedColor || "",
+                                        item.storage || item.selectedStorage || "",
+                                        item.ram || "",
+                                    ].filter(Boolean);
+                                    return parts.length > 0 ? (
+                                        <span className="ml-1 text-xs text-muted-foreground">
+                                            · {parts.join(" · ")}
+                                        </span>
+                                    ) : null;
+                                })()}
                             </p>
                         ))}
                         {remainCount > 0 && (

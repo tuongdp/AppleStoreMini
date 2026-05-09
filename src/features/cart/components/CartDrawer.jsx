@@ -47,7 +47,7 @@ export default function CartDrawer() {
               {items.map((item, index) => (
                 <div
                   // ✅ MySQL integer id — không có _id
-                  key={`${item.product.id}-${item.selectedColor}-${item.selectedStorage}`}
+                  key={`${item.product.id}-${item.selectedColor || item.variant?.color || ""}-${item.selectedStorage || item.variant?.storage || ""}-${item.variant?.ram || ""}`}
                 >
                   <CartDrawerItem item={item} />
                   {index < items.length - 1 && <Separator className="mt-4" />}

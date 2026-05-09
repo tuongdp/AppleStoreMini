@@ -9,6 +9,7 @@ export default function OrderItemRow({ item, isLast }) {
     const product = item.product || item.variant?.product;
     const color = item.color || item.selectedColor || item.variant?.color || "";
     const storage = item.storage || item.selectedStorage || item.variant?.storage || "";
+    const ram = item.ram || item.selectedRam || item.variant?.ram || "";
 
     return (
         <div>
@@ -36,9 +37,7 @@ export default function OrderItemRow({ item, isLast }) {
 
                     {/* Variant */}
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        {color && <span>{color}</span>}
-                        {color && storage && <span> · </span>}
-                        {storage && <span>{storage}</span>}
+                        {[color, storage, ram].filter(Boolean).join(" · ")}
                     </p>
 
                     {/* Price + Qty */}

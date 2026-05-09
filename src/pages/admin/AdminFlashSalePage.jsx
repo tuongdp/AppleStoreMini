@@ -389,6 +389,7 @@ function FlashSaleDetail({ flashSale }) {
                             const variant = item.variant;
                             const color = variant?.color || "";
                             const storage = variant?.storage || "";
+                            const ram = variant?.ram || "";
                             const imgSrc = (Array.isArray(variant?.images) ? variant.images[0] : null)
                                 || product?.images?.[0]
                                 || "";
@@ -401,9 +402,9 @@ function FlashSaleDetail({ flashSale }) {
                                     />
                                     <div className="min-w-0 flex-1">
                                         <p className="text-sm font-medium text-foreground">{product?.name}</p>
-                                        {(color || storage) && (
+                                        {[color, storage, ram].filter(Boolean).length > 0 && (
                                             <p className="text-xs text-muted-foreground">
-                                                {color}{color && storage && " · "}{storage}
+                                                {[color, storage, ram].filter(Boolean).join(" · ")}
                                             </p>
                                         )}
                                         <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">

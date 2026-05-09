@@ -4,7 +4,9 @@ import PriceDisplay from "@/components/shared/PriceDisplay";
 import { ROUTES } from "@/lib/constants";
 
 export default function OrderItemRow({ item, isLast }) {
-
+    const color = item.color || item.selectedColor || item.variant?.color || "";
+    const storage = item.storage || item.selectedStorage || item.variant?.storage || "";
+    const ram = item.ram || item.selectedRam || item.variant?.ram || "";
 
     return (
         <div>
@@ -40,15 +42,7 @@ export default function OrderItemRow({ item, isLast }) {
 
                     {/* Variant */}
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        {item.selectedColor && (
-                            <span>{item.selectedColor}</span>
-                        )}
-                        {item.selectedColor && item.selectedStorage && (
-                            <span> · </span>
-                        )}
-                        {item.selectedStorage && (
-                            <span>{item.selectedStorage}</span>
-                        )}
+                        {[color, storage, ram].filter(Boolean).join(" · ")}
                     </p>
 
                     {/* Price + Qty + Total */}

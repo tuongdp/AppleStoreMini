@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -34,7 +34,7 @@ import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/uti
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 
-const EMPTY_VARIANT = { color: "", storage: "", price: "", salePrice: "", stock: 0 };
+const EMPTY_VARIANT = { color: "", storage: "", ram: "", price: "", salePrice: "", stock: 0 };
 
 const hexPresets = [
     "#000000", "#1d1d1f", "#3a3a3c", "#636366", "#aeaeb2",
@@ -49,8 +49,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const { data: categories } = useGetAdminCategoriesQuery();
 
     const [specs, setSpecs] = useState([]);
-    const [colors, setColors] = useState([]);
-    const [storages, setStorages] = useState([]);
+    const [options, setOptions] = useState([]);
     const [variants, setVariants] = useState([]);
     const [editingVariantIdx, setEditingVariantIdx] = useState(null);
     const [showVariantForm, setShowVariantForm] = useState(false);
@@ -59,9 +58,13 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
 
     const [deleteVariant] = useDeleteVariantMutation();
 
-    const [newColorName, setNewColorName] = useState("");
-    const [newColorHex, setNewColorHex] = useState("#");
-    const [newStorageLabel, setNewStorageLabel] = useState("");
+    const [newOptionType, setNewOptionType] = useState("COLOR");
+    const [newOptionValue, setNewOptionValue] = useState("");
+    const [newOptionHex, setNewOptionHex] = useState("#");
+
+    const colorOptions = useMemo(() => options.filter((o) => o.type === "COLOR"), [options]);
+    const storageOptions = useMemo(() => options.filter((o) => o.type === "STORAGE"), [options]);
+    const ramOptions = useMemo(() => options.filter((o) => o.type === "RAM"), [options]);
 
     const form = useForm({
         resolver: zodResolver(productSchema),
@@ -89,25 +92,19 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                 : [];
             setSpecs(specArray);
 
-            const productColors = (product.colors || []).map((c) => ({
-                id: c.id,
-                name: c.name,
-                hex: c.hex || "",
+            const productOptions = (product.options || []).map((o) => ({
+                id: o.id,
+                type: o.type,
+                value: o.value,
+                hex: o.hex || null,
             }));
-            setColors(productColors);
-
-            const productStorages = (product.storages || []).map((s) => ({
-                id: s.id,
-                label: s.label,
-            }));
-            setStorages(productStorages);
+            setOptions(productOptions);
 
             const productVariants = (product.variants || []).map((v) => ({
                 id: v.id,
                 color: v.color || "",
                 storage: v.storage || "",
-                colorRel: v.colorRel || null,
-                storageRel: v.storageRel || null,
+                ram: v.ram || "",
                 price: v.price ?? 0,
                 salePrice: v.salePrice ?? "",
                 stock: v.stock ?? 0,
@@ -149,37 +146,34 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         return obj;
     };
 
-    // ── Color management ──
-    const addColor = () => {
-        if (!newColorName.trim()) { toast.error("Tên màu không được để trống"); return; }
-        if (colors.some((c) => c.name.toLowerCase() === newColorName.trim().toLowerCase())) {
-            toast.error("Màu này đã tồn tại"); return;
+    // ── Option management ──
+    const addOption = () => {
+        if (!newOptionValue.trim()) { toast.error("Giá trị không được để trống"); return; }
+        if (options.some((o) => o.type === newOptionType && o.value.toLowerCase() === newOptionValue.trim().toLowerCase())) {
+            toast.error("Giá trị này đã tồn tại"); return;
         }
-        setColors([...colors, { name: newColorName.trim(), hex: newColorHex, id: null }]);
-        setNewColorName("");
-        setNewColorHex("#");
+        setOptions([...options, { type: newOptionType, value: newOptionValue.trim(), hex: newOptionType === "COLOR" ? newOptionHex : null, id: null }]);
+        setNewOptionValue("");
     };
 
-    const removeColor = (idx) => setColors(colors.filter((_, i) => i !== idx));
+    const removeOption = (idx) => setOptions(options.filter((_, i) => i !== idx));
 
-    const updateColorHex = (idx, hex) => {
-        const next = [...colors];
+    const updateOptionHex = (idx, hex) => {
+        const next = [...options];
         next[idx] = { ...next[idx], hex };
-        setColors(next);
+        setOptions(next);
     };
 
-    // ── Storage management ──
-    const addStorage = () => {
-        if (!newStorageLabel.trim()) { toast.error("Dung lượng không được để trống"); return; }
-        if (storages.some((s) => s.label.toLowerCase() === newStorageLabel.trim().toLowerCase())) {
-            toast.error("Dung lượng này đã tồn tại"); return;
+    const getOptionLabel = (type) => {
+        switch (type) {
+            case "COLOR": return "Màu sắc";
+            case "STORAGE": return "Dung lượng";
+            case "RAM": return "RAM";
+            default: return type;
         }
-        setStorages([...storages, { label: newStorageLabel.trim(), id: null }]);
-        setNewStorageLabel("");
     };
 
-    const removeStorage = (idx) => setStorages(storages.filter((_, i) => i !== idx));
-
+    // ── Variant management ──
     const openVariantForm = (idx) => {
         setEditingVariantIdx(idx);
         setShowVariantForm(true);
@@ -191,22 +185,25 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     };
 
     const saveVariant = (data) => {
-        const { color, storage, price, salePrice, stock, images: vImages } = data;
+        const { color, storage, ram, price, salePrice, stock, images: vImages } = data;
         if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
-        if (!storage.trim()) { toast.error("Dung lượng không được để trống"); return; }
+        if (storageOptions.length > 0 && !storage.trim()) { toast.error("Dung lượng không được để trống"); return; }
+        if (ramOptions.length > 0 && !ram.trim()) { toast.error("RAM không được để trống"); return; }
         if (!price || Number(price) < 1000) { toast.error("Giá bán phải lớn hơn 1.000đ"); return; }
         if (salePrice && Number(salePrice) >= Number(price)) { toast.error("Giá sale phải nhỏ hơn giá bán"); return; }
 
         const dup = variants.findIndex((v, i) =>
             i !== editingVariantIdx &&
             v.color?.toLowerCase() === color.trim().toLowerCase() &&
-            v.storage?.toLowerCase() === storage.trim().toLowerCase()
+            v.storage?.toLowerCase() === storage.trim().toLowerCase() &&
+            v.ram?.toLowerCase() === ram.trim().toLowerCase()
         );
-        if (dup >= 0) { toast.error("Variant với màu sắc và dung lượng này đã tồn tại"); return; }
+        if (dup >= 0) { toast.error("Variant này đã tồn tại"); return; }
 
         const variant = {
             color: color.trim(),
             storage: storage.trim(),
+            ram: ram.trim(),
             price: Number(price),
             salePrice: salePrice ? Number(salePrice) : null,
             stock: Number(stock) || 0,
@@ -283,8 +280,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         onSubmit({
             ...values,
             specifications: buildSpecsObject(),
-            colors: colors.map(({ name, hex }) => ({ name, hex: hex || "" })),
-            storages: storages.map(({ label }) => ({ label })),
+            options: options.map(({ type, value, hex }) => ({ type, value, hex })),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
                 price: Number(rest.price) || 0,
@@ -381,56 +377,62 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                             </div>
                         </div>
 
-                        {/* ── Section 3: Colors ── */}
+                        {/* ── Section 3: Options ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-4 text-sm font-medium text-foreground">Màu sắc</h3>
-                            <div className="space-y-2">
-                                {colors.map((c, idx) => (
+                            <h3 className="mb-4 text-sm font-medium text-foreground">Tùy chọn sản phẩm</h3>
+                            <p className="mb-4 text-xs text-muted-foreground">Định nghĩa danh sách giá trị hợp lệ cho màu sắc, dung lượng, RAM.</p>
+
+                            <div className="mb-4 space-y-2">
+                                {options.map((o, idx) => (
                                     <div key={idx} className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
-                                        <input type="color" value={c.hex || "#ccc"} onChange={(e) => updateColorHex(idx, e.target.value)} className="h-7 w-7 cursor-pointer rounded border-0 p-0" />
-                                        <span className="flex-1 text-sm text-foreground">{c.name}</span>
-                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:text-destructive" onClick={() => removeColor(idx)}>
+                                        <Badge variant="outline" className="shrink-0 text-[10px]">
+                                            {getOptionLabel(o.type)}
+                                        </Badge>
+                                        {o.type === "COLOR" && (
+                                            <input type="color" value={o.hex || "#ccc"} onChange={(e) => updateOptionHex(idx, e.target.value)} className="h-7 w-7 cursor-pointer rounded border-0 p-0" />
+                                        )}
+                                        <span className="flex-1 text-sm text-foreground">{o.value}</span>
+                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:text-destructive" onClick={() => removeOption(idx)}>
                                             <Trash2 className="h-3.5 w-3.5" />
                                         </Button>
                                     </div>
                                 ))}
                             </div>
-                            <div className="mt-3 flex items-center gap-2">
-                                <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} className="h-8 w-8 cursor-pointer rounded border-0 p-0" />
-                                <Input placeholder="Thêm màu..." value={newColorName} onChange={(e) => setNewColorName(e.target.value)} className="h-8 flex-1 text-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addColor(); } }} />
-                                <Button type="button" size="icon" className="h-8 w-8 shrink-0 rounded-full" onClick={addColor} disabled={!newColorName.trim()}>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Select value={newOptionType} onValueChange={setNewOptionType}>
+                                    <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="COLOR" className="text-xs">Màu sắc</SelectItem>
+                                        <SelectItem value="STORAGE" className="text-xs">Dung lượng</SelectItem>
+                                        <SelectItem value="RAM" className="text-xs">RAM</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {newOptionType === "COLOR" && (
+                                    <input type="color" value={newOptionHex} onChange={(e) => setNewOptionHex(e.target.value)} className="h-8 w-8 cursor-pointer rounded border-0 p-0" />
+                                )}
+                                <Input
+                                    placeholder="Thêm giá trị..."
+                                    value={newOptionValue}
+                                    onChange={(e) => setNewOptionValue(e.target.value)}
+                                    className="h-8 flex-1 min-w-[120px] text-xs"
+                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(); } }}
+                                />
+                                <Button type="button" size="icon" className="h-8 w-8 shrink-0 rounded-full" onClick={addOption} disabled={!newOptionValue.trim()}>
                                     <Plus className="h-4 w-4" />
                                 </Button>
                             </div>
-                            <div className="mt-2 flex flex-wrap gap-1">
-                                {hexPresets.map((hex) => (
-                                    <button key={hex} type="button" onClick={() => setNewColorHex(hex)} className="h-5 w-5 rounded-full border border-border transition-transform hover:scale-110" style={{ backgroundColor: hex }} />
-                                ))}
-                            </div>
+
+                            {newOptionType === "COLOR" && (
+                                <div className="mt-2 flex flex-wrap gap-1">
+                                    {hexPresets.map((hex) => (
+                                        <button key={hex} type="button" onClick={() => setNewOptionHex(hex)} className="h-5 w-5 rounded-full border border-border transition-transform hover:scale-110" style={{ backgroundColor: hex }} />
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
-                        {/* ── Section 4: Storages ── */}
-                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-4 text-sm font-medium text-foreground">Dung lượng</h3>
-                            <div className="space-y-2">
-                                {storages.map((s, idx) => (
-                                    <div key={s.id || idx} className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
-                                        <span className="flex-1 text-sm text-foreground">{s.label}</span>
-                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:text-destructive" onClick={() => removeStorage(idx)}>
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mt-3 flex items-center gap-2">
-                                <Input placeholder="Thêm dung lượng..." value={newStorageLabel} onChange={(e) => setNewStorageLabel(e.target.value)} className="h-8 flex-1 text-xs" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addStorage(); } }} />
-                                <Button type="button" size="icon" className="h-8 w-8 shrink-0 rounded-full" onClick={addStorage} disabled={!newStorageLabel.trim()}>
-                                    <Plus className="h-4 w-4" />
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* ── Section 5: Variants ── */}
+                        {/* ── Section 4: Variants ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
 
@@ -446,8 +448,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     <table className="w-full text-sm">
                                         <thead>
                                             <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium uppercase text-muted-foreground">
-                                                <th className="px-4 py-3">Màu sắc</th>
+                                                <th className="px-4 py-3">Màu</th>
                                                 <th className="px-4 py-3">Dung lượng</th>
+                                                <th className="px-4 py-3">RAM</th>
                                                 <th className="px-4 py-3">Giá bán</th>
                                                 <th className="px-4 py-3">Giá sale</th>
                                                 <th className="px-4 py-3">Tồn kho</th>
@@ -461,6 +464,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                                 <tr key={v.id || idx} className="border-b border-border last:border-0 hover:bg-muted/20">
                                                     <td className="px-4 py-3 font-medium text-foreground">{v.color || "—"}</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.storage || "—"}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.ram || "—"}</td>
                                                     <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
                                                     <td className="px-4 py-3 text-foreground">{v.stock}</td>
@@ -513,8 +517,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                     initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
                                     onSave={saveVariant}
                                     onCancel={cancelVariantForm}
-                                    colors={colors}
-                                    storages={storages}
+                                    colorOptions={colorOptions}
+                                    storageOptions={storageOptions}
+                                    ramOptions={ramOptions}
                                 />
                             )}
 
@@ -614,9 +619,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     );
 }
 
-function VariantInlineForm({ initial, onSave, onCancel, colors = [], storages = [] }) {
+function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [] }) {
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
+    const [ram, setRam] = useState(initial?.ram || "");
     const [price, setPrice] = useState(initial?.price || "");
     const [salePrice, setSalePrice] = useState(initial?.salePrice || "");
     const [stock, setStock] = useState(initial?.stock ?? 0);
@@ -634,7 +640,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colors = [], storages = 
     const removeVImage = (idx) => setVImages(vImages.filter((_, i) => i !== idx));
 
     const handleSave = () => {
-        onSave({ color, storage, price, salePrice, stock, images: vImages });
+        onSave({ color, storage, ram, price, salePrice, stock, images: vImages });
     };
 
     return (
@@ -643,37 +649,56 @@ function VariantInlineForm({ initial, onSave, onCancel, colors = [], storages = 
                 {initial ? "Sửa variant" : "Thêm variant mới"}
             </p>
             <div className="grid grid-cols-2 gap-3">
-                <div>
-                    <Label className="text-xs">Màu sắc <span className="text-destructive">*</span></Label>
-                    <div className="mt-1">
-                        <Select value={color} onValueChange={setColor}>
-                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn màu sắc" /></SelectTrigger>
-                            <SelectContent>
-                                {colors.map((c, i) => (
-                                    <SelectItem key={c.id || i} value={c.name} className="text-xs">
-                                        <span className="flex items-center gap-2">
-                                            <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: c.hex || "#ccc" }} />
-                                            {c.name}
-                                        </span>
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                {colorOptions.length > 0 && (
+                    <div>
+                        <Label className="text-xs">Màu sắc <span className="text-destructive">*</span></Label>
+                        <div className="mt-1">
+                            <Select value={color} onValueChange={setColor}>
+                                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn màu sắc" /></SelectTrigger>
+                                <SelectContent>
+                                    {colorOptions.map((o, i) => (
+                                        <SelectItem key={o.id || i} value={o.value} className="text-xs">
+                                            <span className="flex items-center gap-2">
+                                                {o.hex && <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: o.hex }} />}
+                                                {o.value}
+                                            </span>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <Label className="text-xs">Dung lượng <span className="text-destructive">*</span></Label>
-                    <div className="mt-1">
-                        <Select value={storage} onValueChange={setStorage}>
-                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn dung lượng" /></SelectTrigger>
-                            <SelectContent>
-                                {storages.map((s, i) => (
-                                    <SelectItem key={s.id || i} value={s.label} className="text-xs">{s.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                )}
+                {storageOptions.length > 0 && (
+                    <div>
+                        <Label className="text-xs">Dung lượng <span className="text-destructive">*</span></Label>
+                        <div className="mt-1">
+                            <Select value={storage} onValueChange={setStorage}>
+                                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn dung lượng" /></SelectTrigger>
+                                <SelectContent>
+                                    {storageOptions.map((o, i) => (
+                                        <SelectItem key={o.id || i} value={o.value} className="text-xs">{o.value}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                </div>
+                )}
+                {ramOptions.length > 0 && (
+                    <div>
+                        <Label className="text-xs">RAM <span className="text-destructive">*</span></Label>
+                        <div className="mt-1">
+                            <Select value={ram} onValueChange={setRam}>
+                                <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Chọn RAM" /></SelectTrigger>
+                                <SelectContent>
+                                    {ramOptions.map((o, i) => (
+                                        <SelectItem key={o.id || i} value={o.value} className="text-xs">{o.value}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                )}
                 <div>
                     <Label className="text-xs">Giá bán <span className="text-destructive">*</span></Label>
                     <Input type="number" min={0} placeholder="VD: 34990000" value={price} onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1 h-9 text-xs" />
