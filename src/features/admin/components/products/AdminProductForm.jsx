@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
+import {
+    Plus, Trash2, Upload, X, GripVertical, PackageOpen, Edit3, Save, AlertTriangle
+} from "lucide-react";
 import { productSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import {
     Form,
     FormControl,
@@ -23,451 +30,589 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import AdminProductImageUpload from "./AdminProductImageUpload";
-import { CATEGORIES } from "@/lib/constants";
-import { slugify } from "@/lib/utils";
+import { useGetAdminCategoriesQuery, useUploadProductImagesMutation, useDeleteVariantMutation } from "@/store/api/productsApi";
+import { slugify, formatNumber, formatDateTime, cn, parseJsonField, formatFileSize } from "@/lib/utils";
+import { IMAGE } from "@/lib/constants";
+import { toast } from "sonner";
+
+const EMPTY_VARIANT = { color: "", storage: "", price: "", salePrice: "", stock: 0 };
 
 export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const { t } = useTranslation("admin");
+    const isEdit = !!product;
 
-    const parseJsonField = (field) => {
-        if (!field) return [];
-        if (Array.isArray(field)) return field;
-        try {
-            return JSON.parse(field);
-        } catch {
-            return [];
-        }
-    };
+    const { data: categories } = useGetAdminCategoriesQuery();
 
     const [images, setImages] = useState(() => parseJsonField(product?.images));
-    const [color, setColor] = useState(product?.color || "");
-    const [storage, setStorage] = useState(product?.storage || "");
+    const [specs, setSpecs] = useState([]);
+    const [variants, setVariants] = useState([]);
+    const [editingVariantIdx, setEditingVariantIdx] = useState(null);
+    const [showVariantForm, setShowVariantForm] = useState(false);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [blockedVariant, setBlockedVariant] = useState(null);
+    const fileInputRef = useRef(null);
+    const [isDragging, setIsDragging] = useState(false);
+
+    const [uploadImages] = useUploadProductImagesMutation();
+    const [deleteVariant] = useDeleteVariantMutation();
 
     const form = useForm({
         resolver: zodResolver(productSchema),
         defaultValues: {
             name: "",
             slug: "",
-            // ✅ BE dùng "category" field → product.service.js: data.category || data.categorySlug
-            // CATEGORIES constant dùng slug value (vd: "iphone", "ipad")
             category: "",
-            price: 0,
-            salePrice: 0,
-            stock: 0,
             description: "",
-            inStock: true,
             featured: false,
         },
     });
-
-    const watchPrice = form.watch("price");
-    const watchStock = form.watch("stock");
 
     useEffect(() => {
         if (product) {
             form.reset({
                 name: product.name || "",
                 slug: product.slug || "",
-                // ✅ BE trả categorySlug — map về category field để FE dùng
                 category: product.categorySlug || product.category || "",
-                price: product.price || 0,
-                salePrice: product.salePrice || 0,
-                stock: product.stock ?? 0,
                 description: product.description || "",
-                inStock: product.inStock ?? true,
                 featured: product.featured ?? false,
             });
             setImages(parseJsonField(product.images));
-            setColor(product.color || "");
-            setStorage(product.storage || "");
+
+            const rawSpecs = product.specifications || {};
+            const specArray = typeof rawSpecs === "object" && !Array.isArray(rawSpecs)
+                ? Object.entries(rawSpecs).map(([key, value]) => ({ key, value }))
+                : [];
+            setSpecs(specArray);
+
+            const productVariants = (product.variants || []).map((v) => ({
+                id: v.id,
+                color: v.color || "",
+                storage: v.storage || "",
+                price: v.price ?? 0,
+                salePrice: v.salePrice ?? "",
+                stock: v.stock ?? 0,
+                images: parseJsonField(v.images),
+                inStock: v.inStock ?? true,
+            }));
+            setVariants(productVariants);
         }
     }, [product, form]);
-
-    // Tự động sync inStock theo stock
-    useEffect(() => {
-        if (watchStock === 0) {
-            form.setValue("inStock", false);
-        } else if (watchStock > 0) {
-            form.setValue("inStock", true);
-        }
-    }, [watchStock, form]);
 
     const handleNameChange = (e) => {
         const name = e.target.value;
         form.setValue("name", name);
-        // Chỉ auto-slug khi tạo mới, không overwrite khi edit
-        if (!product) form.setValue("slug", slugify(name));
+        if (!isEdit) form.setValue("slug", slugify(name));
     };
 
+    const addSpec = () => setSpecs([...specs, { key: "", value: "" }]);
+    const removeSpec = (idx) => setSpecs(specs.filter((_, i) => i !== idx));
+    const updateSpec = (idx, field, val) => {
+        const next = [...specs];
+        next[idx] = { ...next[idx], [field]: val };
+        setSpecs(next);
+    };
+
+    const buildSpecsObject = () => {
+        const obj = {};
+        specs.forEach(({ key, value }) => {
+            if (key.trim()) obj[key.trim()] = value;
+        });
+        return obj;
+    };
+
+    const openVariantForm = (idx) => {
+        setEditingVariantIdx(idx);
+        setShowVariantForm(true);
+    };
+
+    const cancelVariantForm = () => {
+        setEditingVariantIdx(null);
+        setShowVariantForm(false);
+    };
+
+    const saveVariant = (data) => {
+        const { color, storage, price, salePrice, stock, images: vImages } = data;
+        if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
+        if (!storage.trim()) { toast.error("Dung lượng không được để trống"); return; }
+        if (!price || Number(price) < 1000) { toast.error("Giá bán phải lớn hơn 1.000đ"); return; }
+        if (salePrice && Number(salePrice) >= Number(price)) { toast.error("Giá sale phải nhỏ hơn giá bán"); return; }
+
+        const dup = variants.findIndex((v, i) =>
+            i !== editingVariantIdx &&
+            v.color?.toLowerCase() === color.trim().toLowerCase() &&
+            v.storage?.toLowerCase() === storage.trim().toLowerCase()
+        );
+        if (dup >= 0) { toast.error("Variant với màu sắc và dung lượng này đã tồn tại"); return; }
+
+        const variant = {
+            color: color.trim(),
+            storage: storage.trim(),
+            price: Number(price),
+            salePrice: salePrice ? Number(salePrice) : null,
+            stock: Number(stock) || 0,
+            images: vImages || [],
+            inStock: Number(stock) > 0,
+        };
+
+        if (editingVariantIdx !== null) {
+            const existing = variants[editingVariantIdx];
+            variant.id = existing?.id;
+            setVariants(variants.map((v, i) => i === editingVariantIdx ? variant : v));
+        } else {
+            setVariants([...variants, variant]);
+        }
+
+        cancelVariantForm();
+    };
+
+    const handleDeleteVariant = async (idx) => {
+        const variant = variants[idx];
+        if (variant.id) {
+            try {
+                const res = await fetch(
+                    `${import.meta.env.VITE_API_URL}/admin/variants/${variant.id}/check-orders`
+                );
+                const json = await res.json();
+                if (json.data?.hasOrders) {
+                    setBlockedVariant(idx);
+                    return;
+                }
+            } catch {
+                // proceed to delete
+            }
+        }
+        setDeleteTarget(idx);
+    };
+
+    const confirmDeleteVariant = async () => {
+        const idx = deleteTarget;
+        const variant = variants[idx];
+        if (variant.id) {
+            try {
+                await deleteVariant(variant.id).unwrap();
+            } catch {
+                toast.error("Xóa variant thất bại");
+                setDeleteTarget(null);
+                return;
+            }
+        }
+        setVariants(variants.filter((_, i) => i !== idx));
+        setDeleteTarget(null);
+        toast.success("Đã xóa variant");
+    };
+
+    const handleBlockedVariantToggle = async () => {
+        const idx = blockedVariant;
+        const variant = variants[idx];
+        if (!variant.id) { setBlockedVariant(null); return; }
+        try {
+            await fetch(
+                `${import.meta.env.VITE_API_URL}/admin/variants/${variant.id}`,
+                { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inStock: false }) }
+            );
+            setVariants(variants.map((v, i) => i === idx ? { ...v, inStock: false } : v));
+            toast.success("Đã tắt trạng thái còn hàng");
+        } catch {
+            toast.error("Có lỗi xảy ra");
+        }
+        setBlockedVariant(null);
+    };
+
+    const handleImageFiles = async (files) => {
+        const validFiles = Array.from(files).filter((f) => {
+            if (!IMAGE.VALID_TYPES.includes(f.type)) { toast.error("Định dạng ảnh không hợp lệ"); return false; }
+            if (f.size > IMAGE.MAX_SIZE) { toast.error("Ảnh vượt quá 5MB"); return false; }
+            return true;
+        });
+        if (!validFiles.length) return;
+        if (images.length + validFiles.length > IMAGE.MAX_COUNT) { toast.error("Tối đa 10 ảnh"); return; }
+
+        if (isEdit && product?.id) {
+            const formData = new FormData();
+            validFiles.forEach((f) => formData.append("images", f));
+            try {
+                const result = await uploadImages({ id: product.id, formData }).unwrap();
+                setImages(result?.images || []);
+                toast.success("Upload ảnh thành công");
+            } catch { toast.error("Upload thất bại"); }
+        } else {
+            const newPreviews = validFiles.map((f) => URL.createObjectURL(f));
+            setImages([...images, ...newPreviews]);
+        }
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const removeImage = (idx) => setImages(images.filter((_, i) => i !== idx));
+
     const handleSubmit = (values) => {
+        if (variants.length === 0) { toast.error("Cần có ít nhất 1 variant"); return; }
         onSubmit({
             ...values,
             images,
-            color,
-            storage,
+            specifications: buildSpecsObject(),
+            variants: variants.map(({ images: vImgs, ...rest }) => ({
+                ...rest,
+                images: vImgs || [],
+            })),
         });
     };
 
+    const hasVariants = variants.length > 0;
+
     return (
-        <Form {...form}>
-            <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="grid grid-cols-1 gap-6 lg:grid-cols-3"
-            >
-                {/* ── Left — Main info ── */}
-                <div className="space-y-5 lg:col-span-2">
-                    {/* Basic info */}
-                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <h3 className="mb-5 text-sm font-medium text-foreground">
-                            {t("product.basicInfo", {
-                                defaultValue: "Thông tin cơ bản",
-                            })}
-                        </h3>
-                        <div className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
+        <>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="space-y-5 lg:col-span-2">
+                        {/* ── Section 1: Basic Info ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-5 text-sm font-medium text-foreground">Thông tin cơ bản</h3>
+                            <div className="space-y-4">
+                                <FormField control={form.control} name="name" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>
-                                            {t("product.name")}
-                                        </FormLabel>
+                                        <FormLabel>Tên sản phẩm <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder={t(
-                                                    "product.namePlaceholder",
-                                                )}
-                                                disabled={isLoading}
-                                                {...field}
-                                                onChange={handleNameChange}
-                                            />
+                                            <Input placeholder="VD: iPhone 15 Pro Max" disabled={isLoading} {...field} onChange={handleNameChange} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="slug"
-                                render={({ field }) => (
+                                )} />
+                                <FormField control={form.control} name="slug" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>
-                                            {t("product.slug")}
-                                        </FormLabel>
+                                        <FormLabel>Slug <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
-                                            <Input
-                                                placeholder={t(
-                                                    "product.slugPlaceholder",
-                                                )}
-                                                disabled={isLoading}
-                                                {...field}
-                                            />
+                                            <Input placeholder="VD: iphone-15-pro-max" disabled={isLoading} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
+                                )} />
+                                <FormField control={form.control} name="category" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>
-                                            {t("product.category")}
-                                        </FormLabel>
-                                        <Select
-                                            value={field.value}
-                                            onValueChange={field.onChange}
-                                            disabled={isLoading}
-                                        >
+                                        <FormLabel>Danh mục <span className="text-destructive">*</span></FormLabel>
+                                        <Select value={field.value} onValueChange={field.onChange} disabled={isLoading}>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue
-                                                        placeholder={t(
-                                                            "product.categoryPlaceholder",
-                                                        )}
-                                                    />
-                                                </SelectTrigger>
+                                                <SelectTrigger><SelectValue placeholder="Chọn danh mục" /></SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {CATEGORIES.map((cat) => (
-                                                    <SelectItem
-                                                        key={cat.value}
-                                                        value={cat.value}
-                                                    >
-                                                        {cat.label}
-                                                    </SelectItem>
+                                                {(categories || []).map((cat) => (
+                                                    <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
                                     </FormItem>
-                                )}
-                            />
-
-                            {/* Price + salePrice */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="price"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                {t("product.price")}
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    min={0}
-                                                    placeholder="0"
-                                                    disabled={isLoading}
-                                                    {...field}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value ===
-                                                                ""
-                                                                ? 0
-                                                                : Number(
-                                                                      e.target
-                                                                          .value,
-                                                                  ),
-                                                        )
-                                                    }
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                {/* ✅ salePrice — giá khuyến mãi theo BE schema */}
-                                <FormField
-                                    control={form.control}
-                                    name="salePrice"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                {t("product.salePrice", {
-                                                    defaultValue: "Giá KM",
-                                                })}
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    min={0}
-                                                    placeholder="0"
-                                                    disabled={isLoading}
-                                                    {...field}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value ===
-                                                                ""
-                                                                ? 0
-                                                                : Number(
-                                                                      e.target
-                                                                          .value,
-                                                                  ),
-                                                        )
-                                                    }
-                                                />
-                                            </FormControl>
-                                            <p className="text-xs text-muted-foreground">
-                                                {t("product.salePriceNote", {
-                                                    defaultValue:
-                                                        "Để 0 nếu không có khuyến mãi",
-                                                })}
-                                            </p>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                )} />
+                                <FormField control={form.control} name="description" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Mô tả sản phẩm</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Mô tả chi tiết sản phẩm..." rows={5} disabled={isLoading} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
                             </div>
+                        </div>
 
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t("product.description")}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder={t(
-                                                    "product.descriptionPlaceholder",
-                                                )}
-                                                rows={5}
-                                                disabled={isLoading}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                        {/* ── Section 2: Images ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-5 text-sm font-medium text-foreground">Hình ảnh sản phẩm</h3>
+                            <div className="space-y-3">
+                                <div
+                                    onClick={() => fileInputRef.current?.click()}
+                                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                                    onDragLeave={() => setIsDragging(false)}
+                                    onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleImageFiles(e.dataTransfer.files); }}
+                                    className={cn(
+                                        "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 transition-colors",
+                                        isDragging ? "border-foreground bg-muted/30" : "border-border hover:border-foreground/30 hover:bg-muted/20"
+                                    )}
+                                >
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                                        <Upload className="h-5 w-5 text-muted-foreground" />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-sm font-medium text-foreground">Kéo thả hoặc click để chọn ảnh</p>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">JPG, PNG, WEBP · {formatFileSize(IMAGE.MAX_SIZE)}</p>
+                                    </div>
+                                </div>
+                                <input ref={fileInputRef} type="file" multiple accept={IMAGE.VALID_TYPES.join(",")} onChange={(e) => handleImageFiles(e.target.files)} className="hidden" />
+                                {images.length > 0 && (
+                                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                                        {images.map((src, idx) => (
+                                            <div key={idx} className="group relative aspect-square overflow-hidden rounded-xl bg-muted/30">
+                                                <img src={src} alt={`${idx + 1}`} className="h-full w-full object-contain p-1" />
+                                                <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-background/80 text-[10px] font-medium">{idx + 1}</div>
+                                                <button type="button" onClick={() => removeImage(idx)} className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-background/80 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive hover:text-white">
+                                                    <X className="h-3.5 w-3.5" />
+                                                </button>
+                                                <div className="absolute bottom-1.5 right-1.5 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <GripVertical className="h-4 w-4 text-muted-foreground" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
-                            />
+                                <p className="text-xs text-muted-foreground">{images.length}/{IMAGE.MAX_COUNT} ảnh</p>
+                            </div>
+                        </div>
+
+                        {/* ── Section 3: Specifications ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-5 text-sm font-medium text-foreground">Thông số kỹ thuật</h3>
+                            <div className="space-y-3">
+                                {specs.map((spec, idx) => (
+                                    <div key={idx} className="flex items-start gap-2">
+                                        <Input placeholder="Tên thông số" value={spec.key} onChange={(e) => updateSpec(idx, "key", e.target.value)} className="flex-1" />
+                                        <Input placeholder="Giá trị" value={spec.value} onChange={(e) => updateSpec(idx, "value", e.target.value)} className="flex-1" />
+                                        <Button type="button" variant="ghost" size="icon" className="mt-0.5 h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeSpec(idx)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> Thêm thông số
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* ── Section 4: Variants ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
+
+                            {!hasVariants && !showVariantForm && (
+                                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
+                                    <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
+                                    <p className="text-sm text-muted-foreground">Chưa có variant nào. Hãy thêm ít nhất một variant.</p>
+                                </div>
+                            )}
+
+                            {hasVariants && (
+                                <div className="mb-4 overflow-x-auto rounded-xl border border-border">
+                                    <table className="w-full text-sm">
+                                        <thead>
+                                            <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium uppercase text-muted-foreground">
+                                                <th className="px-4 py-3">Màu sắc</th>
+                                                <th className="px-4 py-3">Dung lượng</th>
+                                                <th className="px-4 py-3">Giá bán</th>
+                                                <th className="px-4 py-3">Giá sale</th>
+                                                <th className="px-4 py-3">Tồn kho</th>
+                                                <th className="px-4 py-3">Trạng thái</th>
+                                                <th className="px-4 py-3 text-right">Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {variants.map((v, idx) => (
+                                                <tr key={v.id || idx} className="border-b border-border last:border-0 hover:bg-muted/20">
+                                                    <td className="px-4 py-3 font-medium text-foreground">{v.color || "—"}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.storage || "—"}</td>
+                                                    <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
+                                                    <td className="px-4 py-3 text-foreground">{v.stock}</td>
+                                                    <td className="px-4 py-3">
+                                                        <Badge variant={v.inStock ? "default" : "secondary"} className="text-[10px]">
+                                                            {v.inStock ? "Còn hàng" : "Hết hàng"}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right">
+                                                        <div className="flex items-center justify-end gap-1">
+                                                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openVariantForm(idx)} disabled={editingVariantIdx === idx}>
+                                                                <Edit3 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteVariant(idx)} disabled={editingVariantIdx === idx}>
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
+                            {showVariantForm && (
+                                <VariantInlineForm
+                                    initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
+                                    onSave={saveVariant}
+                                    onCancel={cancelVariantForm}
+                                />
+                            )}
+
+                            {!showVariantForm && (
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => { setEditingVariantIdx(null); setShowVariantForm(true); }}>
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> Thêm variant
+                                </Button>
+                            )}
                         </div>
                     </div>
 
-                    {/* Images */}
-                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <h3 className="mb-5 text-sm font-medium text-foreground">
-                            {t("product.images")}
-                        </h3>
-                        {/* ✅ MySQL integer id — không có _id */}
-                        <AdminProductImageUpload
-                            productId={product?.id}
-                            images={images}
-                            onImagesChange={setImages}
-                        />
-                    </div>
+                    {/* ── Right Column ── */}
+                    <div className="space-y-4">
+                        <div className="rounded-2xl border border-border bg-card p-5">
+                            <h3 className="mb-4 text-sm font-medium text-foreground">Trạng thái</h3>
+                            <FormField control={form.control} name="featured" render={({ field }) => (
+                                <FormItem className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <FormLabel className="cursor-pointer font-normal text-foreground">Sản phẩm nổi bật</FormLabel>
+                                        <p className="text-xs text-muted-foreground">Hiển thị ở trang chủ và trang sản phẩm nổi bật</p>
+                                    </div>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                                    </FormControl>
+                                </FormItem>
+                            )} />
+                        </div>
 
-                    {/* Color */}
-                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <h3 className="mb-4 text-sm font-medium text-foreground">
-                            {t("product.color", { defaultValue: "Màu sắc" })}
-                        </h3>
-                        <Input
-                            placeholder="Ví dụ: Black Titanium"
-                            value={color}
-                            onChange={(e) => setColor(e.target.value)}
-                            disabled={isLoading}
-                        />
-                    </div>
+                        <div className="relative">
+                            <Button
+                                type="submit"
+                                className="w-full rounded-full"
+                                disabled={isLoading || !hasVariants}
+                            >
+                                {isLoading ? "Đang lưu..." : (
+                                    <><Save className="mr-1.5 h-4 w-4" /> Lưu sản phẩm</>
+                                )}
+                            </Button>
+                            {!hasVariants && (
+                                <div className="absolute -top-8 left-0 right-0 text-center">
+                                    <span className="text-xs text-destructive flex items-center justify-center gap-1">
+                                        <AlertTriangle className="h-3 w-3" /> Cần có ít nhất 1 variant
+                                    </span>
+                                </div>
+                            )}
+                        </div>
 
-                    {/* Storage */}
-                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <h3 className="mb-4 text-sm font-medium text-foreground">
-                            {t("product.storage", { defaultValue: "Dung lượng" })}
-                        </h3>
-                        <Input
-                            placeholder="Ví dụ: 256GB"
-                            value={storage}
-                            onChange={(e) => setStorage(e.target.value)}
-                            disabled={isLoading}
-                        />
+                        {isEdit && product && (
+                            <div className="rounded-2xl border border-border bg-card p-5 text-xs text-muted-foreground space-y-2">
+                                <div className="flex justify-between">
+                                    <span>Ngày tạo</span>
+                                    <span className="text-foreground">{formatDateTime(product.createdAt)}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>Cập nhật</span>
+                                    <span className="text-foreground">{formatDateTime(product.updatedAt)}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>Đánh giá</span>
+                                    <span className="text-foreground">{product.reviewCount ?? 0}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>Đã bán</span>
+                                    <span className="text-foreground">{product.soldCount ?? 0}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>ID</span>
+                                    <span className="max-w-[140px] truncate text-foreground">{product.id}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
+                </form>
+            </Form>
+
+            <ConfirmDialog
+                open={deleteTarget !== null}
+                onOpenChange={(o) => !o && setDeleteTarget(null)}
+                title="Xóa variant"
+                description="Bạn có chắc muốn xóa variant này?"
+                onConfirm={confirmDeleteVariant}
+            />
+
+            <ConfirmDialog
+                open={blockedVariant !== null}
+                onOpenChange={(o) => !o && setBlockedVariant(null)}
+                title="Không thể xóa variant"
+                description="Không thể xóa variant này vì đã có trong đơn hàng. Bạn có thể tắt trạng thái còn hàng thay thế."
+                confirmLabel="Tắt còn hàng"
+                onConfirm={handleBlockedVariantToggle}
+            />
+        </>
+    );
+}
+
+function VariantInlineForm({ initial, onSave, onCancel }) {
+    const [color, setColor] = useState(initial?.color || "");
+    const [storage, setStorage] = useState(initial?.storage || "");
+    const [price, setPrice] = useState(initial?.price || "");
+    const [salePrice, setSalePrice] = useState(initial?.salePrice || "");
+    const [stock, setStock] = useState(initial?.stock ?? 0);
+    const [vImages, setVImages] = useState(initial?.images || []);
+    const fileRef = useRef(null);
+
+    const handleVImageUpload = (e) => {
+        const files = Array.from(e.target.files || []);
+        const valid = files.filter((f) => IMAGE.VALID_TYPES.includes(f.type) && f.size <= IMAGE.MAX_SIZE);
+        const newUrls = valid.map((f) => URL.createObjectURL(f));
+        setVImages([...vImages, ...newUrls].slice(0, 5));
+        if (fileRef.current) fileRef.current.value = "";
+    };
+
+    const removeVImage = (idx) => setVImages(vImages.filter((_, i) => i !== idx));
+
+    const handleSave = () => {
+        onSave({ color, storage, price, salePrice, stock, images: vImages });
+    };
+
+    return (
+        <div className="mb-4 rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+            <p className="text-sm font-medium text-foreground">
+                {initial ? "Sửa variant" : "Thêm variant mới"}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+                <div>
+                    <Label className="text-xs">Màu sắc <span className="text-destructive">*</span></Label>
+                    <Input placeholder="VD: Black Titanium" value={color} onChange={(e) => setColor(e.target.value)} className="mt-1" />
                 </div>
+                <div>
+                    <Label className="text-xs">Dung lượng <span className="text-destructive">*</span></Label>
+                    <Input placeholder="VD: 128GB" value={storage} onChange={(e) => setStorage(e.target.value)} className="mt-1" />
+                </div>
+                <div>
+                    <Label className="text-xs">Giá bán <span className="text-destructive">*</span></Label>
+                    <Input type="number" min={0} placeholder="VD: 34990000" value={price} onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1" />
+                </div>
+                <div>
+                    <Label className="text-xs">Giá sale</Label>
+                    <Input type="number" min={0} placeholder="Để trống nếu không có khuyến mãi" value={salePrice} onChange={(e) => setSalePrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1" />
+                </div>
+                <div>
+                    <Label className="text-xs">Tồn kho <span className="text-destructive">*</span></Label>
+                    <Input type="number" min={0} placeholder="0" value={stock} onChange={(e) => setStock(Number(e.target.value) || 0)} className="mt-1" />
+                </div>
+            </div>
 
-                {/* ── Right — Settings ── */}
-                <div className="space-y-4">
-                    <div className="rounded-2xl border border-border bg-card p-5">
-                        <h3 className="mb-4 text-sm font-medium text-foreground">
-                            {t("product.status")}
-                        </h3>
-                        <div className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="stock"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            {t("product.stock", {
-                                                defaultValue: "Tồn kho",
-                                            })}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                placeholder="0"
-                                                disabled={isLoading}
-                                                {...field}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value === ""
-                                                            ? 0
-                                                            : Number(
-                                                                  e.target
-                                                                      .value,
-                                                              ),
-                                                    )
-                                                }
-                                            />
-                                        </FormControl>
-                                        {watchStock === 0 && (
-                                            <p className="text-xs text-red-500">
-                                                {t("product.outOfStock", {
-                                                    defaultValue:
-                                                        "Sản phẩm đang hết hàng",
-                                                })}
-                                            </p>
-                                        )}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <Separator />
-
-                            <FormField
-                                control={form.control}
-                                name="inStock"
-                                render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between gap-4">
-                                        <div>
-                                            <FormLabel className="cursor-pointer font-normal text-foreground">
-                                                {t("product.inStock")}
-                                            </FormLabel>
-                                            <p className="text-xs text-muted-foreground">
-                                                {t("product.inStockNote", {
-                                                    defaultValue:
-                                                        "Tự động theo tồn kho",
-                                                })}
-                                            </p>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                disabled={isLoading}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-
-                            <Separator />
-
-                            <FormField
-                                control={form.control}
-                                name="featured"
-                                render={({ field }) => (
-                                    <FormItem className="flex items-center justify-between gap-4">
-                                        <FormLabel className="cursor-pointer font-normal text-foreground">
-                                            {t("product.featured")}
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                                disabled={isLoading}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
+            {/* Variant images */}
+            <div>
+                <Label className="text-xs">Ảnh riêng (tối đa 5 ảnh)</Label>
+                <div className="mt-1 flex flex-wrap gap-2">
+                    {vImages.map((src, idx) => (
+                        <div key={idx} className="group relative h-14 w-14 overflow-hidden rounded-lg bg-muted/30">
+                            <img src={src} alt="" className="h-full w-full object-contain p-1" />
+                            <button type="button" onClick={() => removeVImage(idx)} className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-background/80 hover:bg-destructive hover:text-white">
+                                <X className="h-2.5 w-2.5" />
+                            </button>
                         </div>
-                    </div>
-
-                    <Button
-                        type="submit"
-                        className="w-full rounded-full"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? t("product.saving") : t("product.save")}
-                    </Button>
-
-                    {/* ✅ MySQL integer id */}
-                    {product && (
-                        <p className="text-center text-xs text-muted-foreground">
-                            ID: {product.id}
-                        </p>
+                    ))}
+                    {vImages.length < 5 && (
+                        <button type="button" onClick={() => fileRef.current?.click()} className="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:border-foreground hover:text-foreground">
+                            <Upload className="h-4 w-4" />
+                        </button>
                     )}
                 </div>
-            </form>
-        </Form>
+                <input ref={fileRef} type="file" multiple accept={IMAGE.VALID_TYPES.join(",")} onChange={handleVImageUpload} className="hidden" />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
+                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onCancel}>Hủy</Button>
+                <Button type="button" size="sm" className="rounded-full" onClick={handleSave}>
+                    <Save className="mr-1 h-3.5 w-3.5" /> Lưu variant
+                </Button>
+            </div>
+        </div>
     );
 }

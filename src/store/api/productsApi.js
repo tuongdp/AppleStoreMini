@@ -1,9 +1,9 @@
 import { baseApi } from "./baseApi";
 import { parseProduct } from "./helpers";
+
 export const productsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         // GET /products?page=&limit=&category=&sort=&search=&inStock=&featured=&onSale=&minPrice=&maxPrice=
-        // BE trả: { data: products[], pagination: {...} }
         getProducts: builder.query({
             query: (params) => ({ url: "/products", params }),
             providesTags: ["Products"],
@@ -45,7 +45,6 @@ export const productsApi = baseApi.injectEndpoints({
         }),
 
         // GET /products?category=:slug&limit=4
-        // BE dùng query.category → where.categorySlug = query.category
         getProductsByCategory: builder.query({
             query: ({ category, limit = 4 }) => ({
                 url: "/products",
@@ -75,9 +74,6 @@ export const productsApi = baseApi.injectEndpoints({
 
         // ── Admin ──────────────────────────────────────
 
-        // POST /admin/products
-        // BE nhận: { name, slug, description, price, salePrice?, category/categorySlug,
-        //            images?, color?, storage?, featured?, inStock?, stock?, ... }
         createProduct: builder.mutation({
             query: (data) => ({
                 url: "/admin/products",
@@ -88,7 +84,6 @@ export const productsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // PUT /admin/products/:id
         updateProduct: builder.mutation({
             query: ({ id, ...data }) => ({
                 url: `/admin/products/${id}`,
@@ -99,7 +94,6 @@ export const productsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // DELETE /admin/products/:id
         deleteProduct: builder.mutation({
             query: (id) => ({
                 url: `/admin/products/${id}`,
@@ -108,16 +102,55 @@ export const productsApi = baseApi.injectEndpoints({
             invalidatesTags: ["Products"],
         }),
 
-        // POST /admin/products/:id/images — multipart/form-data
         uploadProductImages: builder.mutation({
             query: ({ id, formData }) => ({
                 url: `/admin/products/${id}/images`,
                 method: "POST",
                 body: formData,
-                // Không set Content-Type — browser tự set boundary cho multipart
                 formData: true,
             }),
             invalidatesTags: (_, __, { id }) => [{ type: "Product", id }],
+            transformResponse: (response) => response.data,
+        }),
+
+        // ── Admin Categories ───────────────────────────
+        getAdminCategories: builder.query({
+            query: () => "/admin/categories",
+            providesTags: ["Categories"],
+            transformResponse: (response) => response.data,
+        }),
+
+        // ── Admin Variants ─────────────────────────────
+        createVariant: builder.mutation({
+            query: ({ productId, ...data }) => ({
+                url: `/admin/products/${productId}/variants`,
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ["Product"],
+            transformResponse: (response) => response.data,
+        }),
+
+        updateVariant: builder.mutation({
+            query: ({ variantId, ...data }) => ({
+                url: `/admin/variants/${variantId}`,
+                method: "PUT",
+                body: data,
+            }),
+            invalidatesTags: ["Product"],
+            transformResponse: (response) => response.data,
+        }),
+
+        deleteVariant: builder.mutation({
+            query: (variantId) => ({
+                url: `/admin/variants/${variantId}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["Product"],
+        }),
+
+        checkVariantOrders: builder.query({
+            query: (variantId) => `/admin/variants/${variantId}/check-orders`,
             transformResponse: (response) => response.data,
         }),
     }),
@@ -136,4 +169,9 @@ export const {
     useUpdateProductMutation,
     useDeleteProductMutation,
     useUploadProductImagesMutation,
+    useGetAdminCategoriesQuery,
+    useCreateVariantMutation,
+    useUpdateVariantMutation,
+    useDeleteVariantMutation,
+    useCheckVariantOrdersQuery,
 } = productsApi;

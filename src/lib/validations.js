@@ -146,17 +146,9 @@ export const productSchema = z.object({
             message: "Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
         }),
     category: z.string().min(1, { message: "Vui lòng chọn danh mục" }),
-    price: z.coerce
-        .number()
-        .min(1000, { message: "Giá bán phải lớn hơn 1.000đ" }),
-    stock: z.coerce
-        .number()
-        .min(0, { message: "Tồn kho không được âm" })
-        .default(0),
     description: z
         .string()
         .min(10, { message: "Mô tả phải có ít nhất 10 ký tự" }),
-    inStock: z.boolean().default(true),
     featured: z.boolean().default(false),
 });
 

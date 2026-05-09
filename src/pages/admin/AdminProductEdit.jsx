@@ -1,9 +1,13 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import {
     useGetProductByIdQuery,
     useUpdateProductMutation,
+    useCreateVariantMutation,
+    useUpdateVariantMutation,
+    useDeleteVariantMutation,
 } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
 import { Button } from "@/components/ui/button";
@@ -15,19 +19,46 @@ export default function AdminProductEdit() {
     const { t } = useTranslation("admin");
     const { id } = useParams();
     const navigate = useNavigate();
+    const [isSaving, setIsSaving] = useState(false);
 
     const { data: product, isLoading, isError } = useGetProductByIdQuery(id);
-    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
+    const [updateProduct] = useUpdateProductMutation();
+    const [createVariant] = useCreateVariantMutation();
+    const [updateVariant] = useUpdateVariantMutation();
+    const [deleteVariant] = useDeleteVariantMutation();
 
     const handleSubmit = async (values) => {
+        setIsSaving(true);
         try {
-            await updateProduct({ id, ...values }).unwrap();
+            const { variants, ...productData } = values;
+            await updateProduct({ id, ...productData }).unwrap();
+
+            const existingIds = new Set(
+                (product?.variants || []).map((v) => v.id).filter(Boolean)
+            );
+            const submittedIds = new Set(
+                variants.map((v) => v.id).filter(Boolean)
+            );
+
+            for (const variant of variants) {
+                if (variant.id) {
+                    await updateVariant({ variantId: variant.id, ...variant }).unwrap();
+                } else {
+                    await createVariant({ productId: id, ...variant }).unwrap();
+                }
+            }
+
+            const toDelete = [...existingIds].filter((vid) => !submittedIds.has(vid));
+            for (const vid of toDelete) {
+                await deleteVariant(vid).unwrap();
+            }
+
             toast.success(t("product.updateSuccess"));
             navigate(ROUTES.ADMIN_PRODUCTS);
         } catch (error) {
-            toast.error(
-                error?.data?.message || t("status.error", { ns: "common" }),
-            );
+            toast.error(error?.data?.message || t("status.error", { ns: "common" }));
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -48,7 +79,6 @@ export default function AdminProductEdit() {
 
     return (
         <div className="space-y-6">
-            {/* Back */}
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_PRODUCTS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
@@ -56,7 +86,6 @@ export default function AdminProductEdit() {
                 </Link>
             </Button>
 
-            {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">
@@ -67,27 +96,17 @@ export default function AdminProductEdit() {
                     </p>
                 </div>
 
-                {/* Preview link */}
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
-                    asChild
-                >
-                    <Link
-                        to={ROUTES.PRODUCT_DETAIL(product.slug)}
-                        target="_blank"
-                    >
+                <Button variant="outline" size="sm" className="rounded-full" asChild>
+                    <Link to={ROUTES.PRODUCT_DETAIL(product.slug)} target="_blank">
                         {t("product.preview", { defaultValue: "Xem trang" })}
                     </Link>
                 </Button>
             </div>
 
-            {/* Form */}
             <AdminProductForm
                 product={product}
                 onSubmit={handleSubmit}
-                isLoading={isUpdating}
+                isLoading={isSaving}
             />
         </div>
     );
