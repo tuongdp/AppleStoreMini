@@ -416,7 +416,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         {/* ── Section 1: Basic Info ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">{t("productForm.basicInfo")}</h3>
-                            <div className="space-y-4">
+                            <div className="max-h-[55vh] overflow-y-auto space-y-4 pr-1">
                                 <FormField control={form.control} name="name" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{t("productForm.productName")} <span className="text-destructive">*</span></FormLabel>
@@ -476,7 +476,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         {/* ── Section 2: Specifications ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">{t("productForm.specifications")}</h3>
-                            <div className="space-y-3">
+                            <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-1">
                                 {specs.map((spec, idx) => (
                                     <div key={idx} className="flex items-start gap-2">
                                         <Input placeholder={t("productForm.specNamePlaceholder")} value={spec.key} onChange={(e) => updateSpec(idx, "key", e.target.value)} className="flex-1" />
@@ -486,14 +486,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         </Button>
                                     </div>
                                 ))}
-                                <div className="flex flex-wrap gap-2">
-                                    <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
-                                        <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addSpec")}
-                                    </Button>
-                                    <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowImportSpecs(true)}>
-                                        <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {t("productForm.importSpecsSelectFile")}
-                                    </Button>
-                                </div>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addSpec")}
+                                </Button>
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowImportSpecs(true)}>
+                                    <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {t("productForm.importSpecsSelectFile")}
+                                </Button>
                             </div>
                         </div>
 
@@ -509,7 +509,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             <h3 className="mb-4 text-sm font-medium text-foreground">{t("productForm.productOptions")}</h3>
                             <p className="mb-4 text-xs text-muted-foreground">{t("productForm.optionsDescription")}</p>
 
-                            <div className="mb-4 space-y-2">
+                            <div className="mb-4 max-h-[30vh] overflow-y-auto space-y-2 pr-1">
                                 {options.map((o, idx) => (
                                     <div key={idx} className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
                                         <Badge variant="outline" className="shrink-0 text-[10px]">
@@ -526,7 +526,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 ))}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="border-t border-border pt-3">
+                                <div className="flex flex-wrap items-center gap-2">
                                 <Select value={newOptionType} onValueChange={setNewOptionType}>
                                     <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -551,29 +552,32 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 </Button>
                             </div>
 
-                            {newOptionType === "COLOR" && (
-                                <div className="mt-2 flex flex-wrap gap-1">
-                                    {hexPresets.map((hex) => (
-                                        <button key={hex} type="button" onClick={() => setNewOptionHex(hex)} className="h-5 w-5 rounded-full border border-border transition-transform hover:scale-110" style={{ backgroundColor: hex }} />
-                                    ))}
-                                </div>
-                            )}
+                                {newOptionType === "COLOR" && (
+                                    <div className="mt-2 flex flex-wrap gap-1">
+                                        {hexPresets.map((hex) => (
+                                            <button key={hex} type="button" onClick={() => setNewOptionHex(hex)} className="h-5 w-5 rounded-full border border-border transition-transform hover:scale-110" style={{ backgroundColor: hex }} />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* ── Section 4: Variants ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
 
-                            {!hasVariants && !showVariantForm && (
-                                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
-                                    <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
-                                     <p className="text-sm text-muted-foreground">{t("productForm.noVariants")}</p>
-                                </div>
-                            )}
+                            <div className="max-h-[45vh] overflow-y-auto pr-1">
+                                {!hasVariants && !showVariantForm && (
+                                    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
+                                        <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
+                                        <p className="text-sm text-muted-foreground">{t("productForm.noVariants")}</p>
+                                    </div>
+                                )}
 
-                            {hasVariants && (
-                                <div className="mb-4 overflow-x-auto rounded-xl border border-border">
-                                    <table className="w-full text-sm">
+                                {hasVariants && (
+                                    <div className="mb-4 overflow-x-auto rounded-xl border border-border">
+                                        <table className="w-full text-sm">
+                                            ...
                                         <thead>
                                             <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium uppercase text-muted-foreground">
                                                 <th className="px-4 py-3">{t("productForm.variantColor")}</th>
@@ -642,19 +646,20 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 </div>
                             )}
 
-                            {showVariantForm && (
-                                <VariantInlineForm
-                                    initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
-                                    onSave={saveVariant}
-                                    onCancel={cancelVariantForm}
-                                    colorOptions={colorOptions}
-                                    storageOptions={storageOptions}
-                                    ramOptions={ramOptions}
-                                    editionOptions={editionOptions}
-                                    uploadImage={uploadImage}
-                                    isSaving={isCreatingProduct}
-                                />
-                            )}
+                                {showVariantForm && (
+                                    <VariantInlineForm
+                                        initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
+                                        onSave={saveVariant}
+                                        onCancel={cancelVariantForm}
+                                        colorOptions={colorOptions}
+                                        storageOptions={storageOptions}
+                                        ramOptions={ramOptions}
+                                        editionOptions={editionOptions}
+                                        uploadImage={uploadImage}
+                                        isSaving={isCreatingProduct}
+                                    />
+                                )}
+                            </div>
 
                             {!showVariantForm && (
                                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => { setEditingVariantIdx(null); setShowVariantForm(true); }}>
