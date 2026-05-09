@@ -73,12 +73,7 @@ export default function HomePage() {
             ?.sort((a, b) => a.order - b.order)
             ?.map((item) => ({
                 id: item.id,
-                title: item.title,
-                subtitle: item.subtitle,
-                description: item.description,
                 image: item.image,
-                cta: item.ctaText,
-                ctaLink: item.ctaLink,
             })) || [];
 
     return (

@@ -25,7 +25,10 @@ export default function Navbar() {
     const mobileOpen = useSelector(selectMobileMenuOpen);
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
-    const SIMPLE_NAV_LINKS = [{ label: t("nav.news"), href: "/news" }];
+    const SIMPLE_NAV_LINKS = [
+        { label: t("nav.appleCare"), href: "/apple-care" },
+        { label: t("nav.news"), href: "/news" },
+    ];
 
     return (
         <header

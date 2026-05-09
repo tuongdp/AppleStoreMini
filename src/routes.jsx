@@ -26,6 +26,7 @@ import WarrantyPage from "@/pages/WarrantyPage";
 import ReturnPolicyPage from "@/pages/ReturnPolicyPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import TermsPage from "@/pages/TermsPage";
+import AppleCarePage from "@/pages/AppleCarePage";
 
 // Pages — auth
 import LoginPage from "@/pages/LoginPage";
@@ -83,6 +84,7 @@ export const router = createBrowserRouter([
             { path: "return", element: <ReturnPolicyPage /> },
             { path: "privacy", element: <PrivacyPage /> },
             { path: "terms", element: <TermsPage /> },
+            { path: "apple-care", element: <AppleCarePage /> },
             { path: "news", element: <NewsPage /> },
             { path: "news/:slug", element: <NewsDetailPage /> },
             { path: "verify-email", element: <VerifyEmailPage /> },

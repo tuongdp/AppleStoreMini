@@ -6,6 +6,7 @@ export const ROUTES = {
     CART: "/cart",
     CHECKOUT: "/checkout",
     SEARCH: "/search",
+    APPLE_CARE: "/apple-care",
 
     // Auth
     LOGIN: "/login",
@@ -47,7 +48,7 @@ export const CATEGORIES = [
     { label: "iPhone", value: "iphone", href: "/products?category=iphone", image: iphoneImg },
     { label: "iPad", value: "ipad", href: "/products?category=ipad", image: ipadImg },
     { label: "Mac", value: "mac", href: "/products?category=mac", image: macImg },
-    { label: "Apple Watch", value: "apple-watch", href: "/products?category=apple-watch", image: watchImg },
+    { label: "Watch", value: "apple-watch", href: "/products?category=apple-watch", image: watchImg },
     { label: "AirPods", value: "airpods", href: "/products?category=airpods", image: airpodsImg },
     { label: "Phụ kiện", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
 ];

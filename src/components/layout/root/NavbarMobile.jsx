@@ -14,6 +14,7 @@ import {
     UserPlus,
     ChevronRight,
     Newspaper,
+    ShieldCheck,
 } from "lucide-react";
 
 export default function NavbarMobile() {
@@ -100,6 +101,14 @@ export default function NavbarMobile() {
                         {t("nav.explore", { defaultValue: "Khám phá" })}
                     </p>
                     <div className="space-y-0.5">
+                        <Link
+                            to="/apple-care"
+                            onClick={handleClose}
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                            <ShieldCheck className="h-4 w-4" />
+                            AppleCare
+                        </Link>
                         <Link
                             to="/news"
                             onClick={handleClose}

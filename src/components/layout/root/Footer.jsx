@@ -9,14 +9,15 @@ const FOOTER_LINKS = [
             { label: "iPhone", href: `${ROUTES.PRODUCTS}?category=iphone` },
             { label: "iPad", href: `${ROUTES.PRODUCTS}?category=ipad` },
             { label: "Mac", href: `${ROUTES.PRODUCTS}?category=mac` },
-            { label: "Apple Watch", href: `${ROUTES.PRODUCTS}?category=watch` },
+            { label: "Watch", href: `${ROUTES.PRODUCTS}?category=watch` },
             { label: "AirPods", href: `${ROUTES.PRODUCTS}?category=airpods` },
         ],
     },
     {
         titleKey: "footer.explore",
         links: [
-            { label: "Tin tức", href: "/news" }, // ✅ Thêm
+            { label: "AppleCare", href: "/apple-care" },
+            { label: "Tin tức", href: "/news" },
             { labelKey: "footer.about", href: "/about" },
             { labelKey: "footer.contact", href: "/contact" },
         ],
