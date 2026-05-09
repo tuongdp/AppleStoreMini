@@ -7,7 +7,7 @@ import "swiper/css/effect-fade";
 function BannerSkeleton() {
     return (
         <section className="w-full overflow-hidden">
-            <div className="h-[580px] w-full animate-pulse bg-muted" />
+            <div className="h-[375px] w-full animate-pulse bg-muted" />
         </section>
     );
 }
@@ -27,7 +27,7 @@ export default function BannerSlider({ slides = [] }) {
             >
                 {slides.map((slide) => (
                     <SwiperSlide key={slide.id}>
-                        <div className="relative h-[580px] w-full overflow-hidden bg-muted">
+                        <div className="relative h-[375px] w-full overflow-hidden bg-muted">
                             <img
                                 src={slide.image}
                                 alt=""

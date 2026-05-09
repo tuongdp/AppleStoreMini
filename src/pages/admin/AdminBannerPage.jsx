@@ -151,7 +151,7 @@ export default function AdminBannerPage() {
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleBannerStatusMutation();
 
-    const banners = data?.data || [];
+    const banners = data || [];
 
     const handleDelete = async () => {
         try {
