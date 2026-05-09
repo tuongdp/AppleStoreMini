@@ -74,6 +74,7 @@ export default function HomePage() {
             ?.map((item) => ({
                 id: item.id,
                 image: item.image,
+                ctaLink: item.ctaLink,
             })) || [];
 
     return (

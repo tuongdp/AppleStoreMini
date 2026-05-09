@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 import "swiper/css";
@@ -25,17 +26,23 @@ export default function BannerSlider({ slides = [] }) {
                 loop
                 className="w-full"
             >
-                {slides.map((slide) => (
-                    <SwiperSlide key={slide.id}>
-                        <div className="relative h-[375px] w-full overflow-hidden bg-muted">
-                            <img
-                                src={slide.image}
-                                alt=""
-                                className="absolute inset-0 h-full w-full object-cover"
-                            />
-                        </div>
-                    </SwiperSlide>
-                ))}
+                {slides.map((slide) => {
+                    const Wrapper = slide.ctaLink ? Link : "div";
+                    return (
+                        <SwiperSlide key={slide.id}>
+                            <Wrapper
+                                to={slide.ctaLink || "#"}
+                                className="relative block h-[375px] w-full overflow-hidden bg-muted"
+                            >
+                                <img
+                                    src={slide.image}
+                                    alt=""
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                />
+                            </Wrapper>
+                        </SwiperSlide>
+                    );
+                })}
             </Swiper>
         </section>
     );
