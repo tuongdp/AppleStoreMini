@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
-import { useCreateProductMutation, useCreateVariantMutation, useUploadProductImagesMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
+import { useCreateProductMutation, useCreateVariantMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -14,14 +14,13 @@ export default function AdminProductCreate() {
     const navigate = useNavigate();
     const [createProduct] = useCreateProductMutation();
     const [createVariant] = useCreateVariantMutation();
-    const [uploadImages] = useUploadProductImagesMutation();
     const [uploadImage] = useUploadEditorImageMutation();
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSubmit = async (values) => {
         setIsSaving(true);
         try {
-            const { variants, images, specifications, ...productData } = values;
+            const { variants, specifications, ...productData } = values;
 
             const product = await createProduct({
                 ...productData,
@@ -39,21 +38,6 @@ export default function AdminProductCreate() {
                     );
                 }
                 await createVariant({ productId, ...variantData }).unwrap();
-            }
-
-            if (images.length > 0) {
-                const blobImages = images.filter((src) => src.startsWith("blob:"));
-                if (blobImages.length > 0) {
-                    const blobToFile = async (blobUrl, idx) => {
-                        const res = await fetch(blobUrl);
-                        const blob = await res.blob();
-                        return new File([blob], `image-${idx}.${blob.type.split("/")[1] || "jpg"}`, { type: blob.type });
-                    };
-                    const files = await Promise.all(blobImages.map(blobToFile));
-                    const formData = new FormData();
-                    files.forEach((f) => formData.append("images", f));
-                    await uploadImages({ id: productId, formData }).unwrap();
-                }
             }
 
             toast.success(t("product.createSuccess"));
