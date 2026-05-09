@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import ImageExtension from "@tiptap/extension-image";
@@ -17,7 +17,6 @@ import {
     ListOrdered,
     Link,
     Image,
-    Pilcrow,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUploadEditorImageMutation } from "@/store/api/productsApi";
@@ -40,6 +39,44 @@ const MenuButton = ({ onClick, active, children, title }) => (
 export default function RichTextEditor({ value, onChange, placeholder, disabled }) {
     const fileRef = useRef(null);
     const [uploadImage] = useUploadEditorImageMutation();
+    const uploadingRef = useRef(false);
+
+    const insertImages = useCallback(async (files) => {
+        if (!files.length || uploadingRef.current) return;
+        uploadingRef.current = true;
+
+        const valid = Array.from(files).filter(
+            (f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024,
+        );
+        if (valid.length !== files.length) {
+            toast.error("Chỉ chấp nhận file ảnh dưới 5MB");
+        }
+        if (!valid.length) { uploadingRef.current = false; return; }
+
+        const toastId = toast.loading(`Đang upload ${valid.length} ảnh...`);
+        let inserted = 0;
+
+        for (const file of valid) {
+            try {
+                const fd = new FormData();
+                fd.append("image", file);
+                const res = await uploadImage(fd).unwrap();
+                editorRef.current?.chain().focus().setImage({ src: res.url }).run();
+                inserted++;
+            } catch {
+                toast.error(`Upload ảnh "${file.name}" thất bại`);
+            }
+        }
+
+        if (inserted > 0) {
+            toast.success(`Đã chèn ${inserted} ảnh`, { id: toastId });
+        } else {
+            toast.dismiss(toastId);
+        }
+        uploadingRef.current = false;
+    }, [uploadImage]);
+
+    const editorRef = useRef(null);
 
     const editor = useEditor({
         extensions: [
@@ -54,40 +91,52 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
         onUpdate: ({ editor }) => {
             onChange?.(editor.getHTML());
         },
+        editorProps: {
+            handlePaste: (view, event) => {
+                const items = event.clipboardData?.items;
+                if (!items) return false;
+                const files = [];
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === "file" && item.type.startsWith("image/")) {
+                        const file = item.getAsFile();
+                        if (file) files.push(file);
+                    }
+                }
+                if (files.length) {
+                    insertImages(files);
+                    return true;
+                }
+                return false;
+            },
+            handleDrop: (view, event) => {
+                const files = event.dataTransfer?.files;
+                if (!files?.length) return false;
+                const imageFiles = Array.from(files).filter((f) =>
+                    f.type.startsWith("image/"),
+                );
+                if (imageFiles.length) {
+                    event.preventDefault();
+                    insertImages(imageFiles);
+                    return true;
+                }
+                return false;
+            },
+        },
     });
 
-    const handleImageUpload = useCallback(async (e) => {
-        const files = Array.from(e.target.files || []);
-        if (!files.length) return;
+    editorRef.current = editor;
 
-        const valid = files.filter(
-            (f) => f.type.startsWith("image/") && f.size <= 5 * 1024 * 1024,
-        );
-        if (valid.length !== files.length) {
-            toast.error("Chỉ chấp nhận file ảnh dưới 5MB");
+    useEffect(() => {
+        if (editor && value !== editor.getHTML()) {
+            editor.commands.setContent(value || "", false);
         }
-        if (!valid.length) return;
+    }, [value]);
 
-        const toastId = toast.loading(`Đang upload ${valid.length} ảnh...`);
-
-        try {
-            const results = await Promise.all(
-                valid.map((file) => {
-                    const fd = new FormData();
-                    fd.append("image", file);
-                    return uploadImage(fd).unwrap();
-                }),
-            );
-            editor?.chain().focus();
-            results.forEach((res) => {
-                editor?.chain().focus().setImage({ src: res.url }).run();
-            });
-            toast.success(`Đã upload ${results.length} ảnh`, { id: toastId });
-        } catch {
-            toast.error("Upload ảnh thất bại", { id: toastId });
-        }
+    const handleFileInput = useCallback(async (e) => {
+        await insertImages(e.target.files);
         if (fileRef.current) fileRef.current.value = "";
-    }, [editor, uploadImage]);
+    }, [insertImages]);
 
     const setLink = useCallback(() => {
         if (!editor) return;
@@ -187,7 +236,7 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
                 <MenuButton
                     onClick={() => fileRef.current?.click()}
                     active={false}
-                    title="Chèn ảnh"
+                    title="Chèn ảnh (Ctrl+V hoặc kéo thả)"
                 >
                     <Image className="h-4 w-4" />
                 </MenuButton>
@@ -199,10 +248,18 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
                 accept="image/*"
                 multiple
                 className="hidden"
-                onChange={handleImageUpload}
+                onChange={handleFileInput}
             />
 
-            <div className="prose prose-sm max-w-none p-4">
+            <div
+                className="prose prose-sm max-w-none p-4"
+                onDragOver={(e) => {
+                    if (e.dataTransfer?.types.includes("Files")) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }}
+            >
                 <EditorContent editor={editor} />
             </div>
         </div>
