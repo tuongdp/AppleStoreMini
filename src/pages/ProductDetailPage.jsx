@@ -79,7 +79,10 @@ export default function ProductDetailPage() {
         if (!effectiveColor && !effectiveStorage && !effectiveRam && !effectiveEdition) return null;
         const match = variants.find(
             (v) =>
-                v.color === effectiveColor && v.storage === effectiveStorage && v.ram === effectiveRam && v.edition === effectiveEdition,
+                (v.color || "") === effectiveColor &&
+                (v.storage || "") === effectiveStorage &&
+                (v.ram || "") === effectiveRam &&
+                (v.edition || "") === effectiveEdition,
         );
         return match || null;
     }, [variants, effectiveColor, effectiveStorage, effectiveRam, effectiveEdition]);
