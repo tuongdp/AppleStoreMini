@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ROUTES } from "@/lib/constants";
+import { Truck, ShieldCheck, RotateCcw, ChevronRight } from "lucide-react";
+import { ROUTES, SHIPPING } from "@/lib/constants";
+import { formatPrice } from "@/lib/utils";
 
 const FOOTER_LINKS = [
     {
@@ -126,6 +128,43 @@ export default function Footer() {
                                 </ul>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Trust badges ── */}
+            <div className="border-t border-border bg-gradient-to-r from-background via-muted/30 to-background">
+                <div className="section-padding py-8 md:py-10">
+                    <div className="mx-auto max-w-5xl">
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                            <div className="group flex items-center gap-4 rounded-xl border border-border/50 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-apple-blue/10 text-apple-blue transition-colors group-hover:bg-apple-blue group-hover:text-white">
+                                    <Truck className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-foreground">Miễn phí vận chuyển</p>
+                                    <p className="text-xs text-muted-foreground">Đơn từ {formatPrice(SHIPPING.FREE_THRESHOLD)}</p>
+                                </div>
+                            </div>
+                            <div className="group flex items-center gap-4 rounded-xl border border-border/50 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-apple-blue/10 text-apple-blue transition-colors group-hover:bg-apple-blue group-hover:text-white">
+                                    <ShieldCheck className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-foreground">Bảo hành chính hãng</p>
+                                    <p className="text-xs text-muted-foreground">1 - 2 năm tuỳ sản phẩm</p>
+                                </div>
+                            </div>
+                            <div className="group flex items-center gap-4 rounded-xl border border-border/50 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-apple-blue/10 text-apple-blue transition-colors group-hover:bg-apple-blue group-hover:text-white">
+                                    <RotateCcw className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-foreground">Đổi trả dễ dàng</p>
+                                    <p className="text-xs text-muted-foreground">Trong vòng 14 ngày</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

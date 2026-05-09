@@ -5,9 +5,6 @@ import { useTranslation } from "react-i18next";
 import {
     ShoppingCart,
     Heart,
-    Truck,
-    ShieldCheck,
-    RotateCcw,
 } from "lucide-react";
 import { useGetProductBySlugQuery } from "@/store/api/productsApi";
 import { addToCart } from "@/store/cartSlice";
@@ -26,8 +23,8 @@ import ProductDescription from "@/features/products/components/ProductDescriptio
 import ProductSpecification from "@/features/products/components/ProductSpecification";
 import ProductReviews from "@/features/products/components/ProductReviews";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
-import { cn, formatPrice } from "@/lib/utils";
-import { ROUTES, SHIPPING } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants";
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -391,46 +388,6 @@ export default function ProductDetailPage() {
             {/* Description */}
             <div className="mt-12">
                 <ProductDescription description={product.description} />
-            </div>
-
-            {/* Trust badges */}
-            <div className="mt-8">
-                <div className="grid grid-cols-1 gap-4 rounded-2xl bg-muted/30 p-5 md:grid-cols-3">
-                    <div className="flex items-center gap-3">
-                        <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
-                        <div>
-                            <p className="text-sm font-medium text-foreground">
-                                {t("trust.freeShipping", { ns: "common" })}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {t("trust.freeShippingDesc", { ns: "common", defaultValue: "Đơn từ" })}{" "}
-                                {formatPrice(SHIPPING.FREE_THRESHOLD)}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <ShieldCheck className="h-5 w-5 shrink-0 text-muted-foreground" />
-                        <div>
-                            <p className="text-sm font-medium text-foreground">
-                                {t("trust.warranty", { ns: "common" })}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {t("trust.warrantyDesc", { ns: "common" })}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <RotateCcw className="h-5 w-5 shrink-0 text-muted-foreground" />
-                        <div>
-                            <p className="text-sm font-medium text-foreground">
-                                {t("trust.returns", { ns: "common" })}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                {t("trust.returnsDesc", { ns: "common" })}
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </div>
             <Separator className="my-12" />
             <ProductReviews product={product} />
