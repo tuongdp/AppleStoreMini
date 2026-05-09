@@ -42,7 +42,8 @@ export default function AdminProductEdit() {
 
             for (const variant of variants) {
                 if (variant.id) {
-                    await updateVariant({ variantId: variant.id, ...variant }).unwrap();
+                    const { id, ...variantData } = variant;
+                    await updateVariant({ variantId: id, ...variantData }).unwrap();
                 } else {
                     await createVariant({ productId: id, ...variant }).unwrap();
                 }
