@@ -80,24 +80,6 @@ export default function ProductCard({ product }) {
                 >
                     {/* Badges */}
                     <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
-                        {isNewProduct(product.createdAt) && !isOutOfStock && (
-                            <Badge variant="secondary" className="text-[10px]">
-                                {t("product.new")}
-                            </Badge>
-                        )}
-                        {product.featured && !isOutOfStock && (
-                            <Badge className="bg-blue-100 text-[10px] text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400">
-                                {t("product.featured")}
-                            </Badge>
-                        )}
-                        {discount > 0 && !isOutOfStock && (
-                            <Badge
-                                variant="destructive"
-                                className="text-[10px]"
-                            >
-                                -{discount}%
-                            </Badge>
-                        )}
                         {isOutOfStock && (
                             <Badge
                                 variant="outline"
@@ -106,12 +88,25 @@ export default function ProductCard({ product }) {
                                 {t("product.outOfStock")}
                             </Badge>
                         )}
-                        {isLowStock && (
+                        {!isOutOfStock && discount > 0 && (
+                            <Badge
+                                variant="destructive"
+                                className="text-[10px]"
+                            >
+                                -{discount}%
+                            </Badge>
+                        )}
+                        {!isOutOfStock && isLowStock && (
                             <Badge className="bg-amber-100 text-[10px] text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
                                 {t("product.lowStock", {
                                     defaultValue: "Còn {{count}} sản phẩm",
                                     count: stock,
                                 })}
+                            </Badge>
+                        )}
+                        {!isOutOfStock && isNewProduct(product.createdAt) && (
+                            <Badge variant="secondary" className="text-[10px]">
+                                {t("product.new")}
                             </Badge>
                         )}
                     </div>
