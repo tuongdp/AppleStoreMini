@@ -24,5 +24,5 @@ const safeJson = (val, fallback) => {
 export const parseProduct = (p) => ({
   ...p,
   images: safeJson(p.images, []),
-  specifications: safeJson(p.specifications, {}),
+  specifications: safeJson(p.specifications, []),
 });

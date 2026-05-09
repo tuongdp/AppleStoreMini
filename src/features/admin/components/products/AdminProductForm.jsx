@@ -98,9 +98,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             });
 
             const rawSpecs = product.specifications || {};
-            const specArray = typeof rawSpecs === "object" && !Array.isArray(rawSpecs)
-                ? Object.entries(rawSpecs).map(([key, value]) => ({ key, value }))
-                : [];
+            let specArray;
+            if (Array.isArray(rawSpecs)) {
+                specArray = rawSpecs.map((s) => ({ key: s.key ?? s.label ?? "", value: s.value ?? "" }));
+            } else if (typeof rawSpecs === "object") {
+                specArray = Object.entries(rawSpecs).map(([key, value]) => ({ key, value }));
+            } else {
+                specArray = [];
+            }
             setSpecs(specArray);
 
             const productOptions = (product.options || []).map((o) => ({
@@ -149,12 +154,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         setSpecs(next);
     };
 
-    const buildSpecsObject = () => {
-        const obj = {};
-        specs.forEach(({ key, value }) => {
-            if (key.trim()) obj[key.trim()] = value;
-        });
-        return obj;
+    const buildSpecsArray = () => {
+        return specs.filter((s) => s.key.trim()).map(({ key, value }) => ({ key: key.trim(), value }));
     };
 
     const handleImportSpecs = (importedSpecs) => {
@@ -285,7 +286,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     category: formValues.category,
                     description: formValues.description || "",
                     featured: formValues.featured ?? false,
-                    specifications: buildSpecsObject(),
+                    specifications: buildSpecsArray(),
                     options: options.map(({ type, value, hex }) => ({ type, value, hex })),
                     variants: [{
                         color: color.trim(),
@@ -387,7 +388,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         onSubmit({
             ...values,
             productId: autoCreatedId,
-            specifications: buildSpecsObject(),
+            specifications: buildSpecsArray(),
             options: options.map(({ type, value, hex }) => ({ type, value, hex })),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
