@@ -161,7 +161,7 @@ export const STORAGE_KEYS = {
 // ── Image ─────────────────────────────────────────────
 export const IMAGE = {
     MAX_SIZE: 5 * 1024 * 1024, // 5MB
-    MAX_COUNT: 10,
+    MAX_COUNT: 20,
     VALID_TYPES: ["image/jpeg", "image/png", "image/webp"],
     PLACEHOLDER: "/placeholder/product-placeholder.jpg",
     AVATAR_PLACEHOLDER: "/placeholder/avatar-placeholder.jpg",
