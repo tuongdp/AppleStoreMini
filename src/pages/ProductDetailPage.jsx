@@ -381,51 +381,48 @@ export default function ProductDetailPage() {
                             />
                         </Button>
                     </div>
-
-                    {/* Trust badges */}
-                    <div className="space-y-3 rounded-2xl bg-muted/30 p-5">
-                        <div className="flex items-center gap-3">
-                            <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
-                            <div>
-                                <p className="text-sm font-medium text-foreground">
-                                    {t("trust.freeShipping", { ns: "common" })}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t("trust.freeShippingDesc", { ns: "common", defaultValue: "Đơn từ" })}{" "}
-                                    {formatPrice(SHIPPING.FREE_THRESHOLD)}
-                                </p>
-                            </div>
-                        </div>
-                        <Separator />
-                        <div className="flex items-center gap-3">
-                            <ShieldCheck className="h-5 w-5 shrink-0 text-muted-foreground" />
-                            <div>
-                                <p className="text-sm font-medium text-foreground">
-                                    {t("trust.warranty", { ns: "common" })}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t("trust.warrantyDesc", { ns: "common" })}
-                                </p>
-                            </div>
-                        </div>
-                        <Separator />
-                        <div className="flex items-center gap-3">
-                            <RotateCcw className="h-5 w-5 shrink-0 text-muted-foreground" />
-                            <div>
-                                <p className="text-sm font-medium text-foreground">
-                                    {t("trust.returns", { ns: "common" })}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    {t("trust.returnsDesc", { ns: "common" })}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            {/* Description & Specs */}
-            <div className="mx-auto mt-12 max-w-3xl space-y-6">
+            {/* Trust badges, Description & Specs */}
+            <div className="mx-auto mt-12 max-w-3xl space-y-8">
+                <div className="grid grid-cols-1 gap-4 rounded-2xl bg-muted/30 p-5 md:grid-cols-3">
+                    <div className="flex items-center gap-3">
+                        <Truck className="h-5 w-5 shrink-0 text-muted-foreground" />
+                        <div>
+                            <p className="text-sm font-medium text-foreground">
+                                {t("trust.freeShipping", { ns: "common" })}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {t("trust.freeShippingDesc", { ns: "common", defaultValue: "Đơn từ" })}{" "}
+                                {formatPrice(SHIPPING.FREE_THRESHOLD)}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <ShieldCheck className="h-5 w-5 shrink-0 text-muted-foreground" />
+                        <div>
+                            <p className="text-sm font-medium text-foreground">
+                                {t("trust.warranty", { ns: "common" })}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {t("trust.warrantyDesc", { ns: "common" })}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <RotateCcw className="h-5 w-5 shrink-0 text-muted-foreground" />
+                        <div>
+                            <p className="text-sm font-medium text-foreground">
+                                {t("trust.returns", { ns: "common" })}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {t("trust.returnsDesc", { ns: "common" })}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <ProductDescription description={product.description} />
                 <ProductSpecification
                     specifications={product.specifications || {}}
