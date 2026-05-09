@@ -768,9 +768,14 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
     const [stock, setStock] = useState(initial?.stock ?? 0);
     const [vImages, setVImages] = useState(initial?.images || []);
     const [uploadingIdx, setUploadingIdx] = useState({});
+    const vImagesRef = useRef(vImages);
     const fileRef = useRef(null);
 
-    const uploadFile = async (file, idx) => {
+    useEffect(() => {
+        vImagesRef.current = vImages;
+    }, [vImages]);
+
+    const uploadSingleFile = async (file, idx) => {
         setUploadingIdx((prev) => ({ ...prev, [idx]: true }));
         try {
             const fd = new FormData();
@@ -789,24 +794,30 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
         }
     };
 
-    const handleVImageUpload = (e) => {
+    const handleVImageUpload = async (e) => {
         const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+
         const valid = files.filter((f) => IMAGE.VALID_TYPES.includes(f.type) && f.size <= IMAGE.MAX_SIZE);
-        const remaining = Math.max(0, IMAGE.MAX_COUNT - vImages.length);
+        const currentCount = vImagesRef.current.length;
+        const remaining = Math.max(0, IMAGE.MAX_COUNT - currentCount);
         const toUpload = valid.slice(0, remaining);
 
+        if (!toUpload.length) return;
+
         const blobUrls = toUpload.map((f) => URL.createObjectURL(f));
-        const startIdx = vImages.length;
+        const startIdx = currentCount;
         setVImages((prev) => [...prev, ...blobUrls]);
 
-        toUpload.forEach((file, i) => {
-            uploadFile(file, startIdx + i);
-        });
+        // Upload tuần tự để tránh race condition
+        for (let i = 0; i < toUpload.length; i++) {
+            await uploadSingleFile(toUpload[i], startIdx + i);
+        }
 
         if (fileRef.current) fileRef.current.value = "";
     };
 
-    const removeVImage = (idx) => setVImages(vImages.filter((_, i) => i !== idx));
+    const removeVImage = (idx) => setVImages((prev) => prev.filter((_, i) => i !== idx));
 
     const handleSave = () => {
         onSave({ color, storage, ram, edition, price, salePrice, stock, images: vImages });
