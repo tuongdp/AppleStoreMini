@@ -252,6 +252,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
             specifications: buildSpecsObject(),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
+                price: Number(rest.price) || 0,
+                salePrice: rest.salePrice ? Number(rest.salePrice) : null,
+                stock: Number(rest.stock) || 0,
                 images: vImgs || [],
             })),
         });
