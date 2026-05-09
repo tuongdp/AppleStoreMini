@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -9,6 +9,11 @@ export default function ImageGallery({ images = [], productName = "" }) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [zoomOpen, setZoomOpen] = useState(false);
     const [zoomIndex, setZoomIndex] = useState(0);
+
+    useEffect(() => {
+        setSelectedIndex(0);
+        setZoomIndex(0);
+    }, [images]);
 
     const selectedImage = images[selectedIndex];
 

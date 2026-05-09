@@ -172,3 +172,20 @@ export const parseJsonField = (field) => {
         return [];
     }
 };
+
+// ── Image upload ──────────────────────────────────────
+export async function uploadBlobImages(urls, uploadFn) {
+    return Promise.all(
+        urls.map(async (url) => {
+            if (typeof url !== "string" || !url.startsWith("blob:")) return url;
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const ext = blob.type.split("/")[1] || "jpg";
+            const file = new File([blob], `image-${Date.now()}.${ext}`, { type: blob.type });
+            const fd = new FormData();
+            fd.append("image", file);
+            const result = await uploadFn(fd);
+            return result.url || result;
+        })
+    );
+}

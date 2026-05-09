@@ -168,6 +168,7 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:gap-20">
                 {/* ── Images ── */}
                 <ProductImageGallery
+                    key={selectedVariant?.id || "product"}
                     product={{ ...product, images: productImages }}
                 />
 

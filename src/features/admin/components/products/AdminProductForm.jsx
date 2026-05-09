@@ -1,18 +1,16 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import {
-    Plus, Trash2, Upload, X, GripVertical, PackageOpen, Edit3, Save, AlertTriangle
+    Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle
 } from "lucide-react";
 import { productSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import RichTextEditor from "@/components/ui/RichTextEditor";
@@ -31,8 +29,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetAdminCategoriesQuery, useUploadProductImagesMutation, useDeleteVariantMutation } from "@/store/api/productsApi";
-import { slugify, formatNumber, formatDateTime, cn, parseJsonField, formatFileSize } from "@/lib/utils";
+import { useGetAdminCategoriesQuery, useDeleteVariantMutation } from "@/store/api/productsApi";
+import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE, COLOR_OPTIONS, STORAGE_OPTIONS } from "@/lib/constants";
 import { toast } from "sonner";
 
@@ -44,17 +42,13 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
 
     const { data: categories } = useGetAdminCategoriesQuery();
 
-    const [images, setImages] = useState(() => parseJsonField(product?.images));
     const [specs, setSpecs] = useState([]);
     const [variants, setVariants] = useState([]);
     const [editingVariantIdx, setEditingVariantIdx] = useState(null);
     const [showVariantForm, setShowVariantForm] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [blockedVariant, setBlockedVariant] = useState(null);
-    const fileInputRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
 
-    const [uploadImages] = useUploadProductImagesMutation();
     const [deleteVariant] = useDeleteVariantMutation();
 
     const form = useForm({
@@ -76,7 +70,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                 description: product.description || "",
                 featured: product.featured ?? false,
             });
-            setImages(parseJsonField(product.images));
 
             const rawSpecs = product.specifications || {};
             const specArray = typeof rawSpecs === "object" && !Array.isArray(rawSpecs)
@@ -227,37 +220,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         setBlockedVariant(null);
     };
 
-    const handleImageFiles = async (files) => {
-        const validFiles = Array.from(files).filter((f) => {
-            if (!IMAGE.VALID_TYPES.includes(f.type)) { toast.error("Định dạng ảnh không hợp lệ"); return false; }
-            if (f.size > IMAGE.MAX_SIZE) { toast.error("Ảnh vượt quá 5MB"); return false; }
-            return true;
-        });
-        if (!validFiles.length) return;
-        if (images.length + validFiles.length > IMAGE.MAX_COUNT) { toast.error("Tối đa 10 ảnh"); return; }
-
-        if (isEdit && product?.id) {
-            const formData = new FormData();
-            validFiles.forEach((f) => formData.append("images", f));
-            try {
-                const result = await uploadImages({ id: product.id, formData }).unwrap();
-                setImages(result?.images || []);
-                toast.success("Upload ảnh thành công");
-            } catch { toast.error("Upload thất bại"); }
-        } else {
-            const newPreviews = validFiles.map((f) => URL.createObjectURL(f));
-            setImages([...images, ...newPreviews]);
-        }
-        if (fileInputRef.current) fileInputRef.current.value = "";
-    };
-
-    const removeImage = (idx) => setImages(images.filter((_, i) => i !== idx));
-
     const handleSubmit = (values) => {
         if (variants.length === 0) { toast.error("Cần có ít nhất 1 variant"); return; }
         onSubmit({
             ...values,
-            images,
             specifications: buildSpecsObject(),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
@@ -336,50 +302,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                             </div>
                         </div>
 
-                        {/* ── Section 2: Images ── */}
-                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-5 text-sm font-medium text-foreground">Hình ảnh sản phẩm</h3>
-                            <div className="space-y-3">
-                                <div
-                                    onClick={() => fileInputRef.current?.click()}
-                                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                                    onDragLeave={() => setIsDragging(false)}
-                                    onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleImageFiles(e.dataTransfer.files); }}
-                                    className={cn(
-                                        "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 transition-colors",
-                                        isDragging ? "border-foreground bg-muted/30" : "border-border hover:border-foreground/30 hover:bg-muted/20"
-                                    )}
-                                >
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                                        <Upload className="h-5 w-5 text-muted-foreground" />
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-sm font-medium text-foreground">Kéo thả hoặc click để chọn ảnh</p>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">JPG, PNG, WEBP · {formatFileSize(IMAGE.MAX_SIZE)}</p>
-                                    </div>
-                                </div>
-                                <input ref={fileInputRef} type="file" multiple accept={IMAGE.VALID_TYPES.join(",")} onChange={(e) => handleImageFiles(e.target.files)} className="hidden" />
-                                {images.length > 0 && (
-                                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-                                        {images.map((src, idx) => (
-                                            <div key={idx} className="group relative aspect-square overflow-hidden rounded-xl bg-muted/30">
-                                                <img src={src} alt={`${idx + 1}`} className="h-full w-full object-contain p-1" />
-                                                <div className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-background/80 text-[10px] font-medium">{idx + 1}</div>
-                                                <button type="button" onClick={() => removeImage(idx)} className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-background/80 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-destructive hover:text-white">
-                                                    <X className="h-3.5 w-3.5" />
-                                                </button>
-                                                <div className="absolute bottom-1.5 right-1.5 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <GripVertical className="h-4 w-4 text-muted-foreground" />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                <p className="text-xs text-muted-foreground">{images.length}/{IMAGE.MAX_COUNT} ảnh</p>
-                            </div>
-                        </div>
-
-                        {/* ── Section 3: Specifications ── */}
+                        {/* ── Section 2: Specifications ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">Thông số kỹ thuật</h3>
                             <div className="space-y-3">
@@ -398,7 +321,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                             </div>
                         </div>
 
-                        {/* ── Section 4: Variants ── */}
+                        {/* ── Section 3: Variants ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
 
@@ -419,6 +342,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                                 <th className="px-4 py-3">Giá bán</th>
                                                 <th className="px-4 py-3">Giá sale</th>
                                                 <th className="px-4 py-3">Tồn kho</th>
+                                                <th className="px-4 py-3">Ảnh</th>
                                                 <th className="px-4 py-3">Trạng thái</th>
                                                 <th className="px-4 py-3 text-right">Hành động</th>
                                             </tr>
@@ -431,6 +355,28 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
                                                     <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
                                                     <td className="px-4 py-3 text-foreground">{v.stock}</td>
+                                                    <td className="px-4 py-3">
+                                                        {Array.isArray(v.images) && v.images.length > 0 ? (
+                                                            <div className="flex -space-x-1">
+                                                                {v.images.slice(0, 3).map((img, i) => (
+                                                                    <img
+                                                                        key={i}
+                                                                        src={img}
+                                                                        alt=""
+                                                                        className="h-7 w-7 rounded border border-border bg-muted/30 object-contain p-0.5"
+                                                                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                                                                    />
+                                                                ))}
+                                                                {v.images.length > 3 && (
+                                                                    <span className="flex h-7 w-7 items-center justify-center rounded border border-border bg-muted/30 text-[10px] text-muted-foreground">
+                                                                        +{v.images.length - 3}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-muted-foreground">—</span>
+                                                        )}
+                                                    </td>
                                                     <td className="px-4 py-3">
                                                         <Badge variant={v.inStock ? "default" : "secondary"} className="text-[10px]">
                                                             {v.inStock ? "Còn hàng" : "Hết hàng"}

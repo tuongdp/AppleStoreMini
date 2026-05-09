@@ -8,12 +8,14 @@ import {
     useCreateVariantMutation,
     useUpdateVariantMutation,
     useDeleteVariantMutation,
+    useUploadEditorImageMutation,
 } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants";
+import { uploadBlobImages } from "@/lib/utils";
 
 export default function AdminProductEdit() {
     const { t } = useTranslation("admin");
@@ -26,6 +28,7 @@ export default function AdminProductEdit() {
     const [createVariant] = useCreateVariantMutation();
     const [updateVariant] = useUpdateVariantMutation();
     const [deleteVariant] = useDeleteVariantMutation();
+    const [uploadImage] = useUploadEditorImageMutation();
 
     const handleSubmit = async (values) => {
         setIsSaving(true);
@@ -41,11 +44,18 @@ export default function AdminProductEdit() {
             );
 
             for (const variant of variants) {
-                if (variant.id) {
-                    const { id, ...variantData } = variant;
-                    await updateVariant({ variantId: id, ...variantData }).unwrap();
+                const variantData = { ...variant };
+                if (Array.isArray(variantData.images) && variantData.images.length > 0) {
+                    variantData.images = await uploadBlobImages(
+                        variantData.images,
+                        (fd) => uploadImage(fd).unwrap()
+                    );
+                }
+                if (variantData.id) {
+                    const { id: vid, ...rest } = variantData;
+                    await updateVariant({ variantId: vid, ...rest }).unwrap();
                 } else {
-                    await createVariant({ productId: id, ...variant }).unwrap();
+                    await createVariant({ productId: id, ...variantData }).unwrap();
                 }
             }
 

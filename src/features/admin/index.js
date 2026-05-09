@@ -8,7 +8,6 @@ export { default as TopProducts } from "./components/dashboard/TopProducts";
 // Products
 export { default as AdminProductTable } from "./components/products/AdminProductTable";
 export { default as AdminProductForm } from "./components/products/AdminProductForm";
-export { default as AdminProductImageUpload } from "./components/products/AdminProductImageUpload";
 export { default as AdminColorVariantForm } from "./components/products/AdminColorVariantForm";
 export { default as AdminStorageVariantForm } from "./components/products/AdminStorageVariantForm";
 

@@ -2,11 +2,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
-import { useCreateProductMutation, useCreateVariantMutation, useUploadProductImagesMutation } from "@/store/api/productsApi";
+import { useCreateProductMutation, useCreateVariantMutation, useUploadProductImagesMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants";
+import { uploadBlobImages } from "@/lib/utils";
 
 export default function AdminProductCreate() {
     const { t } = useTranslation("admin");
@@ -14,6 +15,7 @@ export default function AdminProductCreate() {
     const [createProduct] = useCreateProductMutation();
     const [createVariant] = useCreateVariantMutation();
     const [uploadImages] = useUploadProductImagesMutation();
+    const [uploadImage] = useUploadEditorImageMutation();
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSubmit = async (values) => {
@@ -29,7 +31,14 @@ export default function AdminProductCreate() {
             const productId = product.id;
 
             for (const variant of variants) {
-                await createVariant({ productId, ...variant }).unwrap();
+                const variantData = { ...variant };
+                if (Array.isArray(variantData.images) && variantData.images.length > 0) {
+                    variantData.images = await uploadBlobImages(
+                        variantData.images,
+                        (fd) => uploadImage(fd).unwrap()
+                    );
+                }
+                await createVariant({ productId, ...variantData }).unwrap();
             }
 
             if (images.length > 0) {
