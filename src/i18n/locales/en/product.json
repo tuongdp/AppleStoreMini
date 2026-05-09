@@ -25,7 +25,12 @@
         "apply": "Apply",
         "reset": "Clear filters",
         "close": "Close filters",
-        "active": "Active filters"
+        "active": "Active filters",
+        "priceUnder10m": "Under 10 million",
+        "price10to20m": "10 - 20 million",
+        "price20to30m": "20 - 30 million",
+        "price30to50m": "30 - 50 million",
+        "priceOver50m": "Over 50 million"
     },
 
     "sort": {
@@ -56,7 +61,11 @@
         "reviews": "Reviews",
         "relatedProducts": "Related products",
         "addToCartSuccess": "Added to cart",
-        "selectOptions": "Please select color and storage"
+        "selectOptions": "Please select color and storage",
+        "showMore": "Show more",
+        "showLess": "Show less",
+        "invalidCombination": "This color, storage and RAM combination does not exist",
+        "unavailable": "Unavailable"
     },
 
     "specification": {
@@ -136,5 +145,12 @@
         "onSale": "On sale",
         "shopByCategory": "Shop by category",
         "discoverMore": "Discover more"
+    },
+
+    "reviewSort": {
+        "newest": "Newest",
+        "oldest": "Oldest",
+        "highest": "Highest rated",
+        "lowest": "Lowest rated"
     }
 }

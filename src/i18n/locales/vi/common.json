@@ -23,7 +23,8 @@
         "news": "Tin tức",
         "amThanh": "Âm thanh",
         "appleCare": "AppleCare",
-        "explore": "Khám phá"
+        "explore": "Khám phá",
+        "backToStore": "Về trang Store"
     },
 
     "btn": {
@@ -158,7 +159,8 @@
         "terms": "Điều khoản sử dụng",
         "copyright": "© 2024 Apple Store. Bảo lưu mọi quyền.",
         "followUs": "Theo dõi chúng tôi",
-        "explore": "Khám phá"
+        "explore": "Khám phá",
+        "slogan": "Chính hãng, uy tín, bảo hành toàn quốc."
     },
 
     "error": {
@@ -167,7 +169,9 @@
         "serverError": "Lỗi máy chủ",
         "serverErrorDesc": "Đã có lỗi xảy ra, vui lòng thử lại sau.",
         "networkError": "Lỗi kết nối",
-        "networkErrorDesc": "Vui lòng kiểm tra kết nối internet của bạn."
+        "networkErrorDesc": "Vui lòng kiểm tra kết nối internet của bạn.",
+        "unexpected": "Đã xảy ra lỗi",
+        "unexpectedDesc": "Có lỗi không mong muốn xảy ra."
     },
 
     "trust": {
@@ -188,5 +192,341 @@
         "ctaExplore": "Khám phá ngay",
         "ctaContact": "Liên hệ tư vấn",
         "saleEmpty": "Chưa có sản phẩm đang giảm giá"
+    },
+
+    "timeAgo": {
+        "year": "năm",
+        "month": "tháng",
+        "week": "tuần",
+        "day": "ngày",
+        "hour": "giờ",
+        "minute": "phút",
+        "ago": "trước",
+        "justNow": "Vừa xong"
+    },
+
+    "flashSale": {
+        "viewAll": "Xem tất cả",
+        "sold": "Đã bán",
+        "remaining": "Còn"
+    },
+
+    "slider": {
+        "prev": "Slide trước",
+        "next": "Slide tiếp",
+        "noProducts": "Không có sản phẩm"
+    },
+
+    "scrollToTop": "Cuộn lên đầu trang",
+
+    "news": {
+        "subtitle": "Cập nhật những tin tức mới nhất về sản phẩm Apple",
+        "searchPlaceholder": "Tìm kiếm bài viết...",
+        "notFound": "Không tìm thấy bài viết",
+        "relatedArticles": "Bài viết liên quan",
+        "mostViewed": "Xem nhiều nhất",
+        "minRead": "{{time}} phút đọc",
+        "views": "{{count}} lượt xem",
+        "by": "bởi",
+        "ratings": "{{count}} đánh giá",
+        "rateThisArticle": "Đánh giá bài viết này",
+        "loginToRate": "Đăng nhập để đánh giá",
+        "loginToComment": "Đăng nhập để bình luận",
+        "comments": "Bình luận",
+        "commentPlaceholder": "Viết bình luận của bạn...",
+        "sending": "Đang gửi...",
+        "sendComment": "Gửi bình luận",
+        "noCommentsYet": "Chưa có bình luận nào. Hãy là người đầu tiên!",
+        "backToNews": "Về trang tin tức",
+        "commentSent": "Đã gửi bình luận",
+        "articleRated": "Đã đánh giá bài viết",
+        "commentDeleted": "Đã xóa bình luận",
+        "viewPricing": "Xem bảng giá tham khảo →"
+    },
+
+    "about": {
+        "breadcrumb": "Về chúng tôi",
+        "title": "Về chúng tôi",
+        "whoWeAre": "Chúng tôi là ai",
+        "whoWeAreDesc": "Apple Store Vietnam là cửa hàng ủy quyền chính thức của Apple tại Việt Nam, cung cấp toàn bộ các dòng sản phẩm Apple bao gồm iPhone, iPad, Mac, Apple Watch, AirPods và các phụ kiện chính hãng.",
+        "mission": "Sứ mệnh",
+        "missionDesc": "Chúng tôi cam kết mang đến trải nghiệm mua sắm tốt nhất cho người dùng Apple tại Việt Nam — từ tư vấn sản phẩm, giao hàng nhanh chóng đến dịch vụ hậu mãi tận tâm.",
+        "coreValues": "Giá trị cốt lõi",
+        "values": {
+            "0": "Sản phẩm chính hãng 100%, có hóa đơn VAT đầy đủ",
+            "1": "Bảo hành theo tiêu chuẩn Apple chính thức",
+            "2": "Đội ngũ tư vấn chuyên nghiệp, am hiểu sản phẩm",
+            "3": "Giao hàng toàn quốc, nhanh chóng và an toàn",
+            "4": "Hỗ trợ khách hàng 7 ngày trong tuần"
+        },
+        "contact": "Liên hệ",
+        "address": "Địa chỉ: 123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh",
+        "email": "Email: support@applestore.vn",
+        "hotline": "Hotline: 1800 1234 (miễn phí)",
+        "workingHours": "Giờ làm việc: 8:00 – 21:00 hàng ngày"
+    },
+
+    "contact": {
+        "breadcrumb": "Liên hệ",
+        "title": "Liên hệ với chúng tôi",
+        "subtitle": "Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ qua các kênh bên dưới hoặc để lại tin nhắn, chúng tôi sẽ phản hồi trong vòng 24 giờ.",
+        "sendMessage": "Gửi tin nhắn",
+        "form": {
+            "name": "Họ và tên",
+            "namePlaceholder": "Nguyễn Văn A",
+            "email": "Email",
+            "emailPlaceholder": "email@example.com",
+            "phone": "Số điện thoại",
+            "phonePlaceholder": "0901234567",
+            "message": "Nội dung",
+            "messagePlaceholder": "Nhập nội dung bạn muốn liên hệ...",
+            "submit": "Gửi tin nhắn",
+            "success": "Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất."
+        },
+        "info": {
+            "address": "Địa chỉ",
+            "hotline": "Hotline",
+            "email": "Email",
+            "workingHours": "Giờ làm việc",
+            "addressValue": "41/1 Khu phố 7, Phường 2, Đắk Lắk",
+            "hotlineValue": "0562456055 (miễn phí)",
+            "emailValue": "phuctuong123456@gmail.com",
+            "workingHoursValue": "8:00 – 21:00, tất cả các ngày"
+        }
+    },
+
+    "privacy": {
+        "breadcrumb": "Chính sách bảo mật",
+        "title": "Chính sách bảo mật",
+        "intro": "Apple Store Vietnam cam kết bảo vệ quyền riêng tư của bạn. Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi sử dụng dịch vụ của chúng tôi.",
+        "updated": "Cập nhật lần cuối: 01/01/2024. Nếu có thắc mắc về chính sách bảo mật, vui lòng liên hệ privacy@applestore.vn.",
+        "collect": {
+            "title": "Thông tin chúng tôi thu thập",
+            "0": "Thông tin cá nhân: họ tên, email, số điện thoại, địa chỉ giao hàng",
+            "1": "Thông tin thanh toán: được mã hóa và xử lý qua cổng thanh toán bảo mật",
+            "2": "Thông tin thiết bị: loại thiết bị, trình duyệt, địa chỉ IP",
+            "3": "Lịch sử mua hàng và tương tác với website"
+        },
+        "usage": {
+            "title": "Mục đích sử dụng thông tin",
+            "0": "Xử lý đơn hàng và giao hàng đến địa chỉ của bạn",
+            "1": "Gửi thông báo cập nhật trạng thái đơn hàng",
+            "2": "Hỗ trợ khách hàng và giải quyết khiếu nại",
+            "3": "Cải thiện trải nghiệm mua sắm và tối ưu dịch vụ",
+            "4": "Gửi thông tin khuyến mãi (nếu bạn đồng ý nhận)"
+        },
+        "security": {
+            "title": "Bảo mật thông tin",
+            "0": "Mọi dữ liệu được mã hóa bằng SSL/TLS 256-bit",
+            "1": "Thông tin thanh toán không được lưu trữ trên hệ thống của chúng tôi",
+            "2": "Chỉ nhân viên được ủy quyền mới có thể truy cập dữ liệu khách hàng",
+            "3": "Hệ thống được kiểm tra bảo mật định kỳ"
+        },
+        "sharing": {
+            "title": "Chia sẻ thông tin",
+            "0": "Chúng tôi không bán thông tin cá nhân cho bên thứ ba",
+            "1": "Thông tin chỉ được chia sẻ với đối tác vận chuyển để giao hàng",
+            "2": "Có thể cung cấp cho cơ quan nhà nước khi có yêu cầu pháp lý"
+        },
+        "rights": {
+            "title": "Quyền của bạn",
+            "0": "Yêu cầu xem, chỉnh sửa hoặc xóa thông tin cá nhân",
+            "1": "Từ chối nhận email marketing bất kỳ lúc nào",
+            "2": "Yêu cầu chúng tôi ngừng xử lý dữ liệu của bạn",
+            "3": "Liên hệ: privacy@applestore.vn để thực hiện các quyền trên"
+        }
+    },
+
+    "terms": {
+        "breadcrumb": "Điều khoản sử dụng",
+        "title": "Điều khoản sử dụng",
+        "intro": "Vui lòng đọc kỹ các điều khoản sử dụng trước khi sử dụng dịch vụ của Apple Store Vietnam. Điều khoản này có hiệu lực từ ngày 01/01/2024.",
+        "updated": "Cập nhật lần cuối: 01/01/2024. Mọi thắc mắc vui lòng liên hệ legal@applestore.vn.",
+        "s1": {
+            "title": "1. Điều khoản chung",
+            "0": "Bằng cách truy cập và sử dụng website này, bạn đồng ý tuân thủ các điều khoản sử dụng được quy định dưới đây.",
+            "1": "Chúng tôi có quyền thay đổi, chỉnh sửa hoặc cập nhật các điều khoản này bất kỳ lúc nào mà không cần thông báo trước.",
+            "2": "Việc tiếp tục sử dụng dịch vụ sau khi có thay đổi đồng nghĩa với việc bạn chấp nhận các điều khoản mới."
+        },
+        "s2": {
+            "title": "2. Tài khoản người dùng",
+            "0": "Bạn có trách nhiệm bảo mật thông tin tài khoản của mình.",
+            "1": "Không được chia sẻ tài khoản cho người khác sử dụng.",
+            "2": "Thông báo ngay cho chúng tôi nếu phát hiện tài khoản bị xâm phạm.",
+            "3": "Chúng tôi có quyền khóa tài khoản nếu phát hiện hành vi gian lận hoặc vi phạm điều khoản."
+        },
+        "s3": {
+            "title": "3. Đặt hàng và thanh toán",
+            "0": "Đơn hàng chỉ được xác nhận sau khi thanh toán thành công.",
+            "1": "Giá sản phẩm có thể thay đổi mà không cần thông báo trước.",
+            "2": "Chúng tôi có quyền hủy đơn hàng nếu phát hiện gian lận hoặc lỗi hệ thống.",
+            "3": "Mọi giao dịch đều được ghi nhận và có thể truy xuất khi cần thiết."
+        },
+        "s4": {
+            "title": "4. Sở hữu trí tuệ",
+            "0": "Toàn bộ nội dung trên website thuộc quyền sở hữu của Apple Store Vietnam.",
+            "1": "Không được sao chép, phân phối hoặc sử dụng nội dung khi chưa có sự đồng ý.",
+            "2": "Logo và tên thương hiệu Apple là tài sản của Apple Inc."
+        },
+        "s5": {
+            "title": "5. Giới hạn trách nhiệm",
+            "0": "Chúng tôi không chịu trách nhiệm với các thiệt hại gián tiếp phát sinh từ việc sử dụng dịch vụ.",
+            "1": "Không đảm bảo website luôn hoạt động liên tục, không có lỗi hay virus.",
+            "2": "Trách nhiệm tối đa của chúng tôi không vượt quá giá trị đơn hàng của bạn."
+        },
+        "s6": {
+            "title": "6. Luật áp dụng",
+            "0": "Các điều khoản này được điều chỉnh bởi pháp luật Việt Nam.",
+            "1": "Mọi tranh chấp sẽ được giải quyết tại tòa án có thẩm quyền tại TP. Hồ Chí Minh."
+        }
+    },
+
+    "warranty": {
+        "breadcrumb": "Chính sách bảo hành",
+        "title": "Chính sách bảo hành",
+        "updated": "Cập nhật lần cuối: 01/01/2024. Chính sách có thể thay đổi mà không cần thông báo trước. Vui lòng liên hệ hotline để biết thêm chi tiết.",
+        "duration": {
+            "title": "Thời gian bảo hành",
+            "0": "iPhone, iPad, Mac, Apple Watch: 12 tháng tại các trung tâm bảo hành Apple ủy quyền",
+            "1": "AirPods và phụ kiện Apple: 12 tháng",
+            "2": "Phụ kiện bên thứ ba: theo chính sách của nhà sản xuất"
+        },
+        "conditions": {
+            "title": "Điều kiện được bảo hành",
+            "0": "Sản phẩm còn trong thời hạn bảo hành",
+            "1": "Sản phẩm bị lỗi do nhà sản xuất, không phải do tác động bên ngoài",
+            "2": "Có hóa đơn mua hàng hợp lệ từ Apple Store Vietnam",
+            "3": "Tem bảo hành còn nguyên vẹn, không có dấu hiệu tháo mở"
+        },
+        "exclusions": {
+            "title": "Không được bảo hành",
+            "0": "Hư hỏng do va đập, rơi vỡ, vào nước",
+            "1": "Hư hỏng do tự ý sửa chữa hoặc can thiệp phần cứng",
+            "2": "Hư hỏng do sử dụng sai cách, không đúng hướng dẫn",
+            "3": "Hao mòn tự nhiên theo thời gian sử dụng",
+            "4": "Màn hình bị trầy xước, vỏ máy bị móp méo"
+        },
+        "process": {
+            "title": "Quy trình bảo hành",
+            "0": "Bước 1: Liên hệ hotline 1800 1234 hoặc đến trực tiếp cửa hàng",
+            "1": "Bước 2: Nhân viên kiểm tra và xác nhận lỗi sản phẩm",
+            "2": "Bước 3: Gửi máy đến trung tâm bảo hành Apple ủy quyền",
+            "3": "Bước 4: Nhận máy sau khi sửa chữa (thông thường 3–7 ngày làm việc)"
+        }
+    },
+
+    "returnPolicy": {
+        "breadcrumb": "Chính sách đổi trả",
+        "title": "Chính sách đổi trả",
+        "updated": "Cập nhật lần cuối: 01/01/2024. Mọi thắc mắc vui lòng liên hệ hotline 1800 1234 hoặc email support@applestore.vn.",
+        "conditions": {
+            "title": "Điều kiện đổi trả",
+            "0": "Sản phẩm còn trong thời hạn 7 ngày kể từ ngày mua",
+            "1": "Sản phẩm còn nguyên vẹn, chưa qua sử dụng hoặc lỗi do nhà sản xuất",
+            "2": "Có đầy đủ hóa đơn, phụ kiện và bao bì gốc",
+            "3": "Tem bảo hành còn nguyên, không bị rách hoặc tẩy xóa"
+        },
+        "eligible": {
+            "title": "Trường hợp được đổi trả",
+            "0": "Sản phẩm bị lỗi kỹ thuật do nhà sản xuất ngay khi nhận hàng",
+            "1": "Sản phẩm không đúng model, màu sắc hoặc cấu hình đã đặt",
+            "2": "Sản phẩm bị hư hỏng trong quá trình vận chuyển"
+        },
+        "ineligible": {
+            "title": "Trường hợp không được đổi trả",
+            "0": "Đã qua 7 ngày kể từ ngày mua",
+            "1": "Sản phẩm bị hư hỏng do lỗi người dùng",
+            "2": "Sản phẩm đã được kích hoạt và sử dụng bình thường",
+            "3": "Không còn đầy đủ phụ kiện, hộp và hóa đơn"
+        },
+        "process": {
+            "title": "Quy trình đổi trả",
+            "0": "Bước 1: Liên hệ hotline 1800 1234 hoặc email support@applestore.vn trong vòng 7 ngày",
+            "1": "Bước 2: Cung cấp thông tin đơn hàng và mô tả lỗi sản phẩm",
+            "2": "Bước 3: Gửi sản phẩm về cửa hàng theo hướng dẫn",
+            "3": "Bước 4: Nhận sản phẩm mới hoặc hoàn tiền trong vòng 3–5 ngày làm việc"
+        },
+        "refund": {
+            "title": "Chính sách hoàn tiền",
+            "0": "Hoàn tiền 100% nếu lỗi do nhà sản xuất hoặc giao sai hàng",
+            "1": "Thời gian hoàn tiền: 3–5 ngày làm việc với thanh toán online",
+            "2": "Tiền mặt hoàn ngay tại cửa hàng trong ngày làm việc"
+        }
+    },
+
+    "appleCare": {
+        "breadcrumb": "Dịch vụ sửa chữa AppleCare",
+        "title": "Dịch vụ sửa chữa AppleCare",
+        "reasonsTitle": "Lý do lựa chọn AppleCare",
+        "accessoriesTitle": "Phụ kiện chính hãng Apple tại AppleCare",
+        "accessoriesNote": "Lưu ý: Các sản phẩm được trưng bày tại AppleCare. Quý khách vui lòng đến và mua trực tiếp với nhiều khuyến mãi hấp dẫn.",
+        "processTitle": "Quy trình bảo hành AppleCare",
+        "processNote": "Điều khoản bảo hành sửa chữa Apple toàn cầu:",
+        "centerTitle": "Trung tâm bảo hành AppleCare - Đẳng cấp khác biệt",
+        "centerDesc": "Tại Trung tâm bảo hành AppleCare, khách hàng yêu mến hệ sinh thái Apple sẽ trải nghiệm đầy đủ và đa dạng nhất các dịch vụ bảo hành chính hãng Apple từ iPhone, iPad đến những chiếc tai nghe AirPods... trong một không gian đẳng cấp và hiện đại.",
+        "legal": "Pháp lý",
+        "repair": "Sửa chữa",
+        "viewPricing": "Xem bảng giá tham khảo →",
+        "reasons": {
+            "authentic": {
+                "title": "Chính hãng Apple",
+                "desc": "AppleCare là trung tâm dịch vụ ủy quyền chính thức của Apple. Tất cả linh kiện sửa chữa tại AppleCare đều do Apple cung cấp chính hãng."
+            },
+            "certified": {
+                "title": "Chứng chỉ Apple",
+                "desc": "100% đội ngũ chuyên viên và kỹ thuật viên của AppleCare được đào tạo và cấp chứng chỉ bởi Apple."
+            },
+            "secure": {
+                "title": "Bảo mật tuyệt đối",
+                "desc": "Thông tin khách hàng cung cấp được bảo vệ nghiêm ngặt theo tiêu chuẩn kiểm soát cao nhất."
+            },
+            "premium": {
+                "title": "Dịch vụ đẳng cấp",
+                "desc": "Với phương châm lấy khách hàng làm trọng tâm, AppleCare cam kết mang đến chất lượng phục vụ vượt trội dành cho khách hàng."
+            },
+            "saving": {
+                "title": "Tiết kiệm",
+                "desc": "AppleCare thường xuyên có những chương trình ưu đãi giúp khách hàng tiết kiệm hơn khi sửa chữa sản phẩm."
+            }
+        },
+        "services": {
+            "iphone": {
+                "name": "Sửa chữa iPhone",
+                "desc": "Gửi đi xưởng sửa chữa Apple Màn hình iPhone và Kính lưng iPhone Pin iPhone"
+            },
+            "ipad": {
+                "name": "Sửa chữa iPad",
+                "desc": "Đổi máy iPad"
+            },
+            "macbook": {
+                "name": "Sửa chữa Macbook",
+                "desc": "Logic Board MacBook Pin MacBook Màn hình MacBook"
+            },
+            "watch": {
+                "name": "Sửa chữa Watch",
+                "desc": "Đổi máy Watch"
+            },
+            "airpods": {
+                "name": "Sửa chữa AirPods",
+                "desc": "Đổi máy AirPods"
+            }
+        },
+        "process": {
+            "0": { "title": "Kiểm tra tổng quan trước sửa chữa", "tag": "1. Kiểm tra tổng quan trước sửa chữa" },
+            "1": { "title": "Đặt linh kiện chính hãng Apple", "tag": "2. Đặt linh kiện" },
+            "2": { "title": "Tiến hành sửa chữa và thay thế", "tag": "3. Sửa chữa | Thay thế" },
+            "3": { "title": "Kiểm tra tổng quan sau sửa chữa", "tag": "4. Kiểm tra tổng quan sau sửa chữa" },
+            "4": { "title": "Trả sản phẩm lại cho khách hàng", "tag": "5. Trả sản phẩm" }
+        },
+        "accessories": {
+            "earphones": { "name": "Tai nghe chính hãng Apple", "tag": "Tai nghe" },
+            "cables": { "name": "Cáp, sạc chính hãng Apple", "tag": "Cáp | Sạc" },
+            "cases": { "name": "Ốp lưng, bao da chính hãng Apple", "tag": "Ốp lưng | Bao da" },
+            "watchStraps": { "name": "Dây Apple Watch chính hãng", "tag": "Dây Apple Watch" },
+            "airtag": { "name": "AirTag chính hãng Apple", "tag": "AirTag" },
+            "mouse": { "name": "Chuột, trackpad chính hãng Apple", "tag": "Chuột | Trackpad" },
+            "appletv": { "name": "Apple TV chính hãng Apple", "tag": "Apple TV" },
+            "keyboard": { "name": "Bàn phím chính hãng Apple", "tag": "Bàn phím" }
+        }
     }
 }

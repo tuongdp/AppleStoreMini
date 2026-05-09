@@ -8,6 +8,7 @@
     "item": {
         "color": "Màu",
         "storage": "Dung lượng",
+        "ram": "RAM",
         "quantity": "Số lượng",
         "price": "Đơn giá",
         "total": "Thành tiền",
@@ -43,7 +44,8 @@
         "remove": "Xoá mã",
         "success": "Áp dụng mã giảm giá thành công",
         "invalid": "Mã giảm giá không hợp lệ",
-        "expired": "Mã giảm giá đã hết hạn"
+        "expired": "Mã giảm giá đã hết hạn",
+        "discountOff": "Giảm {{amount}}"
     },
 
     "toast": {

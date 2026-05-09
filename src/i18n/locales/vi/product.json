@@ -25,7 +25,12 @@
         "apply": "Áp dụng",
         "reset": "Xoá bộ lọc",
         "close": "Đóng bộ lọc",
-        "active": "Bộ lọc đang dùng"
+        "active": "Bộ lọc đang dùng",
+        "priceUnder10m": "Dưới 10 triệu",
+        "price10to20m": "10 - 20 triệu",
+        "price20to30m": "20 - 30 triệu",
+        "price30to50m": "30 - 50 triệu",
+        "priceOver50m": "Trên 50 triệu"
     },
 
     "sort": {
@@ -56,7 +61,11 @@
         "reviews": "Đánh giá",
         "relatedProducts": "Sản phẩm liên quan",
         "addToCartSuccess": "Đã thêm vào giỏ hàng",
-        "selectOptions": "Vui lòng chọn màu sắc và dung lượng"
+        "selectOptions": "Vui lòng chọn màu sắc và dung lượng",
+        "showMore": "Xem thêm",
+        "showLess": "Thu gọn",
+        "invalidCombination": "Tổ hợp màu sắc, dung lượng và RAM này không tồn tại",
+        "unavailable": "Không có sẵn"
     },
 
     "specification": {
@@ -135,5 +144,12 @@
         "onSale": "Đang giảm giá",
         "shopByCategory": "Mua theo danh mục",
         "discoverMore": "Khám phá thêm"
+    },
+
+    "reviewSort": {
+        "newest": "Mới nhất",
+        "oldest": "Cũ nhất",
+        "highest": "Sao cao nhất",
+        "lowest": "Sao thấp nhất"
     }
 }

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SHOW_THRESHOLD = 400; // px
 
 export default function ScrollToTopButton() {
+    const { t } = useTranslation("common");
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
@@ -23,7 +25,7 @@ export default function ScrollToTopButton() {
     return (
         <button
             onClick={scrollToTop}
-            aria-label="Cuộn lên đầu trang"
+            aria-label={t("scrollToTop")}
             className={cn(
                 "fixed bottom-6 right-6 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background/90 shadow-md backdrop-blur-sm transition-all duration-300 hover:bg-muted hover:scale-110 active:scale-95",
                 visible

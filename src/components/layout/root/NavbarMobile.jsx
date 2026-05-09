@@ -79,7 +79,7 @@ export default function NavbarMobile() {
                                 onClick={handleClose}
                                 className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                             >
-                                {cat.label}
+                                {t(cat.label)}
                                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
                             </Link>
                         ))}
@@ -107,7 +107,7 @@ export default function NavbarMobile() {
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <ShieldCheck className="h-4 w-4" />
-                            AppleCare
+                            {t("nav.appleCare")}
                         </Link>
                         <Link
                             to="/news"
@@ -115,7 +115,7 @@ export default function NavbarMobile() {
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <Newspaper className="h-4 w-4" />
-                            Tin tức
+                            {t("nav.news")}
                         </Link>
                     </div>
                 </div>

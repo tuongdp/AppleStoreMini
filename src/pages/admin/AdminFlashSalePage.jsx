@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Plus,
     Pencil,
@@ -46,19 +47,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { cn, formatPrice } from "@/lib/utils";
 
-const flashSaleSchema = z.object({
-    title: z.string().min(1, "Tiêu đề không được để trống"),
-    startTime: z.string().min(1, "Chọn thời gian bắt đầu"),
-    endTime: z.string().min(1, "Chọn thời gian kết thúc"),
-});
-
-const addItemSchema = z.object({
-    variantId: z.string().min(1, "Chọn biến thể"),
-    salePrice: z.coerce.number().min(1000, "Giá phải lớn hơn 0"),
-    quantityLimit: z.coerce.number().min(1, "Số lượng tối thiểu là 1"),
-    sortOrder: z.coerce.number().default(0),
-});
-
 function formatDateTime(dateStr) {
     if (!dateStr) return "";
     const d = new Date(dateStr);
@@ -72,10 +60,17 @@ function formatDateTime(dateStr) {
 }
 
 function FlashSaleForm({ flashSale, onClose }) {
+    const { t } = useTranslation("admin");
     const isEditing = !!flashSale;
     const [createFlashSale, { isLoading: isCreating }] = useCreateFlashSaleMutation();
     const [updateFlashSale, { isLoading: isUpdating }] = useUpdateFlashSaleMutation();
     const isLoading = isCreating || isUpdating;
+
+    const flashSaleSchema = z.object({
+        title: z.string().min(1, t("flashSale.validation.titleRequired")),
+        startTime: z.string().min(1, t("flashSale.validation.startTimeRequired")),
+        endTime: z.string().min(1, t("flashSale.validation.endTimeRequired")),
+    });
 
     const form = useForm({
         resolver: zodResolver(flashSaleSchema),
@@ -99,18 +94,18 @@ function FlashSaleForm({ flashSale, onClose }) {
                     startTime: new Date(values.startTime).toISOString(),
                     endTime: new Date(values.endTime).toISOString(),
                 }).unwrap();
-                toast.success("Đã cập nhật flash sale");
+                toast.success(t("flashSale.toast.updateSuccess"));
             } else {
                 await createFlashSale({
                     title: values.title,
                     startTime: new Date(values.startTime).toISOString(),
                     endTime: new Date(values.endTime).toISOString(),
                 }).unwrap();
-                toast.success("Đã tạo flash sale mới");
+                toast.success(t("flashSale.toast.createSuccess"));
             }
             onClose();
         } catch (error) {
-            toast.error(error?.data?.message || "Có lỗi xảy ra");
+            toast.error(error?.data?.message || t("flashSale.toast.errorOccurred"));
         }
     };
 
@@ -122,9 +117,9 @@ function FlashSaleForm({ flashSale, onClose }) {
                     name="title"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Tiêu đề</FormLabel>
+                            <FormLabel>{t("flashSale.titleLabel")}</FormLabel>
                             <FormControl>
-                                <Input placeholder="VD: FLASH SALE" {...field} />
+                                <Input placeholder={t("flashSale.titlePlaceholder")} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -136,7 +131,7 @@ function FlashSaleForm({ flashSale, onClose }) {
                         name="startTime"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Thời gian bắt đầu</FormLabel>
+                                <FormLabel>{t("flashSale.startTime")}</FormLabel>
                                 <FormControl>
                                     <Input type="datetime-local" {...field} />
                                 </FormControl>
@@ -149,7 +144,7 @@ function FlashSaleForm({ flashSale, onClose }) {
                         name="endTime"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Thời gian kết thúc</FormLabel>
+                                <FormLabel>{t("flashSale.endTime")}</FormLabel>
                                 <FormControl>
                                     <Input type="datetime-local" {...field} />
                                 </FormControl>
@@ -160,12 +155,12 @@ function FlashSaleForm({ flashSale, onClose }) {
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                     <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onClose} disabled={isLoading}>
-                        Hủy
+                        {t("flashSale.cancel")}
                     </Button>
                     <Button type="submit" size="sm" className="rounded-full" disabled={isLoading}>
                         {isLoading ? (
-                            <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />Đang lưu...</>
-                        ) : isEditing ? "Cập nhật" : "Tạo mới"}
+                            <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />{t("flashSale.saving")}</>
+                        ) : isEditing ? t("flashSale.update") : t("flashSale.create")}
                     </Button>
                 </div>
             </form>
@@ -174,12 +169,20 @@ function FlashSaleForm({ flashSale, onClose }) {
 }
 
 function AddItemDialog({ flashSaleId, open, onClose }) {
+    const { t } = useTranslation("admin");
     const [search, setSearch] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const { data: productsData, isFetching, isError } = useSearchProductsQuery(search, { skip: search.length < 2 });
     const [addItem, { isLoading }] = useAddFlashSaleItemMutation();
 
     const products = productsData || [];
+
+    const addItemSchema = z.object({
+        variantId: z.string().min(1, t("flashSale.validation.variantRequired")),
+        salePrice: z.coerce.number().min(1000, t("flashSale.validation.priceMin")),
+        quantityLimit: z.coerce.number().min(1, t("flashSale.validation.quantityMin")),
+        sortOrder: z.coerce.number().default(0),
+    });
 
     const form = useForm({
         resolver: zodResolver(addItemSchema),
@@ -195,13 +198,13 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
     const onSubmit = async (values) => {
         try {
             await addItem({ flashSaleId, ...values }).unwrap();
-            toast.success("Đã thêm sản phẩm");
+            toast.success(t("flashSale.toast.itemAdded"));
             setSelectedProduct(null);
             setSearch("");
             form.reset();
             onClose();
         } catch (error) {
-            toast.error(error?.data?.message || "Có lỗi xảy ra");
+            toast.error(error?.data?.message || t("flashSale.toast.errorOccurred"));
         }
     };
 
@@ -215,17 +218,17 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
         }}>
             <DialogContent className="max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Thêm sản phẩm vào flash sale</DialogTitle>
+                    <DialogTitle>{t("flashSale.addItem")}</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div>
-                            <FormLabel>Tìm sản phẩm</FormLabel>
+                            <FormLabel>{t("flashSale.searchProduct")}</FormLabel>
                             <div className="relative mt-1.5">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     className="pl-9"
-                                    placeholder="Gõ tên sản phẩm..."
+                                    placeholder={t("flashSale.searchPlaceholder")}
                                     value={search}
                                     onChange={(e) => {
                                         setSearch(e.target.value);
@@ -235,22 +238,22 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                             </div>
 
                             {search.length > 0 && search.length < 2 && (
-                                <p className="mt-1.5 text-xs text-muted-foreground">Gõ ít nhất 2 ký tự để tìm kiếm</p>
+                                <p className="mt-1.5 text-xs text-muted-foreground">{t("flashSale.searchMinChars")}</p>
                             )}
 
                             {isFetching && (
                                 <div className="mt-2 flex items-center gap-2 rounded-lg border border-border px-3 py-4">
                                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                                    <span className="text-sm text-muted-foreground">Đang tìm kiếm...</span>
+                                    <span className="text-sm text-muted-foreground">{t("flashSale.searching")}</span>
                                 </div>
                             )}
 
                             {isError && (
-                                <p className="mt-1.5 text-xs text-destructive">Có lỗi khi tìm kiếm. Vui lòng thử lại.</p>
+                                <p className="mt-1.5 text-xs text-destructive">{t("flashSale.searchError")}</p>
                             )}
 
                             {!isFetching && !isError && search.length >= 2 && products.length === 0 && (
-                                <p className="mt-1.5 text-xs text-muted-foreground">Không tìm thấy sản phẩm nào</p>
+                                <p className="mt-1.5 text-xs text-muted-foreground">{t("flashSale.noProductsFound")}</p>
                             )}
 
                             {!isFetching && products.length > 0 && (
@@ -281,7 +284,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 
                             {selectedProduct && (
                                 <div className="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm dark:border-green-800 dark:bg-green-950/20">
-                                    <span className="text-muted-foreground">Đã chọn: </span>
+                                    <span className="text-muted-foreground">{t("flashSale.selectedLabel")}</span>
                                     <span className="font-medium">{selectedProduct.name}</span>
                                 </div>
                             )}
@@ -292,7 +295,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                             name="salePrice"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Giá flash sale</FormLabel>
+                                    <FormLabel>{t("flashSale.salePriceLabel")}</FormLabel>
                                     <FormControl>
                                         <Input type="number" min={1000} {...field} />
                                     </FormControl>
@@ -307,7 +310,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                 name="quantityLimit"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Slot giới hạn</FormLabel>
+                                        <FormLabel>{t("flashSale.quantityLimit")}</FormLabel>
                                         <FormControl>
                                             <Input type="number" min={1} {...field} />
                                         </FormControl>
@@ -320,7 +323,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                 name="sortOrder"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Thứ tự hiển thị</FormLabel>
+                                        <FormLabel>{t("flashSale.sortOrder")}</FormLabel>
                                         <FormControl>
                                             <Input type="number" min={0} {...field} />
                                         </FormControl>
@@ -332,10 +335,10 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 
                         <div className="flex justify-end gap-2">
                             <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onClose}>
-                                Hủy
+                                {t("flashSale.cancel")}
                             </Button>
                             <Button type="submit" size="sm" className="rounded-full" disabled={isLoading}>
-                                {isLoading ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />Đang thêm...</> : "Thêm"}
+                                {isLoading ? <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />{t("flashSale.adding")}</> : t("flashSale.add")}
                             </Button>
                         </div>
                     </form>
@@ -346,18 +349,19 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 }
 
 function FlashSaleDetail({ flashSale }) {
+    const { t } = useTranslation("admin");
     const [removeItem, { isLoading: isRemoving }] = useRemoveFlashSaleItemMutation();
     const now = new Date();
     const isActive = flashSale.isActive && new Date(flashSale.startTime) <= now && new Date(flashSale.endTime) >= now;
     const statusColor = isActive ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-muted text-muted-foreground";
-    const statusLabel = isActive ? "Đang diễn ra" : flashSale.isActive ? "Sắp diễn ra" : "Đã tắt";
+    const statusLabel = isActive ? t("flashSale.statusActive") : flashSale.isActive ? t("flashSale.statusUpcoming") : t("flashSale.statusDisabled");
 
     const handleRemoveItem = async (itemId) => {
         try {
             await removeItem(itemId).unwrap();
-            toast.success("Đã xóa sản phẩm");
+            toast.success(t("flashSale.toast.itemRemoved"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("flashSale.toast.errorOccurred"));
         }
     };
 
@@ -380,7 +384,7 @@ function FlashSaleDetail({ flashSale }) {
 
             <div className="p-4">
                 {items.length === 0 ? (
-                    <p className="py-4 text-center text-sm text-muted-foreground">Chưa có sản phẩm nào</p>
+                    <p className="py-4 text-center text-sm text-muted-foreground">{t("flashSale.noProducts")}</p>
                 ) : (
                     <div className="space-y-2">
                         {items.map((item) => {
@@ -413,7 +417,7 @@ function FlashSaleDetail({ flashSale }) {
                                             <Badge variant="destructive" className="text-[10px]">-{item.discountPercent}%</Badge>
                                         </div>
                                         <p className="mt-0.5 text-xs text-muted-foreground">
-                                            Còn {remaining}/{item.quantityLimit} slot
+                                            {t("flashSale.remainingSlots", { remaining, total: item.quantityLimit })}
                                         </p>
                                     </div>
                                     <Button
@@ -436,6 +440,7 @@ function FlashSaleDetail({ flashSale }) {
 }
 
 export default function AdminFlashSalePage() {
+    const { t } = useTranslation("admin");
     const [deleteId, setDeleteId] = useState(null);
     const [editingFlashSale, setEditingFlashSale] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -450,9 +455,9 @@ export default function AdminFlashSalePage() {
     const handleDelete = async () => {
         try {
             await deleteFlashSale(deleteId).unwrap();
-            toast.success("Đã xóa flash sale");
+            toast.success(t("flashSale.toast.deleteSuccess"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("flashSale.toast.errorOccurred"));
         } finally {
             setDeleteId(null);
         }
@@ -461,9 +466,9 @@ export default function AdminFlashSalePage() {
     const handleToggle = async (id) => {
         try {
             await toggleStatus(id).unwrap();
-            toast.success("Đã cập nhật trạng thái");
+            toast.success(t("flashSale.toast.statusUpdated"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("flashSale.toast.errorOccurred"));
         }
     };
 
@@ -471,19 +476,19 @@ export default function AdminFlashSalePage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-foreground">Quản lý Flash Sale</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Tạo đợt flash sale, thêm sản phẩm giảm giá</p>
+                    <h1 className="text-2xl font-semibold text-foreground">{t("flashSale.title")}</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("flashSale.subtitle")}</p>
                 </div>
                 <Button className="rounded-full" onClick={() => { setEditingFlashSale(null); setShowForm(true); }}>
                     <Plus className="mr-1.5 h-4 w-4" />
-                    Tạo đợt flash sale
+                    {t("flashSale.createSale")}
                 </Button>
             </div>
 
             {showForm && (
                 <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="mb-4 text-sm font-medium text-foreground">
-                        {editingFlashSale ? "Chỉnh sửa flash sale" : "Tạo flash sale mới"}
+                        {editingFlashSale ? t("flashSale.editSale") : t("flashSale.createSaleNew")}
                     </h3>
                     <FlashSaleForm
                         flashSale={editingFlashSale}
@@ -500,7 +505,7 @@ export default function AdminFlashSalePage() {
                 </div>
             ) : flashSales.length === 0 ? (
                 <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border">
-                    <p className="text-sm text-muted-foreground">Chưa có đợt flash sale nào</p>
+                    <p className="text-sm text-muted-foreground">{t("flashSale.noSales")}</p>
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -515,7 +520,7 @@ export default function AdminFlashSalePage() {
                                     onClick={() => setAddItemTo(fs.id)}
                                 >
                                     <Plus className="mr-1 h-3.5 w-3.5" />
-                                    Thêm sản phẩm
+                                    {t("flashSale.addProduct")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -558,8 +563,8 @@ export default function AdminFlashSalePage() {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title="Xóa flash sale"
-                description="Bạn có chắc muốn xóa đợt flash sale này?"
+                title={t("flashSale.deleteSale")}
+                description={t("flashSale.deleteSaleConfirm")}
                 onConfirm={handleDelete}
                 isLoading={isDeleting}
             />

@@ -19,7 +19,10 @@
         "mustContain": "Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ số",
         "notMatch": "Mật khẩu xác nhận không khớp",
         "sameAsOld": "Mật khẩu mới không được trùng mật khẩu cũ",
-        "wrongCurrent": "Mật khẩu hiện tại không đúng"
+        "wrongCurrent": "Mật khẩu hiện tại không đúng",
+        "confirmRequired": "Vui lòng xác nhận mật khẩu",
+        "currentRequired": "Vui lòng nhập mật khẩu hiện tại",
+        "confirmNewRequired": "Vui lòng xác nhận mật khẩu mới"
     },
 
     "fullName": {
@@ -53,6 +56,7 @@
         "priceMin": "Giá bán phải lớn hơn 0",
         "imagesRequired": "Vui lòng tải lên ít nhất 1 ảnh sản phẩm",
         "descriptionRequired": "Vui lòng nhập mô tả sản phẩm",
+        "descriptionMinLength": "Mô tả phải có ít nhất 10 ký tự",
         "colorRequired": "Vui lòng thêm ít nhất 1 màu sắc",
         "slugRequired": "Vui lòng nhập slug",
         "slugInvalid": "Slug chỉ được chứa chữ thường, số và dấu gạch ngang"

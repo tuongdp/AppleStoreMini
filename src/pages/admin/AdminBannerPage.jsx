@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Plus,
     Pencil,
@@ -26,6 +27,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 function BannerForm({ banner, onClose }) {
+    const { t } = useTranslation("admin");
     const isEditing = !!banner;
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(banner?.image || null);
@@ -55,14 +57,14 @@ function BannerForm({ banner, onClose }) {
                     id: banner._id || banner.id,
                     ...Object.fromEntries(formData),
                 }).unwrap();
-                toast.success("Đã cập nhật banner");
+                toast.success(t("banner.toast.updateSuccess"));
             } else {
                 await createBanner(formData).unwrap();
-                toast.success("Đã tạo banner mới");
+                toast.success(t("banner.toast.createSuccess"));
             }
             onClose();
         } catch (error) {
-            toast.error(error?.data?.message || "Có lỗi xảy ra");
+            toast.error(error?.data?.message || t("banner.toast.errorOccurred"));
         }
     };
 
@@ -71,7 +73,7 @@ function BannerForm({ banner, onClose }) {
             {/* Image upload + preview */}
             <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    Ảnh banner
+                    {t("banner.imageLabel")}
                 </label>
                 {imagePreview && (
                     <div className="mb-3 h-40 w-full overflow-hidden rounded-xl bg-muted">
@@ -85,7 +87,7 @@ function BannerForm({ banner, onClose }) {
                 <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-3 hover:bg-muted/30">
                     <ImagePlus className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                        {imageFile ? imageFile.name : "Chọn ảnh banner..."}
+                        {imageFile ? imageFile.name : t("banner.imagePlaceholder")}
                     </span>
                     <input
                         type="file"
@@ -99,7 +101,7 @@ function BannerForm({ banner, onClose }) {
             {/* Order */}
             <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    Thứ tự hiển thị
+                    {t("banner.displayOrder")}
                 </label>
                 <Input
                     type="number"
@@ -113,7 +115,7 @@ function BannerForm({ banner, onClose }) {
             {/* CTA Link */}
             <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    Link liên kết
+                    {t("banner.linkUrl")}
                 </label>
                 <Input
                     value={ctaLink}
@@ -131,7 +133,7 @@ function BannerForm({ banner, onClose }) {
                     onClick={onClose}
                     disabled={isLoading}
                 >
-                    Hủy
+                    {t("banner.cancel")}
                 </Button>
                 <Button
                     type="submit"
@@ -142,12 +144,12 @@ function BannerForm({ banner, onClose }) {
                     {isLoading ? (
                         <>
                             <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                            Đang lưu...
+                            {t("banner.saving")}
                         </>
                     ) : isEditing ? (
-                        "Cập nhật"
+                        t("banner.update")
                     ) : (
-                        "Tạo banner"
+                        t("banner.create")
                     )}
                 </Button>
             </div>
@@ -156,6 +158,7 @@ function BannerForm({ banner, onClose }) {
 }
 
 export default function AdminBannerPage() {
+    const { t } = useTranslation("admin");
     const [deleteId, setDeleteId] = useState(null);
     const [editingBanner, setEditingBanner] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -170,9 +173,9 @@ export default function AdminBannerPage() {
     const handleDelete = async () => {
         try {
             await deleteBanner(deleteId).unwrap();
-            toast.success("Đã xóa banner");
+            toast.success(t("banner.toast.deleteSuccess"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("banner.toast.errorOccurred"));
         } finally {
             setDeleteId(null);
         }
@@ -181,9 +184,9 @@ export default function AdminBannerPage() {
     const handleToggle = async (banner) => {
         try {
             await toggleStatus(banner._id || banner.id).unwrap();
-            toast.success(banner.isActive ? "Đã ẩn banner" : "Đã hiện banner");
+            toast.success(banner.isActive ? t("banner.toast.hidden") : t("banner.toast.visible"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("banner.toast.errorOccurred"));
         }
     };
 
@@ -205,15 +208,15 @@ export default function AdminBannerPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">
-                        Quản lý Banner
+                        {t("banner.title")}
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Quản lý banner slider trang chủ
+                        {t("banner.subtitle")}
                     </p>
                 </div>
                 <Button className="rounded-full" onClick={handleAdd}>
                     <Plus className="mr-1.5 h-4 w-4" />
-                    Thêm banner
+                    {t("banner.addBanner")}
                 </Button>
             </div>
 
@@ -221,7 +224,7 @@ export default function AdminBannerPage() {
             {showForm && (
                 <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="mb-4 text-sm font-medium text-foreground">
-                        {editingBanner ? "Chỉnh sửa banner" : "Tạo banner mới"}
+                        {editingBanner ? t("banner.editBanner") : t("banner.createBanner")}
                     </h3>
                     <BannerForm
                         banner={editingBanner}
@@ -250,7 +253,7 @@ export default function AdminBannerPage() {
                 ) : banners.length === 0 ? (
                     <div className="flex h-40 items-center justify-center">
                         <p className="text-sm text-muted-foreground">
-                            Chưa có banner nào
+                            {t("banner.noBanners")}
                         </p>
                     </div>
                 ) : (
@@ -288,8 +291,8 @@ export default function AdminBannerPage() {
                                             )}
                                         >
                                             {banner.isActive
-                                                ? "Hiển thị"
-                                                : "Đã ẩn"}
+                                                ? t("banner.visible")
+                                                : t("banner.hidden")}
                                         </Badge>
 
                                         {/* Toggle */}
@@ -338,8 +341,8 @@ export default function AdminBannerPage() {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title="Xóa banner"
-                description="Bạn có chắc muốn xóa banner này?"
+                title={t("banner.deleteBanner")}
+                description={t("banner.deleteBannerConfirm")}
                 onConfirm={handleDelete}
                 isLoading={isDeleting}
             />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import i18next from "i18next";
 import {
     useLoginMutation,
     useRegisterMutation,
@@ -61,7 +62,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || "Đăng nhập thất bại",
+                message: error?.data?.message || i18next.t("auth:loginFailed"),
             };
         }
     };
@@ -76,7 +77,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || "Đăng ký thất bại",
+                message: error?.data?.message || i18next.t("auth:registerFailed"),
             };
         }
     };
@@ -88,7 +89,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || "Gửi email thất bại",
+                message: error?.data?.message || i18next.t("auth:sendEmailFailed"),
             };
         }
     };
@@ -97,7 +98,7 @@ export function useAuth() {
         try {
             await logoutMutation().unwrap();
         } catch (error) {
-            console.error("Lỗi đăng xuất server:", error);
+            console.error("Logout server error:", error);
         } finally {
             dispatch(logoutAction());
             dispatch(clearCart());

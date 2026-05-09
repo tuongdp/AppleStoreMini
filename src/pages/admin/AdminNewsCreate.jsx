@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ChevronLeft } from "lucide-react";
 import { useCreateNewsMutation } from "@/store/api/newsApi";
 import AdminNewsForm from "@/features/admin/components/news/AdminNewsForm";
@@ -6,16 +7,16 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function AdminNewsCreate() {
+    const { t } = useTranslation("admin");
     const navigate = useNavigate();
     const [createNews, { isLoading }] = useCreateNewsMutation();
 
     const handleSubmit = async (values) => {
         try {
             await createNews(values).unwrap();
-            toast.success("Đã tạo bài viết mới");
-            navigate("/admin/news");
+            toast.success(t("news.createSuccess"));
         } catch (error) {
-            toast.error(error?.data?.message || "Có lỗi xảy ra");
+            toast.error(error?.data?.message || t("flashSale.toast.errorOccurred"));
         }
     };
 
@@ -24,12 +25,12 @@ export default function AdminNewsCreate() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to="/admin/news">
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    Quản lý tin tức
+                    {t("news.title")}
                 </Link>
             </Button>
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    Tạo bài viết mới
+                    {t("news.create")}
                 </h1>
             </div>
             <AdminNewsForm onSubmit={handleSubmit} isLoading={isLoading} />

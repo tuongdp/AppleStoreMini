@@ -19,7 +19,10 @@
         "mustContain": "Password must contain at least 1 uppercase letter and 1 number",
         "notMatch": "Passwords do not match",
         "sameAsOld": "New password must be different from old password",
-        "wrongCurrent": "Current password is incorrect"
+        "wrongCurrent": "Current password is incorrect",
+        "confirmRequired": "Please confirm your password",
+        "currentRequired": "Please enter your current password",
+        "confirmNewRequired": "Please confirm your new password"
     },
 
     "fullName": {
@@ -53,6 +56,7 @@
         "priceMin": "Price must be greater than 0",
         "imagesRequired": "Please upload at least 1 product image",
         "descriptionRequired": "Please enter product description",
+        "descriptionMinLength": "Description must be at least 10 characters",
         "colorRequired": "Please add at least 1 color",
         "slugRequired": "Please enter a slug",
         "slugInvalid": "Slug can only contain lowercase letters, numbers and hyphens"

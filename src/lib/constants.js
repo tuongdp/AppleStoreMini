@@ -50,19 +50,19 @@ export const CATEGORIES = [
     { label: "Mac", value: "mac", href: "/products?category=mac", image: macImg },
     { label: "Watch", value: "apple-watch", href: "/products?category=apple-watch", image: watchImg },
     { label: "AirPods", value: "airpods", href: "/products?category=airpods", image: airpodsImg },
-    { label: "Phụ kiện", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
+    { label: "product:category.accessories", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
 ];
 
 
 
 // ── Sort options ──────────────────────────────────────
 export const SORT_OPTIONS = [
-    { label: "Nổi bật", value: "featured" },
-    { label: "Mới nhất", value: "newest" },
-    { label: "Giá thấp đến cao", value: "price_asc" },
-    { label: "Giá cao đến thấp", value: "price_desc" },
-    { label: "Bán chạy nhất", value: "best_seller" },
-    { label: "Đánh giá cao nhất", value: "rating" },
+    { label: "product:sort.featured", value: "featured" },
+    { label: "product:sort.newest", value: "newest" },
+    { label: "product:sort.priceAsc", value: "price_asc" },
+    { label: "product:sort.priceDesc", value: "price_desc" },
+    { label: "product:sort.bestSeller", value: "best_seller" },
+    { label: "product:sort.rating", value: "rating" },
 ];
 
 // ── Order status ──────────────────────────────────────
@@ -142,11 +142,11 @@ export const STORAGE_OPTIONS = [
 
 // ── Price ranges ──────────────────────────────────────
 export const PRICE_RANGES = [
-    { label: "Dưới 10 triệu", min: 0, max: 10000000 },
-    { label: "10 - 20 triệu", min: 10000000, max: 20000000 },
-    { label: "20 - 30 triệu", min: 20000000, max: 30000000 },
-    { label: "30 - 50 triệu", min: 30000000, max: 50000000 },
-    { label: "Trên 50 triệu", min: 50000000, max: 999999999 },
+    { label: "product:filter.priceUnder10m", min: 0, max: 10000000 },
+    { label: "product:filter.price10to20m", min: 10000000, max: 20000000 },
+    { label: "product:filter.price20to30m", min: 20000000, max: 30000000 },
+    { label: "product:filter.price30to50m", min: 30000000, max: 50000000 },
+    { label: "product:filter.priceOver50m", min: 50000000, max: 999999999 },
 ];
 
 // ── Local storage keys ────────────────────────────────
@@ -169,17 +169,17 @@ export const IMAGE = {
 
 // ── Checkout steps ────────────────────────────────────
 export const CHECKOUT_STEPS = [
-    { step: 1, key: "address", label: "Địa chỉ" },
-    { step: 2, key: "payment", label: "Thanh toán" },
-    { step: 3, key: "confirm", label: "Xác nhận" },
+    { step: 1, key: "address", label: "checkout:steps.address" },
+    { step: 2, key: "payment", label: "checkout:steps.payment" },
+    { step: 3, key: "confirm", label: "checkout:steps.confirm" },
 ];
 
 // ── Review ────────────────────────────────────────────
 export const REVIEW_SORT_OPTIONS = [
-    { label: "Mới nhất", value: "newest" },
-    { label: "Cũ nhất", value: "oldest" },
-    { label: "Sao cao nhất", value: "highest" },
-    { label: "Sao thấp nhất", value: "lowest" },
+    { label: "product:reviewSort.newest", value: "newest" },
+    { label: "product:reviewSort.oldest", value: "oldest" },
+    { label: "product:reviewSort.highest", value: "highest" },
+    { label: "product:reviewSort.lowest", value: "lowest" },
 ];
 
 // ── Shipping ──────────────────────────────────────────

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Clock, Zap, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
@@ -7,6 +8,7 @@ import ProductSlider from "@/components/shared/ProductSlider";
 import ProductCard from "@/components/shared/ProductCard";
 
 function CountdownTimer({ endTime }) {
+    const { t } = useTranslation("common");
     const calcRemaining = () => {
         const diff = new Date(endTime).getTime() - Date.now();
         if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
@@ -35,7 +37,7 @@ function CountdownTimer({ endTime }) {
                     <span className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10 text-xs text-destructive">
                         {pad(remaining.d)}
                     </span>
-                    <span className="mr-0.5 text-[10px] text-muted-foreground">ngày</span>
+                    <span className="mr-0.5 text-[10px] text-muted-foreground">{t("timeAgo.day")}</span>
                 </>
             )}
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10 text-sm text-destructive">{pad(remaining.h)}</span>
@@ -71,6 +73,8 @@ function FlashSaleSkeleton() {
 }
 
 export default function FlashSaleBanner({ flashSale, isLoading }) {
+    const { t } = useTranslation("common");
+
     const isExpired = useMemo(() => {
         if (!flashSale?.endTime) return true;
         return new Date(flashSale.endTime).getTime() <= Date.now();
@@ -118,7 +122,7 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                         to={`${ROUTES.PRODUCTS}?onSale=true`}
                         className="inline-flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
                     >
-                        Xem tất cả <ChevronRight className="h-4 w-4" />
+                        {t("flashSale.viewAll")} <ChevronRight className="h-4 w-4" />
                     </Link>
                 </div>
 
@@ -132,8 +136,8 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                             {product._flashSaleItem?.quantityLimit > 0 && (
                                 <div className="px-3 pb-1">
                                     <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                        <span>Đã bán {product._flashSaleItem.quantitySold}</span>
-                                        <span>Còn {product._flashSaleItem.quantityLimit - product._flashSaleItem.quantitySold}</span>
+                                        <span>{t("flashSale.sold")} {product._flashSaleItem.quantitySold}</span>
+                                        <span>{t("flashSale.remaining")} {product._flashSaleItem.quantityLimit - product._flashSaleItem.quantitySold}</span>
                                     </div>
                                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                                         <div

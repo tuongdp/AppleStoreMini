@@ -297,7 +297,7 @@ export default function ProductDetailPage() {
                     {/* RAM selector */}
                     {allRams.length > 1 && (
                         <div>
-                            <p className="mb-2 text-sm font-medium text-foreground">RAM</p>
+                            <p className="mb-2 text-sm font-medium text-foreground">{t("specification.ram")}</p>
                             <div className="flex flex-wrap gap-2">
                                 {allRams.map((ram) => {
                                     const disabled = effectiveColor && effectiveStorage
@@ -353,7 +353,7 @@ export default function ProductDetailPage() {
                     {/* Single RAM display */}
                     {allRams.length === 1 && allRams[0] && (
                         <div>
-                            <p className="mb-1 text-sm font-medium text-foreground">RAM</p>
+                            <p className="mb-1 text-sm font-medium text-foreground">{t("specification.ram")}</p>
                             <p className="text-sm text-muted-foreground">{allRams[0]}</p>
                         </div>
                     )}
@@ -361,7 +361,7 @@ export default function ProductDetailPage() {
                     {invalidSelection && (
                         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2">
                             <p className="text-sm font-medium text-destructive">
-                                Tổ hợp màu sắc, dung lượng và RAM này không tồn tại
+                                {t("detail.invalidCombination")}
                             </p>
                         </div>
                     )}
@@ -384,7 +384,7 @@ export default function ProductDetailPage() {
                     <div className="flex gap-3">
                         {!selectedVariant ? (
                             <Button size="lg" className="flex-1 rounded-full text-base" disabled>
-                                Không có sẵn
+                                {t("detail.unavailable")}
                             </Button>
                         ) : inStock ? (
                             <Button

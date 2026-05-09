@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const getCategoryLinks = (category, t) => [
-    { label: `Tất cả ${category.label}`, href: category.href, bold: true },
+    { label: `${t("category.all")} ${t(category.label)}`, href: category.href, bold: true },
     { label: t("sort.newest"), href: `${category.href}&sort=newest` },
     { label: t("sort.bestSeller"), href: `${category.href}&sort=best_seller` },
     { label: t("sort.priceAsc"), href: `${category.href}&sort=price_asc` },
@@ -33,7 +33,7 @@ export default function MegaMenu({ category }) {
                         : "text-muted-foreground hover:text-foreground",
                 )}
             >
-                {category.label}
+                {t(category.label)}
                 <ChevronDown
                     className={cn(
                         "h-3.5 w-3.5 transition-transform duration-200",

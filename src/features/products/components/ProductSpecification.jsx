@@ -58,7 +58,7 @@ export default function ProductSpecification({ specifications = {} }) {
                         onClick={() => setExpanded(!expanded)}
                         className="inline-flex items-center gap-1 text-sm font-medium text-apple-blue transition-colors hover:text-apple-blue/70"
                     >
-                        {expanded ? "Thu gọn" : "Xem thêm"}
+                        {expanded ? t("detail.showLess") : t("detail.showMore")}
                         <ChevronDown
                             className={cn(
                                 "h-4 w-4 transition-transform",

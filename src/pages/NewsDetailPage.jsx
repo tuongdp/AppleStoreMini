@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
     Calendar,
     Clock,
@@ -55,6 +56,7 @@ function StarRatingInput({ value, onChange }) {
 }
 
 function SidebarNewsCard({ news, index }) {
+    const { t } = useTranslation("common");
     return (
         <Link
             to={`/news/${news.slug}`}
@@ -70,8 +72,8 @@ function SidebarNewsCard({ news, index }) {
                     {news.title}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                    {news.readTime ? `${news.readTime} phút đọc · ` : ""}
-                    {news.viewCount?.toLocaleString()} lượt xem
+                    {news.readTime ? `${t("news.minRead", { time: news.readTime })} · ` : ""}
+                    {t("news.views", { count: news.viewCount?.toLocaleString() })}
                 </p>
             </div>
         </Link>
@@ -79,6 +81,7 @@ function SidebarNewsCard({ news, index }) {
 }
 
 function NewsSidebar({ currentSlug, currentCategory }) {
+    const { t } = useTranslation("common");
     const { data: relatedData } = useGetNewsQuery(
         { category: currentCategory, limit: 5 },
         { skip: !currentCategory },
@@ -99,7 +102,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
             {related.length > 0 && (
                 <div>
                     <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Bài viết liên quan
+                        {t("news.relatedArticles")}
                     </h3>
                     <div className="space-y-1">
                         {related.map((item) => (
@@ -114,7 +117,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
             {popular.length > 0 && (
                 <div>
                     <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        Xem nhiều nhất
+                        {t("news.mostViewed")}
                     </h3>
                     <div className="space-y-1">
                         {popular.map((item, i) => (
@@ -133,6 +136,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
 
 export default function NewsDetailPage() {
     const { slug } = useParams();
+    const { t } = useTranslation("common");
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const currentUser = useSelector(selectCurrentUser);
     const [comment, setComment] = useState("");
@@ -168,15 +172,15 @@ export default function NewsDetailPage() {
                 content: comment,
             }).unwrap();
             setComment("");
-            toast.success("Đã gửi bình luận");
+            toast.success(t("news.commentSent"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("toast.error"));
         }
     };
 
     const handleRate = async (value) => {
         if (!isAuthenticated) {
-            toast.error("Vui lòng đăng nhập để đánh giá");
+            toast.error(t("toast.loginRequired"));
             return;
         }
         setRating(value);
@@ -185,9 +189,9 @@ export default function NewsDetailPage() {
                 newsId: news._id || news.id,
                 rating: value,
             }).unwrap();
-            toast.success("Đã đánh giá bài viết");
+            toast.success(t("news.articleRated"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("toast.error"));
         }
     };
 
@@ -197,9 +201,9 @@ export default function NewsDetailPage() {
                 newsId: news._id || news.id,
                 commentId,
             }).unwrap();
-            toast.success("Đã xóa bình luận");
+            toast.success(t("news.commentDeleted"));
         } catch {
-            toast.error("Có lỗi xảy ra");
+            toast.error(t("toast.error"));
         }
     };
 
@@ -233,10 +237,10 @@ export default function NewsDetailPage() {
         return (
             <div className="section-padding flex min-h-[60vh] flex-col items-center justify-center text-center">
                 <p className="mb-4 text-muted-foreground">
-                    Không tìm thấy bài viết
+                    {t("news.notFound")}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to="/news">Về trang tin tức</Link>
+                    <Link to="/news">{t("news.backToNews")}</Link>
                 </Button>
             </div>
         );
@@ -250,7 +254,7 @@ export default function NewsDetailPage() {
                         {/* Breadcrumb */}
                         <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
                             <Link to="/news" className="hover:text-foreground">
-                                Tin tức
+                                {t("nav.news")}
                             </Link>
                             <ChevronRight className="h-3.5 w-3.5" />
                             <span className="line-clamp-1 text-foreground">
@@ -272,12 +276,12 @@ export default function NewsDetailPage() {
                             {news.readTime && (
                                 <span className="flex items-center gap-1.5">
                                     <Clock className="h-4 w-4" />
-                                    {news.readTime} phút đọc
+                                    {t("news.minRead", { time: news.readTime })}
                                 </span>
                             )}
                             {news.author && (
                                 <span>
-                                    bởi{" "}
+                                    {t("news.by")}{" "}
                                     <span className="font-medium text-foreground">
                                         {news.author}
                                     </span>
@@ -287,7 +291,7 @@ export default function NewsDetailPage() {
                                 <span className="flex items-center gap-1">
                                     <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                                     {news.rating.toFixed(1)} (
-                                    {news.ratingCount || 0} đánh giá)
+                                    {t("news.ratings", { count: news.ratingCount || 0 })})
                                 </span>
                             )}
                         </div>
@@ -314,7 +318,7 @@ export default function NewsDetailPage() {
                         {/* Rating */}
                         <div className="mb-8 rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-3 text-sm font-medium text-foreground">
-                                Đánh giá bài viết này
+                                {t("news.rateThisArticle")}
                             </h3>
                             <StarRatingInput
                                 value={rating || news.userRating || 0}
@@ -326,9 +330,9 @@ export default function NewsDetailPage() {
                                         to="/login"
                                         className="text-apple-blue hover:underline"
                                     >
-                                        Đăng nhập
+                                        {t("nav.login")}
                                     </Link>{" "}
-                                    để đánh giá
+                                    {t("news.loginToRate")}
                                 </p>
                             )}
                         </div>
@@ -336,7 +340,7 @@ export default function NewsDetailPage() {
                         {/* Comments */}
                         <div>
                             <h3 className="mb-5 text-lg font-semibold text-foreground">
-                                Bình luận{" "}
+                                {t("news.comments")}{" "}
                                 {comments.length > 0 &&
                                     `(${commentPagination.total || comments.length})`}
                             </h3>
@@ -362,7 +366,7 @@ export default function NewsDetailPage() {
                                             onChange={(e) =>
                                                 setComment(e.target.value)
                                             }
-                                            placeholder="Viết bình luận của bạn..."
+                                            placeholder={t("news.commentPlaceholder")}
                                             rows={3}
                                             disabled={isCommenting}
                                         />
@@ -378,8 +382,8 @@ export default function NewsDetailPage() {
                                             >
                                                 <Send className="mr-1.5 h-3.5 w-3.5" />
                                                 {isCommenting
-                                                    ? "Đang gửi..."
-                                                    : "Gửi bình luận"}
+                                                    ? t("news.sending")
+                                                    : t("news.sendComment")}
                                             </Button>
                                         </div>
                                     </div>
@@ -390,9 +394,9 @@ export default function NewsDetailPage() {
                                         to="/login"
                                         className="text-apple-blue hover:underline"
                                     >
-                                        Đăng nhập
+                                        {t("nav.login")}
                                     </Link>{" "}
-                                    để bình luận
+                                    {t("news.loginToComment")}
                                 </div>
                             )}
 
@@ -410,8 +414,7 @@ export default function NewsDetailPage() {
                                 </div>
                             ) : comments.length === 0 ? (
                                 <p className="py-8 text-center text-sm text-muted-foreground">
-                                    Chưa có bình luận nào. Hãy là người đầu
-                                    tiên!
+                                    {t("news.noCommentsYet")}
                                 </p>
                             ) : (
                                 <div className="space-y-5">
@@ -488,7 +491,7 @@ export default function NewsDetailPage() {
                                                     setCommentPage((p) => p - 1)
                                                 }
                                             >
-                                                Trước
+                                                {t("pagination.prev")}
                                             </Button>
                                             <span className="flex items-center text-sm text-muted-foreground">
                                                 {commentPage} /{" "}
@@ -506,7 +509,7 @@ export default function NewsDetailPage() {
                                                     setCommentPage((p) => p + 1)
                                                 }
                                             >
-                                                Tiếp
+                                                {t("pagination.next")}
                                             </Button>
                                         </div>
                                     )}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import {
   Wrench,
@@ -32,116 +33,48 @@ import careImg5 from "@/assets/images/care/img_5-min.jpg";
 
 const CARE_IMAGES = [careImg1, careImg2, careImg3, careImg4, careImg5];
 
-const PROCESS = [
-  { icon: Search, title: "Kiểm tra tổng quan trước sửa chữa", tag: "1. Kiểm tra tổng quan trước sửa chữa" },
-  { icon: Clipboard, title: "Đặt linh kiện chính hãng Apple", tag: "2. Đặt linh kiện" },
-  { icon: Wrench, title: "Tiến hành sửa chữa và thay thế", tag: "3. Sửa chữa | Thay thế" },
-  { icon: CheckCircle, title: "Kiểm tra tổng quan sau sửa chữa", tag: "4. Kiểm tra tổng quan sau sửa chữa" },
-  { icon: Hand, title: "Trả sản phẩm lại cho khách hàng", tag: "5. Trả sản phẩm" },
-];
-
-const ACCESSORIES = [
-  {
-    image: productPlaceholder,
-    name: "Tai nghe chính hãng Apple",
-    tag: "Tai nghe",
-  },
-  {
-    image: productPlaceholder,
-    name: "Cáp, sạc chính hãng Apple",
-    tag: "Cáp | Sạc",
-  },
-  {
-    image: productPlaceholder,
-    name: "Ốp lưng, bao da chính hãng Apple",
-    tag: "Ốp lưng | Bao da",
-  },
-  {
-    image: productPlaceholder,
-    name: "Dây Apple Watch chính hãng",
-    tag: "Dây Apple Watch",
-  },
-  { image: productPlaceholder, name: "AirTag chính hãng Apple", tag: "AirTag" },
-  {
-    image: productPlaceholder,
-    name: "Chuột, trackpad chính hãng Apple",
-    tag: "Chuột | Trackpad",
-  },
-  {
-    image: productPlaceholder,
-    name: "Apple TV chính hãng Apple",
-    tag: "Apple TV",
-  },
-  {
-    image: productPlaceholder,
-    name: "Bàn phím chính hãng Apple",
-    tag: "Bàn phím",
-  },
-];
-
-const REASONS = [
-  {
-    icon: ShieldCheck,
-    title: "Chính hãng Apple",
-    desc: "AppleCare là trung tâm dịch vụ ủy quyền chính thức của Apple. Tất cả linh kiện sửa chữa tại AppleCare đều do Apple cung cấp chính hãng.",
-  },
-  {
-    icon: Award,
-    title: "Chứng chỉ Apple",
-    desc: "100% đội ngũ chuyên viên và kỹ thuật viên của AppleCare được đào tạo và cấp chứng chỉ bởi Apple.",
-  },
-  {
-    icon: Lock,
-    title: "Bảo mật tuyệt đối",
-    desc: "Thông tin khách hàng cung cấp được bảo vệ nghiêm ngặt theo tiêu chuẩn kiểm soát cao nhất.",
-  },
-  {
-    icon: Sparkles,
-    title: "Dịch vụ đẳng cấp",
-    desc: "Với phương châm lấy khách hàng làm trọng tâm, AppleCare cam kết mang đến chất lượng phục vụ vượt trội dành cho khách hàng.",
-  },
-  {
-    icon: PiggyBank,
-    title: "Tiết kiệm",
-    desc: "AppleCare thường xuyên có những chương trình ưu đãi giúp khách hàng tiết kiệm hơn khi sửa chữa sản phẩm.",
-  },
-];
-
-const SERVICES = [
-  {
-    name: "Sửa chữa iPhone",
-    image: iphoneImg,
-    content:
-      "Gửi đi xưởng sửa chữa Apple Màn hình iPhone và Kính lưng iPhone Pin iPhone",
-  },
-  {
-    name: "Sửa chữa iPad",
-    image: ipadImg,
-    content: "Đổi máy iPad",
-  },
-  {
-    name: "Sửa chữa Macbook",
-    image: macImg,
-    content: "Logic Board MacBook Pin MacBook Màn hình MacBook",
-  },
-  {
-    name: "Sửa chữa Watch",
-    image: watchImg,
-    content: "Đổi máy Watch",
-  },
-  {
-    name: "Sửa chữa AirPods",
-    image: airpodsImg,
-    content: "Đổi máy AirPods",
-  },
-];
-
 export default function AppleCarePage() {
+  const { t } = useTranslation("common");
+
+  const PROCESS_STEPS = [
+    { icon: Search, key: "0" },
+    { icon: Clipboard, key: "1" },
+    { icon: Wrench, key: "2" },
+    { icon: CheckCircle, key: "3" },
+    { icon: Hand, key: "4" },
+  ];
+
+  const ACCESSORIES_LIST = [
+    { image: productPlaceholder, key: "earphones" },
+    { image: productPlaceholder, key: "cables" },
+    { image: productPlaceholder, key: "cases" },
+    { image: productPlaceholder, key: "watchStraps" },
+    { image: productPlaceholder, key: "airtag" },
+    { image: productPlaceholder, key: "mouse" },
+    { image: productPlaceholder, key: "appletv" },
+    { image: productPlaceholder, key: "keyboard" },
+  ];
+
+  const REASONS_LIST = [
+    { icon: ShieldCheck, key: "authentic" },
+    { icon: Award, key: "certified" },
+    { icon: Lock, key: "secure" },
+    { icon: Sparkles, key: "premium" },
+    { icon: PiggyBank, key: "saving" },
+  ];
+
+  const SERVICES_LIST = [
+    { nameKey: "iphone", image: iphoneImg },
+    { nameKey: "ipad", image: ipadImg },
+    { nameKey: "macbook", image: macImg },
+    { nameKey: "watch", image: watchImg },
+    { nameKey: "airpods", image: airpodsImg },
+  ];
   return (
     <div className="section-padding py-8 md:py-12">
       <div className="mx-auto max-w-7xl">
         <Breadcrumb
-          items={[{ label: "Dịch vụ sửa chữa AppleCare" }]}
+          items={[{ label: t("appleCare.breadcrumb") }]}
           className="mb-6"
         />
 
@@ -150,35 +83,35 @@ export default function AppleCarePage() {
             <Wrench className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <h1 className="text-3xl font-semibold text-foreground">
-            Dịch vụ sửa chữa AppleCare
+            {t("appleCare.title")}
           </h1>
         </div>
 
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-3">
-          {SERVICES.map((service) => (
+          {SERVICES_LIST.map((service) => (
             <div
-              key={service.name}
+              key={service.nameKey}
               className="group overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-md"
             >
               <div className="aspect-4/2.5 overflow-hidden">
                 <img
                   src={service.image}
-                  alt={service.name}
+                  alt={t(`appleCare.services.${service.nameKey}.name`)}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="p-4">
                 <h2 className="mb-1.5 text-sm font-medium text-foreground">
-                  {service.name}
+                  {t(`appleCare.services.${service.nameKey}.name`)}
                 </h2>
                 <p className="mb-3 text-xs text-muted-foreground">
-                  {service.content}
+                  {t(`appleCare.services.${service.nameKey}.desc`)}
                 </p>
                 <a
                   href="#"
                   className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  Xem bảng giá tham khảo →
+                  {t("appleCare.viewPricing")}
                 </a>
               </div>
             </div>
@@ -190,25 +123,27 @@ export default function AppleCarePage() {
             <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            Lý do lựa chọn AppleCare
+            {t("appleCare.reasonsTitle")}
           </h2>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {REASONS.map((reason) => {
+          {REASONS_LIST.map((reason) => {
             const Icon = reason.icon;
             return (
               <div
-                key={reason.title}
+                key={reason.key}
                 className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted">
                   <Icon className="h-5 w-5 text-foreground" />
                 </div>
                 <h3 className="mb-1.5 text-sm font-medium text-foreground">
-                  {reason.title}
+                  {t(`appleCare.reasons.${reason.key}.title`)}
                 </h3>
-                <p className="text-xs text-muted-foreground">{reason.desc}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t(`appleCare.reasons.${reason.key}.desc`)}
+                </p>
               </div>
             );
           })}
@@ -219,36 +154,35 @@ export default function AppleCarePage() {
             <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            Phụ kiện chính hãng Apple tại AppleCare
+            {t("appleCare.accessoriesTitle")}
           </h2>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {ACCESSORIES.map((item) => (
+          {ACCESSORIES_LIST.map((item) => (
             <div
-              key={item.name}
+              key={item.key}
               className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md"
             >
               <div className="mb-3 aspect-square w-full overflow-hidden rounded-xl bg-muted">
                 <img
                   src={item.image}
-                  alt={item.name}
+                  alt={t(`appleCare.accessories.${item.key}.name`)}
                   className="h-full w-full object-cover"
                 />
               </div>
               <h3 className="mb-1 text-sm font-medium text-foreground">
-                {item.name}
+                {t(`appleCare.accessories.${item.key}.name`)}
               </h3>
               <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                {item.tag}
+                {t(`appleCare.accessories.${item.key}.tag`)}
               </span>
             </div>
           ))}
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          Lưu ý: Các sản phẩm được trưng bày tại AppleCare. Quý khách vui lòng
-          đến và mua trực tiếp với nhiều khuyến mãi hấp dẫn.
+          {t("appleCare.accessoriesNote")}
         </p>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
@@ -256,12 +190,12 @@ export default function AppleCarePage() {
             <ClipboardList className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            Quy trình bảo hành AppleCare
+            {t("appleCare.processTitle")}
           </h2>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-3 lg:grid-cols-5">
-          {PROCESS.map((step, index) => {
+          {PROCESS_STEPS.map((step, index) => {
             const Icon = step.icon;
             return (
               <div key={index} className="rounded-2xl border border-border bg-card p-5 text-center transition-shadow hover:shadow-md">
@@ -269,10 +203,10 @@ export default function AppleCarePage() {
                   <Icon className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="mb-1 text-sm font-medium text-foreground">
-                  {step.title}
+                  {t(`appleCare.process.${step.key}.title`)}
                 </h3>
                 <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                  {step.tag}
+                  {t(`appleCare.process.${step.key}.tag`)}
                 </span>
               </div>
             );
@@ -280,10 +214,10 @@ export default function AppleCarePage() {
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          Điều khoản bảo hành sửa chữa Apple toàn cầu:{" "}
-          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">Pháp lý</a>
+          {t("appleCare.processNote")}{" "}
+          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">{t("appleCare.legal")}</a>
           {" | "}
-          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">Sửa chữa</a>
+          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">{t("appleCare.repair")}</a>
         </p>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
@@ -291,12 +225,12 @@ export default function AppleCarePage() {
             <Building2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            Trung tâm bảo hành AppleCare - Đẳng cấp khác biệt
+            {t("appleCare.centerTitle")}
           </h2>
         </div>
 
         <p className="mb-8 text-sm text-muted-foreground">
-          Tại Trung tâm bảo hành AppleCare, khách hàng yêu mến hệ sinh thái Apple sẽ trải nghiệm đầy đủ và đa dạng nhất các dịch vụ bảo hành chính hãng Apple từ iPhone, iPad đến những chiếc tai nghe AirPods... trong một không gian đẳng cấp và hiện đại.
+          {t("appleCare.centerDesc")}
         </p>
 
         <div className="overflow-hidden rounded-2xl">

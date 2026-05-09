@@ -61,7 +61,8 @@
         "trackOrder": "Theo dõi đơn hàng",
         "continueShopping": "Tiếp tục mua sắm",
         "placeOrder": "Đặt hàng thành công",
-        "days": "ngày làm việc"
+        "days": "ngày làm việc",
+        "moreItems": "+{{count}} sản phẩm khác"
     },
 
     "momoPayNow": "Thanh toán MoMo",

@@ -62,7 +62,7 @@ export default function CartTableItem({ item, isLast }) {
               {product?.name}
             </Link>
             <p className="mt-1 text-xs text-muted-foreground">
-              {[color && `${t("item.color")}: ${color}`, storage && `${t("item.storage")}: ${storage}`, ram && `RAM: ${ram}`].filter(Boolean).join(" · ")}
+              {[color && `${t("item.color")}: ${color}`, storage && `${t("item.storage")}: ${storage}`, ram && `${t("item.ram")}: ${ram}`].filter(Boolean).join(" · ")}
             </p>
             <button
               onClick={handleRemove}

@@ -8,6 +8,7 @@
     "item": {
         "color": "Color",
         "storage": "Storage",
+        "ram": "RAM",
         "quantity": "Quantity",
         "price": "Unit price",
         "total": "Total",
@@ -43,7 +44,8 @@
         "remove": "Remove code",
         "success": "Coupon applied successfully",
         "invalid": "Invalid coupon code",
-        "expired": "Coupon code has expired"
+        "expired": "Coupon code has expired",
+        "discountOff": "{{amount}} off"
     },
 
     "toast": {

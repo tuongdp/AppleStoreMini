@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,30 +8,32 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
-const CONTACT_INFO = [
-    {
-        icon: MapPin,
-        label: "Địa chỉ",
-        value: "41/1 Khu phố 7, Phường 2, Đắk Lắk",
-    },
-    {
-        icon: Phone,
-        label: "Hotline",
-        value: "0562456055 (miễn phí)",
-    },
-    {
-        icon: Mail,
-        label: "Email",
-        value: "phuctuong123456@gmail.com",
-    },
-    {
-        icon: Clock,
-        label: "Giờ làm việc",
-        value: "8:00 – 21:00, tất cả các ngày",
-    },
-];
-
 export default function ContactPage() {
+    const { t } = useTranslation("common");
+
+    const CONTACT_INFO = [
+        {
+            icon: MapPin,
+            label: t("contact.info.address"),
+            value: t("contact.info.addressValue"),
+        },
+        {
+            icon: Phone,
+            label: t("contact.info.hotline"),
+            value: t("contact.info.hotlineValue"),
+        },
+        {
+            icon: Mail,
+            label: t("contact.info.email"),
+            value: t("contact.info.emailValue"),
+        },
+        {
+            icon: Clock,
+            label: t("contact.info.workingHours"),
+            value: t("contact.info.workingHoursValue"),
+        },
+    ];
+
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -45,7 +48,7 @@ export default function ContactPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        toast.success("Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
+        toast.success(t("contact.form.success"));
 
         setForm({
             name: "",
@@ -58,19 +61,17 @@ export default function ContactPage() {
     return (
         <div className="section-padding py-12">
             <div className="mx-auto max-w-5xl">
-                <Breadcrumb items={[{ label: "Liên hệ" }]} className="mb-6" />
+                <Breadcrumb items={[{ label: t("contact.breadcrumb") }]} className="mb-6" />
 
                 <h1 className="mb-8 text-3xl font-semibold text-foreground">
-                    Liên hệ với chúng tôi
+                    {t("contact.title")}
                 </h1>
 
                 <div className="grid gap-8 md:grid-cols-2">
                     {/* Contact info */}
                     <div className="space-y-6">
                         <p className="text-sm leading-relaxed text-muted-foreground">
-                            Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ qua
-                            các kênh bên dưới hoặc để lại tin nhắn, chúng tôi sẽ
-                            phản hồi trong vòng 24 giờ.
+                            {t("contact.subtitle")}
                         </p>
 
                         <div className="space-y-4">
@@ -101,15 +102,15 @@ export default function ContactPage() {
                         className="space-y-4 rounded-2xl border border-border bg-card p-6"
                     >
                         <h2 className="text-base font-medium text-foreground">
-                            Gửi tin nhắn
+                            {t("contact.sendMessage")}
                         </h2>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="name">Họ và tên</Label>
+                            <Label htmlFor="name">{t("contact.form.name")}</Label>
                             <Input
                                 id="name"
                                 name="name"
-                                placeholder="Nguyễn Văn A"
+                                placeholder={t("contact.form.namePlaceholder")}
                                 value={form.name}
                                 onChange={handleChange}
                                 required
@@ -117,12 +118,12 @@ export default function ContactPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">{t("contact.form.email")}</Label>
                             <Input
                                 id="email"
                                 name="email"
                                 type="email"
-                                placeholder="email@example.com"
+                                placeholder={t("contact.form.emailPlaceholder")}
                                 value={form.email}
                                 onChange={handleChange}
                                 required
@@ -130,23 +131,23 @@ export default function ContactPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="phone">Số điện thoại</Label>
+                            <Label htmlFor="phone">{t("contact.form.phone")}</Label>
                             <Input
                                 id="phone"
                                 name="phone"
                                 type="tel"
-                                placeholder="0901234567"
+                                placeholder={t("contact.form.phonePlaceholder")}
                                 value={form.phone}
                                 onChange={handleChange}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="message">Nội dung</Label>
+                            <Label htmlFor="message">{t("contact.form.message")}</Label>
                             <Textarea
                                 id="message"
                                 name="message"
-                                placeholder="Nhập nội dung bạn muốn liên hệ..."
+                                placeholder={t("contact.form.messagePlaceholder")}
                                 rows={4}
                                 value={form.message}
                                 onChange={handleChange}
@@ -155,7 +156,7 @@ export default function ContactPage() {
                         </div>
 
                         <Button type="submit" className="w-full rounded-full">
-                            Gửi tin nhắn
+                            {t("contact.form.submit")}
                         </Button>
                     </form>
                 </div>

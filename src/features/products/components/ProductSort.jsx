@@ -19,21 +19,7 @@ export default function ProductSort({ value, onChange }) {
             <SelectContent>
                 {SORT_OPTIONS.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
-                        {t(
-                            `sort.${
-                                opt.value === "featured"
-                                    ? "featured"
-                                    : opt.value === "newest"
-                                      ? "newest"
-                                      : opt.value === "price_asc"
-                                        ? "priceAsc"
-                                        : opt.value === "price_desc"
-                                          ? "priceDesc"
-                                          : opt.value === "best_seller"
-                                            ? "bestSeller"
-                                            : "rating"
-                            }`,
-                        )}
+                        {t(opt.label)}
                     </SelectItem>
                 ))}
             </SelectContent>

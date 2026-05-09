@@ -61,7 +61,8 @@
         "trackOrder": "Track order",
         "continueShopping": "Continue shopping",
         "placeOrder": "Order placed successfully",
-        "days": "business days"
+        "days": "business days",
+        "moreItems": "+{{count}} more items"
     },
 
     "momoPayNow": "Pay with MoMo",

@@ -119,7 +119,7 @@ function SidebarContent({ onClose }) {
                     onClick={onClose}
                 >
                     <Store className="h-4 w-4 shrink-0" />
-                    Về trang Store
+                    {t("sidebar.backToStore")}
                 </Link>
 
                 <Separator className="my-1" />
@@ -148,7 +148,7 @@ function SidebarContent({ onClose }) {
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                 >
                     <LogOut className="h-4 w-4 shrink-0" />
-                    Đăng xuất
+                    {t("sidebar.logout")}
                 </button>
             </div>
         </div>
@@ -156,6 +156,7 @@ function SidebarContent({ onClose }) {
 }
 
 export default function AdminLayout() {
+    const { t } = useTranslation("common");
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
@@ -189,7 +190,7 @@ export default function AdminLayout() {
 
                     {/* Title — desktop */}
                     <span className="hidden text-sm font-medium text-muted-foreground md:block">
-                        Admin Panel
+                        Admin {t("nav.admin")}
                     </span>
 
                     {/* Actions */}

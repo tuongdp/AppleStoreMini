@@ -121,7 +121,7 @@ export default function ProductListPage() {
                                         key={opt.value}
                                         value={opt.value}
                                     >
-                                        {opt.label}
+                                    {t(opt.label)}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

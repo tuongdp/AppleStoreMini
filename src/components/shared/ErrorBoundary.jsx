@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { Button } from "@/components/ui/button";
+import i18next from "i18next";
 
 export default class ErrorBoundary extends Component {
     constructor(props) {
@@ -21,11 +22,11 @@ export default class ErrorBoundary extends Component {
                 <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
                     <div className="mb-4 text-5xl">⚠️</div>
                     <h2 className="mb-2 text-xl font-semibold text-foreground">
-                        Đã xảy ra lỗi
+                        {i18next.t("error.unexpected", { ns: "common" })}
                     </h2>
                     <p className="mb-8 max-w-sm text-sm text-muted-foreground">
                         {this.state.error?.message ||
-                            "Có lỗi không mong muốn xảy ra."}
+                            i18next.t("error.unexpectedDesc", { ns: "common" })}
                     </p>
                     <Button
                         className="rounded-full"
@@ -34,7 +35,7 @@ export default class ErrorBoundary extends Component {
                             window.location.href = "/";
                         }}
                     >
-                        Về trang chủ
+                        {i18next.t("btn.goHome", { ns: "common" })}
                     </Button>
                 </div>
             );
