@@ -219,6 +219,7 @@ export const {
     useUpdateVariantMutation,
     useDeleteVariantMutation,
     useCheckVariantOrdersQuery,
+    useLazyCheckVariantOrdersQuery,
     useUploadEditorImageMutation,
     useGetOptionsQuery,
     useCreateOptionMutation,

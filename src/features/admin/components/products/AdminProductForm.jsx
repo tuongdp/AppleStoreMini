@@ -29,7 +29,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetAdminCategoriesQuery, useDeleteVariantMutation } from "@/store/api/productsApi";
+import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery } from "@/store/api/productsApi";
 import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
@@ -57,6 +57,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
     const [blockedVariant, setBlockedVariant] = useState(null);
 
     const [deleteVariant] = useDeleteVariantMutation();
+    const [checkOrders] = useLazyCheckVariantOrdersQuery();
 
     const [newOptionType, setNewOptionType] = useState("COLOR");
     const [newOptionValue, setNewOptionValue] = useState("");
@@ -226,11 +227,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
         const variant = variants[idx];
         if (variant.id) {
             try {
-                const res = await fetch(
-                    `${import.meta.env.VITE_API_URL}/admin/variants/${variant.id}/check-orders`
-                );
-                const json = await res.json();
-                if (json.data?.hasOrders) {
+                const result = await checkOrders(variant.id).unwrap();
+                if (result?.hasOrders) {
                     setBlockedVariant(idx);
                     return;
                 }
