@@ -32,7 +32,7 @@ export default function AdminCouponList() {
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCouponStatusMutation();
 
-    const coupons = data?.data || [];
+    const coupons = data?.coupons || [];
 
     const handleDelete = async () => {
         try {
