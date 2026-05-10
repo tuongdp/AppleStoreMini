@@ -63,11 +63,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [uploadImage] = useUploadEditorImageMutation();
     const [createProductApi] = useCreateProductMutation();
 
-    useGetGlobalOptionsQuery("COLOR");
-    const { data: gStorages = [] } = useGetGlobalOptionsQuery("STORAGE");
-    const { data: gRams = [] } = useGetGlobalOptionsQuery("RAM");
-    const { data: gEditions = [] } = useGetGlobalOptionsQuery("EDITION");
-
     const colorOptions = useMemo(() => options.filter((o) => o.type === "COLOR"), [options]);
     const storageOptions = useMemo(() => options.filter((o) => o.type === "STORAGE"), [options]);
     const ramOptions = useMemo(() => options.filter((o) => o.type === "RAM"), [options]);
@@ -181,9 +176,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const saveVariant = async (data) => {
         const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
         if (!color.trim()) { toast.error(t("productForm.toast.colorRequired")); return; }
-        if ((storageOptions.length > 0 || gStorages.length > 0) && !storage.trim()) { toast.error(t("productForm.toast.storageRequired")); return; }
-        if ((ramOptions.length > 0 || gRams.length > 0) && !ram.trim()) { toast.error(t("productForm.toast.ramRequired")); return; }
-        if ((editionOptions.length > 0 || gEditions.length > 0) && !edition.trim()) { toast.error(t("productForm.toast.editionRequired")); return; }
         if (!price || Number(price) < 1000) { toast.error(t("productForm.toast.priceMinError")); return; }
         if (salePrice && Number(salePrice) >= Number(price)) { toast.error(t("productForm.toast.salePriceError")); return; }
 
@@ -734,7 +726,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                 )}
                 {allStorageOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.storageLabel")} <span className="text-destructive">*</span></Label>
+                        <Label className="text-xs">{t("productForm.storageLabel")}</Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allStorageOptions}
@@ -747,7 +739,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                 )}
                 {allRamOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.ramLabel")} <span className="text-destructive">*</span></Label>
+                        <Label className="text-xs">{t("productForm.ramLabel")}</Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allRamOptions}
@@ -760,7 +752,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                 )}
                 {allEditionOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.editionLabel")} <span className="text-destructive">*</span></Label>
+                        <Label className="text-xs">{t("productForm.editionLabel")}</Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allEditionOptions}
