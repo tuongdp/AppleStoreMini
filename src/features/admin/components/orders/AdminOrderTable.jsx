@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
+import { t } from "@/i18n/useTranslation";
 import { Search, Eye } from "lucide-react";
 import {
   useGetAllOrdersQuery,
