@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Coins, Gift, Copy, Check, ChevronRight, ArrowLeft, History, Sparkles } from "lucide-react";
 import { useGetMyPointsQuery, useGetRedeemPackagesQuery, useGetPointsHistoryQuery, useRedeemPointsMutation } from "@/store/api/pointsApi";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
