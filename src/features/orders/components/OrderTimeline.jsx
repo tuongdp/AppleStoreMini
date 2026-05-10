@@ -24,7 +24,7 @@ export default function OrderTimeline({ order }) {
         return <CancelledTimeline order={order} />;
     }
 
-    const currentIndex = TIMELINE_STEPS.indexOf(order.status);
+    const currentIndex = TIMELINE_STEPS.indexOf((order.status || "").toLowerCase());
 
     return (
         <div className="space-y-0">

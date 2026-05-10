@@ -209,7 +209,7 @@ export default function AdminOrderTable() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {NEXT_STATUS[order.status] && (
+                      {NEXT_STATUS[(order.status || "").toLowerCase()] && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -218,13 +218,13 @@ export default function AdminOrderTable() {
                           onClick={() =>
                             handleUpdateStatus(
                               order._id || order.id,
-                              NEXT_STATUS[order.status],
+                              NEXT_STATUS[(order.status || "").toLowerCase()],
                             )
                           }
                         >
                           {updatingId === (order._id || order.id)
                             ? t("table.loading")
-                            : t(`status.${NEXT_STATUS[order.status]}`, {
+                            : t(`status.${NEXT_STATUS[(order.status || "").toLowerCase()]}`, {
                                 ns: "order",
                               })}
                         </Button>

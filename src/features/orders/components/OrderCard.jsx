@@ -20,7 +20,7 @@ export default function OrderCard({ order }) {
 
     const visibleItems = order.items?.slice(0, 3) || [];
     const remainCount = (order.items?.length || 0) - visibleItems.length;
-    const isDelivered = order.status === ORDER_STATUS.DELIVERED;
+    const isDelivered = (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED;
     const deliveredItems = isDelivered ? order.items || [] : [];
 
     // Chưa review = chưa có isReviewed từ server VÀ chưa review trong session
