@@ -98,11 +98,13 @@ export function useCheckout() {
 
             setCreatedOrder(order);
             dispatch(clearCart());
-            setIsSuccess(true);
 
             if (checkoutData.paymentMethod === PAYMENT_METHODS.MOMO) {
                 await handleMoMoPayment(order.id);
-            } else {
+            }
+
+            setIsSuccess(true);
+            if (checkoutData.paymentMethod === PAYMENT_METHODS.COD) {
                 toast.success(t("success.placeOrder"));
             }
         } catch (error) {
