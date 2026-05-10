@@ -153,16 +153,16 @@ export default function AppleCarePage() {
               <div className="aspect-4/2.5 overflow-hidden">
                 <img
                   src={service.image}
-                  alt={(APPLECARE_MAP[service.nameKey] || service.nameKey)}
+                  alt={APPLECARE_MAP[`services.${service.nameKey}.name`] || service.nameKey}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="p-4">
                 <h2 className="mb-1.5 text-sm font-medium text-foreground">
-                  {(APPLECARE_MAP[service.nameKey] || service.nameKey)}
+                  {APPLECARE_MAP[`services.${service.nameKey}.name`] || service.nameKey}
                 </h2>
                 <p className="mb-3 text-xs text-muted-foreground">
-                  {(APPLECARE_MAP[service.nameKey] || service.nameKey)}
+                  {APPLECARE_MAP[`services.${service.nameKey}.desc`] || ""}
                 </p>
                 <a
                   href="#"
@@ -196,10 +196,10 @@ export default function AppleCarePage() {
                   <Icon className="h-5 w-5 text-foreground" />
                 </div>
                 <h3 className="mb-1.5 text-sm font-medium text-foreground">
-                  {(APPLECARE_MAP[reason.key] || reason.key)}
+                  {APPLECARE_MAP[`reasons.${reason.key}.title`] || reason.key}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {(APPLECARE_MAP[reason.key] || reason.key)}
+                  {APPLECARE_MAP[`reasons.${reason.key}.desc`] || ""}
                 </p>
               </div>
             );
@@ -224,15 +224,15 @@ export default function AppleCarePage() {
               <div className="mb-3 aspect-square w-full overflow-hidden rounded-xl bg-muted">
                 <img
                   src={item.image}
-                  alt={(APPLECARE_MAP[item.key] || item.key)}
+                  alt={APPLECARE_MAP[`accessories.${item.key}.name`] || item.key}
                   className="h-full w-full object-cover"
                 />
               </div>
               <h3 className="mb-1 text-sm font-medium text-foreground">
-                {(APPLECARE_MAP[item.key] || item.key)}
+                {APPLECARE_MAP[`accessories.${item.key}.name`] || item.key}
               </h3>
               <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                {(APPLECARE_MAP[item.key] || item.key)}
+                {APPLECARE_MAP[`accessories.${item.key}.tag`] || ""}
               </span>
             </div>
           ))}
@@ -260,10 +260,10 @@ export default function AppleCarePage() {
                   <Icon className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="mb-1 text-sm font-medium text-foreground">
-                  {(APPLECARE_MAP[step.key] || step.key)}
+                  {APPLECARE_MAP[`process.${step.key}.title`] || step.key}
                 </h3>
                 <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                  {(APPLECARE_MAP[step.key] || step.key)}
+                  {APPLECARE_MAP[`process.${step.key}.tag`] || ""}
                 </span>
               </div>
             );
