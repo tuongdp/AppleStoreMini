@@ -5,7 +5,7 @@ import { Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import QuantityInput from "@/components/shared/QuantityInput";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { removeFromCart, updateQuantity } from "@/store/cartSlice";
+import { removeFromCart, updateQuantity, getEffectivePrice } from "@/store/cartSlice";
 import { ROUTES } from "@/lib/constants";
 
 const getFirstImage = (images) => {
@@ -34,9 +34,7 @@ export default function CartTableItem({ item, isLast }) {
     dispatch(updateQuantity({ variantId, quantity }));
   };
 
-  const effectivePrice = variant
-    ? (variant.salePrice || variant.price)
-    : (product?.salePrice || product?.price);
+  const effectivePrice = getEffectivePrice(product, variant);
 
   const firstImage = getFirstImage(product?.images);
 

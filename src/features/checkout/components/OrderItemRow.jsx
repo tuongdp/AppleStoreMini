@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
+import { getEffectivePrice } from "@/store/cartSlice";
 import { ROUTES } from "@/lib/constants";
 
 export default function OrderItemRow({ item, isLast }) {
-    const unitPrice = item.price ?? item.product?.price ?? 0;
-    const lineTotal = unitPrice * item.quantity;
     const product = item.product || item.variant?.product;
+    const variant = item.variant;
+    const unitPrice = getEffectivePrice(product, variant);
+    const lineTotal = unitPrice * item.quantity;
     const color = item.color || item.selectedColor || item.variant?.color || "";
     const storage = item.storage || item.selectedStorage || item.variant?.storage || "";
     const ram = item.ram || item.selectedRam || item.variant?.ram || "";

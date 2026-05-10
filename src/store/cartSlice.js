@@ -4,11 +4,23 @@ const initialState = {
     items: [],
 };
 
-const getEffectivePrice = (product) => {
-    if (!product) return 0;
-    const sale = product.salePrice;
-    const original = product.price ?? 0;
-    return sale && sale > 0 && sale < original ? sale : original;
+export const getEffectivePrice = (product, variant) => {
+    const target = variant || product;
+    if (!target) return 0;
+
+    const flashSale = target.flashSale?.salePrice;
+    const flashOriginal = target.flashSale?.originalPrice || target.price;
+    if (flashSale && flashSale > 0 && flashSale < flashOriginal) {
+        return flashSale;
+    }
+
+    const sale = target.salePrice;
+    const original = target.price ?? 0;
+    if (sale && sale > 0 && sale < original) {
+        return sale;
+    }
+
+    return original;
 };
 
 const cartSlice = createSlice({
@@ -89,11 +101,9 @@ export const selectCartItems = (state) => state.cart.items;
 export const selectCartTotal = (state) =>
     state.cart.items.reduce(
         (total, item) => {
-            const p = item.product || item.variant?.product;
-            const price = item.variant
-                ? (item.variant.salePrice || item.variant.price)
-                : (p?.salePrice || p?.price);
-            return total + (price || 0) * item.quantity;
+            const product = item.product || item.variant?.product;
+            const price = getEffectivePrice(product, item.variant);
+            return total + price * item.quantity;
         },
         0,
     );
@@ -105,12 +115,26 @@ export const selectCartIsEmpty = (state) => state.cart.items.length === 0;
 
 export const selectCartSavings = (state) =>
     state.cart.items.reduce((total, item) => {
-        const p = item.product || item.variant?.product;
-        const v = item.variant;
-        const original = v?.price || p?.price || 0;
-        const sale = v?.salePrice || p?.salePrice;
-        if (sale && sale > 0 && sale < original) {
-            return total + (original - sale) * item.quantity;
+        const product = item.product || item.variant?.product;
+        const variant = item.variant;
+        const target = variant || product;
+        if (!target) return total;
+
+        const flashOriginal = target.flashSale?.originalPrice || target.price;
+        const flashSale = target.flashSale?.salePrice;
+        const salePrice = target.salePrice;
+        const original = target.price ?? 0;
+
+        const effectiveOriginal = flashSale && flashSale > 0 && flashSale < flashOriginal
+            ? flashOriginal
+            : original;
+
+        const effectiveSale = flashSale && flashSale > 0 && flashSale < flashOriginal
+            ? flashSale
+            : (salePrice && salePrice > 0 && salePrice < original ? salePrice : null);
+
+        if (effectiveSale && effectiveSale < effectiveOriginal) {
+            return total + (effectiveOriginal - effectiveSale) * item.quantity;
         }
         return total;
     }, 0);

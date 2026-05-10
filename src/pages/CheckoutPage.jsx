@@ -12,6 +12,7 @@ import PaymentStep from "@/features/checkout/components/PaymentStep";
 import ConfirmStep from "@/features/checkout/components/ConfirmStep";
 import OrderSuccess from "@/features/checkout/components/OrderSuccess";
 import CouponInput from "@/features/checkout/components/CouponInput";
+import { getEffectivePrice } from "@/store/cartSlice";
 import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
@@ -119,12 +120,7 @@ export default function CheckoutPage() {
                             {items.map((item, index) => {
                                 const product = item.product || item.variant?.product;
                                 const variant = item.variant;
-                                const salePrice = variant?.salePrice || product?.salePrice;
-                                const price = variant?.price || product?.price;
-                                const effectivePrice =
-                                    salePrice && salePrice < price
-                                        ? salePrice
-                                        : price;
+                                const effectivePrice = getEffectivePrice(product, variant);
                                 const color = variant?.color || product?.color || "";
                                 const storage = variant?.storage || product?.storage || "";
                                 const variantId = item.variantId || product?.variantId || index;
