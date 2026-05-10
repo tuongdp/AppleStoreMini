@@ -9,7 +9,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ORDER_STATUS } from "@/lib/constants";
 
@@ -26,19 +25,18 @@ const STATUS_OPTIONS = [
 
 export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
     const { t } = useTranslation("admin");
-    const [selected, setSelected] = useState(currentStatus);
-    const [note, setNote] = useState("");
+    const [selected, setSelected] = useState((currentStatus || "").toLowerCase());
     const [updateStatus, { isLoading }] = useUpdateOrderStatusMutation();
 
     useEffect(() => {
-        setSelected(currentStatus);
+        setSelected((currentStatus || "").toLowerCase());
     }, [currentStatus]);
 
     const handleUpdate = async () => {
         if (selected === currentStatus) return;
 
         try {
-            await updateStatus({ id: orderId, status: selected, note: note.trim() || undefined }).unwrap();
+            await updateStatus({ id: orderId, status: selected }).unwrap();
             toast.success(t("order.updateSuccess"));
         } catch {
             toast.error(t("order.updateFailed"));
@@ -47,36 +45,27 @@ export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
     };
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center gap-2">
-                <Select value={selected} onValueChange={setSelected}>
-                    <SelectTrigger className="w-44 rounded-full">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {STATUS_OPTIONS.map((status) => (
-                            <SelectItem key={status} value={status}>
-                                {t(`status.${status}`, { ns: "order" })}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Button
-                    size="sm"
-                    className="rounded-full"
-                    onClick={handleUpdate}
-                    disabled={isLoading || selected === currentStatus}
-                >
-                    {isLoading ? t("table.loading") : t("order.updateStatus")}
-                </Button>
-            </div>
-            <Textarea
-                placeholder={t("order.updateNotePlaceholder", { defaultValue: "Ghi chú cập nhật trạng thái..." })}
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="min-h-[60px] text-sm"
-                rows={2}
-            />
+        <div className="flex items-center gap-2">
+            <Select value={selected} onValueChange={setSelected}>
+                <SelectTrigger className="w-44 rounded-full">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    {STATUS_OPTIONS.map((status) => (
+                        <SelectItem key={status} value={status}>
+                            {t(`status.${status}`, { ns: "order" })}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            <Button
+                size="sm"
+                className="rounded-full"
+                onClick={handleUpdate}
+                disabled={isLoading || selected === currentStatus}
+            >
+                {isLoading ? t("table.loading") : t("order.updateStatus")}
+            </Button>
         </div>
     );
 }
