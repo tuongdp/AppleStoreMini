@@ -65,7 +65,7 @@ function CountdownTimer({ endTime }) {
                         {pad(remaining.d)}
                     </span>
                     <span className="mr-0.5 text-[10px] font-medium text-amber-600/70 dark:text-amber-400/70">
-                        {tc("timeAgo.day")}
+                        {"ngày"}
                     </span>
                 </>
             )}
