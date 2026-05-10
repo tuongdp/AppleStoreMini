@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useEffect, useState } from "react";
 import { useUpdateOrderStatusMutation } from "@/store/api/ordersApi";
 import {
@@ -12,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ORDER_STATUS } from "@/lib/constants";
 
+const STATUS_MAP = {
+  "empty": "Không có dữ liệu",
+  "error": "Có lỗi xảy ra",
+  "loading": "Đang tải...",
+  "notFound": "Không tìm thấy",
+  "success": "Thành công"
+};
 const STATUS_OPTIONS = [
     ORDER_STATUS.PENDING,
     ORDER_STATUS.CONFIRMED,
@@ -52,7 +58,7 @@ export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
                 <SelectContent>
                     {STATUS_OPTIONS.map((status) => (
                         <SelectItem key={status} value={status}>
-                            {t(`status.${status}`, { ns: "order" })}
+                            {(STATUS_MAP[status] || status)}
                         </SelectItem>
                     ))}
                 </SelectContent>

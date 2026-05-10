@@ -1,8 +1,17 @@
-import { t } from "@/i18n/useTranslation";
 import { Check, Clock } from "lucide-react";
 import { cn, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";
 
+const TIMELINE_MAP = {
+  "cancelled": "Đơn hàng đã bị huỷ",
+  "confirmed": "Đơn hàng đã được xác nhận",
+  "delivered": "Đã giao hàng thành công",
+  "pending": "Đơn hàng đã được đặt",
+  "processing": "Đang chuẩn bị hàng",
+  "refunded": "Hoàn tiền thành công",
+  "refunding": "Đang xử lý hoàn tiền",
+  "shipping": "Đơn hàng đang được giao"
+};
 // Thứ tự các bước trong timeline
 const TIMELINE_STEPS = [
     ORDER_STATUS.PENDING,
@@ -89,7 +98,7 @@ export default function OrderTimeline({ order }) {
                                     isPending && "font-normal text-muted-foreground",
                                 )}
                             >
-                                {t(`timeline.${step}`)}
+                                {(TIMELINE_MAP[step] || step)}
                             </p>
                             {timestamp && (
                                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -164,7 +173,7 @@ function CancelledTimeline({ order }) {
                                     step.current && "text-red-500",
                                 )}
                             >
-                                {t(`timeline.${step.status}`)}
+                                {(TIMELINE_MAP[step.status] || step.status)}
                             </p>
                             {step.timestamp && (
                                 <p className="mt-0.5 text-xs text-muted-foreground">

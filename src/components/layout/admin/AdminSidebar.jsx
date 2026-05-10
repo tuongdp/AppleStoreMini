@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -17,6 +16,22 @@ import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { logout, selectCurrentUser } from "@/store/authSlice";
 
+const SIDEBAR_MAP = {
+  "backToStore": "Về trang Store",
+  "banners": "Banner",
+  "categories": "Danh mục",
+  "coupons": "Khuyến mãi",
+  "dashboard": "Tổng quan",
+  "flashSales": "Flash Sale",
+  "logout": "Đăng xuất",
+  "news": "Tin tức",
+  "options": "Tùy chọn",
+  "orders": "Đơn hàng",
+  "products": "Sản phẩm",
+  "reviews": "Đánh giá",
+  "settings": "Cài đặt",
+  "users": "Người dùng"
+};
 export const ADMIN_NAV_ITEMS = [
     {
         key: "dashboard",
@@ -78,7 +93,7 @@ export default function AdminSidebar({ onClose }) {
                     >
                         <span className="flex items-center gap-3">
                             <item.icon className="h-4 w-4 shrink-0" />
-                            {t(`sidebar.${item.key}`)}
+                            {(SIDEBAR_MAP[item.key] || item.key)}
                         </span>
                         <ChevronRight className="h-3.5 w-3.5 opacity-40" />
                     </NavLink>

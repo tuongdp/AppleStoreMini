@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Package, MapPin, CreditCard } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
@@ -8,6 +7,14 @@ import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 
+const PAYMENT_MAP = {
+  "cod": "Thanh toán khi nhận hàng",
+  "momo": "MoMo",
+  "paid": "Đã thanh toán",
+  "refunded": "Đã hoàn tiền",
+  "unknown": "Không xác định",
+  "unpaid": "Chưa thanh toán"
+};
 export default function AdminOrderDetail({ order }) {
     // ✅ BE lưu shipping address dưới dạng flat fields (giống OrderDetail user)
     const shippingInfo = {
@@ -169,9 +176,7 @@ export default function AdminOrderDetail({ order }) {
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-foreground">
-                                {t(`payment.${order.paymentMethod}`, {
-                                    ns: "order",
-                                })}
+                                {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
                             </span>
                             <span
                                 className={

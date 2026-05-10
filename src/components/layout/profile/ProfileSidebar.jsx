@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
@@ -8,6 +7,22 @@ import ProfileSidebarItem from "./ProfileSidebarItem";
 import { logout, selectCurrentUser } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
+const SIDEBAR_MAP = {
+  "backToStore": "Về trang Store",
+  "banners": "Banner",
+  "categories": "Danh mục",
+  "coupons": "Khuyến mãi",
+  "dashboard": "Tổng quan",
+  "flashSales": "Flash Sale",
+  "logout": "Đăng xuất",
+  "news": "Tin tức",
+  "options": "Tùy chọn",
+  "orders": "Đơn hàng",
+  "products": "Sản phẩm",
+  "reviews": "Đánh giá",
+  "settings": "Cài đặt",
+  "users": "Người dùng"
+};
 const NAV_ITEMS = [
     {
         key: "profile",
@@ -81,7 +96,7 @@ export default function ProfileSidebar({ onClose }) {
                         key={item.key}
                         href={item.href}
                         icon={item.icon}
-                        label={t(`sidebar.${item.key}`)}
+                        label={(SIDEBAR_MAP[item.key] || item.key)}
                         end={item.end}
                         onClick={onClose}
                     />

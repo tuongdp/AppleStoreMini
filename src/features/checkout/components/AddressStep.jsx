@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
@@ -54,9 +53,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     </FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder={t(
-                                                "address.fullNamePlaceholder",
-                                            )}
+                                            placeholder={"Nguyễn Văn A"}
                                             {...field}
                                         />
                                     </FormControl>
@@ -75,9 +72,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     <FormControl>
                                         <Input
                                             type="tel"
-                                            placeholder={t(
-                                                "address.phonePlaceholder",
-                                            )}
+                                            placeholder={"0901234567"}
                                             {...field}
                                         />
                                     </FormControl>
@@ -97,9 +92,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                 </FormLabel>
                                 <FormControl>
                                     <Textarea
-                                        placeholder={t(
-                                            "address.addressPlaceholder",
-                                        )}
+                                        placeholder={"Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"}
                                         rows={3}
                                         {...field}
                                     />
@@ -119,9 +112,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                 </FormLabel>
                                 <FormControl>
                                     <Textarea
-                                        placeholder={t(
-                                            "address.notePlaceholder",
-                                        )}
+                                        placeholder={"Ghi chú thêm (tuỳ chọn)"}
                                         rows={2}
                                         {...field}
                                     />

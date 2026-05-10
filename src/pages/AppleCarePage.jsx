@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import {
   Wrench,
@@ -31,6 +30,66 @@ import careImg3 from "@/assets/images/care/img_3-min.jpg";
 import careImg4 from "@/assets/images/care/img_4-min.jpg";
 import careImg5 from "@/assets/images/care/img_5-min.jpg";
 
+const APPLECARE_MAP = {
+  "accessories.airtag.name": "AirTag chính hãng Apple",
+  "accessories.airtag.tag": "AirTag",
+  "accessories.appletv.name": "Apple TV chính hãng Apple",
+  "accessories.appletv.tag": "Apple TV",
+  "accessories.cables.name": "Cáp, sạc chính hãng Apple",
+  "accessories.cables.tag": "Cáp | Sạc",
+  "accessories.cases.name": "Ốp lưng, bao da chính hãng Apple",
+  "accessories.cases.tag": "Ốp lưng | Bao da",
+  "accessories.earphones.name": "Tai nghe chính hãng Apple",
+  "accessories.earphones.tag": "Tai nghe",
+  "accessories.keyboard.name": "Bàn phím chính hãng Apple",
+  "accessories.keyboard.tag": "Bàn phím",
+  "accessories.mouse.name": "Chuột, trackpad chính hãng Apple",
+  "accessories.mouse.tag": "Chuột | Trackpad",
+  "accessories.watchStraps.name": "Dây Apple Watch chính hãng",
+  "accessories.watchStraps.tag": "Dây Apple Watch",
+  "accessoriesNote": "Lưu ý: Các sản phẩm được trưng bày tại AppleCare. Quý khách vui lòng đến và mua trực tiếp với nhiều khuyến mãi hấp dẫn.",
+  "accessoriesTitle": "Phụ kiện chính hãng Apple tại AppleCare",
+  "breadcrumb": "Dịch vụ sửa chữa AppleCare",
+  "centerDesc": "Tại Trung tâm bảo hành AppleCare, khách hàng yêu mến hệ sinh thái Apple sẽ trải nghiệm đầy đủ và đa dạng nhất các dịch vụ bảo hành chính hãng Apple từ iPhone, iPad đến những chiếc tai nghe AirPods... trong một không gian đẳng cấp và hiện đại.",
+  "centerTitle": "Trung tâm bảo hành AppleCare - Đẳng cấp khác biệt",
+  "legal": "Pháp lý",
+  "process.0.tag": "1. Kiểm tra tổng quan trước sửa chữa",
+  "process.0.title": "Kiểm tra tổng quan trước sửa chữa",
+  "process.1.tag": "2. Đặt linh kiện",
+  "process.1.title": "Đặt linh kiện chính hãng Apple",
+  "process.2.tag": "3. Sửa chữa | Thay thế",
+  "process.2.title": "Tiến hành sửa chữa và thay thế",
+  "process.3.tag": "4. Kiểm tra tổng quan sau sửa chữa",
+  "process.3.title": "Kiểm tra tổng quan sau sửa chữa",
+  "process.4.tag": "5. Trả sản phẩm",
+  "process.4.title": "Trả sản phẩm lại cho khách hàng",
+  "processNote": "Điều khoản bảo hành sửa chữa Apple toàn cầu:",
+  "processTitle": "Quy trình bảo hành AppleCare",
+  "reasons.authentic.desc": "AppleCare là trung tâm dịch vụ ủy quyền chính thức của Apple. Tất cả linh kiện sửa chữa tại AppleCare đều do Apple cung cấp chính hãng.",
+  "reasons.authentic.title": "Chính hãng Apple",
+  "reasons.certified.desc": "100% đội ngũ chuyên viên và kỹ thuật viên của AppleCare được đào tạo và cấp chứng chỉ bởi Apple.",
+  "reasons.certified.title": "Chứng chỉ Apple",
+  "reasons.premium.desc": "Với phương châm lấy khách hàng làm trọng tâm, AppleCare cam kết mang đến chất lượng phục vụ vượt trội dành cho khách hàng.",
+  "reasons.premium.title": "Dịch vụ đẳng cấp",
+  "reasons.saving.desc": "AppleCare thường xuyên có những chương trình ưu đãi giúp khách hàng tiết kiệm hơn khi sửa chữa sản phẩm.",
+  "reasons.saving.title": "Tiết kiệm",
+  "reasons.secure.desc": "Thông tin khách hàng cung cấp được bảo vệ nghiêm ngặt theo tiêu chuẩn kiểm soát cao nhất.",
+  "reasons.secure.title": "Bảo mật tuyệt đối",
+  "reasonsTitle": "Lý do lựa chọn AppleCare",
+  "repair": "Sửa chữa",
+  "services.airpods.desc": "Đổi máy AirPods",
+  "services.airpods.name": "Sửa chữa AirPods",
+  "services.ipad.desc": "Đổi máy iPad",
+  "services.ipad.name": "Sửa chữa iPad",
+  "services.iphone.desc": "Gửi đi xưởng sửa chữa Apple Màn hình iPhone và Kính lưng iPhone Pin iPhone",
+  "services.iphone.name": "Sửa chữa iPhone",
+  "services.macbook.desc": "Logic Board MacBook Pin MacBook Màn hình MacBook",
+  "services.macbook.name": "Sửa chữa Macbook",
+  "services.watch.desc": "Đổi máy Watch",
+  "services.watch.name": "Sửa chữa Watch",
+  "title": "Dịch vụ sửa chữa AppleCare",
+  "viewPricing": "Xem bảng giá tham khảo →"
+};
 const CARE_IMAGES = [careImg1, careImg2, careImg3, careImg4, careImg5];
 
 export default function AppleCarePage() {
@@ -94,16 +153,16 @@ export default function AppleCarePage() {
               <div className="aspect-4/2.5 overflow-hidden">
                 <img
                   src={service.image}
-                  alt={t(`appleCare.services.${service.nameKey}.name`)}
+                  alt={(APPLECARE_MAP[service.nameKey] || service.nameKey)}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
               <div className="p-4">
                 <h2 className="mb-1.5 text-sm font-medium text-foreground">
-                  {t(`appleCare.services.${service.nameKey}.name`)}
+                  {(APPLECARE_MAP[service.nameKey] || service.nameKey)}
                 </h2>
                 <p className="mb-3 text-xs text-muted-foreground">
-                  {t(`appleCare.services.${service.nameKey}.desc`)}
+                  {(APPLECARE_MAP[service.nameKey] || service.nameKey)}
                 </p>
                 <a
                   href="#"
@@ -137,10 +196,10 @@ export default function AppleCarePage() {
                   <Icon className="h-5 w-5 text-foreground" />
                 </div>
                 <h3 className="mb-1.5 text-sm font-medium text-foreground">
-                  {t(`appleCare.reasons.${reason.key}.title`)}
+                  {(APPLECARE_MAP[reason.key] || reason.key)}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  {t(`appleCare.reasons.${reason.key}.desc`)}
+                  {(APPLECARE_MAP[reason.key] || reason.key)}
                 </p>
               </div>
             );
@@ -165,15 +224,15 @@ export default function AppleCarePage() {
               <div className="mb-3 aspect-square w-full overflow-hidden rounded-xl bg-muted">
                 <img
                   src={item.image}
-                  alt={t(`appleCare.accessories.${item.key}.name`)}
+                  alt={(APPLECARE_MAP[item.key] || item.key)}
                   className="h-full w-full object-cover"
                 />
               </div>
               <h3 className="mb-1 text-sm font-medium text-foreground">
-                {t(`appleCare.accessories.${item.key}.name`)}
+                {(APPLECARE_MAP[item.key] || item.key)}
               </h3>
               <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                {t(`appleCare.accessories.${item.key}.tag`)}
+                {(APPLECARE_MAP[item.key] || item.key)}
               </span>
             </div>
           ))}
@@ -201,10 +260,10 @@ export default function AppleCarePage() {
                   <Icon className="h-6 w-6 text-foreground" />
                 </div>
                 <h3 className="mb-1 text-sm font-medium text-foreground">
-                  {t(`appleCare.process.${step.key}.title`)}
+                  {(APPLECARE_MAP[step.key] || step.key)}
                 </h3>
                 <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                  {t(`appleCare.process.${step.key}.tag`)}
+                  {(APPLECARE_MAP[step.key] || step.key)}
                 </span>
               </div>
             );

@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";
@@ -30,6 +29,21 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 
+const PAYMENT_MAP = {
+  "cod": "Thanh toán khi nhận hàng",
+  "momo": "MoMo",
+  "paid": "Đã thanh toán",
+  "refunded": "Đã hoàn tiền",
+  "unknown": "Không xác định",
+  "unpaid": "Chưa thanh toán"
+};
+const STATUS_MAP = {
+  "empty": "Không có dữ liệu",
+  "error": "Có lỗi xảy ra",
+  "loading": "Đang tải...",
+  "notFound": "Không tìm thấy",
+  "success": "Thành công"
+};
 const STATUS_OPTIONS = [
   { value: "all", labelKey: "status.all" },
   { value: ORDER_STATUS.PENDING, labelKey: "status.pending" },
@@ -185,7 +199,7 @@ export default function AdminOrderTable() {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground">
-                      {t(`payment.${order.paymentMethod}`, { ns: "order" })}
+                      {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
                     </span>
                     <p
                       className={
@@ -219,9 +233,7 @@ export default function AdminOrderTable() {
                         >
                           {updatingId === (order._id || order.id)
                             ? "Đang tải..."
-                            : t(`status.${NEXT_STATUS[(order.status || "").toLowerCase()]}`, {
-                                ns: "order",
-                              })}
+                            : (STATUS_MAP[NEXT_STATUS[(order.status || "").toLowerCase()]] || NEXT_STATUS[(order.status || "").toLowerCase()])}
                         </Button>
                       )}
                       <Button

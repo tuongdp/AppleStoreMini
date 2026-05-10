@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { MapPin, CreditCard, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,6 +6,14 @@ import OrderItemRow from "./OrderItemRow";
 import { formatPrice } from "@/lib/utils";
 import { PAYMENT_METHODS } from "@/lib/constants";
 
+const PAYMENT_MAP = {
+  "cod": "Thanh toán khi nhận hàng",
+  "momo": "MoMo",
+  "paid": "Đã thanh toán",
+  "refunded": "Đã hoàn tiền",
+  "unknown": "Không xác định",
+  "unpaid": "Chưa thanh toán"
+};
 export default function ConfirmStep({
     checkoutData,
     items,
@@ -53,7 +60,7 @@ export default function ConfirmStep({
                 </div>
                 <p className="text-sm text-foreground">
                     {paymentMethod
-                        ? t(`payment.${paymentMethod}`)
+                        ? (PAYMENT_MAP[paymentMethod] || paymentMethod)
                         : "Không xác định"}
                 </p>
                 {paymentMethod === PAYMENT_METHODS.COD && (

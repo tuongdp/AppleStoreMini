@@ -134,9 +134,8 @@ function LoginFormInModal({ onSuccess }) {
                                         type={
                                             showPassword ? "text" : "password"
                                         }
-                                        placeholder={t(
-                                            "login.passwordPlaceholder",
-                                        )}
+                                        placeholder={"Nhập mật khẩu"}
+                                    />
                                         disabled={isLoginLoading}
                                         className="pr-10"
                                         {...field}
@@ -216,9 +215,8 @@ function RegisterFormInModal({ onSuccess }) {
                             <FormLabel>{"Họ và tên"}</FormLabel>
                             <FormControl>
                                 <Input
-                                    placeholder={t(
-                                        "register.fullNamePlaceholder",
-                                    )}
+                                    placeholder={"Nhập họ và tên"}
+                                />
                                     disabled={isRegisterLoading}
                                     {...field}
                                 />

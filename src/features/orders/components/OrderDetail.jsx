@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Package, MapPin, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,14 @@ import { toast } from "sonner";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";
 
+const PAYMENT_MAP = {
+  "cod": "Thanh toán khi nhận hàng",
+  "momo": "MoMo",
+  "paid": "Đã thanh toán",
+  "refunded": "Đã hoàn tiền",
+  "unknown": "Không xác định",
+  "unpaid": "Chưa thanh toán"
+};
 export default function OrderDetail({ order }) {
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState("");
@@ -211,7 +218,7 @@ export default function OrderDetail({ order }) {
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-foreground">
                                 {order.paymentMethod
-                                    ? t(`payment.${order.paymentMethod}`)
+                                    ? (PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)
                                     : "Không xác định"}
                             </span>
                             <span

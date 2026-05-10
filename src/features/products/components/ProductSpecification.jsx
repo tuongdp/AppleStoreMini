@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,7 +36,7 @@ export default function ProductSpecification({ specifications = {} }) {
                         <div key={key}>
                             <div className="flex items-start justify-between gap-4 py-2.5 text-sm">
                                 <span className="shrink-0 text-muted-foreground">
-                                    {t(`specification.${key}`) || key}
+                                    {(SPECIFICATION_MAP[key] || key) || key}
                                 </span>
                                 <span className="text-right font-medium text-foreground">
                                     {value}

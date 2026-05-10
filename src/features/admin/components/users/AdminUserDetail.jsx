@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { Mail, Phone, Calendar, ShoppingBag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -126,9 +125,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                         {"Giới tính"}
                                     </span>
                                     <span className="text-foreground">
-                                        {t(`info.${user.gender}`, {
-                                            ns: "profile",
-                                        })}
+                                        {(INFO_MAP[user.gender] || user.gender)}
                                     </span>
                                 </div>
                             </>
