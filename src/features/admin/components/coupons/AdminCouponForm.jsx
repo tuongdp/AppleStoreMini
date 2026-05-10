@@ -84,14 +84,15 @@ export default function AdminCouponForm({ coupon, onClose }) {
     }, [coupon, form]);
 
     const onSubmit = async (values) => {
-        // Clean empty optional fields
         const payload = {
             ...values,
-            maxDiscountAmount: values.maxDiscountAmount || undefined,
-            minOrderAmount: values.minOrderAmount || undefined,
-            maxUsage: values.maxUsage || undefined,
-            pointsCost: values.pointsCost || undefined,
-            expiresAt: values.expiresAt || undefined,
+            code: values.code.toUpperCase(),
+            discountType: values.discountType,
+            ...(values.maxDiscountAmount ? { maxDiscountAmount: Number(values.maxDiscountAmount) } : {}),
+            ...(values.minOrderAmount ? { minOrderAmount: Number(values.minOrderAmount) } : {}),
+            ...(values.maxUsage ? { maxUsage: Number(values.maxUsage) } : {}),
+            ...(values.pointsCost ? { pointsCost: Number(values.pointsCost) } : {}),
+            ...(values.expiresAt ? { expiresAt: values.expiresAt } : {}),
         };
 
         try {
