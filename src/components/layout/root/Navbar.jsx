@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import MegaMenu from "./MegaMenu";
 import NavbarActions from "./NavbarActions";
 import NavbarMobile from "./NavbarMobile";
-import NavbarSearch from "./NavbarSearch";
+import SearchOverlay from "@/components/shared/SearchOverlay";
 import {
     toggleMobileMenu,
     selectMobileMenuOpen,
@@ -43,12 +43,7 @@ export default function Navbar() {
             <div className="section-padding">
                 <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4">
                     {/* ── Left — Logo + Nav ── */}
-                    <div
-                        className={cn(
-                            "flex items-center gap-6 transition-all duration-200",
-                            searchOpen && "hidden md:flex",
-                        )}
-                    >
+                    <div className="flex items-center gap-6">
                         {/* Logo */}
                         <Link
                             to={ROUTES.HOME}
@@ -63,15 +58,12 @@ export default function Navbar() {
 
                         {/* Desktop nav */}
                         <nav className="hidden items-center gap-1 md:flex">
-                            {/* Category mega menus */}
                             {CATEGORIES.map((cat) => (
                                 <MegaMenu key={cat.value} category={cat} />
                             ))}
 
-                            {/* Divider */}
                             <div className="mx-1 h-4 w-px bg-border" />
 
-                            {/* Simple links */}
                             {SIMPLE_NAV_LINKS.map((link) => (
                                 <NavLink
                                     key={link.href}
@@ -92,31 +84,8 @@ export default function Navbar() {
                         </nav>
                     </div>
 
-                    {/* ── Center — Search bar ── */}
-                    {searchOpen && (
-                        <div className="flex flex-1 items-center gap-2">
-                            <NavbarSearch
-                                onClose={() => dispatch(toggleSearch(false))}
-                            />
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="shrink-0 rounded-full"
-                                aria-label="Đóng tìm kiếm"
-                                onClick={() => dispatch(toggleSearch(false))}
-                            >
-                                <X className="h-5 w-5" />
-                            </Button>
-                        </div>
-                    )}
-
                     {/* ── Right — Actions ── */}
-                    <div
-                        className={cn(
-                            "flex items-center gap-0.5",
-                            searchOpen && "hidden md:flex",
-                        )}
-                    >
+                    <div className="flex items-center gap-0.5">
                         <Button
                             variant="ghost"
                             size="icon"
@@ -155,6 +124,11 @@ export default function Navbar() {
                     </div>
                 </div>
             </div>
+
+            <SearchOverlay
+                open={searchOpen}
+                onClose={() => dispatch(toggleSearch(false))}
+            />
         </header>
     );
 }
