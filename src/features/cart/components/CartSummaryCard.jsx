@@ -7,18 +7,16 @@ import PriceDisplay from "@/components/shared/PriceDisplay";
 import CouponInput from "@/features/checkout/components/CouponInput";
 import { selectCartTotal } from "@/store/cartSlice";
 import { formatPrice } from "@/lib/utils";
-import { ROUTES, SHIPPING } from "@/lib/constants";
+import { ROUTES } from "@/lib/constants";
 
 export default function CartSummaryCard() {
     const total = useSelector(selectCartTotal);
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-    const shippingFee =
-        total >= SHIPPING.FREE_THRESHOLD ? 0 : SHIPPING.DEFAULT_FEE;
-
+    const shippingFee = 0;
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
-    const grandTotal = Math.max(0, total + shippingFee - discountAmount);
+    const grandTotal = Math.max(0, total - discountAmount);
 
     const handleApplyCoupon = (couponData) => {
         setAppliedCoupon(couponData);
@@ -46,25 +44,12 @@ export default function CartSummaryCard() {
                     </div>
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
-                            {"Phí vận chuyển"}
+                            Phí vận chuyển
                         </span>
-                        <span
-                            className={
-                                shippingFee === 0
-                                    ? "font-medium text-green-600 dark:text-green-400"
-                                    : "font-medium"
-                            }
-                        >
-                            {shippingFee === 0
-                                ? "Miễn phí"
-                                : formatPrice(shippingFee)}
+                        <span className="font-medium text-green-600 dark:text-green-400">
+                            Miễn phí
                         </span>
                     </div>
-                    {shippingFee > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                            {"Miễn phí vận chuyển cho đơn hàng từ 500.000đ"}
-                        </p>
-                    )}
 
                     {discountAmount > 0 && (
                         <div className="flex items-center justify-between text-sm text-green-600 dark:text-green-400">

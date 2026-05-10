@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
 import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";
-import { SHIPPING, PAYMENT_METHODS } from "@/lib/constants";
+import { PAYMENT_METHODS } from "@/lib/constants";
 
 export function useCheckout() {
     const dispatch = useDispatch();
@@ -27,12 +27,11 @@ export function useCheckout() {
     const [createOrder, { isLoading }] = useCreateOrderMutation();
     const [createPayment, { isLoading: isPaying }] = useCreatePaymentMutation();
 
-    const shippingFee =
-        total >= SHIPPING.FREE_THRESHOLD ? 0 : SHIPPING.DEFAULT_FEE;
+    const shippingFee = 0;
 
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
 
-    const grandTotal = Math.max(0, total + shippingFee - discountAmount);
+    const grandTotal = Math.max(0, total - discountAmount);
 
     const canProceed = items.length > 0;
 

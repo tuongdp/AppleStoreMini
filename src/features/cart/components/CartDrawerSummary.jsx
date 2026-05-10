@@ -6,15 +6,13 @@ import PriceDisplay from "@/components/shared/PriceDisplay";
 import { selectCartTotal } from "@/store/cartSlice";
 import { toggleCartDrawer } from "@/store/uiSlice";
 import { formatPrice } from "@/lib/utils";
-import { ROUTES, SHIPPING } from "@/lib/constants";
+import { ROUTES } from "@/lib/constants";
 
 export default function CartDrawerSummary() {
     const dispatch = useDispatch();
     const total = useSelector(selectCartTotal);
 
-    const shippingFee =
-        total >= SHIPPING.FREE_THRESHOLD ? 0 : SHIPPING.DEFAULT_FEE;
-    const grandTotal = total + shippingFee;
+    const grandTotal = total;
 
     const handleClose = () => dispatch(toggleCartDrawer(false));
 
@@ -32,16 +30,8 @@ export default function CartDrawerSummary() {
                     <span className="text-muted-foreground">
                         {"Phí vận chuyển"}
                     </span>
-                    <span
-                        className={
-                            shippingFee === 0
-                                ? "text-green-600 dark:text-green-400"
-                                : ""
-                        }
-                    >
-                        {shippingFee === 0
-                            ? "Miễn phí"
-                            : formatPrice(shippingFee)}
+                    <span className="text-green-600 dark:text-green-400">
+                        {"Miễn phí"}
                     </span>
                 </div>
             </div>
