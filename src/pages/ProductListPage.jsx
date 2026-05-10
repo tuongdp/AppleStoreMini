@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { SlidersHorizontal, SearchX } from "lucide-react";
@@ -33,6 +33,7 @@ export default function ProductListPage() {
         maxPrice: searchParams.get("maxPrice") || undefined,
         sort: searchParams.get("sort") || "featured",
         search: searchParams.get("search") || undefined,
+        slug: searchParams.get("slug") || undefined,
     };
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
@@ -141,6 +142,7 @@ export default function ProductListPage() {
                                 <FilterPanel
                                     filters={filters}
                                     categories={categories}
+                                    products={products}
                                     onUpdate={updateFilter}
                                 />
                             </SheetContent>
@@ -150,14 +152,15 @@ export default function ProductListPage() {
 
                 <div className="flex gap-6">
                     <aside className="hidden w-52 shrink-0 lg:block">
-                        <FilterPanel
-                            filters={filters}
-                            categories={categories}
-                            onUpdate={(k, v) => {
-                                updateFilter(k, v);
-                                setFilterOpen(false);
-                            }}
-                        />
+                            <FilterPanel
+                                filters={filters}
+                                categories={categories}
+                                products={products}
+                                onUpdate={(k, v) => {
+                                    updateFilter(k, v);
+                                    setFilterOpen(false);
+                                }}
+                            />
                     </aside>
 
                     <div className="min-w-0 flex-1">
@@ -249,8 +252,24 @@ export default function ProductListPage() {
     );
 }
 
-function FilterPanel({ filters, categories = [], onUpdate }) {
+function FilterPanel({ filters, categories = [], products = [], onUpdate }) {
     const { t } = useTranslation("product");
+
+    const slugGroups = useMemo(() => {
+        if (!filters.category || !products.length) return [];
+        const map = new Map();
+        products.forEach((p) => {
+            const parts = p.slug?.split("-") || [];
+            if (parts.length >= 4) {
+                const family = parts.slice(0, 4).join("-");
+                const count = map.get(family) || 0;
+                map.set(family, count + 1);
+            }
+        });
+        return [...map.entries()]
+            .filter(([, count]) => count > 0)
+            .sort((a, b) => b[1] - a[1]);
+    }, [products, filters.category]);
 
     return (
         <div className="space-y-6">
@@ -284,6 +303,30 @@ function FilterPanel({ filters, categories = [], onUpdate }) {
                     ))}
                 </div>
             </div>
+
+            {slugGroups.length > 0 && (
+                <div>
+                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {t("filter.model")}
+                    </h3>
+                    <div className="space-y-0.5">
+                        {slugGroups.map(([slug, count]) => (
+                            <button
+                                key={slug}
+                                onClick={() => onUpdate("slug", filters.slug === slug ? "" : slug)}
+                                className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                                    filters.slug === slug
+                                        ? "bg-accent font-medium text-foreground"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                }`}
+                            >
+                                <span className="capitalize">{slug.replace(/-/g, " ")}</span>
+                                <span className="ml-1 text-xs text-muted-foreground/60">({count})</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <Button
                 variant="outline"
