@@ -57,7 +57,7 @@ export default function Navbar() {
                         </Link>
 
                         {/* Desktop nav */}
-                        <nav className="hidden items-center gap-1 md:flex">
+                        <nav className="hidden items-center gap-1 lg:flex">
                             {CATEGORIES.map((cat) => (
                                 <MegaMenu key={cat.value} category={cat} />
                             ))}
@@ -111,7 +111,7 @@ export default function Navbar() {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="rounded-full md:hidden"
+                                    className="rounded-full lg:hidden"
                                     aria-label="Mở menu"
                                 >
                                     <Menu className="h-5 w-5" />
