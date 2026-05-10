@@ -23,7 +23,7 @@ import {
     useAddFlashSaleItemMutation,
     useRemoveFlashSaleItemMutation,
 } from "@/store/api/flashSalesApi";
-import { useSearchProductsQuery } from "@/store/api/productsApi";
+import { useSearchProductsQuery, useGetProductBySlugQuery } from "@/store/api/productsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -227,11 +227,15 @@ function FlashSaleForm({ flashSale, onClose }) {
 function AddItemDialog({ flashSaleId, open, onClose }) {
     const { t } = useTranslation("admin");
     const [search, setSearch] = useState("");
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedProductSlug, setSelectedProductSlug] = useState(null);
+    const [selectedVariantId, setSelectedVariantId] = useState(null);
     const { data: productsData, isFetching, isError } = useSearchProductsQuery(search, { skip: search.length < 2 });
+    const { data: fullProduct } = useGetProductBySlugQuery(selectedProductSlug, { skip: !selectedProductSlug });
     const [addItem, { isLoading }] = useAddFlashSaleItemMutation();
 
     const products = productsData || [];
+    const variants = fullProduct?.variants || [];
+    const selectedVariant = variants.find((v) => v.id === selectedVariantId);
 
     const addItemSchema = z.object({
         variantId: z.string().min(1, t("flashSale.validation.variantRequired")),
@@ -254,18 +258,22 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
         },
     });
 
-    const selectProduct = (product) => {
-        setSelectedProduct(product);
-        const originalPrice = product.price || 0;
-        form.setValue("variantId", product.variantId);
-        form.setValue("salePrice", originalPrice);
+    const selectProductSlug = (slug) => {
+        setSelectedProductSlug(slug);
+        setSelectedVariantId(null);
+    };
+
+    const selectVariant = (variant) => {
+        setSelectedVariantId(variant.id);
+        form.setValue("variantId", variant.id);
+        form.setValue("salePrice", variant.price || 0);
         form.setValue("discountPercent", 0);
     };
 
     const handleDiscountChange = (value) => {
         form.setValue("discountPercent", value);
-        if (selectedProduct) {
-            const originalPrice = selectedProduct.price || 0;
+        if (selectedVariant) {
+            const originalPrice = selectedVariant.price || 0;
             const salePrice = Math.round(originalPrice * (1 - value / 100));
             form.setValue("salePrice", salePrice);
         }
@@ -273,8 +281,8 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 
     const handleSalePriceChange = (value) => {
         form.setValue("salePrice", value);
-        if (selectedProduct && selectedProduct.price > 0) {
-            const discount = Math.round(((selectedProduct.price - value) / selectedProduct.price) * 100);
+        if (selectedVariant && selectedVariant.price > 0) {
+            const discount = Math.round(((selectedVariant.price - value) / selectedVariant.price) * 100);
             form.setValue("discountPercent", Math.max(0, Math.min(99, discount)));
         }
     };
@@ -290,7 +298,8 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                 sortOrder: values.sortOrder,
             }).unwrap();
             toast.success(t("flashSale.toast.itemAdded"));
-            setSelectedProduct(null);
+            setSelectedProductSlug(null);
+            setSelectedVariantId(null);
             setSearch("");
             form.reset();
             onClose();
@@ -299,19 +308,20 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
         }
     };
 
-    const variantAttrs = (product) => {
+    const variantAttrs = (v) => {
         const parts = [];
-        if (product.color) parts.push(product.color);
-        if (product.storage) parts.push(product.storage);
-        if (product.ram) parts.push(product.ram);
-        if (product.edition) parts.push(product.edition);
+        if (v.color) parts.push(v.color);
+        if (v.storage) parts.push(v.storage);
+        if (v.ram) parts.push(v.ram);
+        if (v.edition) parts.push(v.edition);
         return parts;
     };
 
     return (
         <Dialog open={open} onOpenChange={(o) => {
             if (!o) {
-                setSelectedProduct(null);
+                setSelectedProductSlug(null);
+                setSelectedVariantId(null);
                 setSearch("");
                 onClose();
             }
@@ -322,7 +332,6 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        {/* Search */}
                         <div>
                             <FormLabel>{t("flashSale.searchProduct")}</FormLabel>
                             <div className="relative mt-1.5">
@@ -333,7 +342,8 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                     value={search}
                                     onChange={(e) => {
                                         setSearch(e.target.value);
-                                        setSelectedProduct(null);
+                                        setSelectedProductSlug(null);
+                                        setSelectedVariantId(null);
                                     }}
                                 />
                             </div>
@@ -349,67 +359,89 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                 </div>
                             )}
 
-                            {isError && (
-                                <p className="mt-1.5 text-xs text-destructive">{t("flashSale.searchError")}</p>
-                            )}
-
                             {!isFetching && !isError && search.length >= 2 && products.length === 0 && (
                                 <p className="mt-1.5 text-xs text-muted-foreground">{t("flashSale.noProductsFound")}</p>
                             )}
 
                             {!isFetching && products.length > 0 && (
                                 <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-border">
-                                    {products.map((product) => {
-                                        const attrs = variantAttrs(product);
-                                        return (
-                                            <button
-                                                key={product.id}
-                                                type="button"
-                                                className={cn(
-                                                    "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted",
-                                                    selectedProduct?.id === product.id && "bg-primary/10"
+                                    {products.map((product) => (
+                                        <button
+                                            key={product.id}
+                                            type="button"
+                                            className={cn(
+                                                "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted",
+                                                selectedProductSlug === product.slug && "bg-primary/10"
+                                            )}
+                                            onClick={() => selectProductSlug(product.slug)}
+                                        >
+                                            <img
+                                                src={product.images?.[0] || ""}
+                                                alt={product.name}
+                                                className="h-10 w-10 rounded-lg object-cover"
+                                            />
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate font-medium">{product.name}</p>
+                                                {variantAttrs(product).length > 0 && (
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {variantAttrs(product).join(" · ")}
+                                                    </p>
                                                 )}
-                                                onClick={() => selectProduct(product)}
-                                            >
-                                                <img
-                                                    src={product.images?.[0] || ""}
-                                                    alt={product.name}
-                                                    className="h-10 w-10 rounded-lg object-cover"
-                                                />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="truncate font-medium">{product.name}</p>
-                                                    {attrs.length > 0 && (
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {attrs.join(" · ")}
-                                                        </p>
-                                                    )}
-                                                    <p className="text-xs text-muted-foreground">{formatPrice(product.price)}</p>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
+                                                <p className="text-xs text-muted-foreground">{formatPrice(product.price)}</p>
+                                            </div>
+                                        </button>
+                                    ))}
                                 </div>
                             )}
 
-                            {selectedProduct && (
+                            {/* Variant selection */}
+                            {selectedProductSlug && fullProduct && (
+                                <div className="mt-2 rounded-lg border border-border p-3">
+                                    <p className="text-xs font-medium text-foreground mb-2">
+                                        Chọn phiên bản cho: {fullProduct.name}
+                                    </p>
+                                    <div className="space-y-1 max-h-32 overflow-y-auto">
+                                        {variants.map((v) => {
+                                            const attrs = variantAttrs(v);
+                                            return (
+                                                <button
+                                                    key={v.id}
+                                                    type="button"
+                                                    className={cn(
+                                                        "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted",
+                                                        selectedVariantId === v.id && "bg-primary/10 border border-primary/20"
+                                                    )}
+                                                    onClick={() => selectVariant(v)}
+                                                >
+                                                    <span className="text-foreground">
+                                                        {attrs.length > 0 ? attrs.join(" · ") : "Mặc định"}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {formatPrice(v.price)} {v.inStock ? "" : "(Hết hàng)"}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedVariant && (
                                 <div className="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm dark:border-green-800 dark:bg-green-950/20">
-                                    <span className="text-muted-foreground">{t("flashSale.selectedLabel")}</span>
-                                    <span className="font-medium">{selectedProduct.name}</span>
-                                    {variantAttrs(selectedProduct).length > 0 && (
-                                        <span className="ml-1 text-xs text-muted-foreground">
-                                            ({variantAttrs(selectedProduct).join(" · ")})
-                                        </span>
-                                    )}
+                                    <span className="text-muted-foreground">Đã chọn: </span>
+                                    <span className="font-medium">{fullProduct?.name}</span>
+                                    <span className="ml-1 text-xs text-muted-foreground">
+                                        ({variantAttrs(selectedVariant).join(" · ") || "Mặc định"})
+                                    </span>
                                 </div>
                             )}
                         </div>
 
-                        {/* Original Price (read-only) */}
-                        {selectedProduct && (
+                        {selectedVariant && (
                             <div className="rounded-lg border border-border bg-muted/30 p-3">
                                 <p className="text-xs text-muted-foreground">Giá gốc</p>
                                 <p className="text-base font-semibold text-foreground">
-                                    {formatPrice(selectedProduct.price || 0)}
+                                    {formatPrice(selectedVariant.price || 0)}
                                 </p>
                             </div>
                         )}
