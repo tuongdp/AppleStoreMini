@@ -6,6 +6,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
             query: () => "/flash-sales/active",
             providesTags: ["FlashSales"],
             transformResponse: (response) => response.data,
+            refetchOnMountOrArgChange: 30,
         }),
 
         getAllFlashSales: builder.query({
