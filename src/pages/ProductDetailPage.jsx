@@ -63,23 +63,23 @@ function CountdownTimer({ endTime }) {
         <div className="flex items-center gap-1 font-mono tabular-nums">
             {remaining.d > 0 && (
                 <>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-xs font-bold text-destructive shadow-sm">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-xs font-bold text-amber-600 dark:text-amber-400 shadow-sm">
                         {pad(remaining.d)}
                     </span>
-                    <span className="mr-0.5 text-[10px] font-medium text-destructive/70">
+                    <span className="mr-0.5 text-[10px] font-medium text-amber-600/70 dark:text-amber-400/70">
                         {tc("timeAgo.day")}
                     </span>
                 </>
             )}
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-destructive shadow-sm">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-amber-600 dark:text-amber-400 shadow-sm">
                 {pad(remaining.h)}
             </span>
-            <span className="text-sm font-bold text-destructive/50">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-destructive shadow-sm">
+            <span className="text-sm font-bold text-amber-500/50 dark:text-amber-400/50">:</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-amber-600 dark:text-amber-400 shadow-sm">
                 {pad(remaining.m)}
             </span>
-            <span className="text-sm font-bold text-destructive/50">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-destructive shadow-sm">
+            <span className="text-sm font-bold text-amber-500/50 dark:text-amber-400/50">:</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-amber-600 dark:text-amber-400 shadow-sm">
                 {pad(remaining.s)}
             </span>
         </div>
@@ -283,28 +283,28 @@ export default function ProductDetailPage() {
                     )}
 
                     {hasActiveFlashSale && (
-                        <div className="rounded-xl border border-destructive/30 bg-gradient-to-r from-destructive/10 via-orange-500/5 to-destructive/10 p-4">
+                        <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-amber-500/10 dark:from-amber-400/15 dark:via-amber-300/5 dark:to-amber-400/15 p-4">
                             <div className="mb-3 flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/20">
-                                    <Zap className="h-4 w-4 text-destructive" />
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 dark:bg-amber-400/25">
+                                    <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                                 </div>
-                                <span className="text-sm font-bold text-destructive">
+                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
                                     FLASH SALE
                                 </span>
-                                <div className="ml-auto flex items-center gap-2 rounded-full border border-destructive/20 bg-background/80 px-3 py-1">
-                                    <Clock className="h-3.5 w-3.5 text-destructive" />
+                                <div className="ml-auto flex items-center gap-2 rounded-full border border-amber-500/20 bg-background/80 px-3 py-1 dark:border-amber-400/20">
+                                    <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                                     <CountdownTimer endTime={flashSaleData.endTime} />
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-bold text-destructive">
+                                    <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                                         {formatPrice(flashSaleData.salePrice)}
                                     </span>
                                     <span className="text-sm text-muted-foreground line-through">
                                         {formatPrice(flashSaleData.originalPrice)}
                                     </span>
-                                    <Badge variant="destructive" className="rounded-md text-xs">
+                                    <Badge className="rounded-md bg-amber-500 text-white text-xs hover:bg-amber-500 dark:bg-amber-400 dark:text-black">
                                         -{Math.round(((flashSaleData.originalPrice - flashSaleData.salePrice) / flashSaleData.originalPrice) * 100)}%
                                     </Badge>
                                 </div>
@@ -321,7 +321,7 @@ export default function ProductDetailPage() {
                                     </div>
                                     <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-muted">
                                         <div
-                                            className="h-full rounded-full bg-destructive transition-all"
+                                            className="h-full rounded-full bg-amber-500 dark:bg-amber-400 transition-all"
                                             style={{
                                                 width: `${Math.min(
                                                     flashSaleData.quantityLimit > 0
