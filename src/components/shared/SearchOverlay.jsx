@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -127,7 +127,7 @@ export default function SearchOverlay({ open, onClose }) {
                                         >
                                             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted/50 p-1.5">
                                                 <img
-                                                    src={product.images?.[0] || product.image}
+                                                    src={parseJsonField(product.images)?.[0] || product.image}
                                                     alt={product.name}
                                                     className="h-full w-full object-contain"
                                                 />

@@ -12,7 +12,7 @@ import ConfirmStep from "@/features/checkout/components/ConfirmStep";
 import OrderSuccess from "@/features/checkout/components/OrderSuccess";
 import CouponInput from "@/features/checkout/components/CouponInput";
 import { getEffectivePrice } from "@/store/cartSlice";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function CheckoutPage() {
@@ -126,7 +126,7 @@ export default function CheckoutPage() {
                                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1">
                                             <img
                                                 src={
-                                                    product?.images?.[0] ||
+                                                    parseJsonField(product?.images)?.[0] ||
                                                     product?.image ||
                                                     item.image
                                                 }

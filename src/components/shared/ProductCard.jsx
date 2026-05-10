@@ -8,7 +8,7 @@ import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleAuthModal, toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
-import { formatPrice, calcDiscount, cn } from "@/lib/utils";
+import { formatPrice, calcDiscount, cn, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
@@ -135,7 +135,7 @@ export default function ProductCard({ product }) {
                     {/* Product image */}
                     <img
                         src={
-                            product.images?.[0] ||
+                            parseJsonField(product.images)?.[0] ||
                             product.image ||
                             productPlaceholder
                         }

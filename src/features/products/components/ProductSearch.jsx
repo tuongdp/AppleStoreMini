@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function ProductSearch({ autoFocus = false, onClose }) {
@@ -79,7 +79,7 @@ export default function ProductSearch({ autoFocus = false, onClose }) {
                                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted/50 p-1">
                                         <img
                                             src={
-                                                product.images?.[0] ||
+                                                parseJsonField(product.images)?.[0] ||
                                                 product.image
                                             }
                                             alt={product.name}

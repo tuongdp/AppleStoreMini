@@ -49,7 +49,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, parseJsonField } from "@/lib/utils";
 
 function formatDateTime(dateStr) {
     if (!dateStr) return "";
@@ -372,7 +372,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                             onClick={() => selectProductSlug(product.slug)}
                                         >
                                             <img
-                                                src={product.images?.[0] || ""}
+                                                src={parseJsonField(product.images)?.[0] || ""}
                                                 alt={product.name}
                                                 className="h-10 w-10 rounded-lg object-cover"
                                             />
@@ -562,7 +562,7 @@ function FlashSaleItemRow({ item, onRemove, isRemoving }) {
     const storage = variant?.storage || "";
     const ram = variant?.ram || "";
     const imgSrc = (Array.isArray(variant?.images) ? variant.images[0] : null)
-        || product?.images?.[0]
+        || parseJsonField(product?.images)?.[0]
         || "";
 
     return (
