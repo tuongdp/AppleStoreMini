@@ -35,7 +35,7 @@ export default function OrderTimeline({ order }) {
                 const isLast = index === TIMELINE_STEPS.length - 1;
 
                 // Lấy timestamp tương ứng từ order history nếu có
-                const timestamp = order.history?.find(
+                const timestamp = order.statusHistory?.find(
                     (h) => h.status === step,
                 )?.createdAt;
 
@@ -113,14 +113,14 @@ function CancelledTimeline({ order }) {
     const steps = [
         {
             status: ORDER_STATUS.PENDING,
-            timestamp: order.history?.find(
+            timestamp: order.statusHistory?.find(
                 (h) => h.status === ORDER_STATUS.PENDING,
             )?.createdAt,
             done: true,
         },
         {
             status: ORDER_STATUS.CANCELLED,
-            timestamp: order.history?.find(
+            timestamp: order.statusHistory?.find(
                 (h) => h.status === ORDER_STATUS.CANCELLED,
             )?.createdAt,
             done: false,
