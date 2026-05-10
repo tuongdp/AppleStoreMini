@@ -56,9 +56,7 @@ export default function ProfileForm({ user }) {
       // ✅ updateProfile.onQueryStarted tự dispatch updateUser(data)
       // data đã qua transformResponse → user object trực tiếp
       await updateProfile(values).unwrap();
-      toast.success("Cập nhật thông tin thành công", {
-        description: tCommon("toast.updateSuccess"),
-      });
+      toast.success("Cập nhật thông tin thành công");
     } catch {
       toast.error("Cập nhật thông tin thất bại");
     }

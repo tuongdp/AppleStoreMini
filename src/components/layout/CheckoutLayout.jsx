@@ -21,13 +21,13 @@ export default function CheckoutLayout() {
                     </Link>
 
                     <h1 className="text-sm font-medium text-foreground">
-                        {tCheckout("title")}
+                        {"Thanh toán"}
                     </h1>
 
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Lock className="h-3.5 w-3.5" />
                         <span className="hidden sm:inline">
-                            {tCheckout("payment.secure")}
+                            {"Thanh toán an toàn"}
                         </span>
                     </div>
                 </div>
@@ -44,13 +44,13 @@ export default function CheckoutLayout() {
                     <div className="flex items-center gap-6 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1.5">
                             <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
-                            {tCheckout("payment.secure")}
+                            {"Thanh toán an toàn"}
                         </span>
-                        <span>{"privacy"}</span>
-                        <span>{"terms"}</span>
+                        <span>{"Chính sách bảo mật"}</span>
+                        <span>{"Điều khoản sử dụng"}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {"copyright"}
+                        {"© 2024 Apple Store. Bảo lưu mọi quyền."}
                     </p>
                 </div>
             </footer>
