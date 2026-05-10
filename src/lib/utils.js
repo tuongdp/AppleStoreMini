@@ -7,10 +7,16 @@ export function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
+const LOCALE_MAP = { vi: "vi-VN", en: "en-US" };
+
+function getLocale() {
+    return LOCALE_MAP[i18next.language] || "vi-VN";
+}
+
 // ── Format giá tiền ────────────────────────────────────
 export function formatPrice(price) {
     if (!price && price !== 0) return "";
-    return new Intl.NumberFormat("vi-VN", {
+    return new Intl.NumberFormat(getLocale(), {
         style: "currency",
         currency: "VND",
         maximumFractionDigits: 0,
@@ -92,7 +98,7 @@ export function capitalize(text) {
 // ── Number ─────────────────────────────────────────────
 export function formatNumber(number) {
     if (!number && number !== 0) return "";
-    return new Intl.NumberFormat("vi-VN").format(number);
+    return new Intl.NumberFormat(getLocale()).format(number);
 }
 
 // ── Storage / localStorage ─────────────────────────────

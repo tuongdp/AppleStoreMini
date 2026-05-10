@@ -32,7 +32,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
-import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
+import { slugify, formatNumber, formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
@@ -484,8 +484,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                     <td className="px-4 py-3 text-muted-foreground">{v.storage || "—"}</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.ram || "—"}</td>
                                                     <td className="px-4 py-3 text-muted-foreground">{v.edition || "—"}</td>
-                                                    <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
-                                                    <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
+                                                    <td className="px-4 py-3 text-foreground">{formatPrice(v.price)}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? formatPrice(v.salePrice) : "—"}</td>
                                                     <td className="px-4 py-3 text-foreground">{v.stock}</td>
                                                     <td className="px-4 py-3 text-xs text-muted-foreground">{Array.isArray(v.images) ? v.images.length : 0} ảnh</td>
                                                     <td className="px-4 py-3">
