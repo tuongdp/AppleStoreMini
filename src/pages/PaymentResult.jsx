@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CheckCircle2, XCircle } from "lucide-react";
@@ -6,7 +7,12 @@ import { ROUTES } from "@/lib/constants";
 
 export default function PaymentResult({ status }) {
     const { t } = useTranslation("checkout");
-    const isSuccess = status === "success";
+    const [searchParams] = useSearchParams();
+
+    const moMoResultCode = searchParams.get("resultCode");
+    const isSuccess = moMoResultCode !== null
+        ? moMoResultCode === "0"
+        : status === "success";
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
