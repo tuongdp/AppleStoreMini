@@ -33,7 +33,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -43,7 +43,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -52,7 +52,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 url: `/admin/flash-sales/${id}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
         }),
 
         toggleFlashSaleStatus: builder.mutation({
@@ -60,7 +60,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 url: `/admin/flash-sales/${id}/toggle`,
                 method: "PATCH",
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -70,7 +70,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -80,7 +80,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -89,7 +89,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
                 url: `/admin/flash-sales/items/${itemId}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["FlashSales"],
+            invalidatesTags: ["FlashSales", "Product"],
         }),
     }),
 });

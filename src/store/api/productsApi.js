@@ -18,6 +18,7 @@ export const productsApi = baseApi.injectEndpoints({
             query: (slug) => `/products/slug/${slug}`,
             providesTags: (_, __, slug) => [{ type: "Product", id: slug }],
             transformResponse: (response) => parseProduct(response.data),
+            refetchOnMountOrArgChange: 30,
         }),
 
         // GET /products/:id — dùng cho AdminProductEdit
