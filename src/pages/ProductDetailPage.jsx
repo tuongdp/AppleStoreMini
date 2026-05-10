@@ -47,12 +47,17 @@ export default function ProductDetailPage() {
         return [...new Set(variants.map((v) => v.storage).filter(Boolean))];
     }, [variants]);
 
+    const allRams = useMemo(() => {
+        return [...new Set(variants.map((v) => v.ram).filter(Boolean))];
+    }, [variants]);
+
     const allEditions = useMemo(() => {
         return [...new Set(variants.map((v) => v.edition).filter(Boolean))];
     }, [variants]);
 
     const [selectedColor, setSelectedColor] = useState("");
     const [selectedStorage, setSelectedStorage] = useState("");
+    const [selectedRam, setSelectedRam] = useState("");
     const [selectedEdition, setSelectedEdition] = useState("");
 
     const defaultVariant = useMemo(() => {
@@ -62,24 +67,27 @@ export default function ProductDetailPage() {
 
     const defaultColor = defaultVariant?.color || "";
     const defaultStorage = defaultVariant?.storage || "";
+    const defaultRam = defaultVariant?.ram || "";
     const defaultEdition = defaultVariant?.edition || "";
 
     const effectiveColor = selectedColor || defaultColor;
     const effectiveStorage = selectedStorage || defaultStorage;
+    const effectiveRam = selectedRam || defaultRam;
     const effectiveEdition = selectedEdition || defaultEdition;
 
     const selectedVariant = useMemo(() => {
-        if (!effectiveColor && !effectiveStorage && !effectiveEdition) return null;
+        if (!effectiveColor && !effectiveStorage && !effectiveRam && !effectiveEdition) return null;
         const match = variants.find(
             (v) =>
                 (v.color || "") === effectiveColor &&
                 (v.storage || "") === effectiveStorage &&
+                (v.ram || "") === effectiveRam &&
                 (v.edition || "") === effectiveEdition,
         );
         return match || null;
-    }, [variants, effectiveColor, effectiveStorage, effectiveEdition]);
+    }, [variants, effectiveColor, effectiveStorage, effectiveRam, effectiveEdition]);
 
-    const invalidSelection = !selectedVariant && (effectiveColor || effectiveStorage || effectiveEdition);
+    const invalidSelection = !selectedVariant && (effectiveColor || effectiveStorage || effectiveRam || effectiveEdition);
 
     const currentPrice = selectedVariant?.salePrice || selectedVariant?.price;
     const inStock = selectedVariant?.inStock ?? false;
@@ -105,6 +113,7 @@ export default function ProductDetailPage() {
             slugRef.current = slug;
             setSelectedColor("");
             setSelectedStorage("");
+            setSelectedRam("");
             setSelectedEdition("");
             setQuantity(1);
         }
@@ -193,9 +202,9 @@ export default function ProductDetailPage() {
                         {product.name}
                     </h1>
 
-                    {(effectiveColor || effectiveStorage) && (
+                    {(effectiveColor || effectiveStorage || effectiveRam) && (
                         <p className="text-sm text-muted-foreground">
-                            {[effectiveColor, effectiveStorage].filter(Boolean).join(" · ")}
+                            {[effectiveColor, effectiveStorage, effectiveRam].filter(Boolean).join(" · ")}
                         </p>
                     )}
 
@@ -233,6 +242,7 @@ export default function ProductDetailPage() {
                                                         key={color}
                                                         onClick={() => {
                                                             setSelectedColor(color);
+                                                            setSelectedRam("");
                                                             setSelectedEdition("");
                                                             const hasStorage = effectiveStorage &&
                                                                 variants.some((v) => v.color === color && v.storage === effectiveStorage);
@@ -276,6 +286,7 @@ export default function ProductDetailPage() {
                                                         key={storage}
                                                         onClick={() => {
                                                             setSelectedStorage(storage);
+                                                            setSelectedRam("");
                                                             setSelectedEdition("");
                                                         }}
                                             disabled={disabled}
@@ -297,14 +308,48 @@ export default function ProductDetailPage() {
                         </div>
                     )}
 
+                    {/* RAM selector */}
+                    {allRams.length > 1 && (
+                        <div>
+                            <p className="mb-2 text-sm font-medium text-foreground">
+                                {t("specification.ram")}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {allRams.map((ram) => {
+                                    const disabled = effectiveColor && effectiveStorage
+                                        ? !variants.some((v) => v.ram === ram && v.color === effectiveColor && v.storage === effectiveStorage)
+                                        : false;
+                                    return (
+                                        <button
+                                            key={ram}
+                                            onClick={() => setSelectedRam(ram)}
+                                            disabled={disabled}
+                                            className={cn(
+                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                !disabled && "hover:border-foreground",
+                                                effectiveRam === ram
+                                                    ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
+                                                    : disabled
+                                                        ? "cursor-not-allowed border-dashed border-border text-muted-foreground/40 line-through"
+                                                        : "border-border text-muted-foreground",
+                                            )}
+                                        >
+                                            {ram}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Edition selector */}
                     {allEditions.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">{t("specification.edition")}</p>
                             <div className="flex flex-wrap gap-2">
                                 {allEditions.map((edition) => {
-                                    const disabled = effectiveColor && effectiveStorage
-                                        ? !variants.some((v) => v.edition === edition && v.color === effectiveColor && v.storage === effectiveStorage)
+                                    const disabled = effectiveColor && effectiveStorage && effectiveRam
+                                        ? !variants.some((v) => v.edition === edition && v.color === effectiveColor && v.storage === effectiveStorage && v.ram === effectiveRam)
                                         : false;
                                     return (
                                         <button
@@ -349,6 +394,18 @@ export default function ProductDetailPage() {
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allStorages[0]}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Single RAM display */}
+                    {allRams.length === 1 && allRams[0] && (
+                        <div>
+                            <p className="mb-1 text-sm font-medium text-foreground">
+                                {t("specification.ram")}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {allRams[0]}
                             </p>
                         </div>
                     )}

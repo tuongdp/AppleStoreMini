@@ -64,7 +64,7 @@
         "selectOptions": "Vui lòng chọn màu sắc và dung lượng",
         "showMore": "Xem thêm",
         "showLess": "Thu gọn",
-        "invalidCombination": "Tổ hợp màu sắc, dung lượng và phiên bản này không tồn tại",
+        "invalidCombination": "Tổ hợp màu sắc, dung lượng, RAM và phiên bản này không tồn tại",
         "unavailable": "Không có sẵn"
     },
 

@@ -14,6 +14,7 @@
         "backToStore": "Back to Store",
         "banners": "Banners",
         "flashSales": "Flash Sale",
+        "options": "Options",
         "logout": "Log out"
     },
 
@@ -278,13 +279,15 @@
         "importSpecsSuccess": "Imported {{count}} specifications successfully",
         "importSpecsDupSkipped": "Skipped {{count}} duplicate specifications",
         "productOptions": "Product options",
-        "optionsDescription": "Define the list of valid values for color and storage.",
+        "optionsDescription": "Define the list of valid values for color, storage and RAM.",
         "addValuePlaceholder": "Add value...",
         "colorLabel": "Color",
         "storageLabel": "Storage",
+        "ramLabel": "RAM",
         "editionLabel": "Edition",
         "selectColor": "Select color",
         "selectStorage": "Select storage",
+        "selectRam": "Select RAM",
         "selectEdition": "Select edition",
         "price": "Price",
         "pricePlaceholder": "E.g. 34990000",
@@ -307,6 +310,7 @@
         "noVariants": "No variants yet. Please add at least one variant.",
         "variantColor": "Color",
         "variantStorage": "Storage",
+        "variantRam": "RAM",
         "variantEdition": "Edition",
         "priceColumn": "Price",
         "salePriceColumn": "Sale price",
@@ -339,6 +343,7 @@
             "deleteOptionError": "Error while deleting option",
             "colorRequired": "Color cannot be empty",
             "storageRequired": "Storage cannot be empty",
+            "ramRequired": "RAM cannot be empty",
             "editionRequired": "Edition cannot be empty",
             "priceMinError": "Price must be greater than 1,000₫",
             "salePriceError": "Sale price must be lower than the original price",
@@ -439,5 +444,13 @@
             "itemRemoved": "Product removed",
             "errorOccurred": "Something went wrong"
         }
+    },
+    "globalOptions": {
+        "title": "Global Options",
+        "addPlaceholder": "Add value...",
+        "search": "Search...",
+        "empty": "No values yet. Add the first one above.",
+        "value": "Value",
+        "preview": "Preview"
     }
 }

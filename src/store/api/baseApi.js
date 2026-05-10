@@ -99,6 +99,8 @@ export const baseApi = createApi({
     "NewsComments",
     "Banners",
     "FlashSales",
+    "GlobalOptions",
+    "GlobalOption",
     "Points",
   ],
   endpoints: () => ({}),

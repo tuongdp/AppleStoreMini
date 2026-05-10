@@ -14,6 +14,7 @@
         "backToStore": "Về trang Store",
         "banners": "Banner",
         "flashSales": "Flash Sale",
+        "options": "Tùy chọn",
         "logout": "Đăng xuất"
     },
 
@@ -277,13 +278,15 @@
         "importSpecsSuccess": "Đã nhập {{count}} thông số thành công",
         "importSpecsDupSkipped": "Đã bỏ qua {{count}} thông số trùng",
         "productOptions": "Tùy chọn sản phẩm",
-        "optionsDescription": "Định nghĩa danh sách giá trị hợp lệ cho màu sắc, dung lượng.",
+        "optionsDescription": "Định nghĩa danh sách giá trị hợp lệ cho màu sắc, dung lượng, RAM.",
         "addValuePlaceholder": "Thêm giá trị...",
         "colorLabel": "Màu sắc",
         "storageLabel": "Dung lượng",
+        "ramLabel": "RAM",
         "editionLabel": "Phiên bản",
         "selectColor": "Chọn màu sắc",
         "selectStorage": "Chọn dung lượng",
+        "selectRam": "Chọn RAM",
         "selectEdition": "Chọn phiên bản",
         "price": "Giá bán",
         "pricePlaceholder": "VD: 34990000",
@@ -306,6 +309,7 @@
         "noVariants": "Chưa có variant nào. Hãy thêm ít nhất một variant.",
         "variantColor": "Màu",
         "variantStorage": "Dung lượng",
+        "variantRam": "RAM",
         "variantEdition": "Phiên bản",
         "priceColumn": "Giá bán",
         "salePriceColumn": "Giá sale",
@@ -338,6 +342,7 @@
             "deleteOptionError": "Lỗi khi xoá option",
             "colorRequired": "Màu sắc không được để trống",
             "storageRequired": "Dung lượng không được để trống",
+            "ramRequired": "RAM không được để trống",
             "editionRequired": "Phiên bản không được để trống",
             "priceMinError": "Giá bán phải lớn hơn 1.000đ",
             "salePriceError": "Giá sale phải nhỏ hơn giá bán",
@@ -438,5 +443,13 @@
             "itemRemoved": "Đã xóa sản phẩm",
             "errorOccurred": "Có lỗi xảy ra"
         }
+    },
+    "globalOptions": {
+        "title": "Tùy chọn toàn cục",
+        "addPlaceholder": "Thêm giá trị...",
+        "search": "Tìm kiếm...",
+        "empty": "Chưa có giá trị nào. Thêm giá trị đầu tiên ở trên.",
+        "value": "Giá trị",
+        "preview": "Xem trước"
     }
 }
