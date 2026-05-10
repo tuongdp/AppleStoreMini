@@ -31,19 +31,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateOptionMutation, useDeleteOptionMutation, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
+import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
 import { slugify, formatNumber, formatDateTime, parseJsonField } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 
 const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
-
-const hexPresets = [
-    "#000000", "#1d1d1f", "#3a3a3c", "#636366", "#aeaeb2",
-    "#f5f5f7", "#ffffff", "#ff3b30", "#ff9500", "#ffcc00",
-    "#34c759", "#007aff", "#5856d6", "#af52de", "#ff2d55",
-];
 
 export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated }) {
     const { t } = useTranslation("admin");
@@ -64,16 +58,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
     const [deleteVariant] = useDeleteVariantMutation();
     const [checkOrders] = useLazyCheckVariantOrdersQuery();
-    const [createOption] = useCreateOptionMutation();
-    const [deleteOption] = useDeleteOptionMutation();
     const [createVariantApi] = useCreateVariantMutation();
     const [updateVariantApi] = useUpdateVariantMutation();
     const [uploadImage] = useUploadEditorImageMutation();
     const [createProductApi] = useCreateProductMutation();
-
-    const [newOptionType, setNewOptionType] = useState("COLOR");
-    const [newOptionValue, setNewOptionValue] = useState("");
-    const [newOptionHex, setNewOptionHex] = useState("#");
 
     const colorOptions = useMemo(() => options.filter((o) => o.type === "COLOR"), [options]);
     const storageOptions = useMemo(() => options.filter((o) => o.type === "STORAGE"), [options]);
@@ -174,60 +162,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     };
 
     // ── Option management ──
-    const addOption = async () => {
-        if (!newOptionValue.trim()) { toast.error(t("productForm.toast.optionValueRequired")); return; }
-        if (options.some((o) => o.type === newOptionType && o.value.toLowerCase() === newOptionValue.trim().toLowerCase())) {
-            toast.error(t("productForm.toast.optionValueExists")); return;
-        }
-        const value = newOptionValue.trim();
-        const hex = newOptionType === "COLOR" ? newOptionHex : null;
-        if (isEdit) {
-            try {
-                const payload = { productId: product.id, type: newOptionType, value };
-                if (hex) payload.hex = hex;
-                const created = await createOption(payload).unwrap();
-                setOptions([...options, { id: created.id, type: created.type, value: created.value, hex: created.hex || null }]);
-                toast.success(newOptionType === "COLOR" ? t("productForm.toast.addColorSuccess") : t("productForm.toast.addOptionSuccess", { type: getOptionLabel(newOptionType) }));
-            } catch (err) {
-                toast.error(err?.data?.message || t("productForm.toast.addOptionError"));
-                return;
-            }
-        } else {
-            setOptions([...options, { type: newOptionType, value, hex, id: null }]);
-        }
-        setNewOptionValue("");
-    };
-
-    const removeOption = async (idx) => {
-        const option = options[idx];
-        if (option?.id) {
-            try {
-                await deleteOption({ id: option.id, productId: product?.id }).unwrap();
-                toast.success(t("productForm.toast.deleteOptionSuccess"));
-            } catch (err) {
-                toast.error(err?.data?.message || t("productForm.toast.deleteOptionError"));
-                return;
-            }
-        }
-        setOptions(options.filter((_, i) => i !== idx));
-    };
-
-    const updateOptionHex = (idx, hex) => {
-        const next = [...options];
-        next[idx] = { ...next[idx], hex };
-        setOptions(next);
-    };
-
-    const getOptionLabel = (type) => {
-        switch (type) {
-            case "COLOR": return t("productForm.colorLabel");
-            case "STORAGE": return t("productForm.storageLabel");
-            case "RAM": return t("productForm.ramLabel");
-            case "EDITION": return t("productForm.editionLabel");
-            default: return type;
-        }
-    };
-
     // ── Variant management ──
     const openVariantForm = (idx) => {
         setEditingVariantIdx(idx);
@@ -509,169 +443,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             />
                         )}
 
-                        {/* ── Section 3: Options ── */}
-                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-4 text-sm font-medium text-foreground">{t("productForm.productOptions")}</h3>
-                            <p className="mb-4 text-xs text-muted-foreground">{t("productForm.optionsDescription")}</p>
-
-                            <div className="mb-4 max-h-[30vh] overflow-y-auto space-y-2 pr-1">
-                                {options.map((o, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 rounded-lg border border-border bg-muted/20 p-2">
-                                        <Badge variant="outline" className="shrink-0 text-[10px]">
-                                            {getOptionLabel(o.type)}
-                                        </Badge>
-                                        {o.type === "COLOR" && (
-                                            <input type="color" value={o.hex || "#ccc"} onChange={(e) => updateOptionHex(idx, e.target.value)} className="h-7 w-7 cursor-pointer rounded border-0 p-0" />
-                                        )}
-                                        <span className="flex-1 text-sm text-foreground">{o.value}</span>
-                                        <Button type="button" variant="ghost" size="icon" className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:text-destructive" onClick={() => removeOption(idx)}>
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="border-t border-border pt-3">
-                                <div className="flex flex-wrap items-center gap-2">
-                                <Select value={newOptionType} onValueChange={setNewOptionType}>
-                                    <SelectTrigger className="h-8 w-[130px] text-xs"><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="COLOR" className="text-xs">{t("productForm.colorLabel")}</SelectItem>
-                                        <SelectItem value="STORAGE" className="text-xs">{t("productForm.storageLabel")}</SelectItem>
-                                        <SelectItem value="RAM" className="text-xs">{t("productForm.ramLabel")}</SelectItem>
-                                        <SelectItem value="EDITION" className="text-xs">{t("productForm.editionLabel")}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {newOptionType === "COLOR" && (
-                                    <input type="color" value={newOptionHex} onChange={(e) => setNewOptionHex(e.target.value)} className="h-8 w-8 cursor-pointer rounded border-0 p-0" />
-                                )}
-                                <Input
-                                    placeholder={t("productForm.addValuePlaceholder")}
-                                    value={newOptionValue}
-                                    onChange={(e) => setNewOptionValue(e.target.value)}
-                                    className="h-8 flex-1 min-w-[120px] text-xs"
-                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addOption(); } }}
-                                />
-                                <Button type="button" size="icon" className="h-8 w-8 shrink-0 rounded-full" onClick={addOption} disabled={!newOptionValue.trim()}>
-                                    <Plus className="h-4 w-4" />
-                                </Button>
-                            </div>
-
-                                {newOptionType === "COLOR" && (
-                                    <div className="mt-2 flex flex-wrap gap-1">
-                                        {hexPresets.map((hex) => (
-                                            <button key={hex} type="button" onClick={() => setNewOptionHex(hex)} className="h-5 w-5 rounded-full border border-border transition-transform hover:scale-110" style={{ backgroundColor: hex }} />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* ── Section 4: Variants ── */}
-                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
-
-                            <div className="max-h-[45vh] overflow-y-auto pr-1">
-                                {!hasVariants && !showVariantForm && (
-                                    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
-                                        <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
-                                        <p className="text-sm text-muted-foreground">{t("productForm.noVariants")}</p>
-                                    </div>
-                                )}
-
-                                {hasVariants && (
-                                    <div className="mb-4 overflow-x-auto rounded-xl border border-border">
-                                        <table className="w-full text-sm">
-                                            ...
-                                        <thead>
-                                            <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium uppercase text-muted-foreground">
-                                                <th className="px-4 py-3">{t("productForm.variantColor")}</th>
-                                                <th className="px-4 py-3">{t("productForm.variantStorage")}</th>
-                                                <th className="px-4 py-3">{t("productForm.variantRam")}</th>
-                                                <th className="px-4 py-3">{t("productForm.variantEdition")}</th>
-                                                <th className="px-4 py-3">{t("productForm.priceColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.salePriceColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.stockColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.imagesColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.statusColumn")}</th>
-                                                <th className="px-4 py-3 text-right">{t("productForm.actions")}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {variants.map((v, idx) => (
-                                                <tr key={v.id || idx} className="border-b border-border last:border-0 hover:bg-muted/20">
-                                                    <td className="px-4 py-3 font-medium text-foreground">{v.color || "—"}</td>
-                                                    <td className="px-4 py-3 text-muted-foreground">{v.storage || "—"}</td>
-                                                    <td className="px-4 py-3 text-muted-foreground">{v.ram || "—"}</td>
-                                                    <td className="px-4 py-3 text-muted-foreground">{v.edition || "—"}</td>
-                                                    <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
-                                                    <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
-                                                    <td className="px-4 py-3 text-foreground">{v.stock}</td>
-                                                    <td className="px-4 py-3">
-                                                        {Array.isArray(v.images) && v.images.length > 0 ? (
-                                                            <div className="flex -space-x-1">
-                                                                {v.images.slice(0, 3).map((img, i) => (
-                                                                    <img
-                                                                        key={i}
-                                                                        src={img}
-                                                                        alt=""
-                                                                        className="h-7 w-7 rounded border border-border bg-muted/30 object-contain p-0.5"
-                                                                        onError={(e) => { e.currentTarget.style.display = "none"; }}
-                                                                    />
-                                                                ))}
-                                                                {v.images.length > 3 && (
-                                                                    <span className="flex h-7 w-7 items-center justify-center rounded border border-border bg-muted/30 text-[10px] text-muted-foreground">
-                                                                        +{v.images.length - 3}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-xs text-muted-foreground">—</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <Badge variant={v.inStock ? "default" : "secondary"} className="text-[10px]">
-                                                            {v.inStock ? t("productForm.inStock") : t("productForm.outOfStock")}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        <div className="flex items-center justify-end gap-1">
-                                                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openVariantForm(idx)} disabled={editingVariantIdx === idx}>
-                                                                <Edit3 className="h-3.5 w-3.5" />
-                                                            </Button>
-                                                            <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteVariant(idx)} disabled={editingVariantIdx === idx}>
-                                                                <Trash2 className="h-3.5 w-3.5" />
-                                                            </Button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-
-                                {showVariantForm && (
-                                    <VariantInlineForm
-                                        initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
-                                        onSave={saveVariant}
-                                        onCancel={cancelVariantForm}
-                                        colorOptions={colorOptions}
-                                        storageOptions={storageOptions}
-                                        ramOptions={ramOptions}
-                                        editionOptions={editionOptions}
-                                        uploadImage={uploadImage}
-                                        isSaving={isCreatingProduct}
-                                    />
-                                )}
-                            </div>
-
-                            {!showVariantForm && (
-                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => { setEditingVariantIdx(null); setShowVariantForm(true); }}>
-                                    <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addVariant")}
-                                </Button>
-                            )}
-                        </div>
                     </div>
 
                     {/* ── Right Column ── */}
@@ -739,6 +510,93 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             </div>
                         )}
                     </div>
+
+                    {/* ── Section 3: Variants ── */}
+                    <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+                        <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
+
+                        <div className="max-h-[45vh] overflow-y-auto pr-1">
+                            {!hasVariants && !showVariantForm && (
+                                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
+                                    <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
+                                    <p className="text-sm text-muted-foreground">{t("productForm.noVariants")}</p>
+                                </div>
+                            )}
+
+                            {hasVariants && (
+                                <div className="mb-4 overflow-x-auto rounded-xl border border-border">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-muted/50">
+                                            <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                                                <th className="px-4 py-3">{t("productForm.variantColor")}</th>
+                                                <th className="px-4 py-3">{t("productForm.variantStorage")}</th>
+                                                <th className="px-4 py-3">{t("productForm.variantRam")}</th>
+                                                <th className="px-4 py-3">{t("productForm.variantEdition")}</th>
+                                                <th className="px-4 py-3">{t("productForm.priceColumn")}</th>
+                                                <th className="px-4 py-3">{t("productForm.salePriceColumn")}</th>
+                                                <th className="px-4 py-3">{t("productForm.stockColumn")}</th>
+                                                <th className="px-4 py-3">{t("productForm.imagesColumn")}</th>
+                                                <th className="px-4 py-3">{t("productForm.statusColumn")}</th>
+                                                <th className="px-4 py-3 text-right">{t("productForm.actions")}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {variants.map((v, idx) => (
+                                                <tr key={v.id || idx} className="border-b border-border last:border-0 hover:bg-muted/20">
+                                                    <td className="px-4 py-3 font-medium text-foreground">{v.color || "—"}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.storage || "—"}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.ram || "—"}</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.edition || "—"}</td>
+                                                    <td className="px-4 py-3 text-foreground">{formatNumber(v.price)}đ</td>
+                                                    <td className="px-4 py-3 text-muted-foreground">{v.salePrice ? `${formatNumber(v.salePrice)}đ` : "—"}</td>
+                                                    <td className="px-4 py-3 text-foreground">{v.stock}</td>
+                                                    <td className="px-4 py-3 text-xs text-muted-foreground">{Array.isArray(v.images) ? v.images.length : 0} ảnh</td>
+                                                    <td className="px-4 py-3">
+                                                        <Badge variant={v.inStock ? "default" : "destructive"} className="text-[10px] px-1.5 py-0 whitespace-nowrap">
+                                                            {v.inStock ? t("productForm.inStock") : t("productForm.outOfStock")}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right">
+                                                        <div className="flex items-center justify-end gap-0.5">
+                                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground" onClick={() => openVariantForm(idx)}>
+                                                                <Edit3 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive" onClick={() => handleDeleteVariant(idx)}>
+                                                                {isCreatingProduct ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
+                            {showVariantForm && (
+                                <VariantInlineForm
+                                    initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
+                                    onSave={saveVariant}
+                                    onCancel={cancelVariantForm}
+                                    colorOptions={colorOptions}
+                                    storageOptions={storageOptions}
+                                    ramOptions={ramOptions}
+                                    editionOptions={editionOptions}
+                                    uploadImage={uploadImage}
+                                    isSaving={isCreatingProduct}
+                                />
+                            )}
+                        </div>
+
+                        {!showVariantForm && (
+                            <div className="mt-3 flex gap-2">
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => { setEditingVariantIdx(null); setShowVariantForm(true); }}>
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addVariant")}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
                 </form>
             </Form>
 
