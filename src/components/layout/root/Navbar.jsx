@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
-import { Menu, Search, X, Zap } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import MegaMenu from "./MegaMenu";
@@ -27,7 +27,7 @@ export default function Navbar() {
     const isScrolled = useScrolled(10);
     const SIMPLE_NAV_LINKS = [
         { label: t("nav.appleCare"), href: "/apple-care", icon: null },
-        { label: "Flash Sale", href: "/flash-sale", icon: Zap },
+
         { label: t("nav.news"), href: "/news", icon: null },
     ];
 

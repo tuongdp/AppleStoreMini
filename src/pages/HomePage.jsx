@@ -42,7 +42,7 @@ function CategoryProductSlider({ slug, label, subtitle }) {
     const products = data ?? [];
 
     return (
-        <section className="section-padding section-y">
+        <section className="section-padding py-8 md:py-10 lg:py-14">
             <div className="mx-auto max-w-7xl">
                 <SectionTitle
                     title={label}
@@ -147,7 +147,7 @@ export default function HomePage() {
 
             <section className="section-padding py-20 text-center">
                 <div className="mx-auto max-w-lg">
-                    <p className="mb-2 text-sm font-medium text-apple-blue">{tc("home.ctaBadge")}</p>
+                    <p className="mb-2 text-sm font-medium text-muted-foreground">{tc("home.ctaBadge")}</p>
                     <h2 className="mb-4 text-3xl font-semibold tracking-tight text-foreground">{tc("home.ctaTitle")}</h2>
                     <p className="mb-8 text-sm leading-relaxed text-muted-foreground">{tc("home.ctaDesc")}</p>
                     <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

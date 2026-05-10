@@ -15,7 +15,6 @@ import {
     ChevronRight,
     Newspaper,
     ShieldCheck,
-    Zap,
 } from "lucide-react";
 
 export default function NavbarMobile() {
@@ -109,14 +108,6 @@ export default function NavbarMobile() {
                         >
                             <ShieldCheck className="h-4 w-4" />
                             {t("nav.appleCare")}
-                        </Link>
-                        <Link
-                            to="/flash-sale"
-                            onClick={handleClose}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                            <Zap className="h-4 w-4" />
-                            Flash Sale
                         </Link>
                         <Link
                             to="/news"

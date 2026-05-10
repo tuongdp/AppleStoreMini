@@ -24,7 +24,7 @@ export default function SectionTitle({
             {/* Text group */}
             <div>
                 {subtitle && (
-                    <p className="mb-1 text-sm font-medium text-apple-blue">
+                    <p className="mb-1 text-sm font-medium text-muted-foreground">
                         {subtitle}
                     </p>
                 )}
@@ -37,7 +37,7 @@ export default function SectionTitle({
             {viewAllHref && align !== "center" && (
                 <Link
                     to={viewAllHref}
-                    className="group flex shrink-0 items-center gap-0.5 text-sm font-medium text-apple-blue transition-opacity hover:opacity-70"
+                    className="group flex shrink-0 items-center gap-0.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                 >
                     {viewAllLabel || t("btn.viewAll")}
                     <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -48,7 +48,7 @@ export default function SectionTitle({
             {viewAllHref && align === "center" && (
                 <Link
                     to={viewAllHref}
-                    className="group mt-2 flex items-center gap-0.5 text-sm font-medium text-apple-blue transition-opacity hover:opacity-70"
+                    className="group mt-2 flex items-center gap-0.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                 >
                     {viewAllLabel || t("btn.viewAll")}
                     <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

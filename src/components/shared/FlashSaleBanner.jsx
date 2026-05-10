@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Clock, Zap, ChevronRight } from "lucide-react";
+import { Clock, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductSlider from "@/components/shared/ProductSlider";
 import ProductCard from "@/components/shared/ProductCard";
@@ -129,12 +128,7 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                             <CountdownTimer endTime={flashSale.endTime} />
                         </div>
                     </div>
-                    <Link
-                        to="/flash-sale"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-amber-600 transition-colors hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
-                    >
-                        {t("flashSale.viewAll")} <ChevronRight className="h-4 w-4" />
-                    </Link>
+
                 </div>
 
                 <ProductSlider
