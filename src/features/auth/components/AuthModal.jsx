@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";

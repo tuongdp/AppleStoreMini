@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { User, Package, Heart, Settings, LogOut, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Tag, X, CheckCircle2, Loader2 } from "lucide-react";
 import { useApplyCouponMutation } from "@/store/api/couponsApi";
 import { Button } from "@/components/ui/button";

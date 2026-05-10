@@ -1,5 +1,5 @@
 import * as z from "zod";
-import i18next from "i18next";
+import i18next from "@/i18n/index";
 
 const v = (key) => i18next.t(key, { ns: "validation" });
 

@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";

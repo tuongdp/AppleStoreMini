@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
 import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";

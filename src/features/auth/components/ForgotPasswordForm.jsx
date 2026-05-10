@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { forgotPasswordSchema } from "@/lib/validations";
 import { useForgotPasswordMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";

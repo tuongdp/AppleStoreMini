@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
 import { Skeleton } from "@/components/ui/skeleton";

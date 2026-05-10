@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import AdminCategoryList from "@/features/admin/components/categories/AdminCategoryList";
 
 export default function AdminCategoryPage() {

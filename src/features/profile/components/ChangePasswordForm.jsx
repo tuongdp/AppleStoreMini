@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Eye, EyeOff } from "lucide-react";
 import { changePasswordSchema } from "@/lib/validations";
 import { useChangePasswordMutation } from "@/store/api/authApi";

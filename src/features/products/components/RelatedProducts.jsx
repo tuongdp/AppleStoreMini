@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useGetRelatedProductsQuery } from "@/store/api/productsApi";
 import ProductCard from "@/components/shared/ProductCard";
 import { ProductGridSkeleton } from "@/components/shared/ProductCardSkeleton";

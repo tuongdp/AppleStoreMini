@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Edit, Trash2, Eye, EyeOff, Search } from "lucide-react";
 import {
     useGetAllNewsQuery,

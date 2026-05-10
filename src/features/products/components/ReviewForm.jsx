@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { reviewSchema } from "@/lib/validations";
 import {
     useCreateReviewMutation,

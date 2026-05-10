@@ -1,6 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import {
     LayoutDashboard,

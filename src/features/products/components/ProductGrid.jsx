@@ -1,5 +1,5 @@
 import { Package } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import ProductCard from "@/components/shared/ProductCard";
 import { ProductGridSkeleton } from "@/components/shared/ProductCardSkeleton";
 import EmptyState from "@/components/shared/EmptyState";

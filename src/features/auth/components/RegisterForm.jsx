@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, MailCheck } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/button";

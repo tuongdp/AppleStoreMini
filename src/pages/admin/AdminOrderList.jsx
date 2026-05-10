@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import AdminOrderTable from "@/features/admin/components/orders/AdminOrderTable";
 
 export default function AdminOrderList() {

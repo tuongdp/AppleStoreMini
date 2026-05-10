@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { CheckCircle2, Package, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

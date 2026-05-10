@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ORDER_STATUS, ORDER_STATUS_COLOR } from "@/lib/constants";

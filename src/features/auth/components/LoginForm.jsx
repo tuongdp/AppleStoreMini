@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, AlertTriangle } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { toast } from "sonner";
 import { loginSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";

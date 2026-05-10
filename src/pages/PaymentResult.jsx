@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";

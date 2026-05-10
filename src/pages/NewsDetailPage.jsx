@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import {
     Calendar,
     Clock,

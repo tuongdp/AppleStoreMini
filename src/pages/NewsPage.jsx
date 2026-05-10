@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useGetNewsQuery } from "@/store/api/newsApi";
 import NewsCard from "@/features/news/components/NewsCard";
 import { Skeleton } from "@/components/ui/skeleton";

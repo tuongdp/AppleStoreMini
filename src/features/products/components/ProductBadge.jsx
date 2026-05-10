@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 

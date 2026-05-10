@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toggleCartDrawer } from "@/store/uiSlice";

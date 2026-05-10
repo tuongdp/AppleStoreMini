@@ -13,7 +13,7 @@ import {
     toggleSearch,
     selectSearchOpen,
 } from "@/store/uiSlice";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useScrolled } from "@/hooks/useScrollToTop";
 import { CATEGORIES, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";

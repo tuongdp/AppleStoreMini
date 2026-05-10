@@ -3,7 +3,7 @@ import { Heart, ShoppingCart, Flame } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";

@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUS_COLOR } from "@/lib/constants";
 

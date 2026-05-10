@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Calendar, Clock, Star, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";

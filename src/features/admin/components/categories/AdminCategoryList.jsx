@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Pencil, Trash2, GripVertical, ImagePlus, ImageUp } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,

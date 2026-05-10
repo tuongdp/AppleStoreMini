@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft } from "lucide-react";
 import { useGetUserByIdQuery } from "@/store/api/usersApi";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";

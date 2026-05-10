@@ -1,6 +1,6 @@
 import { cn, formatPrice, calcDiscount } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export default function PriceDisplay({
     price,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Coins, Gift, Copy, Check, ChevronRight, ArrowLeft, History, Sparkles } from "lucide-react";
 import { useGetMyPointsQuery, useGetRedeemPackagesQuery, useGetPointsHistoryQuery, useRedeemPointsMutation } from "@/store/api/pointsApi";
 import { formatDateTime } from "@/lib/utils";

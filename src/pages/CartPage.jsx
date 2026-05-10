@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import CartTable from "@/features/cart/components/CartTable";

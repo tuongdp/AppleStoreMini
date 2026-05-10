@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import QuantityInput from "@/components/shared/QuantityInput";

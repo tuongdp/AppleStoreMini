@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import AdminProductTable from "@/features/admin/components/products/AdminProductTable";
 
 export default function AdminProductList() {

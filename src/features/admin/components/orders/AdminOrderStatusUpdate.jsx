@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useUpdateOrderStatusMutation } from "@/store/api/ordersApi";
 import {
     Select,

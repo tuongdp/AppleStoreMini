@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";

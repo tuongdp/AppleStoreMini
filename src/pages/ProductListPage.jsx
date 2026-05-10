@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useSearchParams } from "react-router-dom";
 import { SearchX, X } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";

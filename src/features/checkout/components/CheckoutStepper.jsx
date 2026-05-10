@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CHECKOUT_STEPS } from "@/lib/constants";

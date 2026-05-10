@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft } from "lucide-react";
 import { useGetAdminOrderByIdQuery } from "@/store/api/ordersApi";
 import AdminOrderDetailComponent from "@/features/admin/components/orders/AdminOrderDetail";

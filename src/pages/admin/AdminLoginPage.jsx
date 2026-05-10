@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { z } from "zod";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useLoginMutation } from "@/store/api/authApi";

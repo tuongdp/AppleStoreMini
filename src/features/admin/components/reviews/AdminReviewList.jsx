@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Search, Star, Trash2, Eye, EyeOff } from "lucide-react";
 import {
     useGetAllReviewsQuery,

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, formatNumber } from "@/lib/utils";

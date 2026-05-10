@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useVerifyEmailMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";

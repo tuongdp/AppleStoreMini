@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useGetOrdersQuery } from "@/store/api/ordersApi";
 import OrderList from "@/features/orders/components/OrderList";
 import { Button } from "@/components/ui/button";

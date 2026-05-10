@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Separator } from "@/components/ui/separator";
 import { selectIsAuthenticated, selectCurrentUser } from "@/store/authSlice";
 import { toggleMobileMenu } from "@/store/uiSlice";

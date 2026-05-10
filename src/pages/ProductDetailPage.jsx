@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import {
     ShoppingCart,
     Heart,

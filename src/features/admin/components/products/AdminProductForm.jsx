@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import {
     Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle, Loader2, FileSpreadsheet
 } from "lucide-react";

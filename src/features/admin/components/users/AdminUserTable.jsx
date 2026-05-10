@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useState } from "react";
 import {
     Search,

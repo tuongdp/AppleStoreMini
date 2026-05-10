@@ -1,35 +1,28 @@
-import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
+import viText from "./viText";
 
-import viCommon from "./locales/vi/common.json";
-import viAuth from "./locales/vi/auth.json";
-import viProduct from "./locales/vi/product.json";
-import viCart from "./locales/vi/cart.json";
-import viCheckout from "./locales/vi/checkout.json";
-import viOrder from "./locales/vi/order.json";
-import viProfile from "./locales/vi/profile.json";
-import viAdmin from "./locales/vi/admin.json";
-import viValidation from "./locales/vi/validation.json";
+const t = (key, options = {}) => {
+  const ns = options.ns;
+  let fullKey = key;
+  if (ns && !key.includes(".")) {
+    fullKey = `${ns}.${key}`;
+  }
 
-i18n.use(initReactI18next).init({
-    resources: {
-        vi: {
-            common: viCommon,
-            auth: viAuth,
-            product: viProduct,
-            cart: viCart,
-            checkout: viCheckout,
-            order: viOrder,
-            profile: viProfile,
-            admin: viAdmin,
-            validation: viValidation,
-        },
-    },
-    lng: "vi",
-    fallbackLng: "vi",
-    ns: ["common", "auth", "product", "cart", "checkout", "order", "profile", "admin", "validation"],
-    defaultNS: "common",
-    interpolation: { escapeValue: false },
-});
+  const value = viText[fullKey];
+  if (value !== undefined) return value;
 
-export default i18n;
+  if (key.includes(".")) {
+    const nsKey = ns ? `${ns}.${key}` : key;
+    const nsValue = viText[nsKey];
+    if (nsValue !== undefined) return nsValue;
+  }
+
+  if (options.defaultValue) return options.defaultValue;
+
+  const parts = key.split(".");
+  return parts[parts.length - 1] || key;
+};
+
+const i18nConfig = { language: "vi" };
+
+export default { t, language: "vi", options: {} };
+export { t, i18nConfig };

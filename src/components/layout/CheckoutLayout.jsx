@@ -1,5 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ShieldCheck, Lock } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 

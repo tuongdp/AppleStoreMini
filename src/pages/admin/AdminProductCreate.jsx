@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { useState, useRef } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useCreateProductMutation, useUpdateProductMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";

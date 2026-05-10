@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import i18next from "i18next";
+import i18next from "@/i18n/index";
 import {
     useLoginMutation,
     useRegisterMutation,

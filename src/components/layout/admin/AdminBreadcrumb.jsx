@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";

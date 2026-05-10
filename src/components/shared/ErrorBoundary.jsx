@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { Button } from "@/components/ui/button";
-import i18next from "i18next";
+import i18next from "@/i18n/index";
 
 export default class ErrorBoundary extends Component {
     constructor(props) {

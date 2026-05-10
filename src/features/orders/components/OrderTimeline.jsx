@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { Check, Clock } from "lucide-react";
 import { cn, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";

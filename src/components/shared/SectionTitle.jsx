@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export default function SectionTitle({
     title,

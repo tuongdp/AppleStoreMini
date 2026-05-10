@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft, ShoppingCart } from "lucide-react";
 import { useCheckout } from "@/features/checkout/hooks/useCheckout";
 import { Button } from "@/components/ui/button";

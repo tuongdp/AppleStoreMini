@@ -7,7 +7,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export default function ConfirmDialog({
     open,

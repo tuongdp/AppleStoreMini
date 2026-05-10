@@ -7,7 +7,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/providers/ThemeProvider";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 
 export default function ThemeToggle() {
     const { theme, setTheme } = useTheme();

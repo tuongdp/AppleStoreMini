@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "@/i18n/useTranslation";
 import AdminReviewList from "@/features/admin/components/reviews/AdminReviewList";
 
 export default function AdminReviewPage() {
