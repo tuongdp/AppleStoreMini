@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
@@ -48,7 +47,7 @@ export default function ProductFilter({ filters, onUpdate }) {
                                     : "text-muted-foreground hover:bg-muted",
                             )}
                         >
-                            {t(cat.label)}
+                            {cat.label}
                         </button>
                     ))}
                 </div>
@@ -80,7 +79,7 @@ export default function ProductFilter({ filters, onUpdate }) {
                                 }}
                                 className="w-full rounded-lg px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                             >
-                                {t(range.label)}
+                                {range.label}
                             </button>
                         ))}
                     </div>

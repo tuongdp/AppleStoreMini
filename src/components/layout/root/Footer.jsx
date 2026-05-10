@@ -1,34 +1,34 @@
-import { t } from "@/i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/lib/constants";
 
 const FOOTER_LINKS = [
     {
-        titleKey: "footer.shop",
+        title: "Mua sắm",
         links: [
             { label: "iPhone", href: `${ROUTES.PRODUCTS}?category=iphone` },
             { label: "iPad", href: `${ROUTES.PRODUCTS}?category=ipad` },
             { label: "Mac", href: `${ROUTES.PRODUCTS}?category=mac` },
-            { label: "Watch", href: `${ROUTES.PRODUCTS}?category=watch` },
+            { label: "Watch", href: `${ROUTES.PRODUCTS}?category=apple-watch` },
             { label: "AirPods", href: `${ROUTES.PRODUCTS}?category=airpods` },
+            { label: "Phụ kiện", href: `${ROUTES.PRODUCTS}?category=phu-kien` },
         ],
     },
     {
-        titleKey: "footer.explore",
+        title: "Khám phá",
         links: [
             { label: "AppleCare", href: "/apple-care" },
             { label: "Tin tức", href: "/news" },
-            { labelKey: "footer.about", href: "/about" },
-            { labelKey: "footer.contact", href: "/contact" },
+            { label: "Về chúng tôi", href: "/about" },
+            { label: "Liên hệ", href: "/contact" },
         ],
     },
     {
-        titleKey: "footer.support",
+        title: "Hỗ trợ",
         links: [
-            { labelKey: "footer.warranty", href: "/warranty" },
-            { labelKey: "footer.return", href: "/return" },
-            { labelKey: "footer.privacy", href: "/privacy" },
-            { labelKey: "footer.terms", href: "/terms" },
+            { label: "Chính sách bảo hành", href: "/warranty" },
+            { label: "Chính sách đổi trả", href: "/return" },
+            { label: "Chính sách bảo mật", href: "/privacy" },
+            { label: "Điều khoản sử dụng", href: "/terms" },
         ],
     },
 ];
@@ -80,7 +80,7 @@ export default function Footer() {
                                 <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-43.4-150.3-109.2c-52.1-73.6-96.2-187.8-96.2-296.7 0-166.7 108.7-254.8 215.7-254.8 56.6 0 103.7 37.5 139 37.5 33.8 0 86.5-39.5 151.8-39.5 24.4 0 108.2 2.6 168.6 80.6zm-159.5-197.7c30.3-35.7 51.5-85.4 51.5-135.1 0-6.5-.6-13-1.9-18.2-48.7 1.9-106.4 32.5-140.8 73.6-26.8 30.3-52 80-52 130.4 0 7.1 1.3 14.3 1.9 16.5 3.2.6 8.4 1.3 13.6 1.3 43.4 0 98.4-29 127.7-68.5z" />
                             </svg>
                             <p className="mb-4 text-sm text-muted-foreground">
-                                {"Apple Store"} — {"slogan"}
+                                Apple Store — Chính hãng, uy tín, bảo hành toàn quốc.
                             </p>
                             <div className="flex items-center gap-2">
                                 {SOCIAL_LINKS.map((social) => (
@@ -100,14 +100,9 @@ export default function Footer() {
 
                         {/* Link columns */}
                         {FOOTER_LINKS.map((col) => (
-                            <div key={col.titleKey}>
+                            <div key={col.title}>
                                 <h3 className="mb-4 text-sm font-semibold text-foreground">
-                                    {t(col.titleKey, {
-                                        defaultValue:
-                                            col.titleKey === "footer.explore"
-                                                ? "Khám phá"
-                                                : col.titleKey,
-                                    })}
+                                    {col.title}
                                 </h3>
                                 <ul className="space-y-2.5">
                                     {col.links.map((link, index) => (
@@ -116,7 +111,7 @@ export default function Footer() {
                                                 to={link.href}
                                                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                                             >
-                                                {link.label || t(link.labelKey)}
+                                                {link.label}
                                             </Link>
                                         </li>
                                     ))}
@@ -132,20 +127,20 @@ export default function Footer() {
                 <div className="section-padding py-5">
                     <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 md:flex-row">
                         <p className="text-xs text-muted-foreground">
-                            {"copyright"}
+                            © 2024 Apple Store. Bảo lưu mọi quyền.
                         </p>
                         <div className="flex items-center gap-4">
                             <Link
                                 to="/privacy"
                                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                             >
-                                {"privacy"}
+                                Chính sách bảo mật
                             </Link>
                             <Link
                                 to="/terms"
                                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                             >
-                                {"terms"}
+                                Điều khoản sử dụng
                             </Link>
                         </div>
                     </div>

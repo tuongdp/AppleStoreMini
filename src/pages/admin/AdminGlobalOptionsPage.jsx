@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Plus, Trash2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,10 +13,10 @@ import {
 } from "@/store/api/globalOptionsApi";
 
 const OPTION_TYPES = [
-    { value: "COLOR", labelKey: "productForm.colorLabel" },
-    { value: "STORAGE", labelKey: "productForm.storageLabel" },
-    { value: "RAM", labelKey: "productForm.ramLabel" },
-    { value: "EDITION", labelKey: "productForm.editionLabel" },
+    { value: "COLOR", label: "Màu sắc" },
+    { value: "STORAGE", label: "Dung lượng" },
+    { value: "RAM", label: "RAM" },
+    { value: "EDITION", label: "Phiên bản" },
 ];
 
 const HEX_PRESETS = [
@@ -83,7 +82,7 @@ export default function AdminGlobalOptionsPage() {
                 <TabsList className="h-10">
                     {OPTION_TYPES.map((ot) => (
                         <TabsTrigger key={ot.value} value={ot.value} className="text-xs">
-                            {t(ot.labelKey)}
+                            {ot.label}
                         </TabsTrigger>
                     ))}
                 </TabsList>

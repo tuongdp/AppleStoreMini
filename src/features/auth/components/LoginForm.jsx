@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -115,9 +114,7 @@ export default function LoginForm() {
                                 <FormControl>
                                     <Input
                                         type="email"
-                                        placeholder={t(
-                                            "login.emailPlaceholder",
-                                        )}
+                                        placeholder={"Nhập địa chỉ email"}
                                         autoComplete="email"
                                         disabled={isLoginLoading}
                                         {...field}
@@ -151,9 +148,7 @@ export default function LoginForm() {
                                                     ? "text"
                                                     : "password"
                                             }
-                                            placeholder={t(
-                                                "login.passwordPlaceholder",
-                                            )}
+                                            placeholder={"Nhập mật khẩu"}
                                             autoComplete="current-password"
                                             disabled={isLoginLoading}
                                             className="pr-10"

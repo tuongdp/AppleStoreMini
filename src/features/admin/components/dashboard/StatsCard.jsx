@@ -1,10 +1,9 @@
-import { t } from "@/i18n/useTranslation";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 export default function StatsCard({
-    titleKey,
+    title,
     value,
     change,
     iconColor,
@@ -14,7 +13,7 @@ export default function StatsCard({
         <Card className="border-border">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {t(titleKey)}
+                    {title}
                 </CardTitle>
                 <div
                     className={cn(

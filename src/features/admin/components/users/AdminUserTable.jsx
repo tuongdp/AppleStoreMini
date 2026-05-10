@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import {
@@ -56,9 +55,9 @@ const ROLE = {
 };
 
 const ROLE_OPTIONS = [
-    { value: "all", labelKey: "user.all" },
-    { value: ROLE.USER, labelKey: "user.roleUser" },
-    { value: ROLE.ADMIN, labelKey: "user.roleAdmin" },
+    { value: "all", label: "Tất cả" },
+    { value: ROLE.USER, label: "Người dùng" },
+    { value: ROLE.ADMIN, label: "Quản trị viên" },
 ];
 
 export default function AdminUserTable() {
@@ -152,7 +151,7 @@ export default function AdminUserTable() {
                     <SelectContent>
                         {ROLE_OPTIONS.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
-                                {t(opt.labelKey)}
+                                {opt.label}
                             </SelectItem>
                         ))}
                     </SelectContent>

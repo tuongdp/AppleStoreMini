@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchX, X } from "lucide-react";
@@ -188,7 +187,7 @@ export default function ProductListPage() {
                         <SelectContent>
                             {SORT_OPTIONS.map((opt) => (
                                 <SelectItem key={opt.value} value={opt.value}>
-                                    {t(opt.label)}
+                                    {opt.label}
                                 </SelectItem>
                             ))}
                         </SelectContent>

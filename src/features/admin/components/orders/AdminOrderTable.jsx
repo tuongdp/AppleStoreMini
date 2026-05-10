@@ -1,6 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { t } from "@/i18n/useTranslation";
 import { Search, Eye } from "lucide-react";
 import {
   useGetAllOrdersQuery,
@@ -46,13 +45,13 @@ const STATUS_MAP = {
   "success": "Thành công"
 };
 const STATUS_OPTIONS = [
-  { value: "all", labelKey: "status.all" },
-  { value: ORDER_STATUS.PENDING, labelKey: "status.pending" },
-  { value: ORDER_STATUS.CONFIRMED, labelKey: "status.confirmed" },
-  { value: ORDER_STATUS.PROCESSING, labelKey: "status.processing" },
-  { value: ORDER_STATUS.SHIPPING, labelKey: "status.shipping" },
-  { value: ORDER_STATUS.DELIVERED, labelKey: "status.delivered" },
-  { value: ORDER_STATUS.CANCELLED, labelKey: "status.cancelled" },
+  { value: "all", label: "Tất cả" },
+  { value: ORDER_STATUS.PENDING, label: "Chờ xác nhận" },
+  { value: ORDER_STATUS.CONFIRMED, label: "Đã xác nhận" },
+  { value: ORDER_STATUS.PROCESSING, label: "Đang xử lý" },
+  { value: ORDER_STATUS.SHIPPING, label: "Đang giao hàng" },
+  { value: ORDER_STATUS.DELIVERED, label: "Đã giao hàng" },
+  { value: ORDER_STATUS.CANCELLED, label: "Đã huỷ" },
 ];
 
 const NEXT_STATUS = {
@@ -131,7 +130,7 @@ export default function AdminOrderTable() {
           <SelectContent>
             {STATUS_OPTIONS.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
-                {t(opt.labelKey, { ns: "order" })}
+                {opt.label}
               </SelectItem>
             ))}
           </SelectContent>

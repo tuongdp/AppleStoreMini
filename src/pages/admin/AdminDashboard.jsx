@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import {
     DollarSign,
     ShoppingBag,
@@ -38,7 +37,7 @@ export default function AdminDashboard() {
 
     const STAT_CARDS = [
         {
-            titleKey: "dashboard.totalRevenue",
+            title: "Tổng doanh thu",
             // stats là object trực tiếp sau transformResponse (không cần .data)
             value: formatPrice(stats?.totalRevenue ?? 0),
             change: stats?.revenueChange ?? 0,
@@ -47,7 +46,7 @@ export default function AdminDashboard() {
             bg: "bg-green-50 dark:bg-green-950/30",
         },
         {
-            titleKey: "dashboard.totalOrders",
+            title: "Tổng đơn hàng",
             // ordersData → { orders, pagination }
             value: formatNumber(ordersData?.pagination?.total ?? 0),
             change: 0,
@@ -56,7 +55,7 @@ export default function AdminDashboard() {
             bg: "bg-blue-50 dark:bg-blue-950/30",
         },
         {
-            titleKey: "dashboard.totalProducts",
+            title: "Tổng sản phẩm",
             // productsData → { products, pagination }
             value: formatNumber(productsData?.pagination?.total ?? 0),
             change: 0,
@@ -65,7 +64,7 @@ export default function AdminDashboard() {
             bg: "bg-purple-50 dark:bg-purple-950/30",
         },
         {
-            titleKey: "dashboard.totalUsers",
+            title: "Tổng người dùng",
             // usersApi chưa có transformResponse → data?.data?.pagination
             value: formatNumber(
                 usersData?.pagination?.total ?? 0,
@@ -91,10 +90,10 @@ export default function AdminDashboard() {
             {/* Stat cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {STAT_CARDS.map((card) => (
-                    <Card key={card.titleKey} className="border-border">
+                    <Card key={card.title} className="border-border">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
-                                {t(card.titleKey)}
+                                {card.title}
                             </CardTitle>
                             <div
                                 className={cn(

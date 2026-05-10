@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Separator } from "@/components/ui/separator";
@@ -78,7 +77,7 @@ export default function NavbarMobile() {
                                 onClick={handleClose}
                                 className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                             >
-                                {t(cat.label)}
+                                {cat.label}
                                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
                             </Link>
                         ))}

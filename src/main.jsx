@@ -8,7 +8,6 @@ import { Toaster } from "@/components/ui/sonner";
 import LoadingScreen from "./components/shared/LoadingScreen";
 import App from "./App.jsx";
 import "./index.css";
-import "./i18n";
 import { injectStore } from "./lib/axios";
 
 injectStore(store);

@@ -1,15 +1,14 @@
-import { t } from "@/i18n/useTranslation";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import ProfileSidebar from "./profile/ProfileSidebar";
 
 const BREADCRUMB_MAP = {
-    "/profile": "sidebar.profile",
-    "/profile/orders": "sidebar.orders",
-    "/profile/addresses": "sidebar.addresses",
-    "/profile/change-password": "sidebar.changePassword",
-    "/profile/wishlist": "sidebar.wishlist",
-    "/profile/points": "sidebar.points",
+    "/profile": "Tài khoản",
+    "/profile/orders": "Đơn hàng của tôi",
+    "/profile/addresses": "Sổ địa chỉ",
+    "/profile/change-password": "Đổi mật khẩu",
+    "/profile/wishlist": "Yêu thích",
+    "/profile/points": "Điểm thưởng",
 };
 
 export default function ProfileLayout() {
@@ -18,7 +17,7 @@ export default function ProfileLayout() {
     const isOrderDetail = /^\/profile\/orders\/.+/.test(pathname);
     const currentLabel = isOrderDetail
         ? "Đơn hàng của tôi"
-        : t(BREADCRUMB_MAP[pathname] || "sidebar.profile");
+        : BREADCRUMB_MAP[pathname] || "Tài khoản";
 
     return (
         <div className="section-padding py-8 md:py-12">

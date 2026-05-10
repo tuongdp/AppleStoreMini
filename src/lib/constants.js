@@ -50,10 +50,8 @@ export const CATEGORIES = [
     { label: "Mac", value: "mac", href: "/products?category=mac", image: macImg },
     { label: "Watch", value: "apple-watch", href: "/products?category=apple-watch", image: watchImg },
     { label: "AirPods", value: "airpods", href: "/products?category=airpods", image: airpodsImg },
-    { label: "product:category.accessories", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
+    { label: "Phụ kiện", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
 ];
-
-
 
 // ── Sort options ──────────────────────────────────────
 export const SORT_OPTIONS = [

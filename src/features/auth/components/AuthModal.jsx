@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -270,9 +269,8 @@ function RegisterFormInModal({ onSuccess }) {
                             <FormControl>
                                 <Input
                                     type="password"
-                                    placeholder={t(
-                                        "register.passwordPlaceholder",
-                                    )}
+                                        placeholder={"Nhập mật khẩu"}
+                                    />
                                     disabled={isRegisterLoading}
                                     {...field}
                                 />
@@ -292,9 +290,7 @@ function RegisterFormInModal({ onSuccess }) {
                             <FormControl>
                                 <Input
                                     type="password"
-                                    placeholder={t(
-                                        "register.confirmPasswordPlaceholder",
-                                    )}
+                                    placeholder={"Nhập lại mật khẩu"}
                                     disabled={isRegisterLoading}
                                     {...field}
                                 />

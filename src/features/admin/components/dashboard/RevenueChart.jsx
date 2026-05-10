@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import {
     AreaChart,
@@ -16,9 +15,9 @@ import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const PERIODS = [
-    { value: "week", labelKey: "dashboard.week" },
-    { value: "month", labelKey: "dashboard.month" },
-    { value: "year", labelKey: "dashboard.year" },
+    { value: "week", label: "Tuần" },
+    { value: "month", label: "Tháng" },
+    { value: "year", label: "Năm" },
 ];
 
 function CustomTooltip({ active, payload, label }) {
@@ -76,7 +75,7 @@ export default function RevenueChart() {
                                 : "text-muted-foreground",
                         )}
                     >
-                        {t(p.labelKey)}
+                        {p.label}
                     </Button>
                 ))}
             </div>

@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -119,9 +118,7 @@ export default function RegisterForm() {
                                 <FormLabel>{"Họ và tên"}</FormLabel>
                                 <FormControl>
                                     <Input
-                                        placeholder={t(
-                                            "register.fullNamePlaceholder",
-                                        )}
+                                        placeholder={"Nhập họ và tên"}
                                         autoComplete="name"
                                         disabled={isRegisterLoading}
                                         {...field}
@@ -142,9 +139,7 @@ export default function RegisterForm() {
                                 <FormControl>
                                     <Input
                                         type="email"
-                                        placeholder={t(
-                                            "register.emailPlaceholder",
-                                        )}
+                                        placeholder={"Nhập địa chỉ email"}
                                         autoComplete="email"
                                         disabled={isRegisterLoading}
                                         {...field}
@@ -165,9 +160,7 @@ export default function RegisterForm() {
                                 <FormControl>
                                     <Input
                                         type="tel"
-                                        placeholder={t(
-                                            "register.phonePlaceholder",
-                                        )}
+                                        placeholder={"Nhập số điện thoại"}
                                         autoComplete="tel"
                                         disabled={isRegisterLoading}
                                         {...field}
@@ -193,9 +186,7 @@ export default function RegisterForm() {
                                                     ? "text"
                                                     : "password"
                                             }
-                                            placeholder={t(
-                                                "register.passwordPlaceholder",
-                                            )}
+                                            placeholder={"Tối thiểu 8 ký tự"}
                                             autoComplete="new-password"
                                             disabled={isRegisterLoading}
                                             className="pr-10"
@@ -239,9 +230,7 @@ export default function RegisterForm() {
                                                     ? "text"
                                                     : "password"
                                             }
-                                            placeholder={t(
-                                                "register.confirmPasswordPlaceholder",
-                                            )}
+                                            placeholder={"Nhập lại mật khẩu"}
                                             autoComplete="new-password"
                                             disabled={isRegisterLoading}
                                             className="pr-10"

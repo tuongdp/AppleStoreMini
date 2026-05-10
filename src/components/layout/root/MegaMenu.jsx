@@ -1,11 +1,10 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const getCategoryLinks = (category, t) => [
-    { label: `${"Tất cả"} ${t(category.label)}`, href: category.href, bold: true },
+const getCategoryLinks = (category) => [
+    { label: `Tất cả ${category.label}`, href: category.href, bold: true },
     { label: "Mới nhất", href: `${category.href}&sort=newest` },
     { label: "Bán chạy nhất", href: `${category.href}&sort=best_seller` },
     { label: "Giá thấp đến cao", href: `${category.href}&sort=price_asc` },
@@ -15,7 +14,7 @@ const getCategoryLinks = (category, t) => [
 export default function MegaMenu({ category }) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const links = getCategoryLinks(category, t);
+    const links = getCategoryLinks(category);
 
     return (
         <div
@@ -32,7 +31,7 @@ export default function MegaMenu({ category }) {
                         : "text-muted-foreground hover:text-foreground",
                 )}
             >
-                {t(category.label)}
+                {category.label}
                 <ChevronDown
                     className={cn(
                         "h-3.5 w-3.5 transition-transform duration-200",
@@ -44,7 +43,6 @@ export default function MegaMenu({ category }) {
             {/* Dropdown */}
             {isOpen && (
                 <div className="absolute left-1/2 top-full z-50 -translate-x-1/2">
-                    {/* ✅ Bridge vô hình — lấp khoảng trống giữa button và dropdown */}
                     <div className="h-3 w-full" />
 
                     {/* Arrow */}

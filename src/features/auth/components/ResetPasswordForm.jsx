@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -143,9 +142,7 @@ export default function ResetPasswordForm() {
                                                     ? "text"
                                                     : "password"
                                             }
-                                            placeholder={t(
-                                                "resetPassword.passwordPlaceholder",
-                                            )}
+                                            placeholder={"Tối thiểu 8 ký tự"}
                                             autoComplete="new-password"
                                             disabled={isLoading}
                                             className="pr-10"
@@ -188,9 +185,7 @@ export default function ResetPasswordForm() {
                                                     ? "text"
                                                     : "password"
                                             }
-                                            placeholder={t(
-                                                "resetPassword.confirmPasswordPlaceholder",
-                                            )}
+                                            placeholder={"Nhập lại mật khẩu mới"}
                                             autoComplete="new-password"
                                             disabled={isLoading}
                                             className="pr-10"

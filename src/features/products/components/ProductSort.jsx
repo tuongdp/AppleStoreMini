@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import {
     Select,
     SelectContent,
@@ -17,7 +16,7 @@ export default function ProductSort({ value, onChange }) {
             <SelectContent>
                 {SORT_OPTIONS.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
-                        {t(opt.label)}
+                        {opt.label}
                     </SelectItem>
                 ))}
             </SelectContent>

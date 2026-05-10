@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -116,9 +115,7 @@ export default function ChangePasswordForm() {
                                 <FormControl>
                                     <PasswordInput
                                         field={field}
-                                        placeholder={t(
-                                            "changePassword.currentPasswordPlaceholder",
-                                        )}
+                                        placeholder={"Nhập mật khẩu hiện tại"}
                                         disabled={isLoading}
                                     />
                                 </FormControl>
@@ -141,9 +138,7 @@ export default function ChangePasswordForm() {
                                 <FormControl>
                                     <PasswordInput
                                         field={field}
-                                        placeholder={t(
-                                            "changePassword.newPasswordPlaceholder",
-                                        )}
+                                        placeholder={"Tối thiểu 8 ký tự"}
                                         disabled={isLoading}
                                     />
                                 </FormControl>
@@ -164,9 +159,7 @@ export default function ChangePasswordForm() {
                                 <FormControl>
                                     <PasswordInput
                                         field={field}
-                                        placeholder={t(
-                                            "changePassword.confirmPasswordPlaceholder",
-                                        )}
+                                        placeholder={"Nhập lại mật khẩu mới"}
                                         disabled={isLoading}
                                     />
                                 </FormControl>

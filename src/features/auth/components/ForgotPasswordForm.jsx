@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -107,9 +106,7 @@ export default function ForgotPasswordForm() {
                                 <FormControl>
                                     <Input
                                         type="email"
-                                        placeholder={t(
-                                            "forgotPassword.emailPlaceholder",
-                                        )}
+                                        placeholder={"Nhập địa chỉ email"}
                                         autoComplete="email"
                                         disabled={isLoading}
                                         {...field}

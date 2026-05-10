@@ -1,4 +1,3 @@
-import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { useGetOrdersQuery } from "@/store/api/ordersApi";
 import OrderList from "@/features/orders/components/OrderList";
@@ -7,12 +6,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ORDER_STATUS } from "@/lib/constants";
 
 const STATUS_TABS = [
-    { value: "", labelKey: "status.all" },
-    { value: ORDER_STATUS.PENDING, labelKey: "status.pending" },
-    { value: ORDER_STATUS.CONFIRMED, labelKey: "status.confirmed" },
-    { value: ORDER_STATUS.SHIPPING, labelKey: "status.shipping" },
-    { value: ORDER_STATUS.DELIVERED, labelKey: "status.delivered" },
-    { value: ORDER_STATUS.CANCELLED, labelKey: "status.cancelled" },
+    { value: "", label: "Tất cả" },
+    { value: ORDER_STATUS.PENDING, label: "Chờ xác nhận" },
+    { value: ORDER_STATUS.CONFIRMED, label: "Đã xác nhận" },
+    { value: ORDER_STATUS.SHIPPING, label: "Đang giao hàng" },
+    { value: ORDER_STATUS.DELIVERED, label: "Đã giao hàng" },
+    { value: ORDER_STATUS.CANCELLED, label: "Đã huỷ" },
 ];
 
 export default function OrderHistoryPage() {
@@ -54,7 +53,7 @@ export default function OrderHistoryPage() {
                             value={tab.value}
                             className="rounded-full border border-border data-[state=active]:border-foreground data-[state=active]:bg-foreground data-[state=active]:text-background"
                         >
-                            {t(tab.labelKey)}
+                            {tab.label}
                         </TabsTrigger>
                     ))}
                 </TabsList>
