@@ -11,18 +11,37 @@ export default function ProductDescription({ description }) {
 
     const checkTruncation = useCallback(() => {
         if (contentRef.current) {
-            setNeedsTruncation(contentRef.current.scrollHeight > TRUNCATE_HEIGHT + 10);
+            const el = contentRef.current;
+            const images = el.querySelectorAll("img");
+            if (images.length > 0) {
+                let loaded = 0;
+                const onLoad = () => {
+                    loaded++;
+                    if (loaded === images.length) {
+                        setNeedsTruncation(el.scrollHeight > TRUNCATE_HEIGHT + 10);
+                    }
+                };
+                images.forEach((img) => {
+                    if (img.complete) {
+                        loaded++;
+                    } else {
+                        img.addEventListener("load", onLoad, { once: true });
+                        img.addEventListener("error", onLoad, { once: true });
+                    }
+                });
+                if (loaded === images.length) {
+                    setNeedsTruncation(el.scrollHeight > TRUNCATE_HEIGHT + 10);
+                }
+            } else {
+                setNeedsTruncation(el.scrollHeight > TRUNCATE_HEIGHT + 10);
+            }
         }
     }, []);
 
     useEffect(() => {
         checkTruncation();
-        const timer = setTimeout(checkTruncation, 300);
         window.addEventListener("resize", checkTruncation);
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener("resize", checkTruncation);
-        };
+        return () => window.removeEventListener("resize", checkTruncation);
     }, [description, checkTruncation]);
 
     if (!description) return null;
