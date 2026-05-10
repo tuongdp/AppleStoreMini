@@ -25,7 +25,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ThemeToggle from "@/components/shared/ThemeToggle";
-import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { logout, selectCurrentUser } from "@/store/authSlice";
@@ -197,7 +196,6 @@ export default function AdminLayout() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-1">
-                        <LanguageSwitcher />
                         <ThemeToggle />
                     </div>
                 </header>

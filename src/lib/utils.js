@@ -1,31 +1,21 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import i18next from "i18next";
 
 // ── Tailwind ───────────────────────────────────────────
 export function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
-const LOCALE_MAP = { vi: "vi-VN", en: "en-US" };
-const CURRENCY_MAP = { vi: "VND", en: "USD" };
-
-function getLocale() {
-    return LOCALE_MAP[i18next.language] || "vi-VN";
-}
-
-function getCurrency() {
-    return CURRENCY_MAP[i18next.language] || "VND";
-}
+const LOCALE = "vi-VN";
+const CURRENCY = "VND";
 
 // ── Format giá tiền ────────────────────────────────────
 export function formatPrice(price) {
     if (!price && price !== 0) return "";
-    const currency = getCurrency();
-    return new Intl.NumberFormat(getLocale(), {
+    return new Intl.NumberFormat(LOCALE, {
         style: "currency",
-        currency,
-        maximumFractionDigits: currency === "VND" ? 0 : 2,
+        currency: CURRENCY,
+        maximumFractionDigits: 0,
     }).format(price);
 }
 
@@ -34,7 +24,7 @@ export function formatPriceInput(value) {
     if (value === "" || value === undefined || value === null) return "";
     const num = typeof value === "string" ? Number(value.replace(/\D/g, "")) : Number(value);
     if (!num && num !== 0) return "";
-    return new Intl.NumberFormat(getLocale()).format(num);
+    return new Intl.NumberFormat(LOCALE).format(num);
 }
 
 // Parse input đã format về number
@@ -75,18 +65,18 @@ export function timeAgo(date) {
     if (!date) return "";
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
     const intervals = [
-        { label: i18next.t("timeAgo.year", { ns: "common" }), seconds: 31536000 },
-        { label: i18next.t("timeAgo.month", { ns: "common" }), seconds: 2592000 },
-        { label: i18next.t("timeAgo.week", { ns: "common" }), seconds: 604800 },
-        { label: i18next.t("timeAgo.day", { ns: "common" }), seconds: 86400 },
-        { label: i18next.t("timeAgo.hour", { ns: "common" }), seconds: 3600 },
-        { label: i18next.t("timeAgo.minute", { ns: "common" }), seconds: 60 },
+        { label: "năm", seconds: 31536000 },
+        { label: "tháng", seconds: 2592000 },
+        { label: "tuần", seconds: 604800 },
+        { label: "ngày", seconds: 86400 },
+        { label: "giờ", seconds: 3600 },
+        { label: "phút", seconds: 60 },
     ];
     for (const interval of intervals) {
         const count = Math.floor(seconds / interval.seconds);
-        if (count >= 1) return `${count} ${interval.label} ${i18next.t("timeAgo.ago", { ns: "common" })}`;
+        if (count >= 1) return `${count} ${interval.label} trước`;
     }
-    return i18next.t("timeAgo.justNow", { ns: "common" });
+    return "Vừa xong";
 }
 
 // ── String ─────────────────────────────────────────────
@@ -117,7 +107,7 @@ export function capitalize(text) {
 // ── Number ─────────────────────────────────────────────
 export function formatNumber(number) {
     if (!number && number !== 0) return "";
-    return new Intl.NumberFormat(getLocale()).format(number);
+    return new Intl.NumberFormat(LOCALE).format(number);
 }
 
 // ── Storage / localStorage ─────────────────────────────
