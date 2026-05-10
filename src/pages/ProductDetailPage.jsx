@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
     ShoppingCart,
@@ -87,6 +87,7 @@ function CountdownTimer({ endTime }) {
 export default function ProductDetailPage() {
     const { slug } = useParams();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
 
@@ -207,6 +208,19 @@ export default function ProductDetailPage() {
         } catch {
             // Server sync failed — UI already updated locally
         }
+    };
+
+    const handleBuyNow = async () => {
+        if (!product || !selectedVariant?.id) return;
+        dispatch(
+            addToCart({
+                product: { ...product, ...selectedVariant, variantId: selectedVariant.id, images: productImages },
+                variantId: selectedVariant.id,
+                quantity,
+            }),
+        );
+        try { await addToCartApi({ variantId: selectedVariant.id, quantity }).unwrap(); } catch {}
+        navigate(ROUTES.CHECKOUT);
     };
 
     const handleToggleWishlist = () => {
@@ -570,11 +584,10 @@ export default function ProductDetailPage() {
                             <Button
                                 size="lg"
                                 className="flex-1 rounded-full text-base"
-                                asChild
+                                onClick={handleBuyNow}
+                                disabled={isAddingToCart}
                             >
-                                <Link to={ROUTES.CHECKOUT}>
-                                    {"Mua ngay"}
-                                </Link>
+                                {isAddingToCart ? "Đang thêm..." : "Mua ngay"}
                             </Button>
                         ) : (
                             <Button
