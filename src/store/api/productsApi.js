@@ -180,7 +180,7 @@ export const productsApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: (_, __, { productId }) => [{ type: "Options", id: productId }],
+            invalidatesTags: (_, __, { productId }) => [{ type: "Product", id: productId }],
             transformResponse: (response) => response.data,
         }),
 
@@ -195,8 +195,12 @@ export const productsApi = baseApi.injectEndpoints({
         }),
 
         deleteOption: builder.mutation({
-            query: (id) => ({ url: `/admin/options/${id}`, method: "DELETE" }),
-            invalidatesTags: ["Options"],
+            query: (arg) => ({
+                url: `/admin/options/${arg.id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: (_, __, arg) =>
+                arg.productId ? [{ type: "Product", id: arg.productId }] : [],
         }),
     }),
 });

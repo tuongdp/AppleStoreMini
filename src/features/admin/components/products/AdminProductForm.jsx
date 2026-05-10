@@ -200,7 +200,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         const option = options[idx];
         if (option?.id) {
             try {
-                await deleteOption(option.id).unwrap();
+                await deleteOption({ id: option.id, productId: product?.id }).unwrap();
                 toast.success(t("productForm.toast.deleteOptionSuccess"));
             } catch (err) {
                 toast.error(err?.data?.message || t("productForm.toast.deleteOptionError"));
