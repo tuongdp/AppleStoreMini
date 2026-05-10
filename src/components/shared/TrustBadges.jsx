@@ -1,15 +1,12 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { Truck, ShieldCheck, RotateCcw } from "lucide-react";
 
 const BADGES = [
-    { icon: Truck, titleKey: "trust.freeShipping", descKey: "trust.freeShippingDesc" },
-    { icon: ShieldCheck, titleKey: "trust.warranty", descKey: "trust.warrantyDesc" },
-    { icon: RotateCcw, titleKey: "trust.returns", descKey: "trust.returnsDesc" },
+    { icon: Truck, title: "Miễn phí vận chuyển", desc: "Đơn hàng từ 500.000₫" },
+    { icon: ShieldCheck, title: "Bảo hành chính hãng", desc: "1 - 2 năm theo sản phẩm" },
+    { icon: RotateCcw, title: "Đổi trả dễ dàng", desc: "Trong vòng 14 ngày" },
 ];
 
 export default function TrustBadges() {
-    const { t } = useTranslation("common");
-
     return (
         <div className="border-t border-border">
             <div className="section-padding py-6 md:py-8">
@@ -17,16 +14,16 @@ export default function TrustBadges() {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         {BADGES.map((badge) => (
                             <div
-                                key={badge.titleKey}
+                                key={badge.title}
                                 className="flex items-center justify-center gap-3"
                             >
                                 <badge.icon className="h-5 w-5 shrink-0 text-muted-foreground" />
                                 <div>
                                     <p className="text-sm font-medium text-foreground">
-                                        {t(badge.titleKey)}
+                                        {badge.title}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        {t(badge.descKey)}
+                                        {badge.desc}
                                     </p>
                                 </div>
                             </div>

@@ -1,11 +1,14 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CHECKOUT_STEPS } from "@/lib/constants";
 
-export default function CheckoutStepper({ currentStep, className }) {
-    const { t } = useTranslation("checkout");
+const STEP_LABELS = {
+  address: "Địa chỉ",
+  payment: "Thanh toán",
+  confirm: "Xác nhận",
+};
 
+export default function CheckoutStepper({ currentStep, className }) {
     return (
         <div className={cn("flex items-center justify-center", className)}>
             {CHECKOUT_STEPS.map((step, index) => {
@@ -46,7 +49,7 @@ export default function CheckoutStepper({ currentStep, className }) {
                                         "text-muted-foreground",
                                 )}
                             >
-                                {t(`steps.${step.key}`)}
+                                {STEP_LABELS[step.key] || step.key}
                             </span>
                         </div>
 

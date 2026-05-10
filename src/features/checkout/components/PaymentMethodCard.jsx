@@ -1,9 +1,15 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
-export default function PaymentMethodCard({ method, selected, onSelect }) {
-    const { t } = useTranslation("checkout");
+const PAYMENT_LABELS = {
+  cod: "Thanh toán khi nhận hàng",
+  momo: "MoMo",
+};
+const PAYMENT_DESCS = {
+  cod: "Thanh toán bằng tiền mặt khi nhận hàng",
+  momo: "Thanh toán qua ví điện tử MoMo",
+};
 
+export default function PaymentMethodCard({ method, selected, onSelect }) {
     return (
         <button
             type="button"
@@ -29,10 +35,10 @@ export default function PaymentMethodCard({ method, selected, onSelect }) {
                 {/* Text */}
                 <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-foreground">
-                        {t(`payment.${method.id}`)}
+                        {PAYMENT_LABELS[method.id] || method.id}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t(`payment.${method.id}Desc`)}
+                        {PAYMENT_DESCS[method.id] || ""}
                     </p>
                 </div>
 

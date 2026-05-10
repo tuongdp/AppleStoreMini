@@ -1,8 +1,16 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ORDER_STATUS, ORDER_STATUS_COLOR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
+const STATUS_LABELS = {
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  processing: "Đang xử lý",
+  shipping: "Đang giao hàng",
+  delivered: "Đã giao hàng",
+  cancelled: "Đã huỷ",
+};
 
 const STATUS_LIST = [
     ORDER_STATUS.PENDING,
@@ -14,7 +22,6 @@ const STATUS_LIST = [
 ];
 
 export default function OrderStatusChart() {
-    const { t } = useTranslation("admin");
 
     const { data, isLoading } = useGetAllOrdersQuery({
         page: 1,
@@ -55,7 +62,7 @@ export default function OrderStatusChart() {
                     <div key={status} className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">
-                                {t(`status.${status}`, { ns: "order" })}
+                                {STATUS_LABELS[status] || status}
                             </span>
                             <span className="font-medium text-foreground">
                                 {count}

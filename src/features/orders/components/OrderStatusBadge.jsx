@@ -1,9 +1,18 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 import { ORDER_STATUS_COLOR } from "@/lib/constants";
 
+const STATUS_LABELS = {
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  processing: "Đang xử lý",
+  shipping: "Đang giao hàng",
+  delivered: "Đã giao hàng",
+  cancelled: "Đã huỷ",
+  refunding: "Đang hoàn tiền",
+  refunded: "Đã hoàn tiền",
+};
+
 export default function OrderStatusBadge({ status, className }) {
-    const { t } = useTranslation("order");
     const key = (status || "").toLowerCase();
 
     return (
@@ -14,7 +23,7 @@ export default function OrderStatusBadge({ status, className }) {
                 className,
             )}
         >
-            {t(`status.${key}`)}
+            {STATUS_LABELS[key] || key}
         </span>
     );
 }
