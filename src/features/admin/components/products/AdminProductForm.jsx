@@ -350,8 +350,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     return (
         <>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    <div className="space-y-5 lg:col-span-2">
+                <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 max-w-5xl mx-auto">
                         {/* ── Section 1: Basic Info ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">{t("productForm.basicInfo")}</h3>
@@ -443,10 +442,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             />
                         )}
 
-                    </div>
 
-                    {/* ── Right Column ── */}
-                    <div className="space-y-4">
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-4 text-sm font-medium text-foreground">{t("productForm.status")}</h3>
                             <FormField control={form.control} name="featured" render={({ field }) => (
@@ -509,10 +505,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 </div>
                             </div>
                         )}
-                    </div>
+
 
                     {/* ── Section 3: Variants ── */}
-                    <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
+                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
 
                         <div className="max-h-[45vh] overflow-y-auto pr-1">
