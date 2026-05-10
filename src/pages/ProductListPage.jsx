@@ -69,8 +69,9 @@ export default function ProductListPage() {
         const map = new Map();
         source.forEach((p) => {
             const parts = p.slug?.split("-") || [];
-            if (parts.length >= 2) {
-                const family = parts.slice(0, 2).join("-");
+            const n = p.slug?.startsWith("apple-") ? 3 : 2;
+            if (parts.length > n) {
+                const family = parts.slice(0, n).join("-");
                 map.set(family, (map.get(family) || 0) + 1);
             }
         });
