@@ -18,7 +18,7 @@ export const pointsApi = baseApi.injectEndpoints({
         }),
 
         getRedeemPackages: builder.query({
-            query: () => "/points/redeem-packages",
+            query: () => "/coupons/redeemable",
             transformResponse: (response) => response.data,
         }),
 

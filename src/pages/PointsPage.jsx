@@ -32,13 +32,13 @@ export default function PointsPage() {
 
     const points = pointsData?.points ?? 0;
     const transactions = historyData?.transactions || [];
-    const fixedPkgs = (packages || []).filter((p) => p.type === "FIXED");
-    const pctPkgs = (packages || []).filter((p) => p.type === "PERCENT");
+    const fixedPkgs = (packages || []).filter((p) => p.discountType === "FIXED");
+    const pctPkgs = (packages || []).filter((p) => p.discountType === "PERCENT");
 
     const handleRedeem = async () => {
         if (!selectedPkg) return;
         try {
-            const res = await redeem({ packageId: selectedPkg.id }).unwrap();
+            const res = await redeem({ couponId: selectedPkg.id }).unwrap();
             setResult(res);
             setConfirmOpen(false);
             setSelectedPkg(null);
@@ -171,7 +171,7 @@ export default function PointsPage() {
                     {result && (
                         <div className="space-y-3">
                             <div className="rounded-xl bg-muted p-4 text-center">
-                                <p className="text-xs text-muted-foreground mb-1">{result.label}</p>
+                                <p className="text-xs text-muted-foreground mb-1">{result.description || result.code}</p>
                                 <p className="text-lg font-bold tracking-wider text-foreground">{result.code}</p>
                             </div>
                             <Button
@@ -272,8 +272,8 @@ export default function PointsPage() {
 }
 
 function PackageCard({ pkg, points, onRedeem }) {
-    const canAfford = points >= pkg.points;
-    const isPercent = pkg.type === "PERCENT";
+    const canAfford = points >= pkg.pointsCost;
+    const isPercent = pkg.discountType === "PERCENT";
 
     return (
         <Card
@@ -286,7 +286,7 @@ function PackageCard({ pkg, points, onRedeem }) {
         >
             <CardHeader className="p-4 pb-2">
                 <CardTitle className="flex items-center justify-between">
-                    <span className="text-base">{pkg.label}</span>
+                    <span className="text-base">{pkg.description || pkg.code}</span>
                     <Badge variant={isPercent ? "secondary" : "default"}>
                         {isPercent ? "%" : "đ"}
                     </Badge>
@@ -297,7 +297,7 @@ function PackageCard({ pkg, points, onRedeem }) {
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Coins className="h-3.5 w-3.5 text-amber-500" />
                         <span className="font-semibold text-foreground">
-                            {formatPrice(pkg.points)}
+                            {pkg.pointsCost?.toLocaleString("vi-VN")} điểm
                         </span>
                     </div>
                     <Button

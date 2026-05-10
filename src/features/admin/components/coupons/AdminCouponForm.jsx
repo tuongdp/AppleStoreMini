@@ -38,6 +38,7 @@ const couponSchema = z.object({
     maxDiscountAmount: z.number().optional(),
     minOrderAmount: z.number().optional(),
     maxUsage: z.number().optional(),
+    pointsCost: z.number().optional(),
     expiresAt: z.string().optional(),
 });
 
@@ -57,6 +58,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
             maxDiscountAmount: undefined,
             minOrderAmount: undefined,
             maxUsage: undefined,
+            pointsCost: undefined,
             expiresAt: "",
         },
     });
@@ -73,6 +75,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                 maxDiscountAmount: coupon.maxDiscountAmount || undefined,
                 minOrderAmount: coupon.minOrderAmount || undefined,
                 maxUsage: coupon.maxUsage || undefined,
+                pointsCost: coupon.pointsCost || undefined,
                 expiresAt: coupon.expiresAt
                     ? new Date(coupon.expiresAt).toISOString().split("T")[0]
                     : "",
@@ -87,6 +90,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
             maxDiscountAmount: values.maxDiscountAmount || undefined,
             minOrderAmount: values.minOrderAmount || undefined,
             maxUsage: values.maxUsage || undefined,
+            pointsCost: values.pointsCost || undefined,
             expiresAt: values.expiresAt || undefined,
         };
 
@@ -319,6 +323,39 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                         type="number"
                                         min={1}
                                         placeholder="VD: 100"
+                                        disabled={isLoading}
+                                        value={field.value ?? ""}
+                                        onChange={(e) =>
+                                            field.onChange(
+                                                e.target.value === ""
+                                                    ? undefined
+                                                    : Number(e.target.value),
+                                            )
+                                        }
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    {/* Points cost */}
+                    <FormField
+                        control={form.control}
+                        name="pointsCost"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>
+                                    Điểm quy đổi{" "}
+                                    <span className="text-muted-foreground">
+                                        (để 0 hoặc trống = không đổi bằng điểm)
+                                    </span>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        placeholder="VD: 500"
                                         disabled={isLoading}
                                         value={field.value ?? ""}
                                         onChange={(e) =>
