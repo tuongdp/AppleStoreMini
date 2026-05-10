@@ -84,8 +84,12 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
         if (!flashSale?.items?.length) return [];
         return flashSale.items.map((item) => {
             const product = item.variant?.product || item.product;
+            const variantImages = Array.isArray(item.variant?.images) && item.variant.images.length > 0
+                ? item.variant.images
+                : null;
             return {
                 ...product,
+                ...(variantImages ? { images: variantImages } : {}),
                 variantId: item.variant?.id || product?.variantId,
                 price: item.originalPrice,
                 salePrice: item.salePrice,
