@@ -299,6 +299,8 @@
         "status": "Trạng thái",
         "inStock": "Còn hàng",
         "outOfStock": "Hết hàng",
+        "isActive": "Hiển thị trên web",
+        "isActiveDescription": "Bật để hiển thị sản phẩm trên trang web. Tắt để ẩn.",
         "featuredProduct": "Sản phẩm nổi bật",
         "featuredDescription": "Hiển thị ở trang chủ và trang sản phẩm nổi bật",
         "saveProduct": "Lưu sản phẩm",

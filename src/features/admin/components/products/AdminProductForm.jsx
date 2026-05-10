@@ -75,7 +75,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             slug: product?.slug || "",
             category: product?.category?.slug || product?.categorySlug || "",
             description: product?.description || "",
-            featured: product?.featured ?? false,
+            isActive: product?.isActive ?? true,
         },
     });
 
@@ -85,7 +85,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 name: product.name || "",
                 slug: product.slug || "",
                 description: product.description || "",
-                featured: product.featured ?? false,
+                isActive: product.isActive ?? true,
             });
 
             const rawSpecs = product.specifications || {};
@@ -228,7 +228,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     slug: formValues.slug.trim(),
                     category: formValues.category,
                     description: formValues.description || "",
-                    featured: formValues.featured ?? false,
+                    isActive: formValues.isActive ?? true,
                     specifications: buildSpecsArray(),
                     options: options.map(({ type, value, hex }) => hex ? { type, value, hex } : { type, value }),
                     variants: [{
@@ -443,70 +443,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         )}
 
 
-                        <div className="rounded-2xl border border-border bg-card p-5">
-                            <h3 className="mb-4 text-sm font-medium text-foreground">{t("productForm.status")}</h3>
-                            <FormField control={form.control} name="featured" render={({ field }) => (
-                                <FormItem className="flex items-center justify-between gap-4">
-                                    <div>
-                                        <FormLabel className="cursor-pointer font-normal text-foreground">{t("product.featured")}</FormLabel>
-                                        <p className="text-xs text-muted-foreground">{t("productForm.featuredDescription")}</p>
-                                    </div>
-                                    <FormControl>
-                                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
-                                    </FormControl>
-                                </FormItem>
-                            )} />
-                        </div>
-
-                        <div className="relative">
-                            <Button
-                                type="submit"
-                                className="w-full rounded-full"
-                                disabled={isLoading || isCreatingProduct || !hasVariants}
-                            >
-                                {isLoading || isCreatingProduct ? t("productForm.saving") : (
-                                    <><Save className="mr-1.5 h-4 w-4" /> {t("productForm.saveProduct")}</>
-                                )}
-                            </Button>
-                            {!hasVariants && (
-                                <div className="absolute -top-8 left-0 right-0 text-center">
-                                    <span className="text-xs text-destructive flex items-center justify-center gap-1">
-                                        <AlertTriangle className="h-3 w-3" /> {t("productForm.needAtLeastOneVariant")}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-
-                        {isEdit && product && (
-                            <div className="rounded-2xl border border-border bg-card p-5 text-xs text-muted-foreground space-y-2">
-                                <div className="flex justify-between">
-                                    <span>{t("productForm.createdAt")}</span>
-                                    <span className="text-foreground">{formatDateTime(product.createdAt)}</span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between">
-                                    <span>{t("productForm.updatedAt")}</span>
-                                    <span className="text-foreground">{formatDateTime(product.updatedAt)}</span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between">
-                                    <span>{t("productForm.reviewCount")}</span>
-                                    <span className="text-foreground">{product.reviewCount ?? 0}</span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between">
-                                    <span>{t("productForm.soldCount")}</span>
-                                    <span className="text-foreground">{product.soldCount ?? 0}</span>
-                                </div>
-                                <Separator />
-                                <div className="flex justify-between">
-                                    <span>{t("productForm.productId")}</span>
-                                    <span className="max-w-[140px] truncate text-foreground">{product.id}</span>
-                                </div>
-                            </div>
-                        )}
-
-
                     {/* ── Section 3: Variants ── */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
@@ -592,6 +528,71 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             </div>
                         )}
                     </div>
+
+
+                        <div className="rounded-2xl border border-border bg-card p-5">
+                            <h3 className="mb-4 text-sm font-medium text-foreground">{t("productForm.status")}</h3>
+                            <FormField control={form.control} name="isActive" render={({ field }) => (
+                                <FormItem className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <FormLabel className="cursor-pointer font-normal text-foreground">{t("productForm.isActive")}</FormLabel>
+                                        <p className="text-xs text-muted-foreground">{t("productForm.isActiveDescription")}</p>
+                                    </div>
+                                    <FormControl>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
+                                    </FormControl>
+                                </FormItem>
+                            )} />
+                        </div>
+
+                        <div className="relative">
+                            <Button
+                                type="submit"
+                                className="w-full rounded-full"
+                                disabled={isLoading || isCreatingProduct || !hasVariants}
+                            >
+                                {isLoading || isCreatingProduct ? t("productForm.saving") : (
+                                    <><Save className="mr-1.5 h-4 w-4" /> {t("productForm.saveProduct")}</>
+                                )}
+                            </Button>
+                            {!hasVariants && (
+                                <div className="absolute -top-8 left-0 right-0 text-center">
+                                    <span className="text-xs text-destructive flex items-center justify-center gap-1">
+                                        <AlertTriangle className="h-3 w-3" /> {t("productForm.needAtLeastOneVariant")}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {isEdit && product && (
+                            <div className="rounded-2xl border border-border bg-card p-5 text-xs text-muted-foreground space-y-2">
+                                <div className="flex justify-between">
+                                    <span>{t("productForm.createdAt")}</span>
+                                    <span className="text-foreground">{formatDateTime(product.createdAt)}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>{t("productForm.updatedAt")}</span>
+                                    <span className="text-foreground">{formatDateTime(product.updatedAt)}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>{t("productForm.reviewCount")}</span>
+                                    <span className="text-foreground">{product.reviewCount ?? 0}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>{t("productForm.soldCount")}</span>
+                                    <span className="text-foreground">{product.soldCount ?? 0}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between">
+                                    <span>{t("productForm.productId")}</span>
+                                    <span className="max-w-[140px] truncate text-foreground">{product.id}</span>
+                                </div>
+                            </div>
+                        )}
+
 
                 </form>
             </Form>

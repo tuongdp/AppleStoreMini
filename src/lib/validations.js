@@ -153,7 +153,7 @@ export const productSchema = z.object({
         .string()
         .min(10, { message: v("product.descriptionMinLength") })
         .or(z.literal("")),
-    featured: z.boolean().default(false),
+    isActive: z.boolean().default(true),
 });
 
 // ── Review ────────────────────────────────────────────

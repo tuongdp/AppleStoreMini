@@ -300,6 +300,8 @@
         "status": "Status",
         "inStock": "In stock",
         "outOfStock": "Out of stock",
+        "isActive": "Show on website",
+        "isActiveDescription": "Toggle to show/hide this product on the webshop.",
         "featuredProduct": "Featured product",
         "featuredDescription": "Display on homepage and featured products page",
         "saveProduct": "Save product",
