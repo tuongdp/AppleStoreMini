@@ -70,7 +70,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
             form.reset({
                 code: coupon.code || "",
                 description: coupon.description || "",
-                discountType: coupon.discountType || "percent",
+                discountType: (coupon.discountType || "percent").toLowerCase(),
                 discountValue: coupon.discountValue || 10,
                 maxDiscountAmount: coupon.maxDiscountAmount || undefined,
                 minOrderAmount: coupon.minOrderAmount || undefined,
