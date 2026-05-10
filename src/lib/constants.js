@@ -58,10 +58,10 @@ export const CATEGORIES = [
 // ── Sort options ──────────────────────────────────────
 export const SORT_OPTIONS = [
     { label: "product:sort.featured", value: "featured" },
+    { label: "product:sort.bestSeller", value: "best_seller" },
     { label: "product:sort.newest", value: "newest" },
     { label: "product:sort.priceAsc", value: "price_asc" },
     { label: "product:sort.priceDesc", value: "price_desc" },
-    { label: "product:sort.bestSeller", value: "best_seller" },
     { label: "product:sort.rating", value: "rating" },
 ];
 
