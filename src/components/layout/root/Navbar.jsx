@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search, X, Zap } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import MegaMenu from "./MegaMenu";
@@ -26,8 +26,9 @@ export default function Navbar() {
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
     const SIMPLE_NAV_LINKS = [
-        { label: t("nav.appleCare"), href: "/apple-care" },
-        { label: t("nav.news"), href: "/news" },
+        { label: t("nav.appleCare"), href: "/apple-care", icon: null },
+        { label: "Flash Sale", href: "/flash-sale", icon: Zap },
+        { label: t("nav.news"), href: "/news", icon: null },
     ];
 
     return (
@@ -77,13 +78,14 @@ export default function Navbar() {
                                     to={link.href}
                                     className={({ isActive }) =>
                                         cn(
-                                            "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                                            "inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
                                             isActive
                                                 ? "bg-muted text-foreground"
                                                 : "text-muted-foreground hover:text-foreground",
                                         )
                                     }
                                 >
+                                    {link.icon && <link.icon className="h-3.5 w-3.5" />}
                                     {link.label}
                                 </NavLink>
                             ))}

@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import {
     ShoppingCart,
     Heart,
+    Zap,
+    Clock,
 } from "lucide-react";
 import { useGetProductBySlugQuery } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
@@ -15,6 +17,7 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import StarRating from "@/components/shared/StarRating";
@@ -25,8 +28,63 @@ import ProductSpecification from "@/features/products/components/ProductSpecific
 import SpecsAccordion from "@/components/shared/SpecsAccordion";
 import ProductReviews from "@/features/products/components/ProductReviews";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+
+function CountdownTimer({ endTime }) {
+    const { t: tc } = useTranslation("common");
+    const [remaining, setRemaining] = useState(null);
+
+    useEffect(() => {
+        const update = () => {
+            const diff = new Date(endTime).getTime() - Date.now();
+            if (diff <= 0) {
+                setRemaining({ d: 0, h: 0, m: 0, s: 0 });
+                return;
+            }
+            const totalSec = Math.floor(diff / 1000);
+            setRemaining({
+                d: Math.floor(totalSec / 86400),
+                h: Math.floor((totalSec % 86400) / 3600),
+                m: Math.floor((totalSec % 3600) / 60),
+                s: totalSec % 60,
+            });
+        };
+        update();
+        const timer = setInterval(update, 1000);
+        return () => clearInterval(timer);
+    }, [endTime]);
+
+    if (!remaining) return null;
+
+    const pad = (n) => String(n).padStart(2, "0");
+
+    return (
+        <div className="flex items-center gap-1 font-mono tabular-nums">
+            {remaining.d > 0 && (
+                <>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-xs font-bold text-destructive shadow-sm">
+                        {pad(remaining.d)}
+                    </span>
+                    <span className="mr-0.5 text-[10px] font-medium text-destructive/70">
+                        {tc("timeAgo.day")}
+                    </span>
+                </>
+            )}
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-destructive shadow-sm">
+                {pad(remaining.h)}
+            </span>
+            <span className="text-sm font-bold text-destructive/50">:</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-destructive shadow-sm">
+                {pad(remaining.m)}
+            </span>
+            <span className="text-sm font-bold text-destructive/50">:</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-destructive shadow-sm">
+                {pad(remaining.s)}
+            </span>
+        </div>
+    );
+}
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -89,9 +147,17 @@ export default function ProductDetailPage() {
 
     const invalidSelection = !selectedVariant && (effectiveColor || effectiveStorage || effectiveRam || effectiveEdition);
 
-    const currentPrice = selectedVariant?.salePrice || selectedVariant?.price;
     const inStock = selectedVariant?.inStock ?? false;
     const stock = selectedVariant?.stock ?? 0;
+
+    const flashSaleData = selectedVariant?.flashSale ?? null;
+    const hasActiveFlashSale = flashSaleData &&
+        flashSaleData.salePrice &&
+        flashSaleData.endTime &&
+        new Date(flashSaleData.endTime).getTime() > Date.now(); // eslint-disable-line react-hooks/purity
+
+    const displayOriginalPrice = hasActiveFlashSale ? flashSaleData.originalPrice : selectedVariant?.price;
+    const displaySalePrice = hasActiveFlashSale ? null : selectedVariant?.salePrice;
 
     const productImages = useMemo(() => {
         const variantImages = selectedVariant?.images || [];
@@ -216,13 +282,70 @@ export default function ProductDetailPage() {
                         />
                     )}
 
-                    <PriceDisplay
-                        price={currentPrice}
-                        salePrice={selectedVariant?.salePrice}
-                        size="xl"
-                        showBadge
-                        showSaved
-                    />
+                    {hasActiveFlashSale && (
+                        <div className="rounded-xl border border-destructive/30 bg-gradient-to-r from-destructive/10 via-orange-500/5 to-destructive/10 p-4">
+                            <div className="mb-3 flex items-center gap-2">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/20">
+                                    <Zap className="h-4 w-4 text-destructive" />
+                                </div>
+                                <span className="text-sm font-bold text-destructive">
+                                    FLASH SALE
+                                </span>
+                                <div className="ml-auto flex items-center gap-2 rounded-full border border-destructive/20 bg-background/80 px-3 py-1">
+                                    <Clock className="h-3.5 w-3.5 text-destructive" />
+                                    <CountdownTimer endTime={flashSaleData.endTime} />
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-2xl font-bold text-destructive">
+                                        {formatPrice(flashSaleData.salePrice)}
+                                    </span>
+                                    <span className="text-sm text-muted-foreground line-through">
+                                        {formatPrice(flashSaleData.originalPrice)}
+                                    </span>
+                                    <Badge variant="destructive" className="rounded-md text-xs">
+                                        -{Math.round(((flashSaleData.originalPrice - flashSaleData.salePrice) / flashSaleData.originalPrice) * 100)}%
+                                    </Badge>
+                                </div>
+                            </div>
+                            {flashSaleData.quantityLimit > 0 && (
+                                <div className="mt-3">
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <span>Đã bán {flashSaleData.quantitySold || 0} / {flashSaleData.quantityLimit}</span>
+                                        <span className="font-medium">
+                                            {flashSaleData.quantityLimit > 0
+                                                ? Math.round(((flashSaleData.quantitySold || 0) / flashSaleData.quantityLimit) * 100)
+                                                : 0}%
+                                        </span>
+                                    </div>
+                                    <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-muted">
+                                        <div
+                                            className="h-full rounded-full bg-destructive transition-all"
+                                            style={{
+                                                width: `${Math.min(
+                                                    flashSaleData.quantityLimit > 0
+                                                        ? Math.round(((flashSaleData.quantitySold || 0) / flashSaleData.quantityLimit) * 100)
+                                                        : 0,
+                                                    100,
+                                                )}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {!hasActiveFlashSale && (
+                        <PriceDisplay
+                            price={displayOriginalPrice}
+                            salePrice={displaySalePrice}
+                            size="xl"
+                            showBadge
+                            showSaved
+                        />
+                    )}
 
                     <Separator />
 

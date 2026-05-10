@@ -9,6 +9,12 @@ export const flashSalesApi = baseApi.injectEndpoints({
             refetchOnMountOrArgChange: 30,
         }),
 
+        getActiveFlashSales: builder.query({
+            query: () => "/flash-sales/active/all",
+            providesTags: ["FlashSales"],
+            transformResponse: (response) => response.data,
+        }),
+
         getAllFlashSales: builder.query({
             query: () => "/admin/flash-sales",
             providesTags: ["FlashSales"],
@@ -90,6 +96,7 @@ export const flashSalesApi = baseApi.injectEndpoints({
 
 export const {
     useGetActiveFlashSaleQuery,
+    useGetActiveFlashSalesQuery,
     useGetAllFlashSalesQuery,
     useGetFlashSaleByIdQuery,
     useCreateFlashSaleMutation,

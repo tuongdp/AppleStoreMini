@@ -206,9 +206,14 @@
     },
 
     "flashSale": {
+        "title": "FLASH SALE",
         "viewAll": "Xem tất cả",
         "sold": "Đã bán",
-        "remaining": "Còn"
+        "remaining": "Còn",
+        "almostGone": "Sắp hết",
+        "flashSale": "FLASH SALE",
+        "hot": "Hot",
+        "endTime": "Kết thúc"
     },
 
     "slider": {

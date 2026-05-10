@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Flame } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,12 +32,25 @@ export default function ProductCard({ product }) {
         selectIsInWishlist(product._id || product.id),
     );
 
-    const effectivePrice =
-        product.salePrice && product.salePrice < product.price
+    const hasFlashSale = !!product.flashSale?.salePrice;
+
+    const effectivePrice = hasFlashSale
+        ? product.flashSale.salePrice
+        : product.salePrice && product.salePrice < product.price
             ? product.salePrice
             : product.price;
 
-    const discount = calcDiscount(product.price, effectivePrice);
+    const originalPrice = hasFlashSale
+        ? product.flashSale.originalPrice
+        : product.price;
+
+    const discount = hasFlashSale
+        ? calcDiscount(product.flashSale.originalPrice, product.flashSale.salePrice)
+        : calcDiscount(product.price, effectivePrice);
+
+    const showDiscount = hasFlashSale
+        ? product.flashSale.salePrice < product.flashSale.originalPrice
+        : product.salePrice && product.salePrice < product.price;
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
@@ -79,6 +92,12 @@ export default function ProductCard({ product }) {
                 >
                     {/* Badges */}
                     <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
+                        {hasFlashSale && (
+                            <Badge className="flex items-center gap-1 border-0 bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground shadow-sm">
+                                <Flame className="h-3 w-3" />
+                                {t("flashSale.flashSale", { defaultValue: "FLASH SALE" })}
+                            </Badge>
+                        )}
                         {isOutOfStock && (
                             <Badge
                                 variant="outline"
@@ -87,7 +106,7 @@ export default function ProductCard({ product }) {
                                 {t("product.outOfStock")}
                             </Badge>
                         )}
-                        {!isOutOfStock && discount > 0 && (
+                        {!isOutOfStock && showDiscount && (
                             <Badge
                                 variant="destructive"
                                 className="text-[10px]"
@@ -174,12 +193,15 @@ export default function ProductCard({ product }) {
                         </span>
                     ) : (
                         <>
-                            <span className="text-sm font-semibold text-foreground">
+                            <span className={cn(
+                                "text-sm font-semibold",
+                                hasFlashSale ? "text-destructive" : "text-foreground",
+                            )}>
                                 {formatPrice(effectivePrice)}
                             </span>
-                            {product.price > effectivePrice && (
+                            {(!hasFlashSale ? product.price > effectivePrice : showDiscount) && (
                                 <span className="text-xs text-muted-foreground line-through">
-                                    {formatPrice(product.price)}
+                                    {formatPrice(hasFlashSale ? originalPrice : product.price)}
                                 </span>
                             )}
                         </>

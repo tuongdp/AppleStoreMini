@@ -9,6 +9,10 @@ import {
     Loader2,
     Clock,
     Search,
+    Zap,
+    ChevronDown,
+    ChevronUp,
+    PackageOpen,
 } from "lucide-react";
 import {
     useGetAllFlashSalesQuery,
@@ -25,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -59,6 +64,39 @@ function formatDateTime(dateStr) {
     });
 }
 
+function getFlashSaleStatus(flashSale) {
+    const now = new Date();
+    if (!flashSale.isActive) return "disabled";
+    if (new Date(flashSale.endTime) < now) return "ended";
+    if (new Date(flashSale.startTime) > now) return "upcoming";
+    return "active";
+}
+
+function FlashSaleStatusBadge({ status }) {
+    const { t } = useTranslation("admin");
+    const config = {
+        active: {
+            label: t("flashSale.statusActive"),
+            className: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400",
+        },
+        upcoming: {
+            label: t("flashSale.statusUpcoming"),
+            className: "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+        },
+        ended: {
+            label: "Đã kết thúc",
+            className: "bg-muted text-muted-foreground",
+        },
+        disabled: {
+            label: t("flashSale.statusDisabled"),
+            className: "bg-muted text-muted-foreground",
+        },
+    };
+    const c = config[status] || config.disabled;
+    return <Badge className={cn("text-[11px]", c.className)}>{c.label}</Badge>;
+}
+
+// ── FlashSale Form (create / edit) ─────────────────────
 function FlashSaleForm({ flashSale, onClose }) {
     const { t } = useTranslation("admin");
     const isEditing = !!flashSale;
@@ -70,6 +108,7 @@ function FlashSaleForm({ flashSale, onClose }) {
         title: z.string().min(1, t("flashSale.validation.titleRequired")),
         startTime: z.string().min(1, t("flashSale.validation.startTimeRequired")),
         endTime: z.string().min(1, t("flashSale.validation.endTimeRequired")),
+        description: z.string().optional().default(""),
     });
 
     const form = useForm({
@@ -82,25 +121,25 @@ function FlashSaleForm({ flashSale, onClose }) {
             endTime: flashSale?.endTime
                 ? new Date(flashSale.endTime).toISOString().slice(0, 16)
                 : "",
+            description: flashSale?.description || "",
         },
     });
 
     const onSubmit = async (values) => {
         try {
+            const payload = {
+                title: values.title,
+                startTime: new Date(values.startTime).toISOString(),
+                endTime: new Date(values.endTime).toISOString(),
+            };
+            if (values.description) {
+                payload.description = values.description;
+            }
             if (isEditing) {
-                await updateFlashSale({
-                    id: flashSale.id,
-                    title: values.title,
-                    startTime: new Date(values.startTime).toISOString(),
-                    endTime: new Date(values.endTime).toISOString(),
-                }).unwrap();
+                await updateFlashSale({ id: flashSale.id, ...payload }).unwrap();
                 toast.success(t("flashSale.toast.updateSuccess"));
             } else {
-                await createFlashSale({
-                    title: values.title,
-                    startTime: new Date(values.startTime).toISOString(),
-                    endTime: new Date(values.endTime).toISOString(),
-                }).unwrap();
+                await createFlashSale(payload).unwrap();
                 toast.success(t("flashSale.toast.createSuccess"));
             }
             onClose();
@@ -120,6 +159,22 @@ function FlashSaleForm({ flashSale, onClose }) {
                             <FormLabel>{t("flashSale.titleLabel")}</FormLabel>
                             <FormControl>
                                 <Input placeholder={t("flashSale.titlePlaceholder")} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ghi chú / Mô tả</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Mô tả ngắn cho đợt flash sale (tuỳ chọn)"
+                                    {...field}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -168,6 +223,7 @@ function FlashSaleForm({ flashSale, onClose }) {
     );
 }
 
+// ── AddItemDialog ──────────────────────────────────────
 function AddItemDialog({ flashSaleId, open, onClose }) {
     const { t } = useTranslation("admin");
     const [search, setSearch] = useState("");
@@ -180,24 +236,59 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
     const addItemSchema = z.object({
         variantId: z.string().min(1, t("flashSale.validation.variantRequired")),
         salePrice: z.coerce.number().min(1000, t("flashSale.validation.priceMin")),
-        quantityLimit: z.coerce.number().min(1, t("flashSale.validation.quantityMin")),
+        quantityLimit: z.coerce.number().min(0, "Phải >= 0"),
+        maxPerUser: z.coerce.number().min(1, "Tối thiểu 1"),
+        discountPercent: z.coerce.number().min(0).max(99).default(0),
         sortOrder: z.coerce.number().default(0),
     });
 
     const form = useForm({
         resolver: zodResolver(addItemSchema),
-        defaultValues: { salePrice: 0, quantityLimit: 1, sortOrder: 0, productId: "" },
+        defaultValues: {
+            salePrice: 0,
+            quantityLimit: 0,
+            maxPerUser: 1,
+            discountPercent: 0,
+            sortOrder: 0,
+            variantId: "",
+        },
     });
 
     const selectProduct = (product) => {
         setSelectedProduct(product);
+        const originalPrice = product.price || 0;
         form.setValue("variantId", product.variantId);
-        form.setValue("salePrice", product.salePrice || product.price);
+        form.setValue("salePrice", originalPrice);
+        form.setValue("discountPercent", 0);
+    };
+
+    const handleDiscountChange = (value) => {
+        form.setValue("discountPercent", value);
+        if (selectedProduct) {
+            const originalPrice = selectedProduct.price || 0;
+            const salePrice = Math.round(originalPrice * (1 - value / 100));
+            form.setValue("salePrice", salePrice);
+        }
+    };
+
+    const handleSalePriceChange = (value) => {
+        form.setValue("salePrice", value);
+        if (selectedProduct && selectedProduct.price > 0) {
+            const discount = Math.round(((selectedProduct.price - value) / selectedProduct.price) * 100);
+            form.setValue("discountPercent", Math.max(0, Math.min(99, discount)));
+        }
     };
 
     const onSubmit = async (values) => {
         try {
-            await addItem({ flashSaleId, ...values }).unwrap();
+            await addItem({
+                flashSaleId,
+                variantId: values.variantId,
+                salePrice: values.salePrice,
+                quantityLimit: values.quantityLimit,
+                maxPerUser: values.maxPerUser,
+                sortOrder: values.sortOrder,
+            }).unwrap();
             toast.success(t("flashSale.toast.itemAdded"));
             setSelectedProduct(null);
             setSearch("");
@@ -208,6 +299,15 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
         }
     };
 
+    const variantAttrs = (product) => {
+        const parts = [];
+        if (product.color) parts.push(product.color);
+        if (product.storage) parts.push(product.storage);
+        if (product.ram) parts.push(product.ram);
+        if (product.edition) parts.push(product.edition);
+        return parts;
+    };
+
     return (
         <Dialog open={open} onOpenChange={(o) => {
             if (!o) {
@@ -216,12 +316,13 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                 onClose();
             }
         }}>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{t("flashSale.addItem")}</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        {/* Search */}
                         <div>
                             <FormLabel>{t("flashSale.searchProduct")}</FormLabel>
                             <div className="relative mt-1.5">
@@ -258,27 +359,35 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 
                             {!isFetching && products.length > 0 && (
                                 <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-border">
-                                    {products.map((product) => (
-                                        <button
-                                            key={product.id}
-                                            type="button"
-                                            className={cn(
-                                                "flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition-colors hover:bg-muted",
-                                                selectedProduct?.id === product.id && "bg-primary/10"
-                                            )}
-                                            onClick={() => selectProduct(product)}
-                                        >
-                                            <img
-                                                src={product.images?.[0] || ""}
-                                                alt={product.name}
-                                                className="h-10 w-10 rounded-lg object-cover"
-                                            />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="truncate font-medium">{product.name}</p>
-                                                <p className="text-xs text-muted-foreground">{formatPrice(product.price)}</p>
-                                            </div>
-                                        </button>
-                                    ))}
+                                    {products.map((product) => {
+                                        const attrs = variantAttrs(product);
+                                        return (
+                                            <button
+                                                key={product.id}
+                                                type="button"
+                                                className={cn(
+                                                    "flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted",
+                                                    selectedProduct?.id === product.id && "bg-primary/10"
+                                                )}
+                                                onClick={() => selectProduct(product)}
+                                            >
+                                                <img
+                                                    src={product.images?.[0] || ""}
+                                                    alt={product.name}
+                                                    className="h-10 w-10 rounded-lg object-cover"
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate font-medium">{product.name}</p>
+                                                    {attrs.length > 0 && (
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {attrs.join(" · ")}
+                                                        </p>
+                                                    )}
+                                                    <p className="text-xs text-muted-foreground">{formatPrice(product.price)}</p>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             )}
 
@@ -286,10 +395,51 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                 <div className="mt-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm dark:border-green-800 dark:bg-green-950/20">
                                     <span className="text-muted-foreground">{t("flashSale.selectedLabel")}</span>
                                     <span className="font-medium">{selectedProduct.name}</span>
+                                    {variantAttrs(selectedProduct).length > 0 && (
+                                        <span className="ml-1 text-xs text-muted-foreground">
+                                            ({variantAttrs(selectedProduct).join(" · ")})
+                                        </span>
+                                    )}
                                 </div>
                             )}
                         </div>
 
+                        {/* Original Price (read-only) */}
+                        {selectedProduct && (
+                            <div className="rounded-lg border border-border bg-muted/30 p-3">
+                                <p className="text-xs text-muted-foreground">Giá gốc</p>
+                                <p className="text-base font-semibold text-foreground">
+                                    {formatPrice(selectedProduct.price || 0)}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Discount % */}
+                        <FormField
+                            control={form.control}
+                            name="discountPercent"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Giảm giá (%)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min={0}
+                                            max={99}
+                                            placeholder="0"
+                                            {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                handleDiscountChange(Number(e.target.value) || 0);
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Sale Price */}
                         <FormField
                             control={form.control}
                             name="salePrice"
@@ -297,7 +447,15 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                 <FormItem>
                                     <FormLabel>{t("flashSale.salePriceLabel")}</FormLabel>
                                     <FormControl>
-                                        <Input type="number" min={1000} {...field} />
+                                        <Input
+                                            type="number"
+                                            min={1000}
+                                            {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                handleSalePriceChange(Number(e.target.value) || 0);
+                                            }}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -310,7 +468,26 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                 name="quantityLimit"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t("flashSale.quantityLimit")}</FormLabel>
+                                        <FormLabel>Giới hạn số lượng</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                placeholder="0 = không giới hạn"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <p className="text-[10px] text-muted-foreground">0 = không giới hạn</p>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="maxPerUser"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tối đa / người dùng</FormLabel>
                                         <FormControl>
                                             <Input type="number" min={1} {...field} />
                                         </FormControl>
@@ -318,20 +495,21 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="sortOrder"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t("flashSale.sortOrder")}</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" min={0} {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                         </div>
+
+                        <FormField
+                            control={form.control}
+                            name="sortOrder"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t("flashSale.sortOrder")}</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" min={0} {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         <div className="flex justify-end gap-2">
                             <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onClose}>
@@ -348,97 +526,168 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
     );
 }
 
-function FlashSaleDetail({ flashSale }) {
-    const { t } = useTranslation("admin");
-    const [removeItem, { isLoading: isRemoving }] = useRemoveFlashSaleItemMutation();
-    const now = new Date();
-    const isActive = flashSale.isActive && new Date(flashSale.startTime) <= now && new Date(flashSale.endTime) >= now;
-    const statusColor = isActive ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-muted text-muted-foreground";
-    const statusLabel = isActive ? t("flashSale.statusActive") : flashSale.isActive ? t("flashSale.statusUpcoming") : t("flashSale.statusDisabled");
-
-    const handleRemoveItem = async (itemId) => {
-        try {
-            await removeItem(itemId).unwrap();
-            toast.success(t("flashSale.toast.itemRemoved"));
-        } catch {
-            toast.error(t("flashSale.toast.errorOccurred"));
-        }
-    };
-
-    const items = flashSale.items || [];
+// ── FlashSaleItemRow ───────────────────────────────────
+function FlashSaleItemRow({ item, onRemove, isRemoving }) {
+    const product = item.variant?.product || item.product;
+    const variant = item.variant;
+    const color = variant?.color || "";
+    const storage = variant?.storage || "";
+    const ram = variant?.ram || "";
+    const imgSrc = (Array.isArray(variant?.images) ? variant.images[0] : null)
+        || product?.images?.[0]
+        || "";
 
     return (
-        <div className="rounded-xl border border-border bg-card">
-            <div className="flex items-center justify-between border-b border-border p-4">
-                <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                        <p className="text-sm font-medium text-foreground">{flashSale.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                            {formatDateTime(flashSale.startTime)} → {formatDateTime(flashSale.endTime)}
-                        </p>
-                    </div>
-                </div>
-                <Badge className={cn("text-xs", statusColor)}>{statusLabel}</Badge>
-            </div>
-
-            <div className="p-4">
-                {items.length === 0 ? (
-                    <p className="py-4 text-center text-sm text-muted-foreground">{t("flashSale.noProducts")}</p>
-                ) : (
-                    <div className="space-y-2">
-                        {items.map((item) => {
-                            const remaining = item.quantityLimit - item.quantitySold;
-                            const product = item.variant?.product || item.product;
-                            const variant = item.variant;
-                            const color = variant?.color || "";
-                            const storage = variant?.storage || "";
-                            const ram = variant?.ram || "";
-                            const imgSrc = (Array.isArray(variant?.images) ? variant.images[0] : null)
-                                || product?.images?.[0]
-                                || "";
-                            return (
-                                <div key={item.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
-                                    <img
-                                        src={imgSrc}
-                                        alt={product?.name}
-                                        className="h-12 w-12 rounded-lg object-cover"
-                                    />
-                                    <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-medium text-foreground">{product?.name}</p>
-                                        {[color, storage, ram].filter(Boolean).length > 0 && (
-                                            <p className="text-xs text-muted-foreground">
-                                                {[color, storage, ram].filter(Boolean).join(" · ")}
-                                            </p>
-                                        )}
-                                        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                                            <span className="line-through">{formatPrice(item.originalPrice)}</span>
-                                            <span className="font-semibold text-red-500">{formatPrice(item.salePrice)}</span>
-                                            <Badge variant="destructive" className="text-[10px]">-{item.discountPercent}%</Badge>
-                                        </div>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">
-                                            {t("flashSale.remainingSlots", { remaining, total: item.quantityLimit })}
-                                        </p>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                                        onClick={() => handleRemoveItem(item.id)}
-                                        disabled={isRemoving}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            );
-                        })}
-                    </div>
+        <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+            <img
+                src={imgSrc}
+                alt={product?.name}
+                className="h-12 w-12 rounded-lg object-cover"
+            />
+            <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground">{product?.name}</p>
+                {[color, storage, ram].filter(Boolean).length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                        {[color, storage, ram].filter(Boolean).join(" · ")}
+                    </p>
                 )}
+                <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="line-through">{formatPrice(item.originalPrice)}</span>
+                    <span className="font-semibold text-red-500">{formatPrice(item.salePrice)}</span>
+                    <Badge variant="destructive" className="text-[10px]">-{item.discountPercent}%</Badge>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                    Đã bán {item.quantitySold || 0}
+                    {item.quantityLimit > 0 && ` / ${item.quantityLimit}`}
+                    {item.maxPerUser > 1 && ` · Tối đa ${item.maxPerUser}/người`}
+                </p>
             </div>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                onClick={() => onRemove(item.id)}
+                disabled={isRemoving}
+            >
+                <Trash2 className="h-4 w-4" />
+            </Button>
         </div>
     );
 }
 
+// ── FlashSaleCard ──────────────────────────────────────
+function FlashSaleCard({ flashSale, onToggle, onEdit, onDelete, onAddItem, onRemoveItem, isToggling, isRemoving }) {
+    const { t } = useTranslation("admin");
+    const [expanded, setExpanded] = useState(false);
+    const status = getFlashSaleStatus(flashSale);
+    const items = flashSale.items || [];
+
+    return (
+        <Card className="overflow-hidden">
+            <CardHeader className="border-b border-border pb-3">
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 min-w-0">
+                        <div className={cn(
+                            "mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+                            status === "active"
+                                ? "bg-destructive/10 text-destructive"
+                                : "bg-muted text-muted-foreground",
+                        )}>
+                            <Zap className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                            <CardTitle className="text-sm">{flashSale.title}</CardTitle>
+                            <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>{formatDateTime(flashSale.startTime)} → {formatDateTime(flashSale.endTime)}</span>
+                            </div>
+                            <div className="mt-1 flex items-center gap-2">
+                                <FlashSaleStatusBadge status={status} />
+                                <Badge variant="secondary" className="text-[11px]">
+                                    {items.length} sản phẩm
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={() => onToggle(flashSale.id)}
+                            disabled={isToggling}
+                        >
+                            {flashSale.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={() => onEdit(flashSale)}
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => onDelete(flashSale.id)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+            </CardHeader>
+
+            <CardContent className="pt-3">
+                {flashSale.description && (
+                    <p className="mb-3 text-xs text-muted-foreground">{flashSale.description}</p>
+                )}
+
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mb-1 h-7 text-xs text-muted-foreground rounded-full"
+                    onClick={() => setExpanded(!expanded)}
+                >
+                    {expanded ? (
+                        <><ChevronUp className="mr-1 h-3.5 w-3.5" />Thu gọn</>
+                    ) : (
+                        <><ChevronDown className="mr-1 h-3.5 w-3.5" />Xem sản phẩm ({items.length})</>
+                    )}
+                </Button>
+
+                {expanded && (
+                    <div className="mt-2 space-y-2">
+                        {items.length === 0 ? (
+                            <p className="py-3 text-center text-xs text-muted-foreground">{t("flashSale.noProducts")}</p>
+                        ) : (
+                            items.map((item) => (
+                                <FlashSaleItemRow
+                                    key={item.id}
+                                    item={item}
+                                    onRemove={onRemoveItem}
+                                    isRemoving={isRemoving}
+                                />
+                            ))
+                        )}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full h-8 text-xs rounded-full"
+                            onClick={() => onAddItem(flashSale.id)}
+                        >
+                            <Plus className="mr-1 h-3.5 w-3.5" />
+                            {t("flashSale.addProduct")}
+                        </Button>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+// ── Main Page ──────────────────────────────────────────
 export default function AdminFlashSalePage() {
     const { t } = useTranslation("admin");
     const [deleteId, setDeleteId] = useState(null);
@@ -449,6 +698,7 @@ export default function AdminFlashSalePage() {
     const { data, isLoading } = useGetAllFlashSalesQuery();
     const [deleteFlashSale, { isLoading: isDeleting }] = useDeleteFlashSaleMutation();
     const [toggleStatus, { isLoading: isToggling }] = useToggleFlashSaleStatusMutation();
+    const [removeItem, { isLoading: isRemoving }] = useRemoveFlashSaleItemMutation();
 
     const flashSales = data || [];
 
@@ -472,8 +722,18 @@ export default function AdminFlashSalePage() {
         }
     };
 
+    const handleRemoveItem = async (itemId) => {
+        try {
+            await removeItem(itemId).unwrap();
+            toast.success(t("flashSale.toast.itemRemoved"));
+        } catch {
+            toast.error(t("flashSale.toast.errorOccurred"));
+        }
+    };
+
     return (
         <div className="space-y-6">
+            {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">{t("flashSale.title")}</h1>
@@ -485,6 +745,7 @@ export default function AdminFlashSalePage() {
                 </Button>
             </div>
 
+            {/* Form */}
             {showForm && (
                 <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="mb-4 text-sm font-medium text-foreground">
@@ -497,59 +758,52 @@ export default function AdminFlashSalePage() {
                 </div>
             )}
 
-            {isLoading ? (
-                <div className="space-y-4">
+            {/* Loading */}
+            {isLoading && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[...Array(2)].map((_, i) => (
-                        <Skeleton key={i} className="h-40 w-full rounded-xl" />
+                        <Skeleton key={i} className="h-44 w-full rounded-xl" />
                     ))}
                 </div>
-            ) : flashSales.length === 0 ? (
-                <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-border">
-                    <p className="text-sm text-muted-foreground">{t("flashSale.noSales")}</p>
+            )}
+
+            {/* Empty state */}
+            {!isLoading && flashSales.length === 0 && (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                        <PackageOpen className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <p className="mt-3 text-sm font-medium text-foreground">Chưa có Flash Sale nào</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Tạo đợt flash sale đầu tiên để bắt đầu
+                    </p>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4 rounded-full"
+                        onClick={() => { setEditingFlashSale(null); setShowForm(true); }}
+                    >
+                        <Plus className="mr-1.5 h-4 w-4" />
+                        {t("flashSale.createSale")}
+                    </Button>
                 </div>
-            ) : (
-                <div className="space-y-4">
+            )}
+
+            {/* Card grid */}
+            {!isLoading && flashSales.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {flashSales.map((fs) => (
-                        <div key={fs.id}>
-                            <FlashSaleDetail flashSale={fs} />
-                            <div className="mt-2 flex items-center justify-end gap-2 px-1">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 text-xs text-muted-foreground"
-                                    onClick={() => setAddItemTo(fs.id)}
-                                >
-                                    <Plus className="mr-1 h-3.5 w-3.5" />
-                                    {t("flashSale.addProduct")}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                    onClick={() => { setEditingFlashSale(fs); setShowForm(true); }}
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                    onClick={() => handleToggle(fs.id)}
-                                    disabled={isToggling}
-                                >
-                                    {fs.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                    onClick={() => setDeleteId(fs.id)}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <Separator className="my-4" />
-                        </div>
+                        <FlashSaleCard
+                            key={fs.id}
+                            flashSale={fs}
+                            onToggle={handleToggle}
+                            onEdit={(fs) => { setEditingFlashSale(fs); setShowForm(true); }}
+                            onDelete={(id) => setDeleteId(id)}
+                            onAddItem={(id) => setAddItemTo(id)}
+                            onRemoveItem={handleRemoveItem}
+                            isToggling={isToggling}
+                            isRemoving={isRemoving}
+                        />
                     ))}
                 </div>
             )}

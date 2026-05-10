@@ -206,9 +206,14 @@
     },
 
     "flashSale": {
+        "title": "FLASH SALE",
         "viewAll": "View all",
         "sold": "Sold",
-        "remaining": "Left"
+        "remaining": "Left",
+        "almostGone": "Almost gone",
+        "flashSale": "FLASH SALE",
+        "hot": "Hot",
+        "endTime": "Ends in"
     },
 
     "slider": {
