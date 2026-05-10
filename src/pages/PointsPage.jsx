@@ -125,7 +125,6 @@ export default function PointsPage() {
                                                 setSelectedPkg(pkg);
                                                 setConfirmOpen(true);
                                             }}
-                                            t={t}
                                         />
                                     ))}
                                 </div>
@@ -148,7 +147,6 @@ export default function PointsPage() {
                                                 setSelectedPkg(pkg);
                                                 setConfirmOpen(true);
                                             }}
-                                            t={t}
                                         />
                                     ))}
                                 </div>
@@ -273,7 +271,7 @@ export default function PointsPage() {
     );
 }
 
-function PackageCard({ pkg, points, onRedeem, t }) {
+function PackageCard({ pkg, points, onRedeem }) {
     const canAfford = points >= pkg.points;
     const isPercent = pkg.type === "PERCENT";
 
@@ -298,7 +296,9 @@ function PackageCard({ pkg, points, onRedeem, t }) {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Coins className="h-3.5 w-3.5 text-amber-500" />
-                        {"needPoints"}
+                        <span className="font-semibold text-foreground">
+                            {formatPrice(pkg.points)}
+                        </span>
                     </div>
                     <Button
                         size="sm"
