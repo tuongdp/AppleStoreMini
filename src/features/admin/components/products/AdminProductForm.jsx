@@ -63,6 +63,11 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [uploadImage] = useUploadEditorImageMutation();
     const [createProductApi] = useCreateProductMutation();
 
+    useGetGlobalOptionsQuery("COLOR");
+    const { data: gStorages = [] } = useGetGlobalOptionsQuery("STORAGE");
+    const { data: gRams = [] } = useGetGlobalOptionsQuery("RAM");
+    const { data: gEditions = [] } = useGetGlobalOptionsQuery("EDITION");
+
     const colorOptions = useMemo(() => options.filter((o) => o.type === "COLOR"), [options]);
     const storageOptions = useMemo(() => options.filter((o) => o.type === "STORAGE"), [options]);
     const ramOptions = useMemo(() => options.filter((o) => o.type === "RAM"), [options]);
@@ -176,9 +181,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const saveVariant = async (data) => {
         const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
         if (!color.trim()) { toast.error(t("productForm.toast.colorRequired")); return; }
-        if (storageOptions.length > 0 && !storage.trim()) { toast.error(t("productForm.toast.storageRequired")); return; }
-        if (ramOptions.length > 0 && !ram.trim()) { toast.error(t("productForm.toast.ramRequired")); return; }
-        if (editionOptions.length > 0 && !edition.trim()) { toast.error(t("productForm.toast.editionRequired")); return; }
+        if ((storageOptions.length > 0 || gStorages.length > 0) && !storage.trim()) { toast.error(t("productForm.toast.storageRequired")); return; }
+        if ((ramOptions.length > 0 || gRams.length > 0) && !ram.trim()) { toast.error(t("productForm.toast.ramRequired")); return; }
+        if ((editionOptions.length > 0 || gEditions.length > 0) && !edition.trim()) { toast.error(t("productForm.toast.editionRequired")); return; }
         if (!price || Number(price) < 1000) { toast.error(t("productForm.toast.priceMinError")); return; }
         if (salePrice && Number(salePrice) >= Number(price)) { toast.error(t("productForm.toast.salePriceError")); return; }
 
@@ -714,7 +719,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                 {initial ? t("productForm.editVariant") : t("productForm.newVariant")}
             </p>
             <div className="grid grid-cols-2 gap-3">
-                {colorOptions.length > 0 && (
+                {allColorOptions.length > 0 && (
                     <div>
                         <Label className="text-xs">{t("productForm.colorLabel")} <span className="text-destructive">*</span></Label>
                         <div className="mt-1">
@@ -727,7 +732,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                         </div>
                     </div>
                 )}
-                {storageOptions.length > 0 && (
+                {allStorageOptions.length > 0 && (
                     <div>
                         <Label className="text-xs">{t("productForm.storageLabel")} <span className="text-destructive">*</span></Label>
                         <div className="mt-1">
@@ -740,7 +745,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                         </div>
                     </div>
                 )}
-                {ramOptions.length > 0 && (
+                {allRamOptions.length > 0 && (
                     <div>
                         <Label className="text-xs">{t("productForm.ramLabel")} <span className="text-destructive">*</span></Label>
                         <div className="mt-1">
@@ -753,7 +758,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                         </div>
                     </div>
                 )}
-                {editionOptions.length > 0 && (
+                {allEditionOptions.length > 0 && (
                     <div>
                         <Label className="text-xs">{t("productForm.editionLabel")} <span className="text-destructive">*</span></Label>
                         <div className="mt-1">
