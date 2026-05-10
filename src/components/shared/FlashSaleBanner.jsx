@@ -33,17 +33,17 @@ function CountdownTimer({ endTime }) {
         <div className="flex items-center gap-1 font-mono text-lg font-bold tabular-nums">
             {remaining.d > 0 && (
                 <>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10 text-xs text-destructive">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-xs text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">
                         {pad(remaining.d)}
                     </span>
                     <span className="mr-0.5 text-[10px] text-muted-foreground">{t("timeAgo.day")}</span>
                 </>
             )}
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10 text-sm text-destructive">{pad(remaining.h)}</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.h)}</span>
             <span className="text-muted-foreground/40">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10 text-sm text-destructive">{pad(remaining.m)}</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.m)}</span>
             <span className="text-muted-foreground/40">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-destructive/10 text-sm text-destructive">{pad(remaining.s)}</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.s)}</span>
         </div>
     );
 }
@@ -114,13 +114,13 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
     if (!flashSale || isExpired || !products.length) return null;
 
     return (
-        <section className="border-y border-border/50 bg-gradient-to-r from-destructive/[0.03] via-card to-destructive/[0.03]">
+        <section className="border-y border-amber-500/20 bg-gradient-to-r from-amber-500/[0.05] via-card to-amber-500/[0.05] dark:from-amber-400/[0.08] dark:via-card dark:to-amber-400/[0.08]">
             <div className="mx-auto max-w-7xl px-4 py-5 md:px-6 md:py-8">
                 <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-destructive/10">
-                                <Zap className="h-4 w-4 text-destructive" />
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 dark:bg-amber-400/20">
+                                <Zap className="h-4 w-4 text-amber-500 dark:text-amber-400" />
                             </div>
                             <h2 className="text-lg font-bold text-foreground md:text-xl">{flashSale.title}</h2>
                         </div>
@@ -131,7 +131,7 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                     </div>
                     <Link
                         to="/flash-sale"
-                        className="inline-flex items-center gap-1 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-amber-600 transition-colors hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
                     >
                         {t("flashSale.viewAll")} <ChevronRight className="h-4 w-4" />
                     </Link>
@@ -152,7 +152,7 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                                     </div>
                                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                                         <div
-                                            className="h-full rounded-full bg-destructive transition-all"
+                                            className="h-full rounded-full bg-amber-500 dark:bg-amber-400 transition-all"
                                             style={{
                                                 width: `${Math.min(
                                                     product._flashSaleItem.quantityLimit > 0
