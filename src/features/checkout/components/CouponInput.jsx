@@ -34,7 +34,7 @@ export default function CouponInput({
                 orderTotal,
             }).unwrap();
 
-            onApply?.(response.data);
+            onApply?.(response);
             setCode("");
         } catch (err) {
             setError(err?.data?.message || "Mã giảm giá không hợp lệ");
@@ -64,8 +64,8 @@ export default function CouponInput({
                         <p className="text-sm font-medium text-green-700 dark:text-green-400">
                             <code className="font-bold">
                                 {appliedCoupon.code}
-                            </code>{" "}
-                            — {"discountOff"}
+                            </code>                            {" "}
+                            — Giảm {formatPrice(appliedCoupon.discountAmount)}
                         </p>
                         {appliedCoupon.description && (
                             <p className="text-xs text-green-600/70 dark:text-green-400/70">
