@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import CartEmpty from "./CartEmpty";
 import { selectCartItems, clearCart } from "@/store/cartSlice";
 
 export default function CartTable() {
-  const { t } = useTranslation("cart");
   const dispatch = useDispatch();
   const items = useSelector(selectCartItems);
 
@@ -24,15 +22,15 @@ export default function CartTable() {
           onClick={() => dispatch(clearCart())}
         >
           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-          {t("clearCart", { defaultValue: "Xóa giỏ hàng" })}
+          {"Xóa giỏ hàng"}
         </Button>
       </div>
 
       <div className="mb-3 hidden grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wider text-muted-foreground md:grid">
-        <div className="col-span-6">{t("item.product")}</div>
-        <div className="col-span-2 text-center">{t("item.price")}</div>
-        <div className="col-span-2 text-center">{t("item.quantity")}</div>
-        <div className="col-span-2 text-right">{t("item.total")}</div>
+        <div className="col-span-6">{"Sản phẩm"}</div>
+        <div className="col-span-2 text-center">{"Đơn giá"}</div>
+        <div className="col-span-2 text-center">{"Số lượng"}</div>
+        <div className="col-span-2 text-right">{"Thành tiền"}</div>
       </div>
 
       <Separator className="mb-4" />

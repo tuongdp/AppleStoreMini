@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,6 @@ import { useState } from "react";
 import { LogOut, Store, User } from "lucide-react";
 
 export default function AdminTopBar() {
-    const { t } = useTranslation("admin");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
@@ -55,7 +53,7 @@ export default function AdminTopBar() {
 
                 {/* Title — desktop */}
                 <span className="hidden text-sm font-medium text-muted-foreground md:block">
-                    {t("title")}
+                    {"Quản trị"}
                 </span>
             </div>
 
@@ -102,7 +100,7 @@ export default function AdminTopBar() {
                                 className="flex items-center gap-2"
                             >
                                 <Store className="h-4 w-4" />
-                                {t("sidebar.backToStore")}
+                                {"Về trang Store"}
                             </Link>
                         </DropdownMenuItem>
 
@@ -112,7 +110,7 @@ export default function AdminTopBar() {
                                 className="flex items-center gap-2"
                             >
                                 <User className="h-4 w-4" />
-                                {t("nav.profile", { ns: "common" })}
+                                {"Tài khoản"}
                             </Link>
                         </DropdownMenuItem>
 
@@ -123,7 +121,7 @@ export default function AdminTopBar() {
                             className="gap-2 text-red-500 focus:text-red-500"
                         >
                             <LogOut className="h-4 w-4" />
-                            {t("sidebar.logout", { ns: "profile" })}
+                            {"Đăng xuất"}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

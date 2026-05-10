@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "@/i18n/useTranslation";
 import { X } from "lucide-react";
 import { addressSchema } from "@/lib/validations";
 import {
@@ -22,7 +21,6 @@ import {
 import { toast } from "sonner";
 
 export default function AddressForm({ address, onClose }) {
-  const { t } = useTranslation("profile");
   const isEditing = !!address;
 
   const [addAddress, { isLoading: isAdding }] = useAddAddressMutation();
@@ -64,14 +62,14 @@ export default function AddressForm({ address, onClose }) {
           addressId: address.id,
           ...values,
         }).unwrap();
-        toast.success(t("address.updateSuccess"));
+        toast.success("Cập nhật địa chỉ thành công");
       } else {
         await addAddress(values).unwrap();
-        toast.success(t("address.addSuccess"));
+        toast.success("Thêm địa chỉ thành công");
       }
       onClose();
     } catch {
-      toast.error(t("status.error", { ns: "common" }));
+      toast.error("Có lỗi xảy ra");
     }
   };
 
@@ -79,7 +77,7 @@ export default function AddressForm({ address, onClose }) {
     <div className="rounded-xl border border-border bg-muted/20 p-5">
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-base font-medium text-foreground">
-          {isEditing ? t("address.edit") : t("address.addNew")}
+          {isEditing ? "Chỉnh sửa" : "Thêm địa chỉ mới"}
         </h3>
         <Button
           type="button"
@@ -100,10 +98,10 @@ export default function AddressForm({ address, onClose }) {
               name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("address.fullName")}</FormLabel>
+                  <FormLabel>{"Họ và tên"}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("address.fullNamePlaceholder")}
+                      placeholder={"Nhập họ và tên người nhận"}
                       disabled={isLoading}
                       {...field}
                     />
@@ -117,11 +115,11 @@ export default function AddressForm({ address, onClose }) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("address.phone")}</FormLabel>
+                  <FormLabel>{"Số điện thoại"}</FormLabel>
                   <FormControl>
                     <Input
                       type="tel"
-                      placeholder={t("address.phonePlaceholder")}
+                      placeholder={"Nhập số điện thoại"}
                       disabled={isLoading}
                       {...field}
                     />
@@ -138,10 +136,10 @@ export default function AddressForm({ address, onClose }) {
               name="province"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("address.province")}</FormLabel>
+                  <FormLabel>{"Tỉnh / Thành phố"}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("address.provincePlaceholder")}
+                      placeholder={"Chọn tỉnh / thành phố"}
                       disabled={isLoading}
                       {...field}
                     />
@@ -155,10 +153,10 @@ export default function AddressForm({ address, onClose }) {
               name="district"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("address.district")}</FormLabel>
+                  <FormLabel>{"Quận / Huyện"}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("address.districtPlaceholder")}
+                      placeholder={"Chọn quận / huyện"}
                       disabled={isLoading}
                       {...field}
                     />
@@ -172,10 +170,10 @@ export default function AddressForm({ address, onClose }) {
               name="ward"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("address.ward")}</FormLabel>
+                  <FormLabel>{"Phường / Xã"}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("address.wardPlaceholder")}
+                      placeholder={"Chọn phường / xã"}
                       disabled={isLoading}
                       {...field}
                     />
@@ -191,10 +189,10 @@ export default function AddressForm({ address, onClose }) {
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("address.address")}</FormLabel>
+                <FormLabel>{"Địa chỉ cụ thể"}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder={t("address.addressPlaceholder")}
+                    placeholder={"Số nhà, tên đường..."}
                     disabled={isLoading}
                     {...field}
                   />
@@ -217,7 +215,7 @@ export default function AddressForm({ address, onClose }) {
                   />
                 </FormControl>
                 <FormLabel className="text-sm font-normal text-muted-foreground">
-                  {t("address.setDefault")}
+                  {"Đặt làm mặc định"}
                 </FormLabel>
               </FormItem>
             )}
@@ -232,7 +230,7 @@ export default function AddressForm({ address, onClose }) {
               onClick={onClose}
               disabled={isLoading}
             >
-              {t("btn.cancel", { ns: "common" })}
+              {"Huỷ"}
             </Button>
             <Button
               type="submit"
@@ -240,7 +238,7 @@ export default function AddressForm({ address, onClose }) {
               className="rounded-full"
               disabled={isLoading}
             >
-              {isLoading ? t("address.saving") : t("address.save")}
+              {isLoading ? "Đang lưu..." : "Lưu địa chỉ"}
             </Button>
           </div>
         </form>

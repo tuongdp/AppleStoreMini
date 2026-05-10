@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
@@ -8,7 +7,6 @@ import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function NavbarSearch({ onClose }) {
-    const { t } = useTranslation("product");
     const inputRef = useRef(null);
 
     const {
@@ -42,7 +40,7 @@ export default function NavbarSearch({ onClose }) {
                         ref={inputRef}
                         value={keyword}
                         onChange={(e) => handleKeywordChange(e.target.value)}
-                        placeholder={t("search.placeholder")}
+                        placeholder={"Tìm kiếm sản phẩm..."}
                         className="h-9 rounded-full pl-9 pr-9 text-sm"
                     />
                     {keyword && (
@@ -66,7 +64,7 @@ export default function NavbarSearch({ onClose }) {
                 <div className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-xl">
                     {suggestions.length === 0 && !isLoading ? (
                         <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-                            {t("search.noResults")}
+                            {"Không tìm thấy sản phẩm"}
                         </div>
                     ) : (
                         <div className="py-1.5">
@@ -119,7 +117,7 @@ export default function NavbarSearch({ onClose }) {
                                         }}
                                         className="flex items-center justify-center text-xs font-medium text-apple-blue hover:opacity-70"
                                     >
-                                        {t("search.viewAll")} &ldquo;{keyword}
+                                        {"Xem tất cả kết quả cho"} &ldquo;{keyword}
                                         &rdquo;
                                     </Link>
                                 </div>

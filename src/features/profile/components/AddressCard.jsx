@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { Pencil, Trash2, MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,6 @@ export default function AddressCard({
     isDeleting,
     isSettingDefault,
 }) {
-    const { t } = useTranslation("profile");
     const [confirmOpen, setConfirmOpen] = useState(false);
 
     return (
@@ -46,7 +44,7 @@ export default function AddressCard({
                                         className="border-foreground/30 text-xs"
                                     >
                                         <Star className="mr-1 h-2.5 w-2.5 fill-foreground" />
-                                        {t("address.default")}
+                                        {"Mặc định"}
                                     </Badge>
                                 )}
                             </div>
@@ -91,7 +89,7 @@ export default function AddressCard({
                             onClick={onSetDefault}
                             disabled={isSettingDefault}
                         >
-                            {t("address.setDefault")}
+                            {"Đặt làm mặc định"}
                         </Button>
                     </div>
                 )}
@@ -101,8 +99,8 @@ export default function AddressCard({
             <ConfirmDialog
                 open={confirmOpen}
                 onOpenChange={setConfirmOpen}
-                title={t("address.deleteConfirm")}
-                description={t("confirm.deleteDesc", { ns: "common" })}
+                title={"Bạn có chắc muốn xoá địa chỉ này không?"}
+                description={"Hành động này không thể hoàn tác."}
                 onConfirm={onDelete}
                 isLoading={isDeleting}
             />

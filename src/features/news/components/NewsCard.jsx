@@ -1,12 +1,10 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Calendar, Clock, Star, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export default function NewsCard({ news, className }) {
-    const { t } = useTranslation("common");
     const slug = news.slug || news._id || news.id;
 
     return (
@@ -64,7 +62,7 @@ export default function NewsCard({ news, className }) {
                         {news.readTime && (
                             <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
-                                {news.readTime} {t("timeAgo.minute")}
+                                {news.readTime} {"phút"}
                             </span>
                         )}
                     </div>

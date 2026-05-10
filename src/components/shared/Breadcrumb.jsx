@@ -1,11 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "@/i18n/useTranslation";
-
 export default function Breadcrumb({ items = [], className }) {
-    const { t } = useTranslation();
-
     // items = [{ label: "iPhone", href: "/products?category=iphone" }, { label: "iPhone 15 Pro" }]
     // Item cuối cùng không có href — đó là trang hiện tại
 
@@ -20,7 +16,7 @@ export default function Breadcrumb({ items = [], className }) {
                 className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
             >
                 <Home className="h-3.5 w-3.5" />
-                <span className="sr-only">{t("nav.home")}</span>
+                <span className="sr-only">{"home"}</span>
             </Link>
 
             {items.map((item, index) => {

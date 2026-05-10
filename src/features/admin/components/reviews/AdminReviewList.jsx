@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Search, Star, Trash2, Eye, EyeOff } from "lucide-react";
 import {
     useGetAllReviewsQuery,
@@ -62,7 +61,6 @@ function StarDisplay({ rating }) {
 }
 
 export default function AdminReviewList() {
-    const { t } = useTranslation("admin");
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(
         searchParams.get("search") || "",
@@ -103,7 +101,7 @@ export default function AdminReviewList() {
             await deleteReview(deleteId).unwrap();
             toast.success("Đã xóa đánh giá");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
         }
@@ -119,7 +117,7 @@ export default function AdminReviewList() {
                     : "Đã hiện đánh giá",
             );
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -165,7 +163,7 @@ export default function AdminReviewList() {
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Ngày tạo</TableHead>
                             <TableHead className="text-right">
-                                {t("table.actions")}
+                                {"Thao tác"}
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -186,7 +184,7 @@ export default function AdminReviewList() {
                                     colSpan={7}
                                     className="py-12 text-center text-muted-foreground"
                                 >
-                                    {t("table.noData")}
+                                    {"Không có dữ liệu"}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -326,7 +324,7 @@ export default function AdminReviewList() {
             {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                        {t("table.rowsPerPage")} {PAGINATION.DEFAULT_LIMIT}
+                        {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}
                     </p>
                     <div className="flex items-center gap-2">
                         <Button
@@ -338,10 +336,10 @@ export default function AdminReviewList() {
                                 updateParam("page", filters.page - 1)
                             }
                         >
-                            {t("pagination.prev", { ns: "common" })}
+                            {"Trước"}
                         </Button>
                         <span className="text-sm text-muted-foreground">
-                            {filters.page} {t("table.of")}{" "}
+                            {filters.page} {"trong"}{" "}
                             {pagination.totalPages}
                         </span>
                         <Button
@@ -353,7 +351,7 @@ export default function AdminReviewList() {
                                 updateParam("page", filters.page + 1)
                             }
                         >
-                            {t("pagination.next", { ns: "common" })}
+                            {"Sau"}
                         </Button>
                     </div>
                 </div>

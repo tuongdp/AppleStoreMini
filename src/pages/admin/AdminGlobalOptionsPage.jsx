@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Trash2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +26,6 @@ const HEX_PRESETS = [
 ];
 
 export default function AdminGlobalOptionsPage() {
-    const { t } = useTranslation("admin");
     const [activeTab, setActiveTab] = useState("COLOR");
     const [newValue, setNewValue] = useState("");
     const [newHex, setNewHex] = useState("#000000");
@@ -60,7 +58,7 @@ export default function AdminGlobalOptionsPage() {
     const handleDelete = async (id) => {
         try {
             await deleteOption(id).unwrap();
-            toast.success(t("productForm.toast.deleteOptionSuccess"));
+            toast.success("Xoá thành công");
         } catch (err) {
             toast.error(err?.data?.message || "Error");
         }
@@ -77,7 +75,7 @@ export default function AdminGlobalOptionsPage() {
     return (
         <div className="space-y-6">
             <h1 className="text-2xl font-semibold text-foreground">
-                {t("globalOptions.title")}
+                {"Tùy chọn toàn cục"}
             </h1>
 
             <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setSearch(""); }}>
@@ -92,7 +90,7 @@ export default function AdminGlobalOptionsPage() {
 
             <div className="flex flex-wrap items-center gap-2">
                 <Input
-                    placeholder={t("globalOptions.addPlaceholder")}
+                    placeholder={"Thêm giá trị..."}
                     value={newValue}
                     onChange={(e) => setNewValue(e.target.value)}
                     className="h-9 max-w-[200px] text-xs"
@@ -115,7 +113,7 @@ export default function AdminGlobalOptionsPage() {
                 <div className="relative ml-auto">
                     <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                        placeholder={t("globalOptions.search")}
+                        placeholder={"Tìm kiếm..."}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="h-8 w-[180px] pl-8 text-xs"
@@ -133,16 +131,16 @@ export default function AdminGlobalOptionsPage() {
                     <div className="p-8 text-center text-sm text-muted-foreground">Loading...</div>
                 ) : filtered.length === 0 ? (
                     <div className="p-8 text-center text-sm text-muted-foreground">
-                        {t("globalOptions.empty")}
+                        {"Chưa có giá trị nào. Thêm giá trị đầu tiên ở trên."}
                     </div>
                 ) : (
                     <div className="max-h-[60vh] overflow-y-auto">
                         <table className="w-full">
                             <thead className="sticky top-0 bg-muted/50">
                                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                                    <th className="px-4 py-3 font-medium">{activeTab === "COLOR" ? t("globalOptions.preview") : ""}</th>
-                                    <th className="px-4 py-3 font-medium">{t("globalOptions.value")}</th>
-                                    <th className="px-4 py-3 text-right font-medium">{t("productForm.actions")}</th>
+                                    <th className="px-4 py-3 font-medium">{activeTab === "COLOR" ? "Xem trước" : ""}</th>
+                                    <th className="px-4 py-3 font-medium">{"Giá trị"}</th>
+                                    <th className="px-4 py-3 text-right font-medium">{"Hành động"}</th>
                                 </tr>
                             </thead>
                             <tbody>

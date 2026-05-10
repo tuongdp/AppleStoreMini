@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ShoppingBag } from "lucide-react";
 import {
   Sheet,
@@ -15,7 +14,6 @@ import { selectCartItems, selectCartCount } from "@/store/cartSlice";
 import { toggleCartDrawer, selectCartDrawerOpen } from "@/store/uiSlice";
 
 export default function CartDrawer() {
-  const { t } = useTranslation("cart");
   const dispatch = useDispatch();
   const isOpen = useSelector(selectCartDrawerOpen);
   const items = useSelector(selectCartItems);
@@ -30,7 +28,7 @@ export default function CartDrawer() {
         <SheetHeader className="border-b border-border px-6 py-4">
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
-            {t("drawer.title")}
+            {"Giỏ hàng của bạn"}
             {count > 0 && (
               <span className="ml-1 rounded-full bg-foreground px-2 py-0.5 text-xs text-background">
                 {count}

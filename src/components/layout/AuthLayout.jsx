@@ -1,10 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ROUTES } from "@/lib/constants";
 
 export default function AuthLayout() {
-    const { t } = useTranslation();
-
     return (
         <div className="flex min-h-screen flex-col bg-muted/30">
             {/* Header */}
@@ -32,7 +29,7 @@ export default function AuthLayout() {
             {/* Footer */}
             <footer className="border-t border-border py-6 text-center">
                 <p className="text-xs text-muted-foreground">
-                    {t("footer.copyright")}
+                    {"copyright"}
                 </p>
             </footer>
         </div>

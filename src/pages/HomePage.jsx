@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     ArrowRight,
     Truck,
@@ -30,11 +29,11 @@ const CATEGORY_SLIDERS = [
     { slug: "phu-kien", label: "Phụ kiện", subtitle: "Phụ kiện" },
 ];
 
-const TRUST_BADGES = (t) => [
-    { icon: Truck, title: t("trust.freeShipping"), desc: t("trust.freeShippingDesc") },
-    { icon: ShieldCheck, title: t("trust.warranty"), desc: t("trust.warrantyDesc") },
-    { icon: RefreshCw, title: t("trust.returns"), desc: t("trust.returnsDesc") },
-    { icon: CreditCard, title: t("trust.payment"), desc: t("trust.paymentDesc") },
+const TRUST_BADGES = [
+    { icon: Truck, title: "Miễn phí vận chuyển", desc: "Đơn hàng từ 500.000₫" },
+    { icon: ShieldCheck, title: "Bảo hành chính hãng", desc: "1 - 2 năm theo sản phẩm" },
+    { icon: RefreshCw, title: "Đổi trả dễ dàng", desc: "Trong vòng 14 ngày" },
+    { icon: CreditCard, title: "Thanh toán an toàn", desc: "MoMo, Thanh toán khi nhận hàng" },
 ];
 
 function CategoryProductSlider({ slug, label, subtitle }) {
@@ -61,7 +60,6 @@ function CategoryProductSlider({ slug, label, subtitle }) {
 }
 
 export default function HomePage() {
-    const { t: tc } = useTranslation();
 
     const { data: flashSale, isLoading: isFlashLoading } = useGetActiveFlashSaleQuery();
     const { data: bannerData, isLoading: isBannerLoading } = useGetBannersQuery();
@@ -127,7 +125,7 @@ export default function HomePage() {
             <section className="section-padding border-t border-border bg-muted/20 py-12">
                 <div className="mx-auto max-w-7xl">
                     <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-                        {TRUST_BADGES(tc).map(({ icon, title, desc }) => {
+                        {TRUST_BADGES.map(({ icon, title, desc }) => {
                             const Icon = icon;
                             return (
                                 <div key={title} className="flex flex-col items-center gap-3 text-center">
@@ -147,18 +145,18 @@ export default function HomePage() {
 
             <section className="section-padding py-20 text-center">
                 <div className="mx-auto max-w-lg">
-                    <p className="mb-2 text-sm font-medium text-muted-foreground">{tc("home.ctaBadge")}</p>
-                    <h2 className="mb-4 text-3xl font-semibold tracking-tight text-foreground">{tc("home.ctaTitle")}</h2>
-                    <p className="mb-8 text-sm leading-relaxed text-muted-foreground">{tc("home.ctaDesc")}</p>
+                    <p className="mb-2 text-sm font-medium text-muted-foreground">Ưu đãi độc quyền</p>
+                    <h2 className="mb-4 text-3xl font-semibold tracking-tight text-foreground">Đừng bỏ lỡ deal hot</h2>
+                    <p className="mb-8 text-sm leading-relaxed text-muted-foreground">Khám phá hàng nghìn sản phẩm Apple chính hãng với giá tốt nhất, giao hàng nhanh, bảo hành uy tín.</p>
                     <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                         <Button asChild size="lg" className="rounded-full px-8">
                             <Link to={ROUTES.PRODUCTS}>
-                                {tc("home.ctaExplore")}
+                                Khám phá ngay
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Link>
                         </Button>
                         <Button asChild variant="outline" size="lg" className="rounded-full px-8">
-                            <Link to="/contact">{tc("home.ctaContact")}</Link>
+                            <Link to="/contact">Liên hệ tư vấn</Link>
                         </Button>
                     </div>
                 </div>

@@ -1,7 +1,5 @@
 import { cn, formatPrice, calcDiscount } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/i18n/useTranslation";
-
 export default function PriceDisplay({
     price,
     salePrice,
@@ -10,8 +8,6 @@ export default function PriceDisplay({
     showSaved = false,
     className,
 }) {
-    const { t } = useTranslation();
-
     const effectivePrice = salePrice && salePrice < price ? salePrice : price;
     const hasDiscount = salePrice && salePrice < price;
     const discount = hasDiscount ? calcDiscount(price, salePrice) : 0;
@@ -44,7 +40,7 @@ export default function PriceDisplay({
 
             {hasDiscount && showSaved && (
                 <span className="text-xs text-green-600 dark:text-green-400">
-                    {t("price.sale")} {formatPrice(saved)}
+                    {"sale"} {formatPrice(saved)}
                 </span>
             )}
         </div>

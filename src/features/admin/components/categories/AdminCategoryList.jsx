@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Pencil, Trash2, GripVertical, ImagePlus, ImageUp } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,
@@ -215,7 +214,6 @@ function CategoryForm({ category, onClose }) {
 }
 
 export default function AdminCategoryList() {
-    const { t } = useTranslation("admin");
     const [deleteId, setDeleteId] = useState(null);
     const [editingCategory, setEditingCategory] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -250,7 +248,7 @@ export default function AdminCategoryList() {
                 category.isActive ? "Đã ẩn danh mục" : "Đã hiện danh mục",
             );
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 

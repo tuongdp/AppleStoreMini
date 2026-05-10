@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import i18next from "@/i18n/index";
 import {
     useLoginMutation,
     useRegisterMutation,
@@ -62,7 +61,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || i18next.t("auth:loginFailed"),
+                message: error?.data?.message || "Đăng nhập thất bại",
             };
         }
     };
@@ -77,7 +76,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || i18next.t("auth:registerFailed"),
+                message: error?.data?.message || "Đăng ký thất bại",
             };
         }
     };
@@ -89,7 +88,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || i18next.t("auth:sendEmailFailed"),
+                message: error?.data?.message || "Gửi email thất bại",
             };
         }
     };

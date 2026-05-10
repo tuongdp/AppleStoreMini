@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useGetNewsQuery } from "@/store/api/newsApi";
 import NewsCard from "@/features/news/components/NewsCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,7 +10,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION } from "@/lib/constants";
 
 export default function NewsPage() {
-    const { t } = useTranslation("common");
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(searchParams.get("q") || "");
     const debouncedSearch = useDebounce(searchInput, 400);
@@ -43,10 +41,10 @@ export default function NewsPage() {
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="text-3xl font-semibold text-foreground">
-                            {t("nav.news")}
+                            {"Tin tức"}
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {t("news.subtitle")}
+                            {"Cập nhật những tin tức mới nhất về sản phẩm Apple"}
                         </p>
                     </div>
                     {/* Search */}
@@ -55,7 +53,7 @@ export default function NewsPage() {
                         <Input
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder={t("news.searchPlaceholder")}
+                            placeholder={"Tìm kiếm bài viết..."}
                             className="rounded-full pl-9"
                         />
                     </div>
@@ -82,10 +80,10 @@ export default function NewsPage() {
                 ) : news.length === 0 ? (
                     <div className="flex min-h-[300px] flex-col items-center justify-center text-center">
                         <p className="text-lg font-medium text-foreground">
-                            {t("news.notFound")}
+                            {"Không tìm thấy bài viết"}
                         </p>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {t("empty.searchDesc")}
+                            {"Thử tìm kiếm với từ khoá khác"}
                         </p>
                     </div>
                 ) : (
@@ -106,7 +104,7 @@ export default function NewsPage() {
                             disabled={page <= 1}
                             onClick={() => updateParam("page", page - 1)}
                         >
-                            {t("pagination.prev")}
+                            {"Trước"}
                         </Button>
                         <span className="text-sm text-muted-foreground">
                             {page} / {pagination.totalPages}
@@ -118,7 +116,7 @@ export default function NewsPage() {
                             disabled={page >= pagination.totalPages}
                             onClick={() => updateParam("page", page + 1)}
                         >
-                            {t("pagination.next")}
+                            {"Sau"}
                         </Button>
                     </div>
                 )}

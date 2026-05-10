@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import { Trash2, Pencil } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -9,7 +8,6 @@ import { selectCurrentUser } from "@/store/authSlice";
 import { timeAgo } from "@/lib/utils";
 
 export default function ProductReviewItem({ review, onEdit, onDelete }) {
-    const { t } = useTranslation("product");
     const currentUser = useSelector(selectCurrentUser);
     const isOwner = currentUser?.id === review.user?.id;
 
@@ -38,7 +36,7 @@ export default function ProductReviewItem({ review, onEdit, onDelete }) {
                                     variant="outline"
                                     className="border-green-500/30 bg-green-50 text-xs text-green-700 dark:bg-green-950/30 dark:text-green-400"
                                 >
-                                    {t("review.verifiedPurchase")}
+                                    {"Đã mua hàng"}
                                 </Badge>
                             )}
                         </div>

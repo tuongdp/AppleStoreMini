@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 const DEFAULT_COLOR = { name: "", hex: "#000000", images: [] };
 
 export default function AdminColorVariantForm({ colors = [], onChange }) {
-    const { t } = useTranslation("admin");
     const [items, setItems] = useState(
         colors.length > 0 ? colors : [{ ...DEFAULT_COLOR }],
     );
@@ -38,7 +36,7 @@ export default function AdminColorVariantForm({ colors = [], onChange }) {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-foreground">
-                    {t("product.colors")}
+                    {"Màu sắc"}
                 </Label>
                 <Button
                     type="button"
@@ -48,7 +46,7 @@ export default function AdminColorVariantForm({ colors = [], onChange }) {
                     onClick={handleAdd}
                 >
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
-                    {t("product.addColor")}
+                    {"Thêm màu"}
                 </Button>
             </div>
 
@@ -74,7 +72,7 @@ export default function AdminColorVariantForm({ colors = [], onChange }) {
 
                             {/* Color name */}
                             <Input
-                                placeholder={t("product.colorName")}
+                                placeholder={"Tên màu"}
                                 value={item.name}
                                 onChange={(e) =>
                                     handleChange(index, "name", e.target.value)

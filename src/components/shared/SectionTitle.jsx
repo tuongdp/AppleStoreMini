@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslation } from "@/i18n/useTranslation";
-
 export default function SectionTitle({
     title,
     subtitle,
@@ -11,8 +9,6 @@ export default function SectionTitle({
     align = "left", // left | center
     className,
 }) {
-    const { t } = useTranslation();
-
     return (
         <div
             className={cn(
@@ -39,7 +35,7 @@ export default function SectionTitle({
                     to={viewAllHref}
                     className="group flex shrink-0 items-center gap-0.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                 >
-                    {viewAllLabel || t("btn.viewAll")}
+                    {viewAllLabel || "viewAll"}
                     <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
             )}
@@ -50,7 +46,7 @@ export default function SectionTitle({
                     to={viewAllHref}
                     className="group mt-2 flex items-center gap-0.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
                 >
-                    {viewAllLabel || t("btn.viewAll")}
+                    {viewAllLabel || "viewAll"}
                     <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
             )}

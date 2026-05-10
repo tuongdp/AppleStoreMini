@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronRight, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -10,8 +9,6 @@ import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS } from "@/lib/constants";
 
 export default function OrderCard({ order }) {
-    const { t } = useTranslation("order");
-
     const [reviewItem, setReviewItem] = useState(null);
 
     // Track sản phẩm đã review trong session
@@ -135,8 +132,8 @@ export default function OrderCard({ order }) {
                         ))}
                         {remainCount > 0 && (
                             <p className="text-xs text-muted-foreground">
-                                {t("pagination.and", { ns: "common" })}{" "}
-                                {remainCount} {t("item.quantity")}
+                                {"và"}{" "}
+                                {remainCount} {"quantity"}
                             </p>
                         )}
                     </div>
@@ -151,9 +148,7 @@ export default function OrderCard({ order }) {
                             {unreviewedItems.length > 0 && (
                                 <>
                                     <span className="text-xs text-muted-foreground">
-                                        {t("review.pending", {
-                                            defaultValue: "Chờ đánh giá:",
-                                        })}
+                                        {"Chờ đánh giá:"}
                                     </span>
                                     {unreviewedItems.map((item, index) => (
                                         <Button
@@ -215,7 +210,7 @@ export default function OrderCard({ order }) {
                 <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                     <div className="text-sm">
                         <span className="text-muted-foreground">
-                            {t("detail.grandTotal")}:{" "}
+                            {"Tổng cộng"}:{" "}
                         </span>
                         <span className="font-semibold text-foreground">
                             {formatPrice(order.totalAmount)}
@@ -228,7 +223,7 @@ export default function OrderCard({ order }) {
                         asChild
                     >
                         <Link to={ROUTES.ORDER_DETAIL(order._id || order.id)}>
-                            {t("detail.orderInfo")}
+                            {"Thông tin đơn hàng"}
                             <ChevronRight className="ml-1 h-3.5 w-3.5" />
                         </Link>
                     </Button>

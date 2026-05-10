@@ -7,8 +7,6 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/i18n/useTranslation";
-
 export default function ConfirmDialog({
     open,
     onOpenChange,
@@ -21,8 +19,6 @@ export default function ConfirmDialog({
     variant = "destructive", // destructive | default
     isLoading = false,
 }) {
-    const { t } = useTranslation();
-
     const handleCancel = () => {
         onCancel?.();
         onOpenChange(false);
@@ -37,9 +33,9 @@ export default function ConfirmDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[400px]">
                 <DialogHeader>
-                    <DialogTitle>{title || t("confirm.delete")}</DialogTitle>
+                    <DialogTitle>{title || "delete"}</DialogTitle>
                     <DialogDescription>
-                        {description || t("confirm.deleteDesc")}
+                        {description || "deleteDesc"}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -49,7 +45,7 @@ export default function ConfirmDialog({
                         onClick={handleCancel}
                         disabled={isLoading}
                     >
-                        {cancelLabel || t("btn.cancel")}
+                        {cancelLabel || "cancel"}
                     </Button>
                     <Button
                         variant={variant}
@@ -57,8 +53,8 @@ export default function ConfirmDialog({
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? t("status.loading")
-                            : confirmLabel || t("btn.confirm")}
+                            ? "loading"
+                            : confirmLabel || "confirm"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

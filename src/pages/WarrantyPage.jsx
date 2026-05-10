@@ -1,45 +1,42 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { ShieldCheck } from "lucide-react";
 
 export default function WarrantyPage() {
-    const { t } = useTranslation("common");
-
     const WARRANTY_ITEMS = [
         {
-            title: t("warranty.duration.title"),
+            title: "Thời gian bảo hành",
             content: [
-                t("warranty.duration.0"),
-                t("warranty.duration.1"),
-                t("warranty.duration.2"),
+                "iPhone, iPad, Mac, Apple Watch: 12 tháng tại các trung tâm bảo hành Apple ủy quyền",
+                "AirPods và phụ kiện Apple: 12 tháng",
+                "Phụ kiện bên thứ ba: theo chính sách của nhà sản xuất",
             ],
         },
         {
-            title: t("warranty.conditions.title"),
+            title: "Điều kiện được bảo hành",
             content: [
-                t("warranty.conditions.0"),
-                t("warranty.conditions.1"),
-                t("warranty.conditions.2"),
-                t("warranty.conditions.3"),
+                "Sản phẩm còn trong thời hạn bảo hành",
+                "Sản phẩm bị lỗi do nhà sản xuất, không phải do tác động bên ngoài",
+                "Có hóa đơn mua hàng hợp lệ từ Apple Store Vietnam",
+                "Tem bảo hành còn nguyên vẹn, không có dấu hiệu tháo mở",
             ],
         },
         {
-            title: t("warranty.exclusions.title"),
+            title: "Không được bảo hành",
             content: [
-                t("warranty.exclusions.0"),
-                t("warranty.exclusions.1"),
-                t("warranty.exclusions.2"),
-                t("warranty.exclusions.3"),
-                t("warranty.exclusions.4"),
+                "Hư hỏng do va đập, rơi vỡ, vào nước",
+                "Hư hỏng do tự ý sửa chữa hoặc can thiệp phần cứng",
+                "Hư hỏng do sử dụng sai cách, không đúng hướng dẫn",
+                "Hao mòn tự nhiên theo thời gian sử dụng",
+                "Màn hình bị trầy xước, vỏ máy bị móp méo",
             ],
         },
         {
-            title: t("warranty.process.title"),
+            title: "Quy trình bảo hành",
             content: [
-                t("warranty.process.0"),
-                t("warranty.process.1"),
-                t("warranty.process.2"),
-                t("warranty.process.3"),
+                "Bước 1: Liên hệ hotline 1800 1234 hoặc đến trực tiếp cửa hàng",
+                "Bước 2: Nhân viên kiểm tra và xác nhận lỗi sản phẩm",
+                "Bước 3: Gửi máy đến trung tâm bảo hành Apple ủy quyền",
+                "Bước 4: Nhận máy sau khi sửa chữa (thông thường 3–7 ngày làm việc)",
             ],
         },
     ];
@@ -47,7 +44,7 @@ export default function WarrantyPage() {
     return (
         <div className="mx-auto max-w-3xl section-padding py-12">
             <Breadcrumb
-                items={[{ label: t("warranty.breadcrumb") }]}
+                items={[{ label: "Chính sách bảo hành" }]}
                 className="mb-6"
             />
 
@@ -56,7 +53,7 @@ export default function WarrantyPage() {
                     <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <h1 className="text-3xl font-semibold text-foreground">
-                    {t("warranty.title")}
+                    {"Chính sách bảo hành"}
                 </h1>
             </div>
 
@@ -84,7 +81,7 @@ export default function WarrantyPage() {
                 ))}
 
                 <p className="text-xs text-muted-foreground">
-                    {t("warranty.updated")}
+                    {"Cập nhật lần cuối: 01/01/2024. Chính sách có thể thay đổi mà không cần thông báo trước. Vui lòng liên hệ hotline để biết thêm chi tiết."}
                 </p>
             </div>
         </div>

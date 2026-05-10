@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { cn, formatPrice } from "@/lib/utils";
 
 export default function ProductStoragePicker({
@@ -6,14 +5,12 @@ export default function ProductStoragePicker({
     selectedStorage,
     onChange,
 }) {
-    const { t } = useTranslation("product");
-
     if (!storage.length) return null;
 
     return (
         <div>
             <p className="mb-3 text-sm font-medium text-foreground">
-                {t("detail.selectStorage")}
+                {"Chọn dung lượng"}
             </p>
             <div className="flex flex-wrap gap-2">
                 {storage.map((option) => (

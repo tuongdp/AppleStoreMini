@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const getCategoryLinks = (category, t) => [
-    { label: `${t("category.all")} ${t(category.label)}`, href: category.href, bold: true },
-    { label: t("sort.newest"), href: `${category.href}&sort=newest` },
-    { label: t("sort.bestSeller"), href: `${category.href}&sort=best_seller` },
-    { label: t("sort.priceAsc"), href: `${category.href}&sort=price_asc` },
-    { label: t("sort.priceDesc"), href: `${category.href}&sort=price_desc` },
+    { label: `${"Tất cả"} ${t(category.label)}`, href: category.href, bold: true },
+    { label: "Mới nhất", href: `${category.href}&sort=newest` },
+    { label: "Bán chạy nhất", href: `${category.href}&sort=best_seller` },
+    { label: "Giá thấp đến cao", href: `${category.href}&sort=price_asc` },
+    { label: "Giá cao đến thấp", href: `${category.href}&sort=price_desc` },
 ];
 
 export default function MegaMenu({ category }) {
-    const { t } = useTranslation("product");
     const [isOpen, setIsOpen] = useState(false);
 
     const links = getCategoryLinks(category, t);

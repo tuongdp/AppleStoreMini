@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,28 +8,26 @@ import { toast } from "sonner";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export default function ContactPage() {
-    const { t } = useTranslation("common");
-
     const CONTACT_INFO = [
         {
             icon: MapPin,
-            label: t("contact.info.address"),
-            value: t("contact.info.addressValue"),
+            label: "Địa chỉ",
+            value: "41/1 Khu phố 7, Phường 2, Đắk Lắk",
         },
         {
             icon: Phone,
-            label: t("contact.info.hotline"),
-            value: t("contact.info.hotlineValue"),
+            label: "Hotline",
+            value: "0562456055 (miễn phí)",
         },
         {
             icon: Mail,
-            label: t("contact.info.email"),
-            value: t("contact.info.emailValue"),
+            label: "Email",
+            value: "phuctuong123456@gmail.com",
         },
         {
             icon: Clock,
-            label: t("contact.info.workingHours"),
-            value: t("contact.info.workingHoursValue"),
+            label: "Giờ làm việc",
+            value: "8:00 – 21:00, tất cả các ngày",
         },
     ];
 
@@ -48,7 +45,7 @@ export default function ContactPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        toast.success(t("contact.form.success"));
+        toast.success("Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
 
         setForm({
             name: "",
@@ -61,17 +58,17 @@ export default function ContactPage() {
     return (
         <div className="section-padding py-12">
             <div className="mx-auto max-w-5xl">
-                <Breadcrumb items={[{ label: t("contact.breadcrumb") }]} className="mb-6" />
+                <Breadcrumb items={[{ label: "Liên hệ" }]} className="mb-6" />
 
                 <h1 className="mb-8 text-3xl font-semibold text-foreground">
-                    {t("contact.title")}
+                    {"Liên hệ với chúng tôi"}
                 </h1>
 
                 <div className="grid gap-8 md:grid-cols-2">
                     {/* Contact info */}
                     <div className="space-y-6">
                         <p className="text-sm leading-relaxed text-muted-foreground">
-                            {t("contact.subtitle")}
+                            {"Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ qua các kênh bên dưới hoặc để lại tin nhắn, chúng tôi sẽ phản hồi trong vòng 24 giờ."}
                         </p>
 
                         <div className="space-y-4">
@@ -102,15 +99,15 @@ export default function ContactPage() {
                         className="space-y-4 rounded-2xl border border-border bg-card p-6"
                     >
                         <h2 className="text-base font-medium text-foreground">
-                            {t("contact.sendMessage")}
+                            {"Gửi tin nhắn"}
                         </h2>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="name">{t("contact.form.name")}</Label>
+                            <Label htmlFor="name">{"Họ và tên"}</Label>
                             <Input
                                 id="name"
                                 name="name"
-                                placeholder={t("contact.form.namePlaceholder")}
+                                placeholder={"Nguyễn Văn A"}
                                 value={form.name}
                                 onChange={handleChange}
                                 required
@@ -118,12 +115,12 @@ export default function ContactPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="email">{t("contact.form.email")}</Label>
+                            <Label htmlFor="email">{"Email"}</Label>
                             <Input
                                 id="email"
                                 name="email"
                                 type="email"
-                                placeholder={t("contact.form.emailPlaceholder")}
+                                placeholder={"email@example.com"}
                                 value={form.email}
                                 onChange={handleChange}
                                 required
@@ -131,23 +128,23 @@ export default function ContactPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="phone">{t("contact.form.phone")}</Label>
+                            <Label htmlFor="phone">{"Số điện thoại"}</Label>
                             <Input
                                 id="phone"
                                 name="phone"
                                 type="tel"
-                                placeholder={t("contact.form.phonePlaceholder")}
+                                placeholder={"0901234567"}
                                 value={form.phone}
                                 onChange={handleChange}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="message">{t("contact.form.message")}</Label>
+                            <Label htmlFor="message">{"Nội dung"}</Label>
                             <Textarea
                                 id="message"
                                 name="message"
-                                placeholder={t("contact.form.messagePlaceholder")}
+                                placeholder={"Nhập nội dung bạn muốn liên hệ..."}
                                 rows={4}
                                 value={form.message}
                                 onChange={handleChange}
@@ -156,7 +153,7 @@ export default function ContactPage() {
                         </div>
 
                         <Button type="submit" className="w-full rounded-full">
-                            {t("contact.form.submit")}
+                            {"Gửi tin nhắn"}
                         </Button>
                     </form>
                 </div>

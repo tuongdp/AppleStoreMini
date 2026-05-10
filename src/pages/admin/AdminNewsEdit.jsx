@@ -1,5 +1,4 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft } from "lucide-react";
 import {
     useGetNewsBySlugQuery,
@@ -11,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function AdminNewsEdit() {
-    const { t } = useTranslation("admin");
     const { id } = useParams();
     const navigate = useNavigate();
     const { data, isLoading, isError } = useGetNewsBySlugQuery(id);
@@ -21,9 +19,9 @@ export default function AdminNewsEdit() {
     const handleSubmit = async (values) => {
         try {
             await updateNews({ id, ...values }).unwrap();
-            toast.success(t("news.updateSuccess"));
+            toast.success("Đã cập nhật bài viết");
         } catch (error) {
-            toast.error(error?.data?.message || t("flashSale.toast.errorOccurred"));
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         }
     };
 
@@ -53,10 +51,10 @@ export default function AdminNewsEdit() {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("news.notFound")}
+                    {"Không tìm thấy bài viết"}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to="/admin/news">{t("news.goBack")}</Link>
+                    <Link to="/admin/news">{"Quay lại"}</Link>
                 </Button>
             </div>
         );
@@ -66,12 +64,12 @@ export default function AdminNewsEdit() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to="/admin/news">
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("news.title")}
+                    {"Quản lý tin tức"}
                 </Link>
             </Button>
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("news.edit")}
+                    {"Chỉnh sửa bài viết"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
                     {news.title}

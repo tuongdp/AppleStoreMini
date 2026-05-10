@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { Package, MapPin, CreditCard } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
@@ -9,8 +8,6 @@ import PriceDisplay from "@/components/shared/PriceDisplay";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 
 export default function AdminOrderDetail({ order }) {
-    const { t } = useTranslation("admin");
-
     // ✅ BE lưu shipping address dưới dạng flat fields (giống OrderDetail user)
     const shippingInfo = {
         fullName: order.shippingFullName,
@@ -56,9 +53,9 @@ export default function AdminOrderDetail({ order }) {
                         <div className="mb-4 flex items-center gap-2">
                             <Package className="h-4 w-4 text-muted-foreground" />
                             <h3 className="text-sm font-medium text-foreground">
-                                {t("order.orderCode")} —{" "}
+                                {"Mã đơn hàng"} —{" "}
                                 {order.items?.length ?? 0}{" "}
-                                {t("item.quantity", { ns: "cart" })}
+                                {"Số lượng"}
                             </h3>
                         </div>
 
@@ -77,19 +74,17 @@ export default function AdminOrderDetail({ order }) {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                    {t("detail.subtotal", { ns: "order" })}
+                                    {"Tạm tính"}
                                 </span>
                                 <span>{formatPrice(order.subtotal)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                    {t("detail.shipping", { ns: "order" })}
+                                    {"Phí vận chuyển"}
                                 </span>
                                 <span>
                                     {shippingFee === 0
-                                        ? t("detail.freeShipping", {
-                                              ns: "order",
-                                          })
+                                        ? "Miễn phí"
                                         : formatPrice(shippingFee)}
                                 </span>
                             </div>
@@ -97,7 +92,7 @@ export default function AdminOrderDetail({ order }) {
                             {discountAmount > 0 && (
                                 <div className="flex justify-between text-green-600 dark:text-green-400">
                                     <span>
-                                        {t("detail.discount", { ns: "order" })}
+                                        {"Giảm giá"}
                                         {order.couponCode && (
                                             <code className="ml-1 text-xs">
                                                 ({order.couponCode})
@@ -110,7 +105,7 @@ export default function AdminOrderDetail({ order }) {
                             <Separator />
                             <div className="flex items-center justify-between font-semibold">
                                 <span>
-                                    {t("detail.grandTotal", { ns: "order" })}
+                                    {"Tổng cộng"}
                                 </span>
                                 <PriceDisplay
                                     price={order.totalAmount}
@@ -124,7 +119,7 @@ export default function AdminOrderDetail({ order }) {
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-3 text-sm font-medium text-foreground">
-                                {t("order.customer")}
+                                {"Khách hàng"}
                             </h3>
                             <div className="space-y-1 text-sm">
                                 <p className="font-medium text-foreground">
@@ -144,9 +139,7 @@ export default function AdminOrderDetail({ order }) {
                             <div className="mb-3 flex items-center gap-2">
                                 <MapPin className="h-4 w-4 text-muted-foreground" />
                                 <h3 className="text-sm font-medium text-foreground">
-                                    {t("detail.shippingAddress", {
-                                        ns: "order",
-                                    })}
+                                    {"Địa chỉ giao hàng"}
                                 </h3>
                             </div>
                             <div className="space-y-0.5 text-sm">
@@ -170,7 +163,7 @@ export default function AdminOrderDetail({ order }) {
                         <div className="mb-3 flex items-center gap-2">
                             <CreditCard className="h-4 w-4 text-muted-foreground" />
                             <h3 className="text-sm font-medium text-foreground">
-                                {t("detail.paymentMethod", { ns: "order" })}
+                                {"Phương thức thanh toán"}
                             </h3>
                         </div>
                         <div className="flex items-center justify-between text-sm">
@@ -187,8 +180,8 @@ export default function AdminOrderDetail({ order }) {
                                 }
                             >
                                 {order.isPaid
-                                    ? t("payment.paid", { ns: "order" })
-                                    : t("payment.unpaid", { ns: "order" })}
+                                    ? "Đã thanh toán"
+                                    : "Chưa thanh toán"}
                             </span>
                         </div>
                     </div>
@@ -198,7 +191,7 @@ export default function AdminOrderDetail({ order }) {
                 <div>
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">
-                            {t("detail.orderStatus", { ns: "order" })}
+                            {"Trạng thái"}
                         </h3>
                         <OrderTimeline order={order} />
                     </div>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ export default function AdminStorageVariantForm({
     basePrice = 0,
     onChange,
 }) {
-    const { t } = useTranslation("admin");
     const [items, setItems] = useState(
         storage.length > 0 ? storage : [{ ...DEFAULT_STORAGE }],
     );
@@ -43,7 +41,7 @@ export default function AdminStorageVariantForm({
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-foreground">
-                    {t("product.storage")}
+                    {"Dung lượng"}
                 </Label>
                 <Button
                     type="button"
@@ -53,7 +51,7 @@ export default function AdminStorageVariantForm({
                     onClick={handleAdd}
                 >
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
-                    {t("product.addStorage")}
+                    {"Thêm dung lượng"}
                 </Button>
             </div>
 
@@ -63,7 +61,7 @@ export default function AdminStorageVariantForm({
                         <div className="flex items-center gap-3">
                             {/* Label */}
                             <Input
-                                placeholder={t("product.storageLabel")}
+                                placeholder={"Nhãn dung lượng"}
                                 value={item.label}
                                 onChange={(e) =>
                                     handleChange(index, "label", e.target.value)
@@ -74,7 +72,7 @@ export default function AdminStorageVariantForm({
                             {/* Price */}
                             <Input
                                 type="number"
-                                placeholder={t("product.storagePrice")}
+                                placeholder={"Giá theo dung lượng"}
                                 value={item.price}
                                 onChange={(e) =>
                                     handleChange(
@@ -96,8 +94,8 @@ export default function AdminStorageVariantForm({
                                 />
                                 <span className="text-xs text-muted-foreground">
                                     {item.inStock
-                                        ? t("product.inStock")
-                                        : t("product.inactive")}
+                                        ? "Còn hàng"
+                                        : "Ngừng bán"}
                                 </span>
                             </div>
 

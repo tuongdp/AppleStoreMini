@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useGetRelatedProductsQuery } from "@/store/api/productsApi";
 import ProductCard from "@/components/shared/ProductCard";
 import { ProductGridSkeleton } from "@/components/shared/ProductCardSkeleton";
@@ -6,8 +5,6 @@ import SectionTitle from "@/components/shared/SectionTitle";
 import { ROUTES } from "@/lib/constants";
 
 export default function RelatedProducts({ slug, category }) {
-    const { t } = useTranslation("product");
-
     const { data, isLoading } = useGetRelatedProductsQuery(
         { slug, limit: 4 },
         { skip: !slug },
@@ -20,7 +17,7 @@ export default function RelatedProducts({ slug, category }) {
     return (
         <section>
             <SectionTitle
-                title={t("detail.relatedProducts")}
+                title={"Sản phẩm liên quan"}
                 viewAllHref={`${ROUTES.PRODUCTS}?category=${category}`}
                 className="mb-6"
             />

@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     Dialog,
     DialogContent,
@@ -26,8 +25,6 @@ export default function ReviewModal({
     existingReview,
     onSuccess,
 }) {
-    const { t } = useTranslation("product");
-
     const handleSuccess = (reviewData) => {
         onSuccess?.(reviewData);
         onOpenChange(false);
@@ -41,12 +38,8 @@ export default function ReviewModal({
                 <DialogHeader>
                     <DialogTitle className="text-base font-semibold">
                         {isEditing
-                            ? t("review.editReview", {
-                                  defaultValue: "Chỉnh sửa đánh giá",
-                              })
-                            : t("review.writeReview", {
-                                  defaultValue: "Đánh giá sản phẩm",
-                              })}
+                            ? "Chỉnh sửa đánh giá"
+                            : "Viết đánh giá"}
                     </DialogTitle>
                 </DialogHeader>
 

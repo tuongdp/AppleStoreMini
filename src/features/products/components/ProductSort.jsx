@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     Select,
     SelectContent,
@@ -9,12 +8,10 @@ import {
 import { SORT_OPTIONS } from "@/lib/constants";
 
 export default function ProductSort({ value, onChange }) {
-    const { t } = useTranslation("product");
-
     return (
         <Select value={value || "featured"} onValueChange={onChange}>
             <SelectTrigger className="w-48 rounded-full">
-                <SelectValue placeholder={t("sort.label")} />
+                <SelectValue placeholder={"Sắp xếp theo"} />
             </SelectTrigger>
             <SelectContent>
                 {SORT_OPTIONS.map((opt) => (

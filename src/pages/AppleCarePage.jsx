@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import {
   Wrench,
@@ -34,8 +33,6 @@ import careImg5 from "@/assets/images/care/img_5-min.jpg";
 const CARE_IMAGES = [careImg1, careImg2, careImg3, careImg4, careImg5];
 
 export default function AppleCarePage() {
-  const { t } = useTranslation("common");
-
   const PROCESS_STEPS = [
     { icon: Search, key: "0" },
     { icon: Clipboard, key: "1" },
@@ -74,7 +71,7 @@ export default function AppleCarePage() {
     <div className="section-padding py-8 md:py-12">
       <div className="mx-auto max-w-7xl">
         <Breadcrumb
-          items={[{ label: t("appleCare.breadcrumb") }]}
+          items={[{ label: "Dịch vụ sửa chữa AppleCare" }]}
           className="mb-6"
         />
 
@@ -83,7 +80,7 @@ export default function AppleCarePage() {
             <Wrench className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
           <h1 className="text-3xl font-semibold text-foreground">
-            {t("appleCare.title")}
+            {"Dịch vụ sửa chữa AppleCare"}
           </h1>
         </div>
 
@@ -111,7 +108,7 @@ export default function AppleCarePage() {
                   href="#"
                   className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  {t("appleCare.viewPricing")}
+                  {"Xem bảng giá tham khảo →"}
                 </a>
               </div>
             </div>
@@ -123,7 +120,7 @@ export default function AppleCarePage() {
             <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            {t("appleCare.reasonsTitle")}
+            {"Lý do lựa chọn AppleCare"}
           </h2>
         </div>
 
@@ -154,7 +151,7 @@ export default function AppleCarePage() {
             <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            {t("appleCare.accessoriesTitle")}
+            {"Phụ kiện chính hãng Apple tại AppleCare"}
           </h2>
         </div>
 
@@ -182,7 +179,7 @@ export default function AppleCarePage() {
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          {t("appleCare.accessoriesNote")}
+          {"Lưu ý: Các sản phẩm được trưng bày tại AppleCare. Quý khách vui lòng đến và mua trực tiếp với nhiều khuyến mãi hấp dẫn."}
         </p>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
@@ -190,7 +187,7 @@ export default function AppleCarePage() {
             <ClipboardList className="h-5 w-5 text-amber-600 dark:text-amber-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            {t("appleCare.processTitle")}
+            {"Quy trình bảo hành AppleCare"}
           </h2>
         </div>
 
@@ -214,10 +211,10 @@ export default function AppleCarePage() {
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground">
-          {t("appleCare.processNote")}{" "}
-          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">{t("appleCare.legal")}</a>
+          {"Điều khoản bảo hành sửa chữa Apple toàn cầu:"}{" "}
+          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">{"Pháp lý"}</a>
           {" | "}
-          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">{t("appleCare.repair")}</a>
+          <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">{"Sửa chữa"}</a>
         </p>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
@@ -225,12 +222,12 @@ export default function AppleCarePage() {
             <Building2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
-            {t("appleCare.centerTitle")}
+            {"Trung tâm bảo hành AppleCare - Đẳng cấp khác biệt"}
           </h2>
         </div>
 
         <p className="mb-8 text-sm text-muted-foreground">
-          {t("appleCare.centerDesc")}
+          {"Tại Trung tâm bảo hành AppleCare, khách hàng yêu mến hệ sinh thái Apple sẽ trải nghiệm đầy đủ và đa dạng nhất các dịch vụ bảo hành chính hãng Apple từ iPhone, iPad đến những chiếc tai nghe AirPods... trong một không gian đẳng cấp và hiện đại."}
         </p>
 
         <div className="overflow-hidden rounded-2xl">

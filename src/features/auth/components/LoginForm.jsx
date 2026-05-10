@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, AlertTriangle } from "lucide-react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { toast } from "sonner";
 import { loginSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -21,7 +20,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 
 export default function LoginForm() {
-    const { t } = useTranslation("auth");
     const { login, isLoginLoading } = useAuth();
     const [sendVerification] = useSendVerificationMutation();
     const navigate = useNavigate();
@@ -45,7 +43,7 @@ export default function LoginForm() {
         const result = await login(values);
 
         if (result.success) {
-            toast.success(t("login.success"));
+            toast.success("Đăng nhập thành công");
             navigate(from, { replace: true });
         } else {
             setServerError(result.message);
@@ -54,13 +52,13 @@ export default function LoginForm() {
 
     const handleResendVerification = async () => {
         const email = form.getValues("email");
-        if (!email) return toast.error(t("verify.enterEmail"));
+        if (!email) return toast.error("Vui lòng nhập email trước");
         setResending(true);
         try {
             await sendVerification({ email }).unwrap();
-            toast.success(t("verify.resendSuccess"));
+            toast.success("Email xác thực đã được gửi lại");
         } catch (err) {
-            toast.error(err?.data?.message || t("verify.resendFailed"));
+            toast.error(err?.data?.message || "Gửi email thất bại");
         } finally {
             setResending(false);
         }
@@ -70,10 +68,10 @@ export default function LoginForm() {
         <div className="w-full max-w-sm">
             <div className="mb-6 text-center">
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("login.title")}
+                    {"Đăng nhập"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("login.subtitle")}
+                    {"Chào mừng bạn quay trở lại"}
                 </p>
             </div>
 
@@ -93,14 +91,14 @@ export default function LoginForm() {
                             <div className="flex items-start gap-2">
                                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                                 <div>
-                                    <p className="font-medium">{t("verify.warning")}</p>
+                                    <p className="font-medium">{"Email của bạn chưa được xác thực."}</p>
                                     <button
                                         type="button"
                                         onClick={handleResendVerification}
                                         disabled={resending}
                                         className="mt-1 text-apple-blue hover:opacity-70 disabled:opacity-50"
                                     >
-                                        {resending ? t("verify.resending") : t("verify.resend")}
+                                        {resending ? "Đang gửi..." : "Gửi lại email xác thực"}
                                     </button>
                                 </div>
                             </div>
@@ -112,7 +110,7 @@ export default function LoginForm() {
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t("login.email")}</FormLabel>
+                                <FormLabel>{"Email"}</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="email"
@@ -135,13 +133,13 @@ export default function LoginForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <div className="flex items-center justify-between">
-                                    <FormLabel>{t("login.password")}</FormLabel>
+                                    <FormLabel>{"Mật khẩu"}</FormLabel>
                                     <Link
                                         to={ROUTES.FORGOT_PASSWORD}
                                         className="text-xs text-apple-blue hover:opacity-70"
                                         tabIndex={-1}
                                     >
-                                        {t("login.forgotPassword")}
+                                        {"Quên mật khẩu?"}
                                     </Link>
                                 </div>
                                 <FormControl>
@@ -192,19 +190,19 @@ export default function LoginForm() {
                         disabled={isLoginLoading}
                     >
                         {isLoginLoading
-                            ? t("login.submitting")
-                            : t("login.submit")}
+                            ? "Đang đăng nhập..."
+                            : "Đăng nhập"}
                     </Button>
                 </form>
             </Form>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
-                {t("login.noAccount")}{" "}
+                {"Chưa có tài khoản?"}{" "}
                 <Link
                     to={ROUTES.REGISTER}
                     className="font-medium text-apple-blue hover:opacity-70"
                 >
-                    {t("login.registerNow")}
+                    {"Đăng ký ngay"}
                 </Link>
             </p>
         </div>

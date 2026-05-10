@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     ShoppingCart,
     Heart,
@@ -32,7 +31,6 @@ import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 function CountdownTimer({ endTime }) {
-    const { t: tc } = useTranslation("common");
     const [remaining, setRemaining] = useState(null);
 
     useEffect(() => {
@@ -88,7 +86,6 @@ function CountdownTimer({ endTime }) {
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
-    const { t } = useTranslation("product");
     const dispatch = useDispatch();
 
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
@@ -226,10 +223,10 @@ export default function ProductDetailPage() {
         return (
             <div className="section-padding flex min-h-[60vh] flex-col items-center justify-center text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("status.notFound", { ns: "common" })}
+                    {"Không tìm thấy"}
                 </p>
                 <Button asChild variant="outline" className="rounded-full">
-                    <Link to={ROUTES.PRODUCTS}>{t("filter.reset")}</Link>
+                    <Link to={ROUTES.PRODUCTS}>{"reset"}</Link>
                 </Button>
             </div>
         );
@@ -241,7 +238,7 @@ export default function ProductDetailPage() {
         <div className="section-padding py-8 md:py-12">
             <Breadcrumb
                 items={[
-                    { label: t("page.title"), href: ROUTES.PRODUCTS },
+                    { label: "title", href: ROUTES.PRODUCTS },
                     {
                         label: categoryDisplay,
                         href: `${ROUTES.PRODUCTS}?category=${categoryDisplay}`,
@@ -353,7 +350,7 @@ export default function ProductDetailPage() {
                     {allColors.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
-                                {t("filter.color")}
+                                {"color"}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allColors.map((color) => {
@@ -397,7 +394,7 @@ export default function ProductDetailPage() {
                     {allStorages.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
-                                {t("filter.storage")}
+                                {"storage"}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allStorages.map((storage) => {
@@ -435,7 +432,7 @@ export default function ProductDetailPage() {
                     {allRams.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
-                                {t("specification.ram")}
+                                {"ram"}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allRams.map((ram) => {
@@ -468,7 +465,7 @@ export default function ProductDetailPage() {
                     {/* Edition selector */}
                     {allEditions.length > 1 && (
                         <div>
-                            <p className="mb-2 text-sm font-medium text-foreground">{t("specification.edition")}</p>
+                            <p className="mb-2 text-sm font-medium text-foreground">{"edition"}</p>
                             <div className="flex flex-wrap gap-2">
                                 {allEditions.map((edition) => {
                                     const disabled = effectiveColor && effectiveStorage && effectiveRam
@@ -501,7 +498,7 @@ export default function ProductDetailPage() {
                     {allColors.length === 1 && allColors[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
-                                {t("filter.color")}
+                                {"color"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allColors[0]}
@@ -513,7 +510,7 @@ export default function ProductDetailPage() {
                     {allStorages.length === 1 && allStorages[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
-                                {t("filter.storage")}
+                                {"storage"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allStorages[0]}
@@ -525,7 +522,7 @@ export default function ProductDetailPage() {
                     {allRams.length === 1 && allRams[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
-                                {t("specification.ram")}
+                                {"ram"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allRams[0]}
@@ -536,7 +533,7 @@ export default function ProductDetailPage() {
                     {/* Single edition display */}
                     {allEditions.length === 1 && allEditions[0] && (
                         <div>
-                            <p className="mb-1 text-sm font-medium text-foreground">{t("specification.edition")}</p>
+                            <p className="mb-1 text-sm font-medium text-foreground">{"edition"}</p>
                             <p className="text-sm text-muted-foreground">{allEditions[0]}</p>
                         </div>
                     )}
@@ -544,7 +541,7 @@ export default function ProductDetailPage() {
                     {invalidSelection && (
                         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2">
                             <p className="text-sm font-medium text-destructive">
-                                {t("detail.invalidCombination")}
+                                {"invalidCombination"}
                             </p>
                         </div>
                     )}
@@ -552,7 +549,7 @@ export default function ProductDetailPage() {
                     {/* Quantity */}
                     <div>
                         <p className="mb-3 text-sm font-medium text-foreground">
-                            {t("detail.quantity")}
+                            {"quantity"}
                         </p>
                         <QuantityInput
                             value={quantity}
@@ -567,7 +564,7 @@ export default function ProductDetailPage() {
                     <div className="flex gap-3">
                         {!selectedVariant ? (
                             <Button size="lg" className="flex-1 rounded-full text-base" disabled>
-                                {t("detail.unavailable")}
+                                {"unavailable"}
                             </Button>
                         ) : inStock ? (
                             <Button
@@ -576,7 +573,7 @@ export default function ProductDetailPage() {
                                 asChild
                             >
                                 <Link to={ROUTES.CHECKOUT}>
-                                    {t("detail.buyNow")}
+                                    {"buyNow"}
                                 </Link>
                             </Button>
                         ) : (
@@ -585,7 +582,7 @@ export default function ProductDetailPage() {
                                 className="flex-1 rounded-full text-base"
                                 disabled
                             >
-                                {t("detail.outOfStock")}
+                                {"outOfStock"}
                             </Button>
                         )}
                         <Button
@@ -596,7 +593,7 @@ export default function ProductDetailPage() {
                             disabled={!selectedVariant || !inStock || isAddingToCart}
                         >
                             <ShoppingCart className="h-5 w-5" />
-                            {t("detail.addToCart")}
+                            {"addToCart"}
                         </Button>
                         <Button
                             size="lg"

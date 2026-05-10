@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Package, MapPin, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -18,7 +17,6 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";
 
 export default function OrderDetail({ order }) {
-    const { t } = useTranslation("order");
     const [cancelOpen, setCancelOpen] = useState(false);
     const [cancelReason, setCancelReason] = useState("");
 
@@ -51,20 +49,20 @@ export default function OrderDetail({ order }) {
         try {
             // ✅ MySQL id là integer, không có _id
             await cancelOrder({ id: order.id, reason: cancelReason }).unwrap();
-            toast.success(t("toast.cancelSuccess"));
+            toast.success("Đã huỷ đơn hàng thành công");
             setCancelReason("");
             setCancelOpen(false);
         } catch {
-            toast.error(t("toast.cancelFailed"));
+            toast.error("Huỷ đơn hàng thất bại, vui lòng thử lại");
         }
     };
 
     const handleConfirmDelivered = async () => {
         try {
             await confirmDelivered(order.id).unwrap();
-            toast.success(t("toast.confirmSuccess"));
+            toast.success("Xác nhận nhận hàng thành công");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -81,7 +79,7 @@ export default function OrderDetail({ order }) {
                             <OrderStatusBadge status={order.status} />
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {t("detail.orderDate")}:{" "}
+                            {"Ngày đặt hàng"}:{" "}
                             {formatDateTime(order.createdAt)}
                         </p>
                     </div>
@@ -95,8 +93,8 @@ export default function OrderDetail({ order }) {
                                 disabled={isConfirming}
                             >
                                 {isConfirming
-                                    ? t("status.loading", { ns: "common" })
-                                    : t("action.confirmDelivered")}
+                                    ? "Đang tải..."
+                                    : "Xác nhận đã nhận hàng"}
                             </Button>
                         )}
                         {canCancel && (
@@ -106,7 +104,7 @@ export default function OrderDetail({ order }) {
                                 className="rounded-full text-destructive hover:text-destructive"
                                 onClick={() => setCancelOpen(true)}
                             >
-                                {t("action.cancel")}
+                                {"Huỷ đơn hàng"}
                             </Button>
                         )}
                     </div>
@@ -121,7 +119,7 @@ export default function OrderDetail({ order }) {
                         <div className="mb-4 flex items-center gap-2">
                             <Package className="h-4 w-4 text-muted-foreground" />
                             <h3 className="text-sm font-medium text-foreground">
-                                {t("detail.orderItems")}
+                                {"Sản phẩm đã đặt"}
                             </h3>
                         </div>
                         <div className="space-y-4">
@@ -140,17 +138,17 @@ export default function OrderDetail({ order }) {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                    {t("detail.subtotal")}
+                                    {"Tạm tính"}
                                 </span>
                                 <span>{formatPrice(order.subtotal)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                    {t("detail.shipping")}
+                                    {"Phí vận chuyển"}
                                 </span>
                                 <span>
                                     {shippingFee === 0
-                                        ? t("detail.freeShipping")
+                                        ? "Miễn phí"
                                         : formatPrice(shippingFee)}
                                 </span>
                             </div>
@@ -158,7 +156,7 @@ export default function OrderDetail({ order }) {
                             {discountAmount > 0 && (
                                 <div className="flex justify-between text-green-600 dark:text-green-400">
                                     <span>
-                                        {t("detail.discount")}
+                                        {"Giảm giá"}
                                         {order.couponCode && (
                                             <code className="ml-1 text-xs">
                                                 ({order.couponCode})
@@ -170,7 +168,7 @@ export default function OrderDetail({ order }) {
                             )}
                             <Separator />
                             <div className="flex items-center justify-between font-semibold">
-                                <span>{t("detail.grandTotal")}</span>
+                                <span>{"Tổng cộng"}</span>
                                 <PriceDisplay
                                     price={order.totalAmount}
                                     size="md"
@@ -184,7 +182,7 @@ export default function OrderDetail({ order }) {
                         <div className="mb-4 flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
                             <h3 className="text-sm font-medium text-foreground">
-                                {t("detail.shippingAddress")}
+                                {"Địa chỉ giao hàng"}
                             </h3>
                         </div>
                         <div className="space-y-0.5 text-sm">
@@ -206,16 +204,14 @@ export default function OrderDetail({ order }) {
                         <div className="mb-4 flex items-center gap-2">
                             <CreditCard className="h-4 w-4 text-muted-foreground" />
                             <h3 className="text-sm font-medium text-foreground">
-                                {t("detail.paymentMethod")}
+                                {"Phương thức thanh toán"}
                             </h3>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-foreground">
                                 {order.paymentMethod
                                     ? t(`payment.${order.paymentMethod}`)
-                                    : t("payment.unknown", {
-                                          defaultValue: "Không xác định",
-                                      })}
+                                    : "Không xác định"}
                             </span>
                             <span
                                 className={
@@ -225,8 +221,8 @@ export default function OrderDetail({ order }) {
                                 }
                             >
                                 {order.isPaid
-                                    ? t("payment.paid")
-                                    : t("payment.unpaid")}
+                                    ? "Đã thanh toán"
+                                    : "Chưa thanh toán"}
                             </span>
                         </div>
                     </div>
@@ -237,7 +233,7 @@ export default function OrderDetail({ order }) {
                             <div className="mb-3 flex items-center gap-2">
                                 <FileText className="h-4 w-4 text-muted-foreground" />
                                 <h3 className="text-sm font-medium text-foreground">
-                                    {t("detail.note")}
+                                    {"Ghi chú"}
                                 </h3>
                             </div>
                             <p className="text-sm text-muted-foreground">
@@ -251,7 +247,7 @@ export default function OrderDetail({ order }) {
                 <div>
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">
-                            {t("detail.orderStatus")}
+                            {"Trạng thái"}
                         </h3>
                         <OrderTimeline order={order} />
                     </div>
@@ -262,21 +258,21 @@ export default function OrderDetail({ order }) {
             <ConfirmDialog
                 open={cancelOpen}
                 onOpenChange={setCancelOpen}
-                title={t("action.cancel")}
+                title={"Huỷ đơn hàng"}
                 description={
                     <div className="space-y-3">
                         <p className="text-sm text-muted-foreground">
-                            {t("confirm.cancelOrder", { ns: "common" })}
+                            {"Bạn có chắc chắn muốn huỷ đơn hàng này không?"}
                         </p>
                         <Textarea
-                            placeholder={t("action.cancelReasonPlaceholder")}
+                            placeholder={"Nhập lý do huỷ đơn hàng"}
                             value={cancelReason}
                             onChange={(e) => setCancelReason(e.target.value)}
                             rows={3}
                         />
                     </div>
                 }
-                confirmLabel={t("action.confirmCancel")}
+                confirmLabel={"Xác nhận huỷ"}
                 onConfirm={handleCancel}
                 isLoading={isCancelling}
             />

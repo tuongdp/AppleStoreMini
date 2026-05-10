@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Coins, Gift, Copy, Check, ChevronRight, ArrowLeft, History, Sparkles } from "lucide-react";
 import { useGetMyPointsQuery, useGetRedeemPackagesQuery, useGetPointsHistoryQuery, useRedeemPointsMutation } from "@/store/api/pointsApi";
 import { formatDateTime } from "@/lib/utils";
@@ -19,7 +18,6 @@ import {
 import { toast } from "sonner";
 
 export default function PointsPage() {
-    const { t } = useTranslation("profile");
     const [showHistory, setShowHistory] = useState(false);
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -44,9 +42,9 @@ export default function PointsPage() {
             setResult(res);
             setConfirmOpen(false);
             setSelectedPkg(null);
-            toast.success(t("points.redeemSuccess"));
+            toast.success("Đổi điểm thành công!");
         } catch (err) {
-            toast.error(err?.data?.message || t("points.redeeming"));
+            toast.error(err?.data?.message || "Đang xử lý...");
         }
     };
 
@@ -54,10 +52,10 @@ export default function PointsPage() {
         try {
             await navigator.clipboard.writeText(code);
             setCopied(true);
-            toast.success(t("points.copied"));
+            toast.success("Đã sao chép");
             setTimeout(() => setCopied(false), 2000);
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -74,8 +72,8 @@ export default function PointsPage() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <h1 className="text-2xl font-semibold text-foreground">{t("points.title")}</h1>
-                <p className="mt-1 text-sm text-muted-foreground">{t("points.subtitle")}</p>
+                <h1 className="text-2xl font-semibold text-foreground">{"Điểm thưởng"}</h1>
+                <p className="mt-1 text-sm text-muted-foreground">{"Tích điểm và đổi quà"}</p>
             </div>
 
             {/* Balance card */}
@@ -83,9 +81,9 @@ export default function PointsPage() {
                 <div className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-white/80">{t("points.balance")}</p>
+                            <p className="text-sm text-white/80">{"Số dư điểm"}</p>
                             <p className="mt-1 text-4xl font-bold">{points.toLocaleString()}</p>
-                            <p className="mt-1 text-sm text-white/70">{t("points.points_label")}</p>
+                            <p className="mt-1 text-sm text-white/70">{"Điểm"}</p>
                         </div>
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
                             <Coins className="h-8 w-8" />
@@ -100,8 +98,8 @@ export default function PointsPage() {
 
             {/* Redeem section */}
             <div>
-                <h2 className="mb-4 text-lg font-semibold text-foreground">{t("points.redeemTitle")}</h2>
-                <p className="mb-4 text-sm text-muted-foreground">{t("points.redeemSubtitle")}</p>
+                <h2 className="mb-4 text-lg font-semibold text-foreground">{"Đổi điểm lấy voucher"}</h2>
+                <p className="mb-4 text-sm text-muted-foreground">{"Chọn gói quy đổi phù hợp"}</p>
 
                 {packagesLoading ? (
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -115,7 +113,7 @@ export default function PointsPage() {
                         {fixedPkgs.length > 0 && (
                             <div>
                                 <Badge variant="secondary" className="mb-3">
-                                    {t("points.package_fixed")}
+                                    {"Voucher giảm tiền mặt"}
                                 </Badge>
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                     {fixedPkgs.map((pkg) => (
@@ -138,7 +136,7 @@ export default function PointsPage() {
                         {pctPkgs.length > 0 && (
                             <div>
                                 <Badge variant="secondary" className="mb-3">
-                                    {t("points.package_percent")}
+                                    {"Voucher giảm %"}
                                 </Badge>
                                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                     {pctPkgs.map((pkg) => (
@@ -167,9 +165,9 @@ export default function PointsPage() {
                         <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
                             <Gift className="h-6 w-6 text-green-600 dark:text-green-400" />
                         </div>
-                        <DialogTitle className="text-center">{t("points.redeemSuccess")}</DialogTitle>
+                        <DialogTitle className="text-center">{"Đổi điểm thành công!"}</DialogTitle>
                         <DialogDescription className="text-center">
-                            {t("points.redeemSuccessDesc")}
+                            {"Mã giảm giá của bạn là:"}
                         </DialogDescription>
                     </DialogHeader>
                     {result && (
@@ -184,9 +182,9 @@ export default function PointsPage() {
                                 onClick={() => copyCode(result.code)}
                             >
                                 {copied ? (
-                                    <><Check className="mr-2 h-4 w-4 text-green-500" />{t("points.copied")}</>
+                                    <><Check className="mr-2 h-4 w-4 text-green-500" />{"Đã sao chép"}</>
                                 ) : (
-                                    <><Copy className="mr-2 h-4 w-4" />{t("points.copyCode")}</>
+                                    <><Copy className="mr-2 h-4 w-4" />{"Sao chép mã"}</>
                                 )}
                             </Button>
                         </div>
@@ -198,7 +196,7 @@ export default function PointsPage() {
             <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <DialogContent className="sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle>{t("points.confirmTitle")}</DialogTitle>
+                        <DialogTitle>{"Xác nhận đổi điểm"}</DialogTitle>
                         <DialogDescription>
                             {selectedPkg && t("points.confirmDesc", {
                                 points: selectedPkg.points,
@@ -208,10 +206,10 @@ export default function PointsPage() {
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0">
                         <Button variant="outline" onClick={() => setConfirmOpen(false)} className="rounded-full">
-                            {t("points.cancelBtn")}
+                            {"Huỷ"}
                         </Button>
                         <Button onClick={handleRedeem} disabled={redeeming} className="rounded-full">
-                            {redeeming ? t("points.redeeming") : t("points.confirmBtn")}
+                            {redeeming ? "Đang xử lý..." : "Xác nhận"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -219,7 +217,7 @@ export default function PointsPage() {
 
             {/* History toggle */}
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-foreground">{t("points.historyTitle")}</h2>
+                <h2 className="text-lg font-semibold text-foreground">{"Lịch sử giao dịch"}</h2>
                 <Button
                     variant="ghost"
                     size="sm"
@@ -227,7 +225,7 @@ export default function PointsPage() {
                     className="text-apple-blue"
                 >
                     <History className="mr-1 h-4 w-4" />
-                    {t("points.history")}
+                    {"Lịch sử"}
                     <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${showHistory ? "rotate-90" : ""}`} />
                 </Button>
             </div>
@@ -242,7 +240,7 @@ export default function PointsPage() {
                                 ))}
                             </div>
                         ) : transactions.length === 0 ? (
-                            <p className="p-6 text-center text-sm text-muted-foreground">{t("points.empty")}</p>
+                            <p className="p-6 text-center text-sm text-muted-foreground">{"Chưa có giao dịch nào"}</p>
                         ) : (
                             <div className="divide-y divide-border">
                                 {transactions.map((tx) => {
@@ -314,11 +312,11 @@ function PackageCard({ pkg, points, onRedeem, t }) {
                             if (canAfford) onRedeem();
                         }}
                     >
-                        {t("points.redeemBtn")}
+                        {"Đổi ngay"}
                     </Button>
                 </div>
                 {!canAfford && (
-                    <p className="mt-2 text-xs text-red-500">{t("points.notEnough")}</p>
+                    <p className="mt-2 text-xs text-red-500">{"Bạn không đủ điểm để đổi gói này"}</p>
                 )}
             </CardContent>
         </Card>

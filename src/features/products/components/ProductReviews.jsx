@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import {
     useGetReviewsQuery,
@@ -16,7 +15,6 @@ import { toast } from "sonner";
 
 export default function ProductReviews({ product }) {
     const productId = product?._id || product?.id;
-    const { t } = useTranslation("product");
     const currentUser = useSelector(selectCurrentUser);
 
     const [deleteId, setDeleteId] = useState(null);
@@ -34,9 +32,9 @@ export default function ProductReviews({ product }) {
     const handleDelete = async () => {
         try {
             await deleteReview(deleteId).unwrap();
-            toast.success(t("review.deleteSuccess"));
+            toast.success("Đã xoá đánh giá");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
         }
@@ -45,7 +43,7 @@ export default function ProductReviews({ product }) {
     return (
         <div className="space-y-6">
             <h2 className="text-xl font-semibold text-foreground">
-                {t("review.title")}
+                {"Đánh giá từ khách hàng"}
             </h2>
 
             {/* Summary */}
@@ -79,10 +77,10 @@ export default function ProductReviews({ product }) {
             ) : reviews.length === 0 ? (
                 <div className="py-10 text-center">
                     <p className="text-sm font-medium text-foreground">
-                        {t("review.noReviews")}
+                        {"Chưa có đánh giá nào"}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                        {t("review.noReviewsDesc")}
+                        {"Hãy là người đầu tiên đánh giá sản phẩm này"}
                     </p>
                 </div>
             ) : (
@@ -112,7 +110,7 @@ export default function ProductReviews({ product }) {
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
                             >
-                                {t("pagination.prev", { ns: "common" })}
+                                {"Trước"}
                             </Button>
                             <span className="text-sm text-muted-foreground">
                                 {page} / {pagination.totalPages}
@@ -124,7 +122,7 @@ export default function ProductReviews({ product }) {
                                 disabled={page >= pagination.totalPages}
                                 onClick={() => setPage((p) => p + 1)}
                             >
-                                {t("pagination.next", { ns: "common" })}
+                                {"Sau"}
                             </Button>
                         </div>
                     )}
@@ -135,8 +133,8 @@ export default function ProductReviews({ product }) {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title={t("review.deleteReview")}
-                description={t("confirm.deleteDesc", { ns: "common" })}
+                title={"Xoá đánh giá"}
+                description={"Hành động này không thể hoàn tác."}
                 onConfirm={handleDelete}
                 isLoading={isDeleting}
             />

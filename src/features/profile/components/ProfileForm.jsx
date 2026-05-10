@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useUpdateProfileMutation } from "@/store/api/usersApi";
 import { profileSchema } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
@@ -25,9 +24,6 @@ import {
 import { toast } from "sonner";
 
 export default function ProfileForm({ user }) {
-  const { t } = useTranslation("profile");
-  const { t: tCommon } = useTranslation();
-
   // ✅ usersApi.updateProfile đã có onQueryStarted → dispatch(updateUser(data))
   // Không cần dispatch thêm ở đây nữa
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
@@ -60,11 +56,11 @@ export default function ProfileForm({ user }) {
       // ✅ updateProfile.onQueryStarted tự dispatch updateUser(data)
       // data đã qua transformResponse → user object trực tiếp
       await updateProfile(values).unwrap();
-      toast.success(t("info.saveSuccess"), {
+      toast.success("Cập nhật thông tin thành công", {
         description: tCommon("toast.updateSuccess"),
       });
     } catch {
-      toast.error(t("info.saveFailed"));
+      toast.error("Cập nhật thông tin thất bại");
     }
   };
 
@@ -76,10 +72,10 @@ export default function ProfileForm({ user }) {
           name="fullName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("info.fullName")}</FormLabel>
+              <FormLabel>{"Họ và tên"}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder={t("info.fullNamePlaceholder")}
+                  placeholder={"Nhập họ và tên"}
                   disabled={isLoading}
                   {...field}
                 />
@@ -91,13 +87,13 @@ export default function ProfileForm({ user }) {
 
         {/* Email — read only */}
         <FormItem>
-          <FormLabel>{t("info.email")}</FormLabel>
+          <FormLabel>{"Email"}</FormLabel>
           <Input
             value={user?.email || ""}
             disabled
             className="cursor-not-allowed opacity-60"
           />
-          <p className="text-xs text-muted-foreground">{t("info.emailNote")}</p>
+          <p className="text-xs text-muted-foreground">{"Email không thể thay đổi"}</p>
         </FormItem>
 
         <FormField
@@ -105,11 +101,11 @@ export default function ProfileForm({ user }) {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("info.phone")}</FormLabel>
+              <FormLabel>{"Số điện thoại"}</FormLabel>
               <FormControl>
                 <Input
                   type="tel"
-                  placeholder={t("info.phonePlaceholder")}
+                  placeholder={"Nhập số điện thoại"}
                   disabled={isLoading}
                   {...field}
                 />
@@ -124,7 +120,7 @@ export default function ProfileForm({ user }) {
           name="birthday"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("info.birthday")}</FormLabel>
+              <FormLabel>{"Ngày sinh"}</FormLabel>
               <FormControl>
                 <Input type="date" disabled={isLoading} {...field} />
               </FormControl>
@@ -138,7 +134,7 @@ export default function ProfileForm({ user }) {
           name="gender"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("info.gender")}</FormLabel>
+              <FormLabel>{"Giới tính"}</FormLabel>
               <Select
                 value={field.value}
                 onValueChange={field.onChange}
@@ -146,13 +142,13 @@ export default function ProfileForm({ user }) {
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={t("info.gender")} />
+                    <SelectValue placeholder={"Giới tính"} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="male">{t("info.male")}</SelectItem>
-                  <SelectItem value="female">{t("info.female")}</SelectItem>
-                  <SelectItem value="other">{t("info.other")}</SelectItem>
+                  <SelectItem value="male">{"Nam"}</SelectItem>
+                  <SelectItem value="female">{"Nữ"}</SelectItem>
+                  <SelectItem value="other">{"Khác"}</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -165,10 +161,10 @@ export default function ProfileForm({ user }) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("info.address")}</FormLabel>
+              <FormLabel>{"Địa chỉ"}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder={t("info.addressPlaceholder")}
+                  placeholder={"Nhập địa chỉ giao hàng của bạn"}
                   rows={3}
                   disabled={isLoading}
                   {...field}
@@ -185,7 +181,7 @@ export default function ProfileForm({ user }) {
             className="rounded-full px-8"
             disabled={isLoading}
           >
-            {isLoading ? t("info.saving") : t("info.save")}
+            {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
           </Button>
         </div>
       </form>

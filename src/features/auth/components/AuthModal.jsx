@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -28,7 +27,6 @@ import { loginSchema, registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export default function AuthModal() {
-    const { t } = useTranslation("auth");
     const dispatch = useDispatch();
     const open = useSelector(selectAuthModalOpen);
     const [tab, setTab] = useState("login");
@@ -44,18 +42,18 @@ export default function AuthModal() {
                 <DialogHeader>
                     <DialogTitle className="text-center">
                         {tab === "login"
-                            ? t("login.title")
-                            : t("register.title")}
+                            ? "Đăng nhập"
+                            : "Tạo tài khoản"}
                     </DialogTitle>
                 </DialogHeader>
 
                 <Tabs value={tab} onValueChange={setTab}>
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="login">
-                            {t("login.title")}
+                            {"Đăng nhập"}
                         </TabsTrigger>
                         <TabsTrigger value="register">
-                            {t("register.title")}
+                            {"Tạo tài khoản"}
                         </TabsTrigger>
                     </TabsList>
 
@@ -78,7 +76,6 @@ export default function AuthModal() {
 
 // ── Login form trong modal ─────────────────────────────
 function LoginFormInModal({ onSuccess }) {
-    const { t } = useTranslation("auth");
     const { login, isLoginLoading } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [serverError, setServerError] = useState("");
@@ -111,11 +108,11 @@ function LoginFormInModal({ onSuccess }) {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("login.email")}</FormLabel>
+                            <FormLabel>{"Email"}</FormLabel>
                             <FormControl>
                                 <Input
                                     type="email"
-                                    placeholder={t("login.emailPlaceholder")}
+                                    placeholder={"Nhập địa chỉ email"}
                                     disabled={isLoginLoading}
                                     {...field}
                                 />
@@ -129,7 +126,7 @@ function LoginFormInModal({ onSuccess }) {
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("login.password")}</FormLabel>
+                            <FormLabel>{"Mật khẩu"}</FormLabel>
                             <FormControl>
                                 <div className="relative">
                                     <Input
@@ -168,7 +165,7 @@ function LoginFormInModal({ onSuccess }) {
                     className="w-full rounded-full"
                     disabled={isLoginLoading}
                 >
-                    {isLoginLoading ? t("login.submitting") : t("login.submit")}
+                    {isLoginLoading ? "Đang đăng nhập..." : "Đăng nhập"}
                 </Button>
             </form>
         </Form>
@@ -177,7 +174,6 @@ function LoginFormInModal({ onSuccess }) {
 
 // ── Register form trong modal ──────────────────────────
 function RegisterFormInModal({ onSuccess }) {
-    const { t } = useTranslation("auth");
     const { register, isRegisterLoading } = useAuth();
     const [serverError, setServerError] = useState("");
 
@@ -216,7 +212,7 @@ function RegisterFormInModal({ onSuccess }) {
                     name="fullName"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("register.fullName")}</FormLabel>
+                            <FormLabel>{"Họ và tên"}</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder={t(
@@ -235,11 +231,11 @@ function RegisterFormInModal({ onSuccess }) {
                     name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("register.email")}</FormLabel>
+                            <FormLabel>{"Email"}</FormLabel>
                             <FormControl>
                                 <Input
                                     type="email"
-                                    placeholder={t("register.emailPlaceholder")}
+                                    placeholder={"Nhập địa chỉ email"}
                                     disabled={isRegisterLoading}
                                     {...field}
                                 />
@@ -253,11 +249,11 @@ function RegisterFormInModal({ onSuccess }) {
                     name="phone"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("register.phone")}</FormLabel>
+                            <FormLabel>{"Số điện thoại"}</FormLabel>
                             <FormControl>
                                 <Input
                                     type="tel"
-                                    placeholder={t("register.phonePlaceholder")}
+                                    placeholder={"Nhập số điện thoại"}
                                     disabled={isRegisterLoading}
                                     {...field}
                                 />
@@ -271,7 +267,7 @@ function RegisterFormInModal({ onSuccess }) {
                     name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("register.password")}</FormLabel>
+                            <FormLabel>{"Mật khẩu"}</FormLabel>
                             <FormControl>
                                 <Input
                                     type="password"
@@ -292,7 +288,7 @@ function RegisterFormInModal({ onSuccess }) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>
-                                {t("register.confirmPassword")}
+                                {"Xác nhận mật khẩu"}
                             </FormLabel>
                             <FormControl>
                                 <Input
@@ -321,13 +317,13 @@ function RegisterFormInModal({ onSuccess }) {
                                 />
                             </FormControl>
                             <FormLabel className="text-xs font-normal leading-snug text-muted-foreground">
-                                {t("register.agreeTerms")}{" "}
+                                {"Tôi đồng ý với"}{" "}
                                 <span className="text-apple-blue">
-                                    {t("register.terms")}
+                                    {"Điều khoản sử dụng"}
                                 </span>{" "}
-                                {t("register.and")}{" "}
+                                {"và"}{" "}
                                 <span className="text-apple-blue">
-                                    {t("register.privacy")}
+                                    {"Chính sách bảo mật"}
                                 </span>
                             </FormLabel>
                             <FormMessage />
@@ -340,8 +336,8 @@ function RegisterFormInModal({ onSuccess }) {
                     disabled={isRegisterLoading}
                 >
                     {isRegisterLoading
-                        ? t("register.submitting")
-                        : t("register.submit")}
+                        ? "Đang tạo tài khoản..."
+                        : "Tạo tài khoản"}
                 </Button>
             </form>
         </Form>

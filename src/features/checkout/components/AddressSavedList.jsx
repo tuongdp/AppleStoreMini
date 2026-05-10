@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { MapPin, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -8,14 +7,12 @@ export default function AddressSavedList({
     selectedId,
     onSelect,
 }) {
-    const { t } = useTranslation("checkout");
-
     if (!addresses.length) return null;
 
     return (
         <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-                {t("address.savedAddresses")}
+                {"savedAddresses"}
             </p>
             {addresses.map((addr) => {
                 // ✅ MySQL integer id — không có _id
@@ -49,9 +46,7 @@ export default function AddressSavedList({
                                             className="border-foreground/20 px-1.5 py-0 text-xs"
                                         >
                                             <Star className="mr-1 h-2.5 w-2.5 fill-foreground" />
-                                            {t("address.default", {
-                                                ns: "profile",
-                                            })}
+                                            {"Mặc định"}
                                         </Badge>
                                     )}
                                 </div>

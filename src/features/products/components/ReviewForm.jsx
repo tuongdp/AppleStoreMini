@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "@/i18n/useTranslation";
 import { reviewSchema } from "@/lib/validations";
 import {
     useCreateReviewMutation,
@@ -27,7 +26,6 @@ export default function ReviewForm({
     onSuccess,
     onCancel,
 }) {
-    const { t } = useTranslation("product");
     const isEditing = !!review;
     const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
     const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
@@ -65,11 +63,11 @@ export default function ReviewForm({
                 }).unwrap();
             }
 
-            toast.success(t("review.success"));
+            toast.success("Đánh giá của bạn đã được gửi");
             form.reset();
             onSuccess?.(values); // trả về data để OrderCard lưu vào reviewedMap
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -82,7 +80,7 @@ export default function ReviewForm({
                     name="rating"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("review.yourRating")}</FormLabel>
+                            <FormLabel>{"Đánh giá của bạn"}</FormLabel>
                             <FormControl>
                                 <StarRating
                                     rating={field.value}
@@ -102,10 +100,10 @@ export default function ReviewForm({
                     name="comment"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{t("review.yourComment")}</FormLabel>
+                            <FormLabel>{"Nhận xét của bạn"}</FormLabel>
                             <FormControl>
                                 <Textarea
-                                    placeholder={t("review.commentPlaceholder")}
+                                    placeholder={"Chia sẻ trải nghiệm sử dụng sản phẩm..."}
                                     rows={4}
                                     disabled={isLoading}
                                     {...field}
@@ -127,7 +125,7 @@ export default function ReviewForm({
                             onClick={onCancel}
                             disabled={isLoading}
                         >
-                            {t("btn.cancel", { ns: "common" })}
+                            {"Huỷ"}
                         </Button>
                     )}
                     <Button
@@ -137,8 +135,8 @@ export default function ReviewForm({
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? t("review.submitting")
-                            : t("review.submitReview")}
+                            ? "Đang gửi..."
+                            : "Gửi đánh giá"}
                     </Button>
                 </div>
             </form>

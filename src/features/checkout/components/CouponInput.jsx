@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Tag, X, CheckCircle2, Loader2 } from "lucide-react";
 import { useApplyCouponMutation } from "@/store/api/couponsApi";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,6 @@ export default function CouponInput({
     onRemove,
     appliedCoupon,
 }) {
-    const { t } = useTranslation("cart");
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
     const [applyCoupon, { isLoading }] = useApplyCouponMutation();
@@ -39,7 +37,7 @@ export default function CouponInput({
             onApply?.(response.data);
             setCode("");
         } catch (err) {
-            setError(err?.data?.message || t("coupon.invalid"));
+            setError(err?.data?.message || "Mã giảm giá không hợp lệ");
         }
     };
 
@@ -101,7 +99,7 @@ export default function CouponInput({
                             setError("");
                         }}
                         onKeyDown={handleKeyDown}
-                        placeholder={t("coupon.placeholder")}
+                        placeholder={"Nhập mã giảm giá"}
                         className="pl-9 uppercase"
                         disabled={isLoading}
                     />
@@ -116,7 +114,7 @@ export default function CouponInput({
                     {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                        t("coupon.apply")
+                        "Áp dụng"
                     )}
                 </Button>
             </div>

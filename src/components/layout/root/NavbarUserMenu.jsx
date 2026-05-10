@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { User, Package, Heart, Settings, LogOut, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,7 +20,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 
 export default function NavbarUserMenu() {
-    const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
@@ -43,7 +41,7 @@ export default function NavbarUserMenu() {
             >
                 <Link to={ROUTES.LOGIN}>
                     <LogIn className="h-5 w-5" />
-                    <span className="sr-only">{t("nav.login")}</span>
+                    <span className="sr-only">{"login"}</span>
                 </Link>
             </Button>
         );
@@ -81,7 +79,7 @@ export default function NavbarUserMenu() {
                         className="flex items-center gap-2"
                     >
                         <User className="h-4 w-4" />
-                        {t("nav.profile")}
+                        {"profile"}
                     </Link>
                 </DropdownMenuItem>
 
@@ -91,7 +89,7 @@ export default function NavbarUserMenu() {
                         className="flex items-center gap-2"
                     >
                         <Package className="h-4 w-4" />
-                        {t("nav.orders")}
+                        {"orders"}
                     </Link>
                 </DropdownMenuItem>
 
@@ -101,7 +99,7 @@ export default function NavbarUserMenu() {
                         className="flex items-center gap-2"
                     >
                         <Heart className="h-4 w-4" />
-                        {t("nav.wishlist")}
+                        {"wishlist"}
                     </Link>
                 </DropdownMenuItem>
 
@@ -114,7 +112,7 @@ export default function NavbarUserMenu() {
                                 className="flex items-center gap-2"
                             >
                                 <Settings className="h-4 w-4" />
-                                {t("nav.admin")}
+                                {"admin"}
                             </Link>
                         </DropdownMenuItem>
                     </>
@@ -127,7 +125,7 @@ export default function NavbarUserMenu() {
                     className="gap-2 text-red-500 focus:text-red-500"
                 >
                     <LogOut className="h-4 w-4" />
-                    {t("nav.logout")}
+                    {"logout"}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

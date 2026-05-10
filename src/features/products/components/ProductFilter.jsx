@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
@@ -8,7 +7,6 @@ import { CATEGORIES, PRICE_RANGES } from "@/lib/constants";
 import { useState } from "react";
 
 export default function ProductFilter({ filters, onUpdate }) {
-    const { t } = useTranslation("product");
     const [priceRange, setPriceRange] = useState([
         filters.minPrice || 0,
         filters.maxPrice || 100000000,
@@ -24,7 +22,7 @@ export default function ProductFilter({ filters, onUpdate }) {
             {/* Category */}
             <div>
                 <h3 className="mb-3 text-sm font-medium text-foreground">
-                    {t("filter.category")}
+                    {"Danh mục"}
                 </h3>
                 <div className="space-y-0.5">
                     <button
@@ -36,7 +34,7 @@ export default function ProductFilter({ filters, onUpdate }) {
                                 : "text-muted-foreground hover:bg-muted",
                         )}
                     >
-                        {t("filter.allCategories")}
+                        {"Tất cả danh mục"}
                     </button>
                     {CATEGORIES.map((cat) => (
                         <button
@@ -60,7 +58,7 @@ export default function ProductFilter({ filters, onUpdate }) {
             {/* Price range */}
             <div>
                 <h3 className="mb-3 text-sm font-medium text-foreground">
-                    {t("filter.priceRange")}
+                    {"Khoảng giá"}
                 </h3>
                 <div className="space-y-3">
                     {/* Quick select */}
@@ -119,7 +117,7 @@ export default function ProductFilter({ filters, onUpdate }) {
                     setPriceRange([0, 100000000]);
                 }}
             >
-                {t("filter.reset")}
+                {"Xoá bộ lọc"}
             </Button>
         </div>
     );

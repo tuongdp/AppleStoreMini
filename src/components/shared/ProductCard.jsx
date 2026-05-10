@@ -3,7 +3,6 @@ import { Heart, ShoppingCart, Flame } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
@@ -24,7 +23,6 @@ function isNewProduct(createdAt) {
 }
 
 export default function ProductCard({ product }) {
-    const { t } = useTranslation();
     const dispatch = useDispatch();
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -95,7 +93,7 @@ export default function ProductCard({ product }) {
                         {hasFlashSale && (
                             <Badge className="flex items-center gap-1 border-0 bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm dark:bg-amber-400 dark:text-black">
                                 <Flame className="h-3 w-3" />
-                                {t("flashSale.flashSale", { defaultValue: "FLASH SALE" })}
+                                {"FLASH SALE"}
                             </Badge>
                         )}
                         {isOutOfStock && (
@@ -103,7 +101,7 @@ export default function ProductCard({ product }) {
                                 variant="outline"
                                 className="border-red-200 bg-red-50 text-[10px] text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
                             >
-                                {t("product.outOfStock")}
+                                {"outOfStock"}
                             </Badge>
                         )}
                         {!isOutOfStock && showDiscount && (
@@ -116,15 +114,12 @@ export default function ProductCard({ product }) {
                         )}
                         {!isOutOfStock && isLowStock && (
                             <Badge className="bg-amber-100 text-[10px] text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
-                                {t("product.lowStock", {
-                                    defaultValue: "Còn {{count}} sản phẩm",
-                                    count: stock,
-                                })}
+                                {"Còn {{count}} sản phẩm"}
                             </Badge>
                         )}
                         {!isOutOfStock && isNewProduct(product.createdAt) && (
                             <Badge variant="secondary" className="text-[10px]">
-                                {t("product.new")}
+                                {"new"}
                             </Badge>
                         )}
                     </div>
@@ -187,9 +182,7 @@ export default function ProductCard({ product }) {
                 <div className="mt-1.5 flex items-center justify-center gap-1.5">
                     {isOutOfStock ? (
                         <span className="text-xs text-muted-foreground">
-                            {t("product.contactToOrder", {
-                                defaultValue: "Liên hệ để đặt hàng",
-                            })}
+                            {"Liên hệ để đặt hàng"}
                         </span>
                     ) : (
                         <>
@@ -220,8 +213,8 @@ export default function ProductCard({ product }) {
                 >
                     <ShoppingCart className="h-3.5 w-3.5" />
                     {isOutOfStock
-                        ? t("product.outOfStock")
-                        : t("btn.addToCart")}
+                        ? "outOfStock"
+                        : "addToCart"}
                 </Button>
             </CardFooter>
         </Card>

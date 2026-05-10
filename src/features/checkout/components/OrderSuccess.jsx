@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { CheckCircle2, Package, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -7,7 +6,6 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, PAYMENT_METHODS } from "@/lib/constants";
 
 export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
-    const { t } = useTranslation("checkout");
     const isMoMo = order?.paymentMethod?.toLowerCase() === PAYMENT_METHODS.MOMO;
 
     return (
@@ -17,16 +15,16 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
             </div>
 
             <h1 className="mb-2 text-2xl font-semibold text-foreground">
-                {t("success.title")}
+                {"Đặt hàng thành công!"}
             </h1>
             <p className="mb-8 text-sm text-muted-foreground">
-                {t("success.subtitle")}
+                {"Cảm ơn bạn đã mua hàng"}
             </p>
 
             <div className="mb-8 w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-left">
                 <div className="mb-4 flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                        {t("success.orderCode")}
+                        {"Mã đơn hàng"}
                     </span>
                     <span className="font-semibold text-foreground">
                         #{order?.code}
@@ -35,7 +33,7 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
 
                 <div className="mb-4 flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                        {t("detail.orderDate", { ns: "order" })}
+                        {"Ngày đặt hàng"}
                     </span>
                     <span className="text-sm text-foreground">
                         {formatDateTime(order?.createdAt)}
@@ -44,7 +42,7 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
 
                 <div className="mb-4 flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
-                        {t("confirm.total")}
+                        {"Tổng cộng"}
                     </span>
                     <span className="font-semibold text-foreground">
                         {formatPrice(order?.totalAmount)}
@@ -94,15 +92,15 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
                 <div className="flex items-center gap-3 rounded-xl bg-muted/30 p-3">
                     <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">
-                        {t("success.estimatedDelivery")}:{" "}
+                        {"Dự kiến giao hàng"}:{" "}
                         <span className="font-medium text-foreground">
-                            3-5 {t("success.days")}
+                            3-5 {"ngày làm việc"}
                         </span>
                     </p>
                 </div>
 
                 <p className="mt-3 text-center text-xs text-muted-foreground">
-                    {t("success.orderInfo")}
+                    {"Thông tin đơn hàng đã được gửi đến email của bạn"}
                 </p>
             </div>
 
@@ -114,17 +112,17 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
                         disabled={isPaying}
                     >
                         <Wallet className="mr-2 h-4 w-4" />
-                        {isPaying ? t("confirm.placing") : t("momoPayNow")}
+                        {isPaying ? "Đang đặt hàng..." : "Thanh toán MoMo"}
                     </Button>
                 )}
                 <Button className="rounded-full px-8" asChild>
                     <Link to={ROUTES.ORDER_DETAIL(order?.id)}>
-                        {t("success.trackOrder")}
+                        {"Theo dõi đơn hàng"}
                     </Link>
                 </Button>
                 <Button variant="outline" className="rounded-full px-8" asChild>
                     <Link to={ROUTES.PRODUCTS}>
-                        {t("success.continueShopping")}
+                        {"Tiếp tục mua sắm"}
                     </Link>
                 </Button>
             </div>

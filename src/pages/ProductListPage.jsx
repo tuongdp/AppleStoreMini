@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSearchParams } from "react-router-dom";
 import { SearchX, X } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils";
 
 export default function ProductListPage() {
     const { categories } = useCategories();
-    const { t } = useTranslation("product");
     const [searchParams, setSearchParams] = useSearchParams();
 
     const filters = {
@@ -103,7 +101,7 @@ export default function ProductListPage() {
             <div className="mx-auto max-w-7xl">
                 <Breadcrumb
                     items={[
-                        { label: t("page.title"), href: ROUTES.PRODUCTS },
+                        { label: "Sản phẩm", href: ROUTES.PRODUCTS },
                         ...(currentCategory ? [{ label: currentCategory.label }] : []),
                     ]}
                     className="mb-6"
@@ -121,7 +119,7 @@ export default function ProductListPage() {
                                     : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
                             )}
                         >
-                            {t("filter.allCategories")}
+                            {"Tất cả danh mục"}
                         </button>
                         {categories.map((cat) => (
                             <button
@@ -174,17 +172,17 @@ export default function ProductListPage() {
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold text-foreground">
-                            {currentCategory ? currentCategory.label : t("page.allProducts")}
+                            {currentCategory ? currentCategory.label : "Tất cả sản phẩm"}
                         </h1>
                         {!isLoading && pagination.total > 0 && (
                             <p className="mt-1 text-sm text-muted-foreground">
-                                {pagination.total} {t("page.results")}
+                                {pagination.total} {"sản phẩm"}
                             </p>
                         )}
                     </div>
                     <Select value={filters.sort} onValueChange={(val) => updateFilter("sort", val)}>
                         <SelectTrigger className="w-44 rounded-full text-sm">
-                            <SelectValue placeholder={t("sort.label")} />
+                            <SelectValue placeholder={"Sắp xếp theo"} />
                         </SelectTrigger>
                         <SelectContent>
                             {SORT_OPTIONS.map((opt) => (
@@ -200,9 +198,9 @@ export default function ProductListPage() {
                 {products.length === 0 && !isLoading ? (
                     <EmptyState
                         icon={SearchX}
-                        title={t("empty.products")}
-                        description={t("empty.productsDesc")}
-                        actionLabel={t("filter.reset")}
+                        title={"products"}
+                        description={"productsDesc"}
+                        actionLabel={"Xoá bộ lọc"}
                         onAction={clearAll}
                     />
                 ) : (

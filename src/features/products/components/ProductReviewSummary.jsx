@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import StarRating from "@/components/shared/StarRating";
 import { cn } from "@/lib/utils";
 
@@ -7,8 +6,6 @@ export default function ProductReviewSummary({
     reviewCount = 0,
     distribution = {},
 }) {
-    const { t } = useTranslation("product");
-
     return (
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             {/* Average score */}
@@ -18,7 +15,7 @@ export default function ProductReviewSummary({
                 </span>
                 <StarRating rating={rating} size="md" />
                 <span className="text-xs text-muted-foreground">
-                    {reviewCount} {t("review.total")}
+                    {reviewCount} {"đánh giá"}
                 </span>
             </div>
 

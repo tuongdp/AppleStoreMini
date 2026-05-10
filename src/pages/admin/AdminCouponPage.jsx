@@ -1,16 +1,14 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import AdminCouponList from "@/features/admin/components/coupons/AdminCouponList";
 
 export default function AdminCouponPage() {
-    const { t } = useTranslation("admin");
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("coupon.title")}
+                    {"Quản lý khuyến mãi"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("coupon.subtitle")}
+                    {"Tạo và quản lý mã giảm giá cho khách hàng"}
                 </p>
             </div>
             <AdminCouponList />

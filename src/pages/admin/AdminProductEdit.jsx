@@ -1,5 +1,4 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import {
@@ -13,7 +12,6 @@ import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants";
 
 export default function AdminProductEdit() {
-    const { t } = useTranslation("admin");
     const { id } = useParams();
     const navigate = useNavigate();
     const [isSaving, setIsSaving] = useState(false);
@@ -26,10 +24,10 @@ export default function AdminProductEdit() {
         try {
             const { variants: _, productId: __, ...productData } = values;
             await updateProduct({ id, ...productData }).unwrap();
-            toast.success(t("product.updateSuccess"));
+            toast.success("Cập nhật sản phẩm thành công");
             navigate(ROUTES.ADMIN_PRODUCTS);
         } catch (error) {
-            toast.error(error?.data?.message || t("status.error", { ns: "common" }));
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         } finally {
             setIsSaving(false);
         }
@@ -41,10 +39,10 @@ export default function AdminProductEdit() {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("status.notFound", { ns: "common" })}
+                    {"Không tìm thấy"}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to={ROUTES.ADMIN_PRODUCTS}>{t("product.title")}</Link>
+                    <Link to={ROUTES.ADMIN_PRODUCTS}>{"Quản lý sản phẩm"}</Link>
                 </Button>
             </div>
         );
@@ -55,14 +53,14 @@ export default function AdminProductEdit() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_PRODUCTS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("product.title")}
+                    {"Quản lý sản phẩm"}
                 </Link>
             </Button>
 
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground">
-                        {t("product.edit")}
+                        {"Chỉnh sửa sản phẩm"}
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
                         {product.name}
@@ -71,7 +69,7 @@ export default function AdminProductEdit() {
 
                 <Button variant="outline" size="sm" className="rounded-full" asChild>
                     <Link to={ROUTES.PRODUCT_DETAIL(product.slug)} target="_blank">
-                        {t("product.preview", { defaultValue: "Xem trang" })}
+                        {"Xem trang"}
                     </Link>
                 </Button>
             </div>

@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Camera, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { setCredentials } from "@/store/authSlice";
 import { IMAGE } from "@/lib/constants";
 
 export default function AvatarUpload({ user }) {
-    const { t } = useTranslation("profile");
     const dispatch = useDispatch();
     const inputRef = useRef(null);
     const [preview, setPreview] = useState(null);
@@ -24,13 +22,13 @@ export default function AvatarUpload({ user }) {
 
         // Validate format
         if (!IMAGE.VALID_TYPES.includes(file.type)) {
-            toast.error(t("avatar.invalidFormat"));
+            toast.error("Định dạng ảnh không hợp lệ");
             return;
         }
 
         // Validate size
         if (file.size > IMAGE.MAX_SIZE) {
-            toast.error(t("avatar.fileTooLarge"));
+            toast.error("File ảnh quá lớn, tối đa 5MB");
             return;
         }
 
@@ -45,10 +43,10 @@ export default function AvatarUpload({ user }) {
             formData.append("avatar", file);
             const response = await uploadAvatar(formData).unwrap();
             dispatch(setCredentials(response));
-            toast.success(t("avatar.uploadSuccess"));
+            toast.success("Cập nhật ảnh đại diện thành công");
         } catch {
             setPreview(null);
-            toast.error(t("avatar.uploadFailed"));
+            toast.error("Tải ảnh lên thất bại");
         }
 
         // Reset input để có thể upload lại cùng file
@@ -101,8 +99,8 @@ export default function AvatarUpload({ user }) {
                     disabled={isLoading}
                 >
                     {isLoading
-                        ? t("status.loading", { ns: "common" })
-                        : t("info.changeAvatar")}
+                        ? "Đang tải..."
+                        : "Thay đổi ảnh"}
                 </Button>
 
                 {avatarSrc && (

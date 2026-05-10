@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     Calendar,
     Clock,
@@ -56,7 +55,6 @@ function StarRatingInput({ value, onChange }) {
 }
 
 function SidebarNewsCard({ news, index }) {
-    const { t } = useTranslation("common");
     return (
         <Link
             to={`/news/${news.slug}`}
@@ -81,7 +79,6 @@ function SidebarNewsCard({ news, index }) {
 }
 
 function NewsSidebar({ currentSlug, currentCategory }) {
-    const { t } = useTranslation("common");
     const { data: relatedData } = useGetNewsQuery(
         { category: currentCategory, limit: 5 },
         { skip: !currentCategory },
@@ -102,7 +99,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
             {related.length > 0 && (
                 <div>
                     <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t("news.relatedArticles")}
+                        {"Bài viết liên quan"}
                     </h3>
                     <div className="space-y-1">
                         {related.map((item) => (
@@ -117,7 +114,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
             {popular.length > 0 && (
                 <div>
                     <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {t("news.mostViewed")}
+                        {"Xem nhiều nhất"}
                     </h3>
                     <div className="space-y-1">
                         {popular.map((item, i) => (
@@ -136,7 +133,6 @@ function NewsSidebar({ currentSlug, currentCategory }) {
 
 export default function NewsDetailPage() {
     const { slug } = useParams();
-    const { t } = useTranslation("common");
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const currentUser = useSelector(selectCurrentUser);
     const [comment, setComment] = useState("");
@@ -172,15 +168,15 @@ export default function NewsDetailPage() {
                 content: comment,
             }).unwrap();
             setComment("");
-            toast.success(t("news.commentSent"));
+            toast.success("Đã gửi bình luận");
         } catch {
-            toast.error(t("toast.error"));
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
         }
     };
 
     const handleRate = async (value) => {
         if (!isAuthenticated) {
-            toast.error(t("toast.loginRequired"));
+            toast.error("Vui lòng đăng nhập để tiếp tục");
             return;
         }
         setRating(value);
@@ -189,9 +185,9 @@ export default function NewsDetailPage() {
                 newsId: news._id || news.id,
                 rating: value,
             }).unwrap();
-            toast.success(t("news.articleRated"));
+            toast.success("Đã đánh giá bài viết");
         } catch {
-            toast.error(t("toast.error"));
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
         }
     };
 
@@ -201,9 +197,9 @@ export default function NewsDetailPage() {
                 newsId: news._id || news.id,
                 commentId,
             }).unwrap();
-            toast.success(t("news.commentDeleted"));
+            toast.success("Đã xóa bình luận");
         } catch {
-            toast.error(t("toast.error"));
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
         }
     };
 
@@ -237,10 +233,10 @@ export default function NewsDetailPage() {
         return (
             <div className="section-padding flex min-h-[60vh] flex-col items-center justify-center text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("news.notFound")}
+                    {"Không tìm thấy bài viết"}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to="/news">{t("news.backToNews")}</Link>
+                    <Link to="/news">{"Về trang tin tức"}</Link>
                 </Button>
             </div>
         );
@@ -254,7 +250,7 @@ export default function NewsDetailPage() {
                         {/* Breadcrumb */}
                         <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
                             <Link to="/news" className="hover:text-foreground">
-                                {t("nav.news")}
+                                {"Tin tức"}
                             </Link>
                             <ChevronRight className="h-3.5 w-3.5" />
                             <span className="line-clamp-1 text-foreground">
@@ -281,7 +277,7 @@ export default function NewsDetailPage() {
                             )}
                             {news.author && (
                                 <span>
-                                    {t("news.by")}{" "}
+                                    {"bởi"}{" "}
                                     <span className="font-medium text-foreground">
                                         {news.author}
                                     </span>
@@ -318,7 +314,7 @@ export default function NewsDetailPage() {
                         {/* Rating */}
                         <div className="mb-8 rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-3 text-sm font-medium text-foreground">
-                                {t("news.rateThisArticle")}
+                                {"Đánh giá bài viết này"}
                             </h3>
                             <StarRatingInput
                                 value={rating || news.userRating || 0}
@@ -330,9 +326,9 @@ export default function NewsDetailPage() {
                                         to="/login"
                                         className="text-apple-blue hover:underline"
                                     >
-                                        {t("nav.login")}
+                                        {"Đăng nhập"}
                                     </Link>{" "}
-                                    {t("news.loginToRate")}
+                                    {"Đăng nhập để đánh giá"}
                                 </p>
                             )}
                         </div>
@@ -340,7 +336,7 @@ export default function NewsDetailPage() {
                         {/* Comments */}
                         <div>
                             <h3 className="mb-5 text-lg font-semibold text-foreground">
-                                {t("news.comments")}{" "}
+                                {"Bình luận"}{" "}
                                 {comments.length > 0 &&
                                     `(${commentPagination.total || comments.length})`}
                             </h3>
@@ -366,7 +362,7 @@ export default function NewsDetailPage() {
                                             onChange={(e) =>
                                                 setComment(e.target.value)
                                             }
-                                            placeholder={t("news.commentPlaceholder")}
+                                            placeholder={"Viết bình luận của bạn..."}
                                             rows={3}
                                             disabled={isCommenting}
                                         />
@@ -382,8 +378,8 @@ export default function NewsDetailPage() {
                                             >
                                                 <Send className="mr-1.5 h-3.5 w-3.5" />
                                                 {isCommenting
-                                                    ? t("news.sending")
-                                                    : t("news.sendComment")}
+                                                    ? "Đang gửi..."
+                                                    : "Gửi bình luận"}
                                             </Button>
                                         </div>
                                     </div>
@@ -394,9 +390,9 @@ export default function NewsDetailPage() {
                                         to="/login"
                                         className="text-apple-blue hover:underline"
                                     >
-                                        {t("nav.login")}
+                                        {"Đăng nhập"}
                                     </Link>{" "}
-                                    {t("news.loginToComment")}
+                                    {"Đăng nhập để bình luận"}
                                 </div>
                             )}
 
@@ -414,7 +410,7 @@ export default function NewsDetailPage() {
                                 </div>
                             ) : comments.length === 0 ? (
                                 <p className="py-8 text-center text-sm text-muted-foreground">
-                                    {t("news.noCommentsYet")}
+                                    {"Chưa có bình luận nào. Hãy là người đầu tiên!"}
                                 </p>
                             ) : (
                                 <div className="space-y-5">
@@ -491,7 +487,7 @@ export default function NewsDetailPage() {
                                                     setCommentPage((p) => p - 1)
                                                 }
                                             >
-                                                {t("pagination.prev")}
+                                                {"Trước"}
                                             </Button>
                                             <span className="flex items-center text-sm text-muted-foreground">
                                                 {commentPage} /{" "}
@@ -509,7 +505,7 @@ export default function NewsDetailPage() {
                                                     setCommentPage((p) => p + 1)
                                                 }
                                             >
-                                                {t("pagination.next")}
+                                                {"Sau"}
                                             </Button>
                                         </div>
                                     )}

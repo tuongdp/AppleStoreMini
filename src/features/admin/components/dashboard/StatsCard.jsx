@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -10,8 +9,6 @@ export default function StatsCard({
     iconColor,
     iconBg,
 }) {
-    const { t } = useTranslation("admin");
-
     return (
         <Card className="border-border">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -45,7 +42,7 @@ export default function StatsCard({
                         ) : (
                             <TrendingDown className="h-3 w-3" />
                         )}
-                        {Math.abs(change)}% {t("dashboard.vsLastMonth")}
+                        {Math.abs(change)}% {"so với tháng trước"}
                     </div>
                 )}
             </CardContent>

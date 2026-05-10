@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ROUTES } from "@/lib/constants";
 
 const FOOTER_LINKS = [
@@ -64,8 +63,6 @@ const SOCIAL_LINKS = [
 ];
 
 export default function Footer() {
-    const { t } = useTranslation();
-
     return (
         <footer className="border-t border-border bg-muted/20">
             {/* ── Main footer ── */}
@@ -82,7 +79,7 @@ export default function Footer() {
                                 <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-43.4-150.3-109.2c-52.1-73.6-96.2-187.8-96.2-296.7 0-166.7 108.7-254.8 215.7-254.8 56.6 0 103.7 37.5 139 37.5 33.8 0 86.5-39.5 151.8-39.5 24.4 0 108.2 2.6 168.6 80.6zm-159.5-197.7c30.3-35.7 51.5-85.4 51.5-135.1 0-6.5-.6-13-1.9-18.2-48.7 1.9-106.4 32.5-140.8 73.6-26.8 30.3-52 80-52 130.4 0 7.1 1.3 14.3 1.9 16.5 3.2.6 8.4 1.3 13.6 1.3 43.4 0 98.4-29 127.7-68.5z" />
                             </svg>
                             <p className="mb-4 text-sm text-muted-foreground">
-                                {t("appName")} — {t("footer.slogan")}
+                                {"Apple Store"} — {"slogan"}
                             </p>
                             <div className="flex items-center gap-2">
                                 {SOCIAL_LINKS.map((social) => (
@@ -134,20 +131,20 @@ export default function Footer() {
                 <div className="section-padding py-5">
                     <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 md:flex-row">
                         <p className="text-xs text-muted-foreground">
-                            {t("footer.copyright")}
+                            {"copyright"}
                         </p>
                         <div className="flex items-center gap-4">
                             <Link
                                 to="/privacy"
                                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                             >
-                                {t("footer.privacy")}
+                                {"privacy"}
                             </Link>
                             <Link
                                 to="/terms"
                                 className="text-xs text-muted-foreground transition-colors hover:text-foreground"
                             >
-                                {t("footer.terms")}
+                                {"terms"}
                             </Link>
                         </div>
                     </div>

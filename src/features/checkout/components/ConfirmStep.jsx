@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { MapPin, CreditCard, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -18,7 +17,6 @@ export default function ConfirmStep({
     onBack,
     isLoading,
 }) {
-    const { t } = useTranslation("checkout");
     const { fullName, phone, address, paymentMethod } = checkoutData;
 
     return (
@@ -28,7 +26,7 @@ export default function ConfirmStep({
                 <div className="mb-4 flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <h3 className="text-sm font-medium text-foreground">
-                        {t("confirm.shippingAddress")}
+                        {"Địa chỉ giao hàng"}
                     </h3>
                 </div>
                 {fullName && (
@@ -49,19 +47,17 @@ export default function ConfirmStep({
                 <div className="mb-4 flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                     <h3 className="text-sm font-medium text-foreground">
-                        {t("confirm.paymentMethod")}
+                        {"Phương thức thanh toán"}
                     </h3>
                 </div>
                 <p className="text-sm text-foreground">
                     {paymentMethod
                         ? t(`payment.${paymentMethod}`)
-                        : t("payment.unknown", {
-                              defaultValue: "Không xác định",
-                          })}
+                        : "Không xác định"}
                 </p>
                 {paymentMethod === PAYMENT_METHODS.COD && (
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t("payment.codDesc")}
+                        {"Trả tiền mặt khi nhận hàng"}
                     </p>
                 )}
             </div>
@@ -71,7 +67,7 @@ export default function ConfirmStep({
                 <div className="mb-4 flex items-center gap-2">
                     <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                     <h3 className="text-sm font-medium text-foreground">
-                        {t("confirm.orderItems")}
+                        {"Sản phẩm đặt hàng"}
                     </h3>
                 </div>
 
@@ -95,13 +91,13 @@ export default function ConfirmStep({
                 <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                            {t("confirm.subtotal")}
+                            {"Tạm tính"}
                         </span>
                         <span>{formatPrice(total)}</span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                            {t("confirm.shipping")}
+                            {"Phí vận chuyển"}
                         </span>
                         <span
                             className={
@@ -111,7 +107,7 @@ export default function ConfirmStep({
                             }
                         >
                             {shippingFee === 0
-                                ? t("confirm.freeShipping")
+                                ? "Miễn phí"
                                 : formatPrice(shippingFee)}
                         </span>
                     </div>
@@ -119,9 +115,7 @@ export default function ConfirmStep({
                     {discountAmount > 0 && (
                         <div className="flex justify-between text-green-600 dark:text-green-400">
                             <span>
-                                {t("confirm.discount", {
-                                    defaultValue: "Giảm giá",
-                                })}
+                                {"Giảm giá"}
                             </span>
                             <span>-{formatPrice(discountAmount)}</span>
                         </div>
@@ -132,7 +126,7 @@ export default function ConfirmStep({
 
                 <div className="flex items-center justify-between">
                     <span className="font-semibold text-foreground">
-                        {t("confirm.total")}
+                        {"Tổng cộng"}
                     </span>
                     <PriceDisplay price={grandTotal} size="lg" />
                 </div>
@@ -140,13 +134,13 @@ export default function ConfirmStep({
 
             {/* Terms */}
             <p className="text-center text-xs text-muted-foreground">
-                {t("confirm.agreeTerms")}{" "}
+                {"Bằng cách đặt hàng, bạn đồng ý với"}{" "}
                 <a href="/terms" className="text-apple-blue hover:opacity-70">
-                    {t("confirm.terms")}
+                    {"Điều khoản sử dụng"}
                 </a>{" "}
-                {t("confirm.and")}{" "}
+                {"và"}{" "}
                 <a href="/privacy" className="text-apple-blue hover:opacity-70">
-                    {t("confirm.privacy")}
+                    {"Chính sách bảo mật"}
                 </a>
             </p>
 
@@ -158,14 +152,14 @@ export default function ConfirmStep({
                     onClick={onBack}
                     disabled={isLoading}
                 >
-                    {t("confirm.back")}
+                    {"Quay lại"}
                 </Button>
                 <Button
                     className="rounded-full px-8"
                     onClick={onPlaceOrder}
                     disabled={isLoading}
                 >
-                    {isLoading ? t("confirm.placing") : t("confirm.placeOrder")}
+                    {isLoading ? "Đang đặt hàng..." : "Đặt hàng"}
                 </Button>
             </div>
         </div>

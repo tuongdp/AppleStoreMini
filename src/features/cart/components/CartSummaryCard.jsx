@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -11,7 +10,6 @@ import { formatPrice } from "@/lib/utils";
 import { ROUTES, SHIPPING } from "@/lib/constants";
 
 export default function CartSummaryCard() {
-    const { t } = useTranslation("cart");
     const total = useSelector(selectCartTotal);
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -34,13 +32,13 @@ export default function CartSummaryCard() {
         <div className="w-full shrink-0 lg:w-80">
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6">
                 <h2 className="mb-4 text-base font-semibold text-foreground">
-                    {t("summary.title")}
+                    {"Tóm tắt đơn hàng"}
                 </h2>
 
                 <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
-                            {t("summary.subtotal")}
+                            {"Tạm tính"}
                         </span>
                         <span className="font-medium">
                             {formatPrice(total)}
@@ -48,7 +46,7 @@ export default function CartSummaryCard() {
                     </div>
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
-                            {t("summary.shipping")}
+                            {"Phí vận chuyển"}
                         </span>
                         <span
                             className={
@@ -58,19 +56,19 @@ export default function CartSummaryCard() {
                             }
                         >
                             {shippingFee === 0
-                                ? t("summary.freeShipping")
+                                ? "Miễn phí"
                                 : formatPrice(shippingFee)}
                         </span>
                     </div>
                     {shippingFee > 0 && (
                         <p className="text-xs text-muted-foreground">
-                            {t("summary.freeShippingNote")}
+                            {"Miễn phí vận chuyển cho đơn hàng từ 500.000đ"}
                         </p>
                     )}
 
                     {discountAmount > 0 && (
                         <div className="flex items-center justify-between text-sm text-green-600 dark:text-green-400">
-                            <span>{t("summary.discount")}</span>
+                            <span>{"Giảm giá"}</span>
                             <span>-{formatPrice(discountAmount)}</span>
                         </div>
                     )}
@@ -89,16 +87,16 @@ export default function CartSummaryCard() {
 
                 <div className="flex items-center justify-between">
                     <span className="font-semibold text-foreground">
-                        {t("summary.total")}
+                        {"Tổng cộng"}
                     </span>
                     <PriceDisplay price={grandTotal} size="lg" />
                 </div>
                 <p className="mt-1 text-right text-xs text-muted-foreground">
-                    {t("summary.vat")}
+                    {"Đã bao gồm VAT"}
                 </p>
 
                 <Button className="mt-6 w-full rounded-full" asChild>
-                    <Link to={ROUTES.CHECKOUT}>{t("summary.checkout")}</Link>
+                    <Link to={ROUTES.CHECKOUT}>{"Tiến hành thanh toán"}</Link>
                 </Button>
 
                 <Button
@@ -106,7 +104,7 @@ export default function CartSummaryCard() {
                     className="mt-2 w-full rounded-full"
                     asChild
                 >
-                    <Link to={ROUTES.PRODUCTS}>{t("continueShopping")}</Link>
+                    <Link to={ROUTES.PRODUCTS}>{"Tiếp tục mua sắm"}</Link>
                 </Button>
             </div>
         </div>

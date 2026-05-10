@@ -1,12 +1,10 @@
 import { useState, useRef } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import * as XLSX from "xlsx";
 import { Upload, FileSpreadsheet, Eye, Check, AlertTriangle, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function ImportSpecsFromExcel({ onImport, onCancel }) {
-    const { t } = useTranslation("admin");
     const [preview, setPreview] = useState([]);
     const [fileName, setFileName] = useState("");
     const [error, setError] = useState("");
@@ -25,7 +23,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                 const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
                 if (json.length < 2) {
-                    setError(t("productForm.importSpecsEmptyFile"));
+                    setError("File Excel không có dữ liệu");
                     return;
                 }
 
@@ -38,7 +36,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                 );
 
                 if (labelIdx === -1 || valueIdx === -1) {
-                    setError(t("productForm.importSpecsInvalidFormat"));
+                    setError("File không có cột \"label\" và \"value\"");
                     return;
                 }
 
@@ -49,7 +47,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                 });
 
                 if (rows.length === 0) {
-                    setError(t("productForm.importSpecsNoData"));
+                    setError("Không tìm thấy dòng dữ liệu nào");
                     return;
                 }
 
@@ -64,10 +62,10 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                 setEditableSpecs(specs.map((s) => ({ ...s })));
                 setShowPreview(true);
             } catch {
-                setError(t("productForm.importSpecsReadError"));
+                setError("Lỗi khi đọc file. Kiểm tra định dạng file.");
             }
         };
-        reader.onerror = () => setError(t("productForm.importSpecsReadError"));
+        reader.onerror = () => setError("Lỗi khi đọc file. Kiểm tra định dạng file.");
         reader.readAsArrayBuffer(file);
     };
 
@@ -107,7 +105,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                 <div className="mb-4 flex items-center justify-between">
                     <div>
                         <h3 className="text-sm font-medium text-foreground">
-                            {t("productForm.importSpecsPreviewTitle")}
+                            {"Xem trước thông số"}
                         </h3>
                         <p className="text-xs text-muted-foreground">
                             {t("productForm.importSpecsPreviewDesc", { file: fileName })}
@@ -128,8 +126,8 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-1/2">{t("productForm.specNamePlaceholder")}</TableHead>
-                                <TableHead className="w-1/2">{t("productForm.specValuePlaceholder")}</TableHead>
+                                <TableHead className="w-1/2">{"Tên thông số"}</TableHead>
+                                <TableHead className="w-1/2">{"Giá trị"}</TableHead>
                                 <TableHead className="w-10" />
                             </TableRow>
                         </TableHeader>
@@ -140,7 +138,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                                         <input
                                             value={spec.key}
                                             onChange={(e) => updateEditable(idx, "key", e.target.value)}
-                                            placeholder={t("productForm.specNamePlaceholder")}
+                                            placeholder={"Tên thông số"}
                                             className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none focus:border-primary"
                                         />
                                     </TableCell>
@@ -148,7 +146,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                                         <input
                                             value={spec.value}
                                             onChange={(e) => updateEditable(idx, "value", e.target.value)}
-                                            placeholder={t("productForm.specValuePlaceholder")}
+                                            placeholder={"Giá trị"}
                                             className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none focus:border-primary"
                                         />
                                     </TableCell>
@@ -172,15 +170,15 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                 <div className="flex items-center justify-between">
                     <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addEditable}>
                         <Plus className="mr-1 h-3.5 w-3.5" />
-                        {t("productForm.addSpec")}
+                        {"Thêm thông số"}
                     </Button>
                     <div className="flex gap-2">
                         <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onCancel}>
-                            {t("productForm.cancel")}
+                            {"Huỷ"}
                         </Button>
                         <Button type="button" size="sm" className="rounded-full" onClick={handleConfirm}>
                             <Check className="mr-1 h-3.5 w-3.5" />
-                            {t("productForm.importSpecsConfirm")}
+                            {"Xác nhận"}
                         </Button>
                     </div>
                 </div>
@@ -209,7 +207,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                                 }}
                             >
                                 <FileSpreadsheet className="mr-1 h-3.5 w-3.5" />
-                                {t("productForm.importSpecsRetry")}
+                                {"Chọn lại file"}
                             </Button>
                             <Button
                                 type="button"
@@ -218,7 +216,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                                 className="rounded-full"
                                 onClick={onCancel}
                             >
-                                {t("productForm.cancel")}
+                                {"Huỷ"}
                             </Button>
                         </div>
                     </>
@@ -235,21 +233,21 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-foreground">
-                                {t("productForm.importSpecsTitle")}
+                                {"Tải lên file Excel"}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                {t("productForm.importSpecsDesc")}
+                                {"Kéo thả hoặc click để chọn file .xlsx, .xls, .csv"}
                             </p>
                         </div>
                         <Button type="button" variant="secondary" size="sm" className="mt-1 rounded-full">
                             <FileSpreadsheet className="mr-1 h-3.5 w-3.5" />
-                            {fileName || t("productForm.importSpecsSelectFile")}
+                            {fileName || "Chọn file"}
                         </Button>
                     </button>
                 )}
 
                 <p className="text-center text-xs text-muted-foreground">
-                    {t("productForm.importSpecsFormatHint")}
+                    {"File cần có 2 cột: \"label\" và \"value\". Nếu value trống → section header."}
                 </p>
 
                 <input

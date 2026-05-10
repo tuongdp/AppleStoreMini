@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { toast } from "sonner";
 import { resetPasswordSchema } from "@/lib/validations";
 import { useResetPasswordMutation } from "@/store/api/authApi";
@@ -20,7 +19,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 
 export default function ResetPasswordForm() {
-    const { t } = useTranslation("auth");
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
@@ -47,17 +45,17 @@ export default function ResetPasswordForm() {
                     </div>
                 </div>
                 <h1 className="mb-2 text-2xl font-semibold text-foreground">
-                    {t("resetPassword.tokenExpired")}
+                    {"Link đặt lại mật khẩu đã hết hạn"}
                 </h1>
                 <p className="mb-8 text-sm text-muted-foreground">
-                    {t("resetPassword.tokenExpiredDesc")}
+                    {"Vui lòng yêu cầu link mới"}
                 </p>
                 <Button
                     variant="outline"
                     className="w-full rounded-full"
                     onClick={() => navigate(ROUTES.FORGOT_PASSWORD)}
                 >
-                    {t("forgotPassword.submit")}
+                    {"Gửi link đặt lại"}
                 </Button>
             </div>
         );
@@ -71,12 +69,12 @@ export default function ResetPasswordForm() {
                 newPassword: values.password,
             }).unwrap();
             setIsSuccess(true);
-            toast.success(t("resetPassword.success"));
+            toast.success("Đặt lại mật khẩu thành công");
             setTimeout(() => navigate(ROUTES.LOGIN), 3000);
         } catch (error) {
             const msg = error?.data?.message || "";
-            toast.error(msg || t("resetPassword.tokenExpired"));
-            setServerError(msg || t("resetPassword.tokenExpired"));
+            toast.error(msg || "Link đặt lại mật khẩu đã hết hạn");
+            setServerError(msg || "Link đặt lại mật khẩu đã hết hạn");
         }
     };
 
@@ -90,16 +88,16 @@ export default function ResetPasswordForm() {
                     </div>
                 </div>
                 <h1 className="mb-2 text-2xl font-semibold text-foreground">
-                    {t("resetPassword.success")}
+                    {"Đặt lại mật khẩu thành công"}
                 </h1>
                 <p className="mb-6 text-sm text-muted-foreground">
-                    {t("resetPassword.successDesc")}
+                    {"Bạn có thể đăng nhập với mật khẩu mới"}
                 </p>
                 <Button
                     className="w-full rounded-full"
                     onClick={() => navigate(ROUTES.LOGIN)}
                 >
-                    {t("login.submit")}
+                    {"Đăng nhập"}
                 </Button>
             </div>
         );
@@ -110,10 +108,10 @@ export default function ResetPasswordForm() {
         <div className="w-full max-w-sm">
             <div className="mb-6 text-center">
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("resetPassword.title")}
+                    {"Đặt lại mật khẩu"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("resetPassword.subtitle")}
+                    {"Nhập mật khẩu mới cho tài khoản của bạn"}
                 </p>
             </div>
 
@@ -134,7 +132,7 @@ export default function ResetPasswordForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("resetPassword.password")}
+                                    {"Mật khẩu mới"}
                                 </FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -179,7 +177,7 @@ export default function ResetPasswordForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("resetPassword.confirmPassword")}
+                                    {"Xác nhận mật khẩu mới"}
                                 </FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -224,8 +222,8 @@ export default function ResetPasswordForm() {
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? t("resetPassword.submitting")
-                            : t("resetPassword.submit")}
+                            ? "Đang xử lý..."
+                            : "Đặt lại mật khẩu"}
                     </Button>
                 </form>
             </Form>
@@ -235,7 +233,7 @@ export default function ResetPasswordForm() {
                     to={ROUTES.LOGIN}
                     className="font-medium text-apple-blue hover:opacity-70"
                 >
-                    {t("forgotPassword.backToLogin")}
+                    {"Quay lại đăng nhập"}
                 </Link>
             </p>
         </div>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Edit, Trash2, Eye, EyeOff, Search } from "lucide-react";
 import {
     useGetAllNewsQuery,
@@ -26,7 +25,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION, ROUTES } from "@/lib/constants";
 
 export default function AdminNewsList() {
-    const { t } = useTranslation("admin");
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(
         searchParams.get("search") || "",
@@ -62,7 +60,7 @@ export default function AdminNewsList() {
             await deleteNews(deleteId).unwrap();
             toast.success("Đã xóa bài viết");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
         }
@@ -76,7 +74,7 @@ export default function AdminNewsList() {
                 item.isPublished ? "Đã ẩn bài viết" : "Đã xuất bản bài viết",
             );
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -110,7 +108,7 @@ export default function AdminNewsList() {
                             <TableHead>Ngày tạo</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead className="text-right">
-                                {t("table.actions")}
+                                {"Thao tác"}
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -243,7 +241,7 @@ export default function AdminNewsList() {
             {!isLoading && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                        {t("table.rowsPerPage")} {PAGINATION.DEFAULT_LIMIT}
+                        {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}
                     </p>
                     <div className="flex items-center gap-2">
                         <Button
@@ -255,10 +253,10 @@ export default function AdminNewsList() {
                                 updateParam("page", filters.page - 1)
                             }
                         >
-                            {t("pagination.prev", { ns: "common" })}
+                            {"Trước"}
                         </Button>
                         <span className="text-sm text-muted-foreground">
-                            {filters.page} {t("table.of")}{" "}
+                            {filters.page} {"trong"}{" "}
                             {pagination.totalPages}
                         </span>
                         <Button
@@ -270,7 +268,7 @@ export default function AdminNewsList() {
                                 updateParam("page", filters.page + 1)
                             }
                         >
-                            {t("pagination.next", { ns: "common" })}
+                            {"Sau"}
                         </Button>
                     </div>
                 </div>

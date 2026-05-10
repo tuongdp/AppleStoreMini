@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import {
     useGetAllCouponsQuery,
@@ -24,7 +23,6 @@ import { formatPrice, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export default function AdminCouponList() {
-    const { t } = useTranslation("admin");
     const [deleteId, setDeleteId] = useState(null);
     const [editingCoupon, setEditingCoupon] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -41,7 +39,7 @@ export default function AdminCouponList() {
             await deleteCoupon(deleteId).unwrap();
             toast.success("Đã xóa mã giảm giá");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
         }
@@ -55,7 +53,7 @@ export default function AdminCouponList() {
                 coupon.isActive ? "Đã tắt mã giảm giá" : "Đã bật mã giảm giá",
             );
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -117,7 +115,7 @@ export default function AdminCouponList() {
                             <TableHead>Hết hạn</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead className="text-right">
-                                {t("table.actions")}
+                                {"Thao tác"}
                             </TableHead>
                         </TableRow>
                     </TableHeader>

@@ -1,5 +1,4 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";
 import {
@@ -48,7 +47,6 @@ const NEXT_STATUS = {
 };
 
 export default function AdminOrderTable() {
-  const { t } = useTranslation("admin");
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || "",
@@ -86,9 +84,9 @@ export default function AdminOrderTable() {
 
     try {
       await updateStatus({ id: orderId, status }).unwrap();
-      toast.success(t("order.updateSuccess"));
+      toast.success("Cập nhật trạng thái thành công");
     } catch {
-      toast.error(t("order.updateFailed"));
+      toast.error("Cập nhật trạng thái thất bại");
     } finally {
       setUpdatingId(null);
     }
@@ -101,7 +99,7 @@ export default function AdminOrderTable() {
         <div className="relative min-w-[200px] flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder={t("order.search")}
+            placeholder={"Tìm kiếm đơn hàng..."}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="rounded-full pl-9"
@@ -112,7 +110,7 @@ export default function AdminOrderTable() {
           onValueChange={(val) => updateParam("status", val)}
         >
           <SelectTrigger className="w-44 rounded-full">
-            <SelectValue placeholder={t("order.filterStatus")} />
+            <SelectValue placeholder={"Lọc theo trạng thái"} />
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((opt) => (
@@ -129,13 +127,13 @@ export default function AdminOrderTable() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>{t("order.orderCode")}</TableHead>
-              <TableHead>{t("order.customer")}</TableHead>
-              <TableHead>{t("order.orderDate")}</TableHead>
-              <TableHead>{t("order.total")}</TableHead>
-              <TableHead>{t("order.payment")}</TableHead>
-              <TableHead>{t("order.status")}</TableHead>
-              <TableHead className="text-right">{t("table.actions")}</TableHead>
+              <TableHead>{"Mã đơn hàng"}</TableHead>
+              <TableHead>{"Khách hàng"}</TableHead>
+              <TableHead>{"Ngày đặt"}</TableHead>
+              <TableHead>{"Tổng tiền"}</TableHead>
+              <TableHead>{"Thanh toán"}</TableHead>
+              <TableHead>{"Trạng thái"}</TableHead>
+              <TableHead className="text-right">{"Thao tác"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,7 +153,7 @@ export default function AdminOrderTable() {
                   colSpan={7}
                   className="py-12 text-center text-muted-foreground"
                 >
-                  {t("table.noData")}
+                  {"Không có dữ liệu"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -196,12 +194,8 @@ export default function AdminOrderTable() {
                       }
                     >
                       {order.isPaid
-                        ? t("payment.paid", {
-                            ns: "order",
-                          })
-                        : t("payment.unpaid", {
-                            ns: "order",
-                          })}
+                        ? "Đã thanh toán"
+                        : "Chưa thanh toán"}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -223,7 +217,7 @@ export default function AdminOrderTable() {
                           }
                         >
                           {updatingId === (order._id || order.id)
-                            ? t("table.loading")
+                            ? "Đang tải..."
                             : t(`status.${NEXT_STATUS[(order.status || "").toLowerCase()]}`, {
                                 ns: "order",
                               })}
@@ -254,7 +248,7 @@ export default function AdminOrderTable() {
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {t("table.rowsPerPage")} {PAGINATION.DEFAULT_LIMIT}
+            {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -264,10 +258,10 @@ export default function AdminOrderTable() {
               disabled={filters.page <= 1}
               onClick={() => updateParam("page", filters.page - 1)}
             >
-              {t("pagination.prev", { ns: "common" })}
+              {"Trước"}
             </Button>
             <span className="text-sm text-muted-foreground">
-              {filters.page} {t("table.of")} {pagination.totalPages}
+              {filters.page} {"trong"} {pagination.totalPages}
             </span>
             <Button
               variant="outline"
@@ -276,7 +270,7 @@ export default function AdminOrderTable() {
               disabled={filters.page >= pagination.totalPages}
               onClick={() => updateParam("page", filters.page + 1)}
             >
-              {t("pagination.next", { ns: "common" })}
+              {"Sau"}
             </Button>
           </div>
         </div>

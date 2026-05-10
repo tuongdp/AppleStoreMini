@@ -1,5 +1,4 @@
 import { useSearchParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Search } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import ProductCard from "@/components/shared/ProductCard";
@@ -12,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export default function SearchPage() {
-    const { t } = useTranslation("product");
     const [searchParams, setSearchParams] = useSearchParams();
     const keyword = searchParams.get("q") || "";
     const [inputValue, setInputValue] = useState(keyword);
@@ -48,7 +46,7 @@ export default function SearchPage() {
         <div className="section-padding py-8 md:py-12">
             {/* Breadcrumb */}
             <Breadcrumb
-                items={[{ label: t("search.placeholder") }]}
+                items={[{ label: "Tìm kiếm sản phẩm..." }]}
                 className="mb-6"
             />
 
@@ -59,7 +57,7 @@ export default function SearchPage() {
                     <Input
                         value={inputValue}
                         onChange={handleInputChange}
-                        placeholder={t("search.placeholder")}
+                        placeholder={"Tìm kiếm sản phẩm..."}
                         className="h-12 rounded-full pl-12 pr-32 text-base"
                         autoFocus
                     />
@@ -67,7 +65,7 @@ export default function SearchPage() {
                         type="submit"
                         className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full px-6"
                     >
-                        {t("search.submit", { defaultValue: "Tìm kiếm" })}
+                        {"Tìm kiếm"}
                     </Button>
                 </div>
             </form>
@@ -76,15 +74,15 @@ export default function SearchPage() {
             {keyword && (
                 <div className="mb-6">
                     <h1 className="text-xl font-semibold text-foreground">
-                        {t("page.searchResults")}{" "}
+                        {"Kết quả tìm kiếm cho"}{" "}
                         <span className="text-apple-blue">
                             &ldquo;{keyword}&rdquo;
                         </span>
                     </h1>
                     {!isLoading && pagination.total > 0 && (
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {t("page.showing")} {pagination.total}{" "}
-                            {t("page.results")}
+                            {"Hiển thị"} {pagination.total}{" "}
+                            {"sản phẩm"}
                         </p>
                     )}
                 </div>
@@ -94,17 +92,17 @@ export default function SearchPage() {
             {!keyword ? (
                 <EmptyState
                     icon="🔍"
-                    title={t("search.placeholder")}
-                    description={t("search.noResultsDesc")}
+                    title={"Tìm kiếm sản phẩm..."}
+                    description={"Thử tìm với từ khoá khác"}
                 />
             ) : isLoading || isFetching ? (
                 <ProductGridSkeleton count={PAGINATION.DEFAULT_LIMIT} />
             ) : products.length === 0 ? (
                 <EmptyState
                     icon="🔍"
-                    title={t("search.noResults")}
-                    description={t("search.noResultsDesc")}
-                    actionLabel={t("filter.reset")}
+                    title={"Không tìm thấy sản phẩm"}
+                    description={"Thử tìm với từ khoá khác"}
+                    actionLabel={"Xoá bộ lọc"}
                     onAction={() => {
                         setInputValue("");
                         setSearchParams({});
@@ -128,11 +126,11 @@ export default function SearchPage() {
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
                             >
-                                {t("pagination.prev", { ns: "common" })}
+                                {"Trước"}
                             </Button>
                             <span className="text-sm text-muted-foreground">
-                                {t("pagination.page", { ns: "common" })} {page}{" "}
-                                {t("pagination.of", { ns: "common" })}{" "}
+                                {"Trang"} {page}{" "}
+                                {"trong"}{" "}
                                 {pagination.totalPages}
                             </span>
                             <Button
@@ -142,7 +140,7 @@ export default function SearchPage() {
                                 disabled={page >= pagination.totalPages}
                                 onClick={() => setPage((p) => p + 1)}
                             >
-                                {t("pagination.next", { ns: "common" })}
+                                {"Sau"}
                             </Button>
                         </div>
                     )}

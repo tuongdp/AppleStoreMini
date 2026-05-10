@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle, Loader2, FileSpreadsheet
 } from "lucide-react";
@@ -40,7 +39,6 @@ import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
 
 export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated }) {
-    const { t } = useTranslation("admin");
     const isEdit = !!product;
 
     const { data: categories } = useGetAdminCategoriesQuery();
@@ -175,9 +173,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
     const saveVariant = async (data) => {
         const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
-        if (!color.trim()) { toast.error(t("productForm.toast.colorRequired")); return; }
-        if (!price || Number(price) < 1000) { toast.error(t("productForm.toast.priceMinError")); return; }
-        if (salePrice && Number(salePrice) >= Number(price)) { toast.error(t("productForm.toast.salePriceError")); return; }
+        if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
+        if (!price || Number(price) < 1000) { toast.error("Giá bán phải lớn hơn 1.000đ"); return; }
+        if (salePrice && Number(salePrice) >= Number(price)) { toast.error("Giá sale phải nhỏ hơn giá bán"); return; }
 
         const dup = variants.findIndex((v, i) =>
             i !== editingVariantIdx &&
@@ -186,7 +184,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             v.ram?.toLowerCase() === ram.trim().toLowerCase() &&
             v.edition?.toLowerCase() === edition.trim().toLowerCase()
         );
-        if (dup >= 0) { toast.error(t("productForm.toast.variantExists")); return; }
+        if (dup >= 0) { toast.error("Variant này đã tồn tại"); return; }
 
         let images = vImages || [];
         let savedId = null;
@@ -208,14 +206,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     savedId = created.id;
                 }
              } catch (err) {
-                toast.error(err?.data?.message || t("productForm.toast.saveVariantError"));
+                toast.error(err?.data?.message || "Lỗi khi lưu variant");
                 return;
             }
         } else {
             // Create mode — auto-create product first so variant can be saved via API
             const formValues = form.getValues();
             if (!formValues.name?.trim() || !formValues.slug?.trim() || !formValues.category) {
-                toast.error(t("productForm.toast.fillRequiredFields"));
+                toast.error("Vui lòng nhập đầy đủ tên, slug và danh mục trước khi thêm variant");
                 return;
             }
             setIsCreatingProduct(true);
@@ -244,9 +242,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 onProductAutoCreated?.(newProductId);
                 const createdVariant = created.variants?.[0];
                 if (createdVariant) { savedId = createdVariant.id; }
-                toast.success(t("productForm.toast.productAndVariantCreated"));
+                toast.success("Đã tạo sản phẩm và lưu variant");
             } catch (err) {
-                toast.error(err?.data?.message || t("productForm.toast.createProductError"));
+                toast.error(err?.data?.message || "Lỗi khi tạo sản phẩm");
                 setIsCreatingProduct(false);
                 return;
             }
@@ -298,14 +296,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             try {
                 await deleteVariant(variant.id).unwrap();
             } catch {
-                toast.error(t("productForm.toast.deleteVariantFailed"));
+                toast.error("Xóa variant thất bại");
                 setDeleteTarget(null);
                 return;
             }
         }
         setVariants(variants.filter((_, i) => i !== idx));
         setDeleteTarget(null);
-        toast.success(t("productForm.toast.variantDeleted"));
+        toast.success("Đã xóa variant");
     };
 
     const handleBlockedVariantToggle = async () => {
@@ -318,15 +316,15 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inStock: false }) }
             );
             setVariants(variants.map((v, i) => i === idx ? { ...v, inStock: false } : v));
-            toast.success(t("productForm.toast.inStockDisabled"));
+            toast.success("Đã tắt trạng thái còn hàng");
         } catch {
-            toast.error(t("productForm.toast.errorOccurred"));
+            toast.error("Có lỗi xảy ra");
         }
         setBlockedVariant(null);
     };
 
     const handleSubmit = (values) => {
-        if (variants.length === 0) { toast.error(t("productForm.toast.needAtLeastOneVariant")); return; }
+        if (variants.length === 0) { toast.error("Cần có ít nhất 1 variant"); return; }
         onSubmit({
             ...values,
             productId: autoCreatedId,
@@ -350,13 +348,13 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 max-w-5xl mx-auto">
                         {/* ── Section 1: Basic Info ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-5 text-sm font-medium text-foreground">{t("productForm.basicInfo")}</h3>
+                            <h3 className="mb-5 text-sm font-medium text-foreground">{"Thông tin cơ bản"}</h3>
                             <div className="max-h-[55vh] overflow-y-auto space-y-4 pr-1">
                                 <FormField control={form.control} name="name" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t("productForm.productName")} <span className="text-destructive">*</span></FormLabel>
+                                        <FormLabel>{"Tên sản phẩm"} <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
-                                            <Input placeholder={t("productForm.productNamePlaceholder")} disabled={isLoading} {...field} onChange={handleNameChange} />
+                                            <Input placeholder={"VD: iPhone 15 Pro Max"} disabled={isLoading} {...field} onChange={handleNameChange} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -365,7 +363,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                     <FormItem>
                                         <FormLabel>Slug <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
-                                            <Input placeholder={t("productForm.slugPlaceholder")} disabled={isLoading} {...field} />
+                                            <Input placeholder={"VD: iphone-15-pro-max"} disabled={isLoading} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -375,7 +373,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         <FormLabel>Danh mục <span className="text-destructive">*</span></FormLabel>
                                         <Select key={categories ? "loaded" : "loading"} value={field.value} onValueChange={field.onChange} disabled={isLoading}>
                                             <FormControl>
-                                                <SelectTrigger><SelectValue placeholder={t("product.categoryPlaceholder")} /></SelectTrigger>
+                                                <SelectTrigger><SelectValue placeholder={"Chọn danh mục"} /></SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {(categories || []).map((cat) => (
@@ -388,7 +386,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 )} />
                                 <FormField control={form.control} name="description" render={() => (
                                     <FormItem>
-                                        <FormLabel>{t("productForm.productDescription")}</FormLabel>
+                                        <FormLabel>{"Mô tả sản phẩm"}</FormLabel>
                                         <FormControl>
                                             <Controller
                                                 name="description"
@@ -410,12 +408,12 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
                         {/* ── Section 2: Specifications ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-5 text-sm font-medium text-foreground">{t("productForm.specifications")}</h3>
+                            <h3 className="mb-5 text-sm font-medium text-foreground">{"Thông số kỹ thuật"}</h3>
                             <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-1">
                                 {specs.map((spec, idx) => (
                                     <div key={idx} className="flex items-start gap-2">
-                                        <Input placeholder={t("productForm.specNamePlaceholder")} value={spec.key} onChange={(e) => updateSpec(idx, "key", e.target.value)} className="flex-1" />
-                                        <Input placeholder={t("productForm.specValuePlaceholder")} value={spec.value} onChange={(e) => updateSpec(idx, "value", e.target.value)} className="flex-1" />
+                                        <Input placeholder={"Tên thông số"} value={spec.key} onChange={(e) => updateSpec(idx, "key", e.target.value)} className="flex-1" />
+                                        <Input placeholder={"Giá trị"} value={spec.value} onChange={(e) => updateSpec(idx, "value", e.target.value)} className="flex-1" />
                                         <Button type="button" variant="ghost" size="icon" className="mt-0.5 h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeSpec(idx)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -424,10 +422,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
                                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
-                                    <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addSpec")}
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> {"Thêm thông số"}
                                 </Button>
                                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowImportSpecs(true)}>
-                                    <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {t("productForm.importSpecsSelectFile")}
+                                    <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {"Chọn file"}
                                 </Button>
                             </div>
                         </div>
@@ -439,7 +437,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             />
                         )}
 
-
                     {/* ── Section 3: Variants ── */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
@@ -448,7 +445,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             {!hasVariants && !showVariantForm && (
                                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
                                     <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
-                                    <p className="text-sm text-muted-foreground">{t("productForm.noVariants")}</p>
+                                    <p className="text-sm text-muted-foreground">{"Chưa có variant nào. Hãy thêm ít nhất một variant."}</p>
                                 </div>
                             )}
 
@@ -457,16 +454,16 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                     <table className="w-full text-sm">
                                         <thead className="bg-muted/50">
                                             <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                                                <th className="px-4 py-3">{t("productForm.variantColor")}</th>
-                                                <th className="px-4 py-3">{t("productForm.variantStorage")}</th>
-                                                <th className="px-4 py-3">{t("productForm.variantRam")}</th>
-                                                <th className="px-4 py-3">{t("productForm.variantEdition")}</th>
-                                                <th className="px-4 py-3">{t("productForm.priceColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.salePriceColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.stockColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.imagesColumn")}</th>
-                                                <th className="px-4 py-3">{t("productForm.statusColumn")}</th>
-                                                <th className="px-4 py-3 text-right">{t("productForm.actions")}</th>
+                                                <th className="px-4 py-3">{"Màu"}</th>
+                                                <th className="px-4 py-3">{"Dung lượng"}</th>
+                                                <th className="px-4 py-3">{"RAM"}</th>
+                                                <th className="px-4 py-3">{"Phiên bản"}</th>
+                                                <th className="px-4 py-3">{"Giá bán"}</th>
+                                                <th className="px-4 py-3">{"Giá sale"}</th>
+                                                <th className="px-4 py-3">{"Tồn kho"}</th>
+                                                <th className="px-4 py-3">{"Ảnh"}</th>
+                                                <th className="px-4 py-3">{"Trạng thái"}</th>
+                                                <th className="px-4 py-3 text-right">{"Hành động"}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -482,7 +479,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                     <td className="px-4 py-3 text-xs text-muted-foreground">{Array.isArray(v.images) ? v.images.length : 0} ảnh</td>
                                                     <td className="px-4 py-3">
                                                         <Badge variant={v.inStock ? "default" : "destructive"} className="text-[10px] px-1.5 py-0 whitespace-nowrap">
-                                                            {v.inStock ? t("productForm.inStock") : t("productForm.outOfStock")}
+                                                            {v.inStock ? "Còn hàng" : "Hết hàng"}
                                                         </Badge>
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
@@ -520,20 +517,19 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         {!showVariantForm && (
                             <div className="mt-3 flex gap-2">
                                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => { setEditingVariantIdx(null); setShowVariantForm(true); }}>
-                                    <Plus className="mr-1 h-3.5 w-3.5" /> {t("productForm.addVariant")}
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> {"Thêm variant"}
                                 </Button>
                             </div>
                         )}
                     </div>
 
-
                         <div className="rounded-2xl border border-border bg-card p-5">
-                            <h3 className="mb-4 text-sm font-medium text-foreground">{t("productForm.status")}</h3>
+                            <h3 className="mb-4 text-sm font-medium text-foreground">{"Trạng thái"}</h3>
                             <FormField control={form.control} name="isActive" render={({ field }) => (
                                 <FormItem className="flex items-center justify-between gap-4">
                                     <div>
-                                        <FormLabel className="cursor-pointer font-normal text-foreground">{t("productForm.isActive")}</FormLabel>
-                                        <p className="text-xs text-muted-foreground">{t("productForm.isActiveDescription")}</p>
+                                        <FormLabel className="cursor-pointer font-normal text-foreground">{"Hiển thị trên web"}</FormLabel>
+                                        <p className="text-xs text-muted-foreground">{"Bật để hiển thị sản phẩm trên trang web. Tắt để ẩn."}</p>
                                     </div>
                                     <FormControl>
                                         <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isLoading} />
@@ -548,14 +544,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 className="w-full rounded-full"
                                 disabled={isLoading || isCreatingProduct || !hasVariants}
                             >
-                                {isLoading || isCreatingProduct ? t("productForm.saving") : (
-                                    <><Save className="mr-1.5 h-4 w-4" /> {t("productForm.saveProduct")}</>
+                                {isLoading || isCreatingProduct ? "Đang lưu..." : (
+                                    <><Save className="mr-1.5 h-4 w-4" /> {"Lưu sản phẩm"}</>
                                 )}
                             </Button>
                             {!hasVariants && (
                                 <div className="absolute -top-8 left-0 right-0 text-center">
                                     <span className="text-xs text-destructive flex items-center justify-center gap-1">
-                                        <AlertTriangle className="h-3 w-3" /> {t("productForm.needAtLeastOneVariant")}
+                                        <AlertTriangle className="h-3 w-3" /> {"Cần có ít nhất 1 variant"}
                                     </span>
                                 </div>
                             )}
@@ -564,32 +560,31 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         {isEdit && product && (
                             <div className="rounded-2xl border border-border bg-card p-5 text-xs text-muted-foreground space-y-2">
                                 <div className="flex justify-between">
-                                    <span>{t("productForm.createdAt")}</span>
+                                    <span>{"Ngày tạo"}</span>
                                     <span className="text-foreground">{formatDateTime(product.createdAt)}</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between">
-                                    <span>{t("productForm.updatedAt")}</span>
+                                    <span>{"Cập nhật"}</span>
                                     <span className="text-foreground">{formatDateTime(product.updatedAt)}</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between">
-                                    <span>{t("productForm.reviewCount")}</span>
+                                    <span>{"Đánh giá"}</span>
                                     <span className="text-foreground">{product.reviewCount ?? 0}</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between">
-                                    <span>{t("productForm.soldCount")}</span>
+                                    <span>{"Đã bán"}</span>
                                     <span className="text-foreground">{product.soldCount ?? 0}</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between">
-                                    <span>{t("productForm.productId")}</span>
+                                    <span>{"ID"}</span>
                                     <span className="max-w-[140px] truncate text-foreground">{product.id}</span>
                                 </div>
                             </div>
                         )}
-
 
                 </form>
             </Form>
@@ -597,17 +592,17 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             <ConfirmDialog
                 open={deleteTarget !== null}
                 onOpenChange={(o) => !o && setDeleteTarget(null)}
-                title={t("productForm.deleteVariant")}
-                description={t("productForm.deleteVariantConfirm")}
+                title={"Xóa variant"}
+                description={"Bạn có chắc muốn xóa variant này?"}
                 onConfirm={confirmDeleteVariant}
             />
 
             <ConfirmDialog
                 open={blockedVariant !== null}
                 onOpenChange={(o) => !o && setBlockedVariant(null)}
-                title={t("productForm.cannotDeleteVariant")}
-                description={t("productForm.cannotDeleteVariantDesc")}
-                confirmLabel={t("productForm.disableInStock")}
+                title={"Không thể xóa variant"}
+                description={"Không thể xóa variant này vì đã có trong đơn hàng. Bạn có thể tắt trạng thái còn hàng thay thế."}
+                confirmLabel={"Tắt còn hàng"}
                 onConfirm={handleBlockedVariantToggle}
             />
         </>
@@ -615,7 +610,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 }
 
 function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [], editionOptions = [], uploadImage, isSaving }) {
-    const { t } = useTranslation("admin");
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
     const [ram, setRam] = useState(initial?.ram || "");
@@ -666,7 +660,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
             const realUrl = result.url || result;
             setVImages((prev) => prev.map((img, j) => j === idx ? realUrl : img));
         } catch {
-            toast.error(t("productForm.toast.imageUploadError"));
+            toast.error("Lỗi upload ảnh, có thể thử lại sau");
         } finally {
             setUploadingIdx((prev) => {
                 const next = { ...prev };
@@ -708,72 +702,72 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
     return (
         <div className="mb-4 rounded-xl border border-border bg-muted/20 p-4 space-y-3">
             <p className="text-sm font-medium text-foreground">
-                {initial ? t("productForm.editVariant") : t("productForm.newVariant")}
+                {initial ? "Sửa variant" : "Thêm variant mới"}
             </p>
             <div className="grid grid-cols-2 gap-3">
                 {allColorOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.colorLabel")} <span className="text-destructive">*</span></Label>
+                        <Label className="text-xs">{"Màu sắc"} <span className="text-destructive">*</span></Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allColorOptions}
                                 value={color}
                                 onChange={setColor}
-                                placeholder={t("productForm.selectColor")}
+                                placeholder={"Chọn màu sắc"}
                             />
                         </div>
                     </div>
                 )}
                 {allStorageOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.storageLabel")}</Label>
+                        <Label className="text-xs">{"Dung lượng"}</Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allStorageOptions}
                                 value={storage}
                                 onChange={setStorage}
-                                placeholder={t("productForm.selectStorage")}
+                                placeholder={"Chọn dung lượng"}
                             />
                         </div>
                     </div>
                 )}
                 {allRamOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.ramLabel")}</Label>
+                        <Label className="text-xs">{"RAM"}</Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allRamOptions}
                                 value={ram}
                                 onChange={setRam}
-                                placeholder={t("productForm.selectRam")}
+                                placeholder={"Chọn RAM"}
                             />
                         </div>
                     </div>
                 )}
                 {allEditionOptions.length > 0 && (
                     <div>
-                        <Label className="text-xs">{t("productForm.editionLabel")}</Label>
+                        <Label className="text-xs">{"Phiên bản"}</Label>
                         <div className="mt-1">
                             <SearchableSelect
                                 options={allEditionOptions}
                                 value={edition}
                                 onChange={setEdition}
-                                placeholder={t("productForm.selectEdition")}
+                                placeholder={"Chọn phiên bản"}
                             />
                         </div>
                     </div>
                 )}
                 <div>
-                    <Label className="text-xs">{t("productForm.price")} <span className="text-destructive">*</span></Label>
-                    <Input type="text" inputMode="numeric" placeholder={t("productForm.pricePlaceholder")} value={formatPriceInput(price)} onChange={(e) => setPrice(parsePriceInput(e.target.value))} className="mt-1 h-9 text-xs" />
+                    <Label className="text-xs">{"Giá bán"} <span className="text-destructive">*</span></Label>
+                    <Input type="text" inputMode="numeric" placeholder={"VD: 34990000"} value={formatPriceInput(price)} onChange={(e) => setPrice(parsePriceInput(e.target.value))} className="mt-1 h-9 text-xs" />
                 </div>
                 <div>
-                    <Label className="text-xs">{t("productForm.salePrice")}</Label>
-                    <Input type="text" inputMode="numeric" placeholder={t("productForm.salePricePlaceholder")} value={formatPriceInput(salePrice)} onChange={(e) => setSalePrice(parsePriceInput(e.target.value) === 0 ? "" : parsePriceInput(e.target.value))} className="mt-1 h-9 text-xs" />
+                    <Label className="text-xs">{"Giá sale"}</Label>
+                    <Input type="text" inputMode="numeric" placeholder={"Để trống nếu không có khuyến mãi"} value={formatPriceInput(salePrice)} onChange={(e) => setSalePrice(parsePriceInput(e.target.value) === 0 ? "" : parsePriceInput(e.target.value))} className="mt-1 h-9 text-xs" />
                 </div>
                 <div>
-                    <Label className="text-xs">{t("productForm.stock")} <span className="text-destructive">*</span></Label>
-                    <Input type="number" min={0} placeholder={t("productForm.stockPlaceholder")} value={stock} onChange={(e) => setStock(Number(e.target.value) || 0)} className="mt-1 h-9 text-xs" />
+                    <Label className="text-xs">{"Tồn kho"} <span className="text-destructive">*</span></Label>
+                    <Input type="number" min={0} placeholder={"0"} value={stock} onChange={(e) => setStock(Number(e.target.value) || 0)} className="mt-1 h-9 text-xs" />
                 </div>
             </div>
 
@@ -803,9 +797,9 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
             </div>
 
             <div className="flex justify-end gap-2 pt-1">
-                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onCancel}>{t("productForm.cancel")}</Button>
+                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onCancel}>{"Huỷ"}</Button>
                 <Button type="button" size="sm" className="rounded-full" onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> {t("productForm.creating")}</> : <><Save className="mr-1 h-3.5 w-3.5" /> {t("productForm.saveVariant")}</>}
+                    {isSaving ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> {"Đang tạo..."}</> : <><Save className="mr-1 h-3.5 w-3.5" /> {"Lưu variant"}</>}
                 </Button>
             </div>
         </div>

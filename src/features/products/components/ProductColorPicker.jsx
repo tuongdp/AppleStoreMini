@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 export default function ProductColorPicker({
@@ -6,13 +5,12 @@ export default function ProductColorPicker({
     selectedColor,
     onChange,
 }) {
-    const { t } = useTranslation("product");
     if (!colors.length) return null;
 
     return (
         <div>
             <p className="mb-3 text-sm font-medium text-foreground">
-                {t("detail.selectColor")}
+                {"Chọn màu sắc"}
                 {selectedColor && (
                     <span className="ml-2 font-normal text-muted-foreground">
                         {selectedColor.label}

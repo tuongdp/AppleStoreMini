@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,8 +7,6 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function RecentOrders() {
-    const { t } = useTranslation("admin");
-
     const { data, isLoading } = useGetAllOrdersQuery({
         page: 1,
         limit: 5,
@@ -39,7 +36,7 @@ export default function RecentOrders() {
         return (
             <div className="flex h-40 items-center justify-center">
                 <p className="text-sm text-muted-foreground">
-                    {t("table.noData")}
+                    {"Không có dữ liệu"}
                 </p>
             </div>
         );
@@ -61,7 +58,7 @@ export default function RecentOrders() {
                     {/* Info */}
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
-                            {order.user?.fullName || t("order.customer")}
+                            {order.user?.fullName || "Khách hàng"}
                         </p>
                         <p className="text-xs text-muted-foreground">
                             #{order.code} · {formatDateTime(order.createdAt)}
@@ -87,7 +84,7 @@ export default function RecentOrders() {
                     asChild
                 >
                     <Link to={ROUTES.ADMIN_ORDERS}>
-                        {t("dashboard.viewAll")}
+                        {"Xem tất cả"}
                     </Link>
                 </Button>
             </div>

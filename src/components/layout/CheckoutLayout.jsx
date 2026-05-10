@@ -1,12 +1,8 @@
 import { Outlet, Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ShieldCheck, Lock } from "lucide-react";
 import { ROUTES } from "@/lib/constants";
 
 export default function CheckoutLayout() {
-    const { t: tCheckout } = useTranslation("checkout");
-    const { t } = useTranslation();
-
     return (
         <div className="flex min-h-screen flex-col bg-muted/30">
             <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
@@ -50,11 +46,11 @@ export default function CheckoutLayout() {
                             <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
                             {tCheckout("payment.secure")}
                         </span>
-                        <span>{t("footer.privacy")}</span>
-                        <span>{t("footer.terms")}</span>
+                        <span>{"privacy"}</span>
+                        <span>{"terms"}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        {t("footer.copyright")}
+                        {"copyright"}
                     </p>
                 </div>
             </footer>

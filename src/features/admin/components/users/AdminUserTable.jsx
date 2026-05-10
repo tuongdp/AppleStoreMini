@@ -1,5 +1,4 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useState } from "react";
 import {
     Search,
@@ -62,7 +61,6 @@ const ROLE_OPTIONS = [
 ];
 
 export default function AdminUserTable() {
-    const { t } = useTranslation("admin");
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(
         searchParams.get("search") || "",
@@ -104,27 +102,27 @@ export default function AdminUserTable() {
         const newRole = user.role === ROLE.ADMIN ? ROLE.USER : ROLE.ADMIN;
         try {
             await updateRole({ id: user.id, role: newRole }).unwrap();
-            toast.success(t("user.updateRoleSuccess"));
+            toast.success("Cập nhật vai trò thành công");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
     const handleToggleStatus = async (userId) => {
         try {
             await toggleStatus(userId).unwrap();
-            toast.success(t("user.blockSuccess"));
+            toast.success("Đã khoá tài khoản");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         }
     };
 
     const handleDelete = async () => {
         try {
             await deleteUser(deleteId).unwrap();
-            toast.success(t("user.deleteSuccess"));
+            toast.success("Xoá tài khoản thành công");
         } catch {
-            toast.error(t("status.error", { ns: "common" }));
+            toast.error("Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
         }
@@ -137,7 +135,7 @@ export default function AdminUserTable() {
                 <div className="relative max-w-xs min-w-[200px] flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                        placeholder={t("user.search")}
+                        placeholder={"Tìm kiếm người dùng..."}
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
                         className="rounded-full pl-9"
@@ -148,7 +146,7 @@ export default function AdminUserTable() {
                     onValueChange={(val) => updateParam("role", val)}
                 >
                     <SelectTrigger className="w-40 rounded-full">
-                        <SelectValue placeholder={t("user.filterRole")} />
+                        <SelectValue placeholder={"Lọc theo vai trò"} />
                     </SelectTrigger>
                     <SelectContent>
                         {ROLE_OPTIONS.map((opt) => (
@@ -165,14 +163,14 @@ export default function AdminUserTable() {
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead>{t("user.name")}</TableHead>
-                            <TableHead>{t("user.phone")}</TableHead>
-                            <TableHead>{t("user.role")}</TableHead>
-                            <TableHead>{t("user.status")}</TableHead>
-                            <TableHead>{t("user.joinDate")}</TableHead>
-                            <TableHead>{t("user.totalOrders")}</TableHead>
+                            <TableHead>{"Họ và tên"}</TableHead>
+                            <TableHead>{"Số điện thoại"}</TableHead>
+                            <TableHead>{"Vai trò"}</TableHead>
+                            <TableHead>{"Trạng thái"}</TableHead>
+                            <TableHead>{"Ngày tham gia"}</TableHead>
+                            <TableHead>{"Số đơn hàng"}</TableHead>
                             <TableHead className="text-right">
-                                {t("table.actions")}
+                                {"Thao tác"}
                             </TableHead>
                         </TableRow>
                     </TableHeader>
@@ -193,7 +191,7 @@ export default function AdminUserTable() {
                                     colSpan={7}
                                     className="py-12 text-center text-muted-foreground"
                                 >
-                                    {t("table.noData")}
+                                    {"Không có dữ liệu"}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -242,8 +240,8 @@ export default function AdminUserTable() {
                                             }
                                         >
                                             {user.role === ROLE.ADMIN
-                                                ? t("user.roleAdmin")
-                                                : t("user.roleUser")}
+                                                ? "Quản trị viên"
+                                                : "Người dùng"}
                                         </Badge>
                                     </TableCell>
 
@@ -257,8 +255,8 @@ export default function AdminUserTable() {
                                             }
                                         >
                                             {!user.isBlocked
-                                                ? t("user.active")
-                                                : t("user.blocked")}
+                                                ? "Đang hoạt động"
+                                                : "Đã khoá"}
                                         </Badge>
                                     </TableCell>
 
@@ -297,7 +295,7 @@ export default function AdminUserTable() {
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Eye className="h-4 w-4" />
-                                                        {t("user.viewDetail")}
+                                                        {"Xem chi tiết"}
                                                     </Link>
                                                 </DropdownMenuItem>
 
@@ -310,8 +308,8 @@ export default function AdminUserTable() {
                                                 >
                                                     <ShieldCheck className="h-4 w-4" />
                                                     {user.role === ROLE.ADMIN
-                                                        ? t("user.roleUser")
-                                                        : t("user.roleAdmin")}
+                                                        ? "Người dùng"
+                                                        : "Quản trị viên"}
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuItem
@@ -325,14 +323,8 @@ export default function AdminUserTable() {
                                                 >
                                                     <ShieldOff className="h-4 w-4" />
                                                     {user.isBlocked
-                                                        ? t("user.unblock", {
-                                                              defaultValue:
-                                                                  "Bỏ chặn",
-                                                          })
-                                                        : t("user.block", {
-                                                              defaultValue:
-                                                                  "Chặn",
-                                                          })}
+                                                        ? "Bỏ chặn"
+                                                        : "Chặn"}
                                                 </DropdownMenuItem>
 
                                                 <DropdownMenuSeparator />
@@ -344,9 +336,7 @@ export default function AdminUserTable() {
                                                     }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                    {t("btn.delete", {
-                                                        ns: "common",
-                                                    })}
+                                                    {"Xoá"}
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -362,7 +352,7 @@ export default function AdminUserTable() {
             {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                        {t("table.rowsPerPage")} {PAGINATION.DEFAULT_LIMIT}
+                        {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}
                     </p>
                     <div className="flex items-center gap-2">
                         <Button
@@ -374,10 +364,10 @@ export default function AdminUserTable() {
                                 updateParam("page", filters.page - 1)
                             }
                         >
-                            {t("pagination.prev", { ns: "common" })}
+                            {"Trước"}
                         </Button>
                         <span className="text-sm text-muted-foreground">
-                            {filters.page} {t("table.of")}{" "}
+                            {filters.page} {"trong"}{" "}
                             {pagination.totalPages}
                         </span>
                         <Button
@@ -389,7 +379,7 @@ export default function AdminUserTable() {
                                 updateParam("page", filters.page + 1)
                             }
                         >
-                            {t("pagination.next", { ns: "common" })}
+                            {"Sau"}
                         </Button>
                     </div>
                 </div>
@@ -398,8 +388,8 @@ export default function AdminUserTable() {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title={t("user.deleteConfirm")}
-                description={t("confirm.deleteDesc", { ns: "common" })}
+                title={"Bạn có chắc muốn xoá tài khoản này không?"}
+                description={"Hành động này không thể hoàn tác."}
                 onConfirm={handleDelete}
                 isLoading={isDeleting}
             />

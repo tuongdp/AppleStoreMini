@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Coins, ChevronDown, ChevronUp, Gift } from "lucide-react";
 import { useGetPointsHistoryQuery } from "@/store/api/pointsApi";
 import { formatDateTime } from "@/lib/utils";
@@ -15,7 +14,6 @@ const TYPE_LABELS = {
 };
 
 export default function PointsCard({ points }) {
-    const { t } = useTranslation("profile");
     const [showHistory, setShowHistory] = useState(false);
     const { data, isLoading } = useGetPointsHistoryQuery(undefined, {
         skip: !showHistory,
@@ -31,9 +29,9 @@ export default function PointsCard({ points }) {
                         <Coins className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                        <p className="text-sm text-muted-foreground">{t("points.balance")}</p>
+                        <p className="text-sm text-muted-foreground">{"Số dư điểm"}</p>
                         <p className="text-xl font-semibold text-foreground">
-                            {points ?? 0} {t("points.points_label")}
+                            {points ?? 0} {"Điểm"}
                         </p>
                     </div>
                 </div>
@@ -41,14 +39,14 @@ export default function PointsCard({ points }) {
                     <Button variant="outline" size="sm" className="rounded-full" asChild>
                         <Link to={ROUTES.POINTS}>
                             <Gift className="mr-1 h-3.5 w-3.5" />
-                            {t("points.redeem")}
+                            {"Đổi quà"}
                         </Link>
                     </Button>
                     <button
                         onClick={() => setShowHistory((v) => !v)}
                         className="text-sm text-apple-blue hover:opacity-70 flex items-center gap-1"
                     >
-                        {t("points.history")}
+                        {"Lịch sử"}
                         {showHistory ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                 </div>
@@ -64,7 +62,7 @@ export default function PointsCard({ points }) {
                         </div>
                     ) : transactions.length === 0 ? (
                         <p className="text-center text-sm text-muted-foreground py-4">
-                            {t("points.empty")}
+                            {"Chưa có giao dịch nào"}
                         </p>
                     ) : (
                         <div className="space-y-2 max-h-60 overflow-y-auto">

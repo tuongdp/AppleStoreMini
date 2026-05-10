@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useState, useRef } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useCreateProductMutation, useUpdateProductMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
@@ -10,7 +9,6 @@ import { ROUTES } from "@/lib/constants";
 import { uploadBlobImages } from "@/lib/utils";
 
 export default function AdminProductCreate() {
-    const { t } = useTranslation("admin");
     const navigate = useNavigate();
     const [createProduct] = useCreateProductMutation();
     const [updateProduct] = useUpdateProductMutation();
@@ -30,7 +28,7 @@ export default function AdminProductCreate() {
 
             if (autoCreatedId) {
                 await updateProduct({ id: autoCreatedId, ...productData, specifications }).unwrap();
-                toast.success(t("product.updateSuccess"));
+                toast.success("Cập nhật sản phẩm thành công");
             } else {
                 const processedVariants = await Promise.all(
                     (variants || []).map(async (v) => {
@@ -48,11 +46,11 @@ export default function AdminProductCreate() {
                     variants: processedVariants,
                 }).unwrap();
 
-                toast.success(t("product.createSuccess"));
+                toast.success("Tạo sản phẩm thành công");
             }
             navigate(ROUTES.ADMIN_PRODUCTS);
         } catch (error) {
-            toast.error(error?.data?.message || t("status.error", { ns: "common" }));
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         } finally {
             setIsSaving(false);
         }
@@ -63,13 +61,13 @@ export default function AdminProductCreate() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_PRODUCTS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("product.title")}
+                    {"Quản lý sản phẩm"}
                 </Link>
             </Button>
 
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("product.create")}
+                    {"Tạo sản phẩm mới"}
                 </h1>
             </div>
 

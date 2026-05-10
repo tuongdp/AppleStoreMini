@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { Check, Clock } from "lucide-react";
 import { cn, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";
@@ -13,8 +12,6 @@ const TIMELINE_STEPS = [
 ];
 
 export default function OrderTimeline({ order }) {
-    const { t } = useTranslation("order");
-
     // Nếu đơn bị huỷ — hiện timeline huỷ riêng
     if (
         order.status === ORDER_STATUS.CANCELLED ||
@@ -108,8 +105,6 @@ export default function OrderTimeline({ order }) {
 
 // Timeline riêng cho đơn bị huỷ
 function CancelledTimeline({ order }) {
-    const { t } = useTranslation("order");
-
     const steps = [
         {
             status: ORDER_STATUS.PENDING,
@@ -177,7 +172,7 @@ function CancelledTimeline({ order }) {
                             )}
                             {step.current && order.cancelReason && (
                                 <p className="mt-1 text-xs text-muted-foreground">
-                                    {t("action.cancelReason")}:{" "}
+                                    {"Lý do huỷ"}:{" "}
                                     {order.cancelReason}
                                 </p>
                             )}

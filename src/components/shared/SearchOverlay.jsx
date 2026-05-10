@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
@@ -9,7 +8,6 @@ import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export default function SearchOverlay({ open, onClose }) {
-    const { t } = useTranslation("product");
     const inputRef = useRef(null);
     const panelRef = useRef(null);
 
@@ -75,7 +73,7 @@ export default function SearchOverlay({ open, onClose }) {
                                     ref={inputRef}
                                     value={keyword}
                                     onChange={(e) => handleKeywordChange(e.target.value)}
-                                    placeholder={t("search.placeholder")}
+                                    placeholder={"Tìm kiếm sản phẩm..."}
                                     className="h-12 rounded-2xl pl-12 pr-12 text-base transition-all duration-200 focus-visible:ring-2 focus-visible:ring-foreground/20"
                                 />
                                 {keyword && (
@@ -113,7 +111,7 @@ export default function SearchOverlay({ open, onClose }) {
                         <div className="max-h-[60vh] overflow-y-auto rounded-2xl border border-border bg-popover shadow-lg">
                             {!hasResults && !isLoading ? (
                                 <div className="px-4 py-12 text-center text-sm text-muted-foreground">
-                                    {t("search.noResults")}
+                                    {"Không tìm thấy sản phẩm"}
                                 </div>
                             ) : (
                                 <div className="py-2">
@@ -159,7 +157,7 @@ export default function SearchOverlay({ open, onClose }) {
                                                 className="flex items-center justify-center gap-1.5 rounded-full bg-foreground py-2.5 text-sm font-medium text-background transition-all hover:opacity-90 hover:scale-[1.02]"
                                             >
                                                 <Search className="h-4 w-4" />
-                                                {t("search.viewAll")} &ldquo;{keyword}&rdquo;
+                                                {"Xem tất cả kết quả cho"} &ldquo;{keyword}&rdquo;
                                             </Link>
                                         </div>
                                     )}

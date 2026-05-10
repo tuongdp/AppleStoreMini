@@ -1,5 +1,4 @@
 import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft } from "lucide-react";
 import { useGetOrderByIdQuery } from "@/store/api/ordersApi";
 import OrderDetail from "@/features/orders/components/OrderDetail";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
 
 export default function OrderDetailPage() {
-    const { t } = useTranslation("order");
     const { id } = useParams();
 
     const { data, isLoading, isError } = useGetOrderByIdQuery(id);
@@ -23,10 +21,10 @@ export default function OrderDetailPage() {
         return (
             <div className="rounded-2xl border border-border bg-card p-8 text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("status.notFound", { ns: "common" })}
+                    {"Không tìm thấy"}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to={ROUTES.ORDERS}>{t("title")}</Link>
+                    <Link to={ROUTES.ORDERS}>{"Đơn hàng của tôi"}</Link>
                 </Button>
             </div>
         );
@@ -36,7 +34,7 @@ export default function OrderDetailPage() {
         <div className="space-y-4">
             <Breadcrumb
                 items={[
-                    { label: t("title"), href: ROUTES.ORDERS },
+                    { label: "Đơn hàng của tôi", href: ROUTES.ORDERS },
                     { label: `#${order.code}` },
                 ]}
             />
@@ -44,7 +42,7 @@ export default function OrderDetailPage() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ORDERS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("title")}
+                    {"Đơn hàng của tôi"}
                 </Link>
             </Button>
 

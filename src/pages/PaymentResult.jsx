@@ -1,12 +1,10 @@
 import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
 
 export default function PaymentResult({ status }) {
-    const { t } = useTranslation("checkout");
     const [searchParams] = useSearchParams();
 
     const moMoResultCode = searchParams.get("resultCode");
@@ -26,17 +24,17 @@ export default function PaymentResult({ status }) {
                 )}
             </div>
             <h1 className="mb-2 text-2xl font-semibold text-foreground">
-                {isSuccess ? t("paymentSuccess") : t("paymentFailed")}
+                {isSuccess ? "Thanh toán thành công!" : "Thanh toán thất bại"}
             </h1>
             <p className="mb-8 text-sm text-muted-foreground">
-                {isSuccess ? t("paymentSuccessDesc") : t("paymentFailedDesc")}
+                {isSuccess ? "Cảm ơn bạn, đơn hàng đã được thanh toán." : "Có lỗi xảy ra trong quá trình thanh toán, vui lòng thử lại."}
             </p>
             <div className="flex gap-3">
                 <Button className="rounded-full px-8" asChild>
-                    <Link to={ROUTES.ORDERS}>{t("success.trackOrder")}</Link>
+                    <Link to={ROUTES.ORDERS}>{"Theo dõi đơn hàng"}</Link>
                 </Button>
                 <Button variant="outline" className="rounded-full px-8" asChild>
-                    <Link to={ROUTES.PRODUCTS}>{t("success.continueShopping")}</Link>
+                    <Link to={ROUTES.PRODUCTS}>{"Tiếp tục mua sắm"}</Link>
                 </Button>
             </div>
         </div>

@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import { addressSchema } from "@/lib/validations";
 import { selectCurrentUser } from "@/store/authSlice";
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/form";
 
 export default function AddressStep({ defaultData, onNext }) {
-    const { t } = useTranslation("checkout");
     const user = useSelector(selectCurrentUser);
 
     const form = useForm({
@@ -39,7 +37,7 @@ export default function AddressStep({ defaultData, onNext }) {
     return (
         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <h2 className="mb-5 text-base font-semibold text-foreground">
-                {t("address.title")}
+                {"Thông tin giao hàng"}
             </h2>
 
             <Form {...form}>
@@ -51,7 +49,7 @@ export default function AddressStep({ defaultData, onNext }) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        {t("address.fullName")}
+                                        {"Họ và tên"}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -71,7 +69,7 @@ export default function AddressStep({ defaultData, onNext }) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        {t("address.phone")}
+                                        {"Số điện thoại"}
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -94,7 +92,7 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("address.address")}
+                                    {"Địa chỉ"}
                                 </FormLabel>
                                 <FormControl>
                                     <Textarea
@@ -116,7 +114,7 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("address.note")}
+                                    {"Ghi chú"}
                                 </FormLabel>
                                 <FormControl>
                                     <Textarea
@@ -139,7 +137,7 @@ export default function AddressStep({ defaultData, onNext }) {
                     onClick={handleNext}
                     className="rounded-full px-8"
                 >
-                    {t("address.continue")}
+                    {"Tiếp tục"}
                 </Button>
             </div>
         </div>

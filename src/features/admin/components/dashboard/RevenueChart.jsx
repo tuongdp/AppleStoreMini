@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     AreaChart,
     Area,
@@ -39,7 +38,6 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function RevenueChart() {
-    const { t } = useTranslation("admin");
     const [period, setPeriod] = useState("month");
 
     const { data, isLoading } = useGetRevenueStatsQuery({ period });
@@ -85,7 +83,7 @@ export default function RevenueChart() {
             {chartData.length === 0 ? (
                 <div className="flex h-[280px] items-center justify-center rounded-xl bg-muted/30">
                     <p className="text-sm text-muted-foreground">
-                        {t("table.noData")}
+                        {"Không có dữ liệu"}
                     </p>
                 </div>
             ) : (
@@ -170,7 +168,7 @@ export default function RevenueChart() {
                 <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
                     <div className="text-center">
                         <p className="text-xs text-muted-foreground">
-                            {t("dashboard.totalRevenue")}
+                            {"Tổng doanh thu"}
                         </p>
                         <p className="mt-0.5 text-sm font-semibold text-foreground">
                             {formatPrice(data.totalRevenue ?? 0)}
@@ -178,7 +176,7 @@ export default function RevenueChart() {
                     </div>
                     <div className="text-center">
                         <p className="text-xs text-muted-foreground">
-                            {t("dashboard.totalOrders")}
+                            {"Tổng đơn hàng"}
                         </p>
                         <p className="mt-0.5 text-sm font-semibold text-foreground">
                             {data.totalOrders ?? 0}
@@ -186,7 +184,7 @@ export default function RevenueChart() {
                     </div>
                     <div className="text-center">
                         <p className="text-xs text-muted-foreground">
-                            {t("dashboard.vsLastMonth")}
+                            {"so với tháng trước"}
                         </p>
                         <p
                             className={cn(

@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
@@ -29,7 +28,6 @@ export default function ProductSlider({
     autoplayDelay = 4000,
     renderItem,
 }) {
-    const { t } = useTranslation("common");
     const prevId = `swiper-prev-${sliderId}`;
     const nextId = `swiper-next-${sliderId}`;
 
@@ -48,7 +46,7 @@ export default function ProductSlider({
         return (
             <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-border">
                 <p className="text-sm text-muted-foreground">
-                    {t("slider.noProducts")}
+                    {"Không có sản phẩm"}
                 </p>
             </div>
         );
@@ -66,7 +64,7 @@ export default function ProductSlider({
                     "h-10 w-10 border-border bg-background/90 backdrop-blur-sm",
                     "opacity-0 transition-opacity duration-200 group-hover/slider:opacity-100",
                 )}
-                aria-label={t("slider.prev")}
+                aria-label={"Slide trước"}
             >
                 <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -81,7 +79,7 @@ export default function ProductSlider({
                     "h-10 w-10 border-border bg-background/90 backdrop-blur-sm",
                     "opacity-0 transition-opacity duration-200 group-hover/slider:opacity-100",
                 )}
-                aria-label={t("slider.next")}
+                aria-label={"Slide tiếp"}
             >
                 <ChevronRight className="h-5 w-5" />
             </Button>

@@ -1,16 +1,14 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import AdminReviewList from "@/features/admin/components/reviews/AdminReviewList";
 
 export default function AdminReviewPage() {
-    const { t } = useTranslation("admin");
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("review.title")}
+                    {"Quản lý đánh giá"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("review.subtitle")}
+                    {"Duyệt, ẩn hoặc xóa đánh giá sản phẩm từ khách hàng"}
                 </p>
             </div>
             <AdminReviewList />

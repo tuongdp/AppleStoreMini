@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +14,6 @@ export default function ProductFilterMobile({
     onUpdate,
     activeFilterCount,
 }) {
-    const { t } = useTranslation("product");
-
     return (
         <Sheet>
             <SheetTrigger asChild>
@@ -26,7 +23,7 @@ export default function ProductFilterMobile({
                     className="relative rounded-full lg:hidden"
                 >
                     <SlidersHorizontal className="mr-1.5 h-4 w-4" />
-                    {t("filter.title")}
+                    {"Bộ lọc"}
                     {activeFilterCount > 0 && (
                         <span className="ml-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-foreground text-[10px] font-medium text-background">
                             {activeFilterCount}
@@ -37,7 +34,7 @@ export default function ProductFilterMobile({
             <SheetContent side="left" className="w-72">
                 <SheetHeader className="mb-4">
                     <SheetTitle className="text-left">
-                        {t("filter.title")}
+                        {"Bộ lọc"}
                     </SheetTitle>
                 </SheetHeader>
                 <ProductFilter filters={filters} onUpdate={onUpdate} />

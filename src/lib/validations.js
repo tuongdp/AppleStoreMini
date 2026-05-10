@@ -1,7 +1,36 @@
 import * as z from "zod";
-import i18next from "@/i18n/index";
 
-const v = (key) => i18next.t(key, { ns: "validation" });
+const v = (key) => {
+  const texts = {
+    "email.required": "Vui lòng nhập email",
+    "email.invalid": "Email không hợp lệ",
+    "password.minLength": "Mật khẩu tối thiểu 8 ký tự",
+    "password.maxLength": "Mật khẩu tối đa 32 ký tự",
+    "password.currentRequired": "Vui lòng nhập mật khẩu hiện tại",
+    "password.confirmRequired": "Vui lòng xác nhận mật khẩu",
+    "password.confirmNewRequired": "Vui lòng xác nhận mật khẩu mới",
+    "password.notMatch": "Mật khẩu không khớp",
+    "password.sameAsOld": "Mật khẩu mới không được trùng với mật khẩu cũ",
+    "fullName.minLength": "Họ tên tối thiểu 2 ký tự",
+    "fullName.maxLength": "Họ tên tối đa 50 ký tự",
+    "phone.required": "Vui lòng nhập số điện thoại",
+    "phone.invalid": "Số điện thoại không hợp lệ",
+    "terms.required": "Vui lòng đồng ý với điều khoản sử dụng",
+    "address.fullNameRequired": "Vui lòng nhập họ tên người nhận",
+    "address.addressMinLength": "Địa chỉ tối thiểu 10 ký tự",
+    "checkout.paymentRequired": "Vui lòng chọn phương thức thanh toán",
+    "product.nameMinLength": "Tên sản phẩm tối thiểu 3 ký tự",
+    "product.slugRequired": "Vui lòng nhập slug",
+    "product.slugInvalid": "Slug chỉ chứa chữ thường, số và dấu gạch ngang",
+    "product.categoryRequired": "Vui lòng chọn danh mục",
+    "product.descriptionMinLength": "Mô tả tối thiểu 10 ký tự",
+    "review.ratingRequired": "Vui lòng chọn số sao",
+    "review.commentMinLength": "Bình luận tối thiểu 10 ký tự",
+    "review.commentMaxLength": "Bình luận tối đa 500 ký tự",
+    "cancelReason.required": "Vui lòng nhập lý do hủy đơn (tối thiểu 10 ký tự)",
+  };
+  return texts[key] || key;
+};
 
 // ── Auth ──────────────────────────────────────────────
 export const loginSchema = z.object({

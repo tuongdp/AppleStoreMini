@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Separator } from "@/components/ui/separator";
 import { selectIsAuthenticated, selectCurrentUser } from "@/store/authSlice";
 import { toggleMobileMenu } from "@/store/uiSlice";
@@ -18,7 +17,6 @@ import {
 } from "lucide-react";
 
 export default function NavbarMobile() {
-    const { t } = useTranslation();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const user = useSelector(selectCurrentUser);
@@ -30,7 +28,7 @@ export default function NavbarMobile() {
             {/* Header */}
             <div className="flex h-14 items-center border-b border-border px-5">
                 <span className="text-sm font-semibold text-foreground">
-                    {t("appName")}
+                    {"Apple Store"}
                 </span>
             </div>
 
@@ -69,7 +67,7 @@ export default function NavbarMobile() {
                 {/* Categories */}
                 <div className="p-3">
                     <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {t("nav.products")}
+                        {"products"}
                     </p>
                     <div className="space-y-0.5">
                         {CATEGORIES.map((cat) => (
@@ -88,7 +86,7 @@ export default function NavbarMobile() {
                             onClick={handleClose}
                             className="flex items-center rounded-xl px-3 py-2.5 text-sm text-apple-blue transition-colors hover:bg-muted"
                         >
-                            {t("btn.viewAll")}
+                            {"viewAll"}
                         </Link>
                     </div>
                 </div>
@@ -98,7 +96,7 @@ export default function NavbarMobile() {
                 {/* ✅ Khám phá */}
                 <div className="p-3">
                     <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {t("nav.explore", { defaultValue: "Khám phá" })}
+                        {"Khám phá"}
                     </p>
                     <div className="space-y-0.5">
                         <Link
@@ -107,7 +105,7 @@ export default function NavbarMobile() {
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <ShieldCheck className="h-4 w-4" />
-                            {t("nav.appleCare")}
+                            {"appleCare"}
                         </Link>
                         <Link
                             to="/news"
@@ -115,7 +113,7 @@ export default function NavbarMobile() {
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <Newspaper className="h-4 w-4" />
-                            {t("nav.news")}
+                            {"news"}
                         </Link>
                     </div>
                 </div>
@@ -125,7 +123,7 @@ export default function NavbarMobile() {
                 {/* Account links */}
                 <div className="p-3">
                     <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {t("nav.profile")}
+                        {"profile"}
                     </p>
                     <div className="space-y-0.5">
                         {isAuthenticated ? (
@@ -136,7 +134,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <User className="h-4 w-4" />
-                                    {t("nav.profile")}
+                                    {"profile"}
                                 </Link>
                                 <Link
                                     to={ROUTES.ORDERS}
@@ -144,7 +142,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <ShoppingBag className="h-4 w-4" />
-                                    {t("nav.orders")}
+                                    {"orders"}
                                 </Link>
                                 <Link
                                     to={ROUTES.WISHLIST}
@@ -152,7 +150,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <Heart className="h-4 w-4" />
-                                    {t("nav.wishlist")}
+                                    {"wishlist"}
                                 </Link>
                             </>
                         ) : (
@@ -163,7 +161,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <LogIn className="h-4 w-4" />
-                                    {t("nav.login")}
+                                    {"login"}
                                 </Link>
                                 <Link
                                     to={ROUTES.REGISTER}
@@ -171,7 +169,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <UserPlus className="h-4 w-4" />
-                                    {t("nav.register")}
+                                    {"register"}
                                 </Link>
                             </>
                         )}

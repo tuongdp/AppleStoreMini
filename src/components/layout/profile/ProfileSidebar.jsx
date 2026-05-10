@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -42,7 +41,6 @@ const NAV_ITEMS = [
 ];
 
 export default function ProfileSidebar({ onClose }) {
-    const { t } = useTranslation("profile");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
@@ -96,7 +94,7 @@ export default function ProfileSidebar({ onClose }) {
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                 >
                     <LogOut className="h-4 w-4 shrink-0" />
-                    {t("sidebar.logout")}
+                    {"Đăng xuất"}
                 </button>
             </nav>
         </div>

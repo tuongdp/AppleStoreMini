@@ -1,5 +1,4 @@
 import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft } from "lucide-react";
 import { useGetUserByIdQuery } from "@/store/api/usersApi";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
@@ -9,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
 
 export default function AdminUserDetailPage() {
-    const { t } = useTranslation("admin");
     const { id } = useParams();
 
     const { data: user, isLoading, isError } = useGetUserByIdQuery(id);
@@ -46,10 +44,10 @@ export default function AdminUserDetailPage() {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("status.notFound", { ns: "common" })}
+                    {"Không tìm thấy"}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to={ROUTES.ADMIN_USERS}>{t("user.title")}</Link>
+                    <Link to={ROUTES.ADMIN_USERS}>{"Quản lý người dùng"}</Link>
                 </Button>
             </div>
         );
@@ -60,7 +58,7 @@ export default function AdminUserDetailPage() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_USERS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("user.title")}
+                    {"Quản lý người dùng"}
                 </Link>
             </Button>
 

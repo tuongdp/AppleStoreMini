@@ -1,5 +1,4 @@
 import { Package } from "lucide-react";
-import { useTranslation } from "@/i18n/useTranslation";
 import ProductCard from "@/components/shared/ProductCard";
 import { ProductGridSkeleton } from "@/components/shared/ProductCardSkeleton";
 import EmptyState from "@/components/shared/EmptyState";
@@ -11,8 +10,6 @@ export default function ProductGrid({
     skeletonCount = 12,
     className,
 }) {
-    const { t } = useTranslation("product");
-
     if (isLoading) {
         return (
             <ProductGridSkeleton count={skeletonCount} className={className} />
@@ -23,8 +20,8 @@ export default function ProductGrid({
         return (
             <EmptyState
                 icon={Package}
-                title={t("empty.products")}
-                description={t("empty.productsDesc")}
+                title={"products"}
+                description={"productsDesc"}
             />
         );
     }

@@ -1,5 +1,4 @@
 import { Link, useParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft } from "lucide-react";
 import { useGetAdminOrderByIdQuery } from "@/store/api/ordersApi";
 import AdminOrderDetailComponent from "@/features/admin/components/orders/AdminOrderDetail";
@@ -8,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
 
 export default function AdminOrderDetailPage() {
-    const { t } = useTranslation("admin");
     const { id } = useParams();
 
     const { data, isLoading, isError } = useGetAdminOrderByIdQuery(id);
@@ -37,10 +35,10 @@ export default function AdminOrderDetailPage() {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
                 <p className="mb-4 text-muted-foreground">
-                    {t("status.notFound", { ns: "common" })}
+                    {"Không tìm thấy"}
                 </p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to={ROUTES.ADMIN_ORDERS}>{t("order.title")}</Link>
+                    <Link to={ROUTES.ADMIN_ORDERS}>{"Quản lý đơn hàng"}</Link>
                 </Button>
             </div>
         );
@@ -51,7 +49,7 @@ export default function AdminOrderDetailPage() {
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_ORDERS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("order.title")}
+                    {"Quản lý đơn hàng"}
                 </Link>
             </Button>
 

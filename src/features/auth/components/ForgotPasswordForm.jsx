@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2 } from "lucide-react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { forgotPasswordSchema } from "@/lib/validations";
 import { useForgotPasswordMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 
 export default function ForgotPasswordForm() {
-    const { t } = useTranslation("auth");
     const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
     const [isSuccess, setIsSuccess] = useState(false);
     const [submittedEmail, setSubmittedEmail] = useState("");
@@ -38,7 +36,7 @@ export default function ForgotPasswordForm() {
             setIsSuccess(true);
         } catch (error) {
             setServerError(
-                error?.data?.message || t("forgotPassword.emailNotFound"),
+                error?.data?.message || "Email này chưa được đăng ký",
             );
         }
     };
@@ -53,10 +51,10 @@ export default function ForgotPasswordForm() {
                     </div>
                 </div>
                 <h1 className="mb-2 text-2xl font-semibold text-foreground">
-                    {t("forgotPassword.success")}
+                    {"Email đặt lại mật khẩu đã được gửi"}
                 </h1>
                 <p className="mb-1 text-sm text-muted-foreground">
-                    {t("forgotPassword.successDesc")}
+                    {"Vui lòng kiểm tra hộp thư của bạn"}
                 </p>
                 <p className="mb-8 text-sm font-medium text-foreground">
                     {submittedEmail}
@@ -65,7 +63,7 @@ export default function ForgotPasswordForm() {
                     to={ROUTES.LOGIN}
                     className="text-sm font-medium text-apple-blue hover:opacity-70"
                 >
-                    {t("forgotPassword.backToLogin")}
+                    {"Quay lại đăng nhập"}
                 </Link>
             </div>
         );
@@ -77,10 +75,10 @@ export default function ForgotPasswordForm() {
             {/* Title */}
             <div className="mb-6 text-center">
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("forgotPassword.title")}
+                    {"Quên mật khẩu"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("forgotPassword.subtitle")}
+                    {"Nhập email để nhận link đặt lại mật khẩu"}
                 </p>
             </div>
 
@@ -103,7 +101,7 @@ export default function ForgotPasswordForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("forgotPassword.email")}
+                                    {"Email"}
                                 </FormLabel>
                                 <FormControl>
                                     <Input
@@ -128,8 +126,8 @@ export default function ForgotPasswordForm() {
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? t("forgotPassword.submitting")
-                            : t("forgotPassword.submit")}
+                            ? "Đang gửi..."
+                            : "Gửi link đặt lại"}
                     </Button>
                 </form>
             </Form>
@@ -140,7 +138,7 @@ export default function ForgotPasswordForm() {
                     to={ROUTES.LOGIN}
                     className="font-medium text-apple-blue hover:opacity-70"
                 >
-                    {t("forgotPassword.backToLogin")}
+                    {"Quay lại đăng nhập"}
                 </Link>
             </p>
         </div>

@@ -1,52 +1,49 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { RotateCcw } from "lucide-react";
 
 export default function ReturnPolicyPage() {
-    const { t } = useTranslation("common");
-
     const RETURN_ITEMS = [
         {
-            title: t("returnPolicy.conditions.title"),
+            title: "Điều kiện đổi trả",
             content: [
-                t("returnPolicy.conditions.0"),
-                t("returnPolicy.conditions.1"),
-                t("returnPolicy.conditions.2"),
-                t("returnPolicy.conditions.3"),
+                "Sản phẩm còn trong thời hạn 7 ngày kể từ ngày mua",
+                "Sản phẩm còn nguyên vẹn, chưa qua sử dụng hoặc lỗi do nhà sản xuất",
+                "Có đầy đủ hóa đơn, phụ kiện và bao bì gốc",
+                "Tem bảo hành còn nguyên, không bị rách hoặc tẩy xóa",
             ],
         },
         {
-            title: t("returnPolicy.eligible.title"),
+            title: "Trường hợp được đổi trả",
             content: [
-                t("returnPolicy.eligible.0"),
-                t("returnPolicy.eligible.1"),
-                t("returnPolicy.eligible.2"),
+                "Sản phẩm bị lỗi kỹ thuật do nhà sản xuất ngay khi nhận hàng",
+                "Sản phẩm không đúng model, màu sắc hoặc cấu hình đã đặt",
+                "Sản phẩm bị hư hỏng trong quá trình vận chuyển",
             ],
         },
         {
-            title: t("returnPolicy.ineligible.title"),
+            title: "Trường hợp không được đổi trả",
             content: [
-                t("returnPolicy.ineligible.0"),
-                t("returnPolicy.ineligible.1"),
-                t("returnPolicy.ineligible.2"),
-                t("returnPolicy.ineligible.3"),
+                "Đã qua 7 ngày kể từ ngày mua",
+                "Sản phẩm bị hư hỏng do lỗi người dùng",
+                "Sản phẩm đã được kích hoạt và sử dụng bình thường",
+                "Không còn đầy đủ phụ kiện, hộp và hóa đơn",
             ],
         },
         {
-            title: t("returnPolicy.process.title"),
+            title: "Quy trình đổi trả",
             content: [
-                t("returnPolicy.process.0"),
-                t("returnPolicy.process.1"),
-                t("returnPolicy.process.2"),
-                t("returnPolicy.process.3"),
+                "Bước 1: Liên hệ hotline 1800 1234 hoặc email support@applestore.vn trong vòng 7 ngày",
+                "Bước 2: Cung cấp thông tin đơn hàng và mô tả lỗi sản phẩm",
+                "Bước 3: Gửi sản phẩm về cửa hàng theo hướng dẫn",
+                "Bước 4: Nhận sản phẩm mới hoặc hoàn tiền trong vòng 3–5 ngày làm việc",
             ],
         },
         {
-            title: t("returnPolicy.refund.title"),
+            title: "Chính sách hoàn tiền",
             content: [
-                t("returnPolicy.refund.0"),
-                t("returnPolicy.refund.1"),
-                t("returnPolicy.refund.2"),
+                "Hoàn tiền 100% nếu lỗi do nhà sản xuất hoặc giao sai hàng",
+                "Thời gian hoàn tiền: 3–5 ngày làm việc với thanh toán online",
+                "Tiền mặt hoàn ngay tại cửa hàng trong ngày làm việc",
             ],
         },
     ];
@@ -54,7 +51,7 @@ export default function ReturnPolicyPage() {
     return (
         <div className="mx-auto max-w-3xl section-padding py-12">
             <Breadcrumb
-                items={[{ label: t("returnPolicy.breadcrumb") }]}
+                items={[{ label: "Chính sách đổi trả" }]}
                 className="mb-6"
             />
 
@@ -63,7 +60,7 @@ export default function ReturnPolicyPage() {
                     <RotateCcw className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h1 className="text-3xl font-semibold text-foreground">
-                    {t("returnPolicy.title")}
+                    {"Chính sách đổi trả"}
                 </h1>
             </div>
 
@@ -91,7 +88,7 @@ export default function ReturnPolicyPage() {
                 ))}
 
                 <p className="text-xs text-muted-foreground">
-                    {t("returnPolicy.updated")}
+                    {"Cập nhật lần cuối: 01/01/2024. Mọi thắc mắc vui lòng liên hệ hotline 1800 1234 hoặc email support@applestore.vn."}
                 </p>
             </div>
         </div>

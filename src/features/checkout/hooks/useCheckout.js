@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
 import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";
 import { SHIPPING, PAYMENT_METHODS } from "@/lib/constants";
 
 export function useCheckout() {
-    const { t } = useTranslation("checkout");
     const dispatch = useDispatch();
 
     const items = useSelector(selectCartItems);
@@ -67,7 +65,7 @@ export function useCheckout() {
                 return true;
             }
         } catch (error) {
-            toast.error(t("error.paymentFailed"), {
+            toast.error("Thanh toán thất bại", {
                 description: error?.data?.message,
             });
         }
@@ -76,11 +74,11 @@ export function useCheckout() {
 
     const handlePlaceOrder = async () => {
         if (items.length === 0) {
-            toast.error(t("error.emptyCart"));
+            toast.error("Giỏ hàng trống");
             return;
         }
         if (!checkoutData.paymentMethod) {
-            toast.error(t("error.placeOrderFailed"));
+            toast.error("Đặt hàng thất bại, vui lòng thử lại");
             return;
         }
 
@@ -108,10 +106,10 @@ export function useCheckout() {
 
             setIsSuccess(true);
             if (checkoutData.paymentMethod === PAYMENT_METHODS.COD) {
-                toast.success(t("success.placeOrder"));
+                toast.success("Đặt hàng thành công");
             }
         } catch (error) {
-            toast.error(t("error.placeOrderFailed"), {
+            toast.error("Đặt hàng thất bại, vui lòng thử lại", {
                 description: error?.data?.message,
             });
         }

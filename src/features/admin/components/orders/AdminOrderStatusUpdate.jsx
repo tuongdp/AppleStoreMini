@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useUpdateOrderStatusMutation } from "@/store/api/ordersApi";
 import {
     Select,
@@ -24,7 +23,6 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
-    const { t } = useTranslation("admin");
     const [selected, setSelected] = useState((currentStatus || "").toLowerCase());
     const [updateStatus, { isLoading }] = useUpdateOrderStatusMutation();
 
@@ -37,9 +35,9 @@ export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
 
         try {
             await updateStatus({ id: orderId, status: selected }).unwrap();
-            toast.success(t("order.updateSuccess"));
+            toast.success("Cập nhật trạng thái thành công");
         } catch {
-            toast.error(t("order.updateFailed"));
+            toast.error("Cập nhật trạng thái thất bại");
             setSelected(currentStatus);
         }
     };
@@ -64,7 +62,7 @@ export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
                 onClick={handleUpdate}
                 disabled={isLoading || selected === currentStatus}
             >
-                {isLoading ? t("table.loading") : t("order.updateStatus")}
+                {isLoading ? "Đang tải..." : "Cập nhật trạng thái"}
             </Button>
         </div>
     );

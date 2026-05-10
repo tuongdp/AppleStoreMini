@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Mail, Phone, Calendar, ShoppingBag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -15,8 +14,6 @@ import {
 import { ROUTES, USER_ROLES } from "@/lib/constants";
 
 export default function AdminUserDetail({ user, orders = [] }) {
-    const { t } = useTranslation("admin");
-
     // ✅ BE auth.service.js getUserResponse() trả role lowercase ("admin"/"user")
     // USER_ROLES constant cần khớp lowercase nếu so sánh ở đây
     const isAdmin = user.role === "admin" || user.role === USER_ROLES.ADMIN;
@@ -45,7 +42,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     : "bg-muted text-muted-foreground"
                             }
                         >
-                            {isAdmin ? t("user.roleAdmin") : t("user.roleUser")}
+                            {isAdmin ? "Quản trị viên" : "Người dùng"}
                         </Badge>
                         <Badge
                             className={
@@ -55,8 +52,8 @@ export default function AdminUserDetail({ user, orders = [] }) {
                             }
                         >
                             {!user.isBlocked
-                                ? t("user.active")
-                                : t("user.blocked")}
+                                ? "Đang hoạt động"
+                                : "Đã khoá"}
                         </Badge>
                     </div>
 
@@ -88,7 +85,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         <div className="flex items-center gap-3 text-sm">
                             <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
                             <span className="text-muted-foreground">
-                                {t("user.joinDate")}:{" "}
+                                {"Ngày tham gia"}:{" "}
                                 <span className="text-foreground">
                                     {formatDate(user.createdAt)}
                                 </span>
@@ -100,12 +97,12 @@ export default function AdminUserDetail({ user, orders = [] }) {
                 {/* Stats */}
                 <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="mb-4 text-sm font-medium text-foreground">
-                        {t("user.stats")}
+                        {"stats"}
                     </h3>
                     <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">
-                                {t("user.totalOrders")}
+                                {"Số đơn hàng"}
                             </span>
                             <span className="font-medium text-foreground">
                                 {formatNumber(user.orderCount ?? 0)}
@@ -114,7 +111,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         <Separator />
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">
-                                {t("user.totalSpent")}
+                                {"Tổng chi tiêu"}
                             </span>
                             <span className="font-medium text-foreground">
                                 {formatPrice(user.totalSpent ?? 0)}
@@ -125,7 +122,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 <Separator />
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-muted-foreground">
-                                        {t("info.gender", { ns: "profile" })}
+                                        {"Giới tính"}
                                     </span>
                                     <span className="text-foreground">
                                         {t(`info.${user.gender}`, {
@@ -146,14 +143,14 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     <div className="mb-4 flex items-center gap-2">
                         <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                         <h3 className="text-sm font-medium text-foreground">
-                            {t("dashboard.recentOrders")}
+                            {"Đơn hàng mới nhất"}
                         </h3>
                     </div>
 
                     {orders.length === 0 ? (
                         <div className="flex h-32 items-center justify-center">
                             <p className="text-sm text-muted-foreground">
-                                {t("table.noData")}
+                                {"Không có dữ liệu"}
                             </p>
                         </div>
                     ) : (
@@ -175,7 +172,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     </div>
                                     <span className="text-xs text-muted-foreground">
                                         {order.items?.length ?? 0}{" "}
-                                        {t("item.quantity", { ns: "cart" })}
+                                        {"Số lượng"}
                                     </span>
                                     <OrderStatusBadge status={order.status} />
                                     <span className="shrink-0 text-sm font-medium text-foreground">
@@ -195,7 +192,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 asChild
                             >
                                 <Link to={ROUTES.ADMIN_ORDERS}>
-                                    {t("dashboard.viewAll")}
+                                    {"Xem tất cả"}
                                 </Link>
                             </Button>
                         </div>
@@ -206,7 +203,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                 {user.addresses?.length > 0 && (
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-4 text-sm font-medium text-foreground">
-                            {t("address.title", { ns: "profile" })}
+                            {"Sổ địa chỉ"}
                         </h3>
                         <div className="space-y-3">
                             {user.addresses.map((addr) => (
@@ -222,9 +219,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                                 variant="outline"
                                                 className="ml-2 text-xs"
                                             >
-                                                {t("address.default", {
-                                                    ns: "profile",
-                                                })}
+                                                {"Mặc định"}
                                             </Badge>
                                         )}
                                     </p>

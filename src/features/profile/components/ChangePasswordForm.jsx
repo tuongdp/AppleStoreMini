@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Eye, EyeOff } from "lucide-react";
 import { changePasswordSchema } from "@/lib/validations";
 import { useChangePasswordMutation } from "@/store/api/authApi";
@@ -46,7 +45,6 @@ const PasswordInput = ({ field, placeholder, disabled }) => {
 };
 
 export default function ChangePasswordForm() {
-    const { t } = useTranslation("profile");
     const [changePassword, { isLoading }] = useChangePasswordMutation();
     const [serverError, setServerError] = useState("");
 
@@ -67,14 +65,14 @@ export default function ChangePasswordForm() {
                 newPassword: values.newPassword,
             }).unwrap();
 
-            toast.success(t("changePassword.success"));
+            toast.success("Đổi mật khẩu thành công");
             form.reset();
         } catch (error) {
             const msg = error?.data?.message;
             if (msg?.includes("incorrect") || msg?.includes("wrong")) {
-                setServerError(t("changePassword.wrongPassword"));
+                setServerError("Mật khẩu hiện tại không đúng");
             } else {
-                setServerError(msg || t("changePassword.failed"));
+                setServerError(msg || "Đổi mật khẩu thất bại");
             }
         }
     };
@@ -84,10 +82,10 @@ export default function ChangePasswordForm() {
             {/* Header */}
             <div className="mb-6">
                 <h2 className="text-xl font-semibold text-foreground">
-                    {t("changePassword.title")}
+                    {"Đổi mật khẩu"}
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("changePassword.subtitle")}
+                    {"Đảm bảo mật khẩu mới đủ mạnh"}
                 </p>
             </div>
 
@@ -112,7 +110,7 @@ export default function ChangePasswordForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("changePassword.currentPassword")}
+                                    {"Mật khẩu hiện tại"}
                                 </FormLabel>
                                 <FormControl>
                                     <PasswordInput
@@ -137,7 +135,7 @@ export default function ChangePasswordForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("changePassword.newPassword")}
+                                    {"Mật khẩu mới"}
                                 </FormLabel>
                                 <FormControl>
                                     <PasswordInput
@@ -160,7 +158,7 @@ export default function ChangePasswordForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("changePassword.confirmPassword")}
+                                    {"Xác nhận mật khẩu mới"}
                                 </FormLabel>
                                 <FormControl>
                                     <PasswordInput
@@ -184,8 +182,8 @@ export default function ChangePasswordForm() {
                             disabled={isLoading}
                         >
                             {isLoading
-                                ? t("changePassword.saving")
-                                : t("changePassword.save")}
+                                ? "Đang xử lý..."
+                                : "Đổi mật khẩu"}
                         </Button>
                     </div>
                 </form>

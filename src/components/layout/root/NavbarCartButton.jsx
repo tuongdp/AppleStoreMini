@@ -1,12 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toggleCartDrawer } from "@/store/uiSlice";
 import { selectCartCount } from "@/store/cartSlice";
 
 export default function NavbarCartButton() {
-    const { t } = useTranslation();
     const dispatch = useDispatch();
     const cartCount = useSelector(selectCartCount);
 
@@ -23,7 +21,7 @@ export default function NavbarCartButton() {
                     {cartCount > 99 ? "99+" : cartCount}
                 </span>
             )}
-            <span className="sr-only">{t("nav.cart")}</span>
+            <span className="sr-only">{"cart"}</span>
         </Button>
     );
 }

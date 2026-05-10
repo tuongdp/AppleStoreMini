@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import { Heart, HeartOff } from "lucide-react";
 import {
@@ -10,7 +9,6 @@ import EmptyState from "@/components/shared/EmptyState";
 import { ROUTES } from "@/lib/constants";
 
 export default function WishlistPage() {
-    const { t } = useTranslation();
     const items = useSelector(selectWishlistItems);
     const count = useSelector(selectWishlistCount);
 
@@ -20,7 +18,7 @@ export default function WishlistPage() {
             <div className="mb-6 flex items-center gap-3">
                 <Heart className="h-5 w-5 text-foreground" />
                 <h2 className="text-xl font-semibold text-foreground">
-                    {t("nav.wishlist")}
+                    {"wishlist"}
                 </h2>
                 {count > 0 && (
                     <span className="text-sm font-normal text-muted-foreground">
@@ -33,9 +31,9 @@ export default function WishlistPage() {
             {items.length === 0 ? (
                 <EmptyState
                     icon={HeartOff}
-                    title={t("empty.wishlist")}
-                    description={t("empty.wishlistDesc")}
-                    actionLabel={t("btn.continueShopping")}
+                    title={"wishlist"}
+                    description={"wishlistDesc"}
+                    actionLabel={"continueShopping"}
                     actionHref={ROUTES.PRODUCTS}
                 />
             ) : (

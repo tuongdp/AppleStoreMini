@@ -1,5 +1,4 @@
 import { Outlet, useLocation, Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronRight, Home } from "lucide-react";
 import ProfileSidebar from "./profile/ProfileSidebar";
 
@@ -13,12 +12,11 @@ const BREADCRUMB_MAP = {
 };
 
 export default function ProfileLayout() {
-    const { t } = useTranslation("profile");
     const { pathname } = useLocation();
 
     const isOrderDetail = /^\/profile\/orders\/.+/.test(pathname);
     const currentLabel = isOrderDetail
-        ? t("sidebar.orders")
+        ? "Đơn hàng của tôi"
         : t(BREADCRUMB_MAP[pathname] || "sidebar.profile");
 
     return (
@@ -40,7 +38,7 @@ export default function ProfileLayout() {
                         <>
                             <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                             <span className="font-medium text-foreground">
-                                {t("detail.title", { ns: "order" })}
+                                {"Chi tiết đơn hàng"}
                             </span>
                         </>
                     )}

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Plus, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +14,6 @@ import {
 import { toast } from "sonner";
 
 export default function AddressBook() {
-  const { t } = useTranslation("profile");
   const [formOpen, setFormOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
 
@@ -40,18 +38,18 @@ export default function AddressBook() {
   const handleDelete = async (id) => {
     try {
       await deleteAddress(id).unwrap();
-      toast.success(t("address.deleteSuccess"));
+      toast.success("Xoá địa chỉ thành công");
     } catch (err) {
-      toast.error(err?.data?.message || t("status.error", { ns: "common" }));
+      toast.error(err?.data?.message || "Có lỗi xảy ra");
     }
   };
 
   const handleSetDefault = async (id) => {
     try {
       await setDefault(id).unwrap();
-      toast.success(t("address.setDefaultSuccess"));
+      toast.success("Đã đặt làm địa chỉ mặc định");
     } catch (err) {
-      toast.error(err?.data?.message || t("status.error", { ns: "common" }));
+      toast.error(err?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -67,10 +65,10 @@ export default function AddressBook() {
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold text-foreground">
-            {t("address.title")}
+            {"Sổ địa chỉ"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {t("address.subtitle")}
+            {"Quản lý địa chỉ giao hàng của bạn"}
           </p>
         </div>
         <Button
@@ -80,13 +78,13 @@ export default function AddressBook() {
           disabled={addresses.length >= 5}
         >
           <Plus className="mr-1.5 h-4 w-4" />
-          {t("address.addNew")}
+          {"Thêm địa chỉ mới"}
         </Button>
       </div>
 
       {addresses.length >= 5 && (
         <p className="mb-4 text-xs text-muted-foreground">
-          {t("address.maxAddress")}
+          {"Bạn chỉ có thể lưu tối đa 5 địa chỉ"}
         </p>
       )}
 
@@ -102,9 +100,9 @@ export default function AddressBook() {
       {addresses.length === 0 && !formOpen ? (
         <EmptyState
           icon={MapPin}
-          title={t("address.empty")}
-          description={t("address.emptyDesc")}
-          actionLabel={t("address.addNew")}
+          title={"Chưa có địa chỉ nào"}
+          description={"Thêm địa chỉ giao hàng để thanh toán nhanh hơn"}
+          actionLabel={"Thêm địa chỉ mới"}
           onAction={handleAdd}
         />
       ) : (

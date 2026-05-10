@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, formatNumber } from "@/lib/utils";
@@ -18,8 +17,6 @@ const getFirstImage = (images) => {
 };
 
 export default function TopProducts() {
-    const { t } = useTranslation("admin");
-
     const { data, isLoading } = useGetProductsQuery({
         sort: "best_seller",
         limit: 5,
@@ -52,7 +49,7 @@ export default function TopProducts() {
         return (
             <div className="flex h-40 items-center justify-center">
                 <p className="text-sm text-muted-foreground">
-                    {t("table.noData")}
+                    {"Không có dữ liệu"}
                 </p>
             </div>
         );
@@ -62,15 +59,15 @@ export default function TopProducts() {
         <div className="space-y-1">
             <div className="mb-3 grid grid-cols-12 gap-4 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <div className="col-span-1">#</div>
-                <div className="col-span-5">{t("product.name")}</div>
+                <div className="col-span-5">{"Tên sản phẩm"}</div>
                 <div className="col-span-2 text-center">
-                    {t("product.soldCount")}
+                    {"Đã bán"}
                 </div>
                 <div className="col-span-2 text-center">
-                    {t("product.status")}
+                    {"Trạng thái"}
                 </div>
                 <div className="col-span-2 text-right">
-                    {t("product.price")}
+                    {"Giá bán"}
                 </div>
             </div>
 
@@ -134,8 +131,8 @@ export default function TopProducts() {
                             )}
                         >
                             {product.inStock
-                                ? t("product.inStock")
-                                : t("product.inactive")}
+                                ? "Còn hàng"
+                                : "Ngừng bán"}
                         </span>
                     </div>
 

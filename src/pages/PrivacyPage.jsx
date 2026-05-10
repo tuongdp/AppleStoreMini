@@ -1,54 +1,51 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Lock } from "lucide-react";
 
 export default function PrivacyPage() {
-    const { t } = useTranslation("common");
-
     const PRIVACY_ITEMS = [
         {
-            title: t("privacy.collect.title"),
+            title: "Thông tin chúng tôi thu thập",
             content: [
-                t("privacy.collect.0"),
-                t("privacy.collect.1"),
-                t("privacy.collect.2"),
-                t("privacy.collect.3"),
+                "Thông tin cá nhân: họ tên, email, số điện thoại, địa chỉ giao hàng",
+                "Thông tin thanh toán: được mã hóa và xử lý qua cổng thanh toán bảo mật",
+                "Thông tin thiết bị: loại thiết bị, trình duyệt, địa chỉ IP",
+                "Lịch sử mua hàng và tương tác với website",
             ],
         },
         {
-            title: t("privacy.usage.title"),
+            title: "Mục đích sử dụng thông tin",
             content: [
-                t("privacy.usage.0"),
-                t("privacy.usage.1"),
-                t("privacy.usage.2"),
-                t("privacy.usage.3"),
-                t("privacy.usage.4"),
+                "Xử lý đơn hàng và giao hàng đến địa chỉ của bạn",
+                "Gửi thông báo cập nhật trạng thái đơn hàng",
+                "Hỗ trợ khách hàng và giải quyết khiếu nại",
+                "Cải thiện trải nghiệm mua sắm và tối ưu dịch vụ",
+                "Gửi thông tin khuyến mãi (nếu bạn đồng ý nhận)",
             ],
         },
         {
-            title: t("privacy.security.title"),
+            title: "Bảo mật thông tin",
             content: [
-                t("privacy.security.0"),
-                t("privacy.security.1"),
-                t("privacy.security.2"),
-                t("privacy.security.3"),
+                "Mọi dữ liệu được mã hóa bằng SSL/TLS 256-bit",
+                "Thông tin thanh toán không được lưu trữ trên hệ thống của chúng tôi",
+                "Chỉ nhân viên được ủy quyền mới có thể truy cập dữ liệu khách hàng",
+                "Hệ thống được kiểm tra bảo mật định kỳ",
             ],
         },
         {
-            title: t("privacy.sharing.title"),
+            title: "Chia sẻ thông tin",
             content: [
-                t("privacy.sharing.0"),
-                t("privacy.sharing.1"),
-                t("privacy.sharing.2"),
+                "Chúng tôi không bán thông tin cá nhân cho bên thứ ba",
+                "Thông tin chỉ được chia sẻ với đối tác vận chuyển để giao hàng",
+                "Có thể cung cấp cho cơ quan nhà nước khi có yêu cầu pháp lý",
             ],
         },
         {
-            title: t("privacy.rights.title"),
+            title: "Quyền của bạn",
             content: [
-                t("privacy.rights.0"),
-                t("privacy.rights.1"),
-                t("privacy.rights.2"),
-                t("privacy.rights.3"),
+                "Yêu cầu xem, chỉnh sửa hoặc xóa thông tin cá nhân",
+                "Từ chối nhận email marketing bất kỳ lúc nào",
+                "Yêu cầu chúng tôi ngừng xử lý dữ liệu của bạn",
+                "Liên hệ: privacy@applestore.vn để thực hiện các quyền trên",
             ],
         },
     ];
@@ -56,7 +53,7 @@ export default function PrivacyPage() {
     return (
         <div className="mx-auto max-w-3xl section-padding py-12">
             <Breadcrumb
-                items={[{ label: t("privacy.breadcrumb") }]}
+                items={[{ label: "Chính sách bảo mật" }]}
                 className="mb-6"
             />
 
@@ -65,13 +62,13 @@ export default function PrivacyPage() {
                     <Lock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h1 className="text-3xl font-semibold text-foreground">
-                    {t("privacy.title")}
+                    {"Chính sách bảo mật"}
                 </h1>
             </div>
 
             <div className="space-y-6">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                    {t("privacy.intro")}
+                    {"Apple Store Vietnam cam kết bảo vệ quyền riêng tư của bạn. Chính sách này mô tả cách chúng tôi thu thập, sử dụng và bảo vệ thông tin cá nhân của bạn khi sử dụng dịch vụ của chúng tôi."}
                 </p>
 
                 {PRIVACY_ITEMS.map((item) => (
@@ -97,7 +94,7 @@ export default function PrivacyPage() {
                 ))}
 
                 <p className="text-xs text-muted-foreground">
-                    {t("privacy.updated")}
+                    {"Cập nhật lần cuối: 01/01/2024. Nếu có thắc mắc về chính sách bảo mật, vui lòng liên hệ privacy@applestore.vn."}
                 </p>
             </div>
         </div>

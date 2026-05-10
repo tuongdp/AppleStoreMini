@@ -1,12 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Clock, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductSlider from "@/components/shared/ProductSlider";
 import ProductCard from "@/components/shared/ProductCard";
 
 function CountdownTimer({ endTime }) {
-    const { t } = useTranslation("common");
     const calcRemaining = () => {
         const diff = new Date(endTime).getTime() - Date.now();
         if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
@@ -35,7 +33,7 @@ function CountdownTimer({ endTime }) {
                     <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-xs text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">
                         {pad(remaining.d)}
                     </span>
-                    <span className="mr-0.5 text-[10px] text-muted-foreground">{t("timeAgo.day")}</span>
+                    <span className="mr-0.5 text-[10px] text-muted-foreground">{"ngày"}</span>
                 </>
             )}
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.h)}</span>
@@ -71,8 +69,6 @@ function FlashSaleSkeleton() {
 }
 
 export default function FlashSaleBanner({ flashSale, isLoading }) {
-    const { t } = useTranslation("common");
-
     const isExpired = useMemo(() => {
         if (!flashSale?.endTime) return true;
         return new Date(flashSale.endTime).getTime() <= Date.now();
@@ -141,8 +137,8 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                             {product._flashSaleItem?.quantityLimit > 0 && (
                                 <div className="px-3 pb-1">
                                     <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                        <span>{t("flashSale.sold")} {product._flashSaleItem.quantitySold}</span>
-                                        <span>{t("flashSale.remaining")} {product._flashSaleItem.quantityLimit - product._flashSaleItem.quantitySold}</span>
+                                        <span>{"Đã bán"} {product._flashSaleItem.quantitySold}</span>
+                                        <span>{"Còn"} {product._flashSaleItem.quantityLimit - product._flashSaleItem.quantitySold}</span>
                                     </div>
                                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                                         <div

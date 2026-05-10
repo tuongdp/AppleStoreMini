@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import {
     DollarSign,
     ShoppingBag,
@@ -21,8 +20,6 @@ import TopProducts from "@/features/admin/components/dashboard/TopProducts";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
-    const { t } = useTranslation("admin");
-
     // ✅ getRevenueStatsQuery transformResponse → response.data trực tiếp
     // shape: { chart, totalRevenue, totalOrders, revenueChange }
     const { data: stats, isLoading: isStatsLoading } = useGetRevenueStatsQuery({
@@ -83,10 +80,10 @@ export default function AdminDashboard() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("dashboard.title")}
+                    {"Tổng quan"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("dashboard.subtitle")}
+                    {"Xin chào, đây là tóm tắt hôm nay"}
                 </p>
             </div>
 
@@ -132,7 +129,7 @@ export default function AdminDashboard() {
                                         <TrendingDown className="h-3 w-3" />
                                     )}
                                     {Math.abs(card.change)}%{" "}
-                                    {t("dashboard.vsLastMonth")}
+                                    {"so với tháng trước"}
                                 </div>
                             )}
                         </CardContent>
@@ -145,7 +142,7 @@ export default function AdminDashboard() {
                 <Card className="lg:col-span-4">
                     <CardHeader>
                         <CardTitle className="text-sm font-medium text-foreground">
-                            {t("dashboard.revenueChart")}
+                            {"Biểu đồ doanh thu"}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -156,7 +153,7 @@ export default function AdminDashboard() {
                 <Card className="lg:col-span-3">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-sm font-medium text-foreground">
-                            {t("dashboard.recentOrders")}
+                            {"Đơn hàng mới nhất"}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -169,7 +166,7 @@ export default function AdminDashboard() {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-sm font-medium text-foreground">
-                        {t("dashboard.topProducts")}
+                        {"Sản phẩm bán chạy"}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>

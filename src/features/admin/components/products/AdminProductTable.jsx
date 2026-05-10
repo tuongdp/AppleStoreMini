@@ -1,5 +1,4 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Plus, Edit, Trash2, MoreHorizontal, Search } from "lucide-react";
 import {
@@ -39,7 +38,6 @@ import { ROUTES, CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export default function AdminProductTable() {
-  const { t } = useTranslation("admin");
   const [searchParams, setSearchParams] = useSearchParams();
   const [deleteId, setDeleteId] = useState(null);
   const [searchInput, setSearchInput] = useState(
@@ -76,9 +74,9 @@ export default function AdminProductTable() {
   const handleDelete = async () => {
     try {
       await deleteProduct(deleteId).unwrap();
-      toast.success(t("product.deleteSuccess"));
+      toast.success("Xoá sản phẩm thành công");
     } catch {
-      toast.error(t("product.deleteFailed"));
+      toast.error("Xoá sản phẩm thất bại");
     } finally {
       setDeleteId(null);
     }
@@ -93,7 +91,7 @@ export default function AdminProductTable() {
           <div className="relative min-w-[200px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder={t("product.search")}
+              placeholder={"Tìm kiếm sản phẩm..."}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="rounded-full pl-9"
@@ -106,10 +104,10 @@ export default function AdminProductTable() {
             onValueChange={(val) => updateParam("category", val)}
           >
             <SelectTrigger className="w-40 rounded-full">
-              <SelectValue placeholder={t("product.filterCategory")} />
+              <SelectValue placeholder={"Lọc theo danh mục"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("product.all")}</SelectItem>
+              <SelectItem value="all">{"Tất cả"}</SelectItem>
               {CATEGORIES.map((cat) => (
                 <SelectItem key={cat.value} value={cat.value}>
                   {cat.label}
@@ -123,7 +121,7 @@ export default function AdminProductTable() {
         <Button className="rounded-full" asChild>
           <Link to={ROUTES.ADMIN_PRODUCT_CREATE}>
             <Plus className="mr-1.5 h-4 w-4" />
-            {t("product.addNew")}
+            {"Thêm sản phẩm"}
           </Link>
         </Button>
       </div>
@@ -133,15 +131,15 @@ export default function AdminProductTable() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-16">{t("product.images")}</TableHead>
-              <TableHead>{t("product.name")}</TableHead>
-              <TableHead>{t("product.category")}</TableHead>
-              <TableHead>{t("product.price")}</TableHead>
-              <TableHead>{t("product.salePrice")}</TableHead>
-              <TableHead className="text-right">{t("product.stock")}</TableHead>
-              <TableHead>{t("product.soldCount")}</TableHead>
-              <TableHead>{t("product.status")}</TableHead>
-              <TableHead className="text-right">{t("table.actions")}</TableHead>
+              <TableHead className="w-16">{"Hình ảnh sản phẩm"}</TableHead>
+              <TableHead>{"Tên sản phẩm"}</TableHead>
+              <TableHead>{"Danh mục"}</TableHead>
+              <TableHead>{"Giá bán"}</TableHead>
+              <TableHead>{"Giá bán"}</TableHead>
+              <TableHead className="text-right">{"Tồn kho"}</TableHead>
+              <TableHead>{"Đã bán"}</TableHead>
+              <TableHead>{"Trạng thái"}</TableHead>
+              <TableHead className="text-right">{"Thao tác"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -161,7 +159,7 @@ export default function AdminProductTable() {
                     colSpan={9}
                     className="py-12 text-center text-muted-foreground"
                   >
-                  {t("table.noData")}
+                  {"Không có dữ liệu"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -241,8 +239,8 @@ export default function AdminProductTable() {
                         }
                       >
                         {product.inStock
-                          ? t("product.active")
-                          : t("product.inactive")}
+                          ? "Đang bán"
+                          : "Ngừng bán"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -263,7 +261,7 @@ export default function AdminProductTable() {
                               className="flex items-center gap-2"
                             >
                               <Edit className="h-4 w-4" />
-                              {t("product.edit")}
+                              {"Chỉnh sửa sản phẩm"}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -272,9 +270,7 @@ export default function AdminProductTable() {
                             onClick={() => setDeleteId(productId)}
                           >
                             <Trash2 className="h-4 w-4" />
-                            {t("btn.delete", {
-                              ns: "common",
-                            })}
+                            {"Xoá"}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -291,7 +287,7 @@ export default function AdminProductTable() {
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {t("table.rowsPerPage")} {PAGINATION.DEFAULT_LIMIT}
+            {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}
           </p>
           <div className="flex items-center gap-2">
             <Button
@@ -301,10 +297,10 @@ export default function AdminProductTable() {
               disabled={filters.page <= 1}
               onClick={() => updateParam("page", filters.page - 1)}
             >
-              {t("pagination.prev", { ns: "common" })}
+              {"Trước"}
             </Button>
             <span className="text-sm text-muted-foreground">
-              {filters.page} {t("table.of")} {pagination.totalPages}
+              {filters.page} {"trong"} {pagination.totalPages}
             </span>
             <Button
               variant="outline"
@@ -313,7 +309,7 @@ export default function AdminProductTable() {
               disabled={filters.page >= pagination.totalPages}
               onClick={() => updateParam("page", filters.page + 1)}
             >
-              {t("pagination.next", { ns: "common" })}
+              {"Sau"}
             </Button>
           </div>
         </div>
@@ -323,8 +319,8 @@ export default function AdminProductTable() {
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
-        title={t("product.deleteConfirm")}
-        description={t("confirm.deleteDesc", { ns: "common" })}
+        title={"Bạn có chắc muốn xoá sản phẩm này không?"}
+        description={"Hành động này không thể hoàn tác."}
         onConfirm={handleDelete}
         isLoading={isDeleting}
       />

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useGetOrdersQuery } from "@/store/api/ordersApi";
 import OrderList from "@/features/orders/components/OrderList";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,6 @@ const STATUS_TABS = [
 ];
 
 export default function OrderHistoryPage() {
-    const { t } = useTranslation("order");
     const [activeTab, setActiveTab] = useState("");
     const [page, setPage] = useState(1);
 
@@ -39,7 +37,7 @@ export default function OrderHistoryPage() {
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
             <div className="mb-6">
                 <h2 className="text-xl font-semibold text-foreground">
-                    {t("title")}
+                    {"Đơn hàng của tôi"}
                 </h2>
             </div>
 
@@ -72,11 +70,11 @@ export default function OrderHistoryPage() {
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
                     >
-                        {t("pagination.prev", { ns: "common" })}
+                        {"Trước"}
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                        {t("pagination.page", { ns: "common" })} {page}{" "}
-                        {t("pagination.of", { ns: "common" })}{" "}
+                        {"Trang"} {page}{" "}
+                        {"trong"}{" "}
                         {pagination.totalPages}
                     </span>
                     <Button
@@ -86,7 +84,7 @@ export default function OrderHistoryPage() {
                         disabled={page >= pagination.totalPages}
                         onClick={() => setPage((p) => p + 1)}
                     >
-                        {t("pagination.next", { ns: "common" })}
+                        {"Sau"}
                     </Button>
                 </div>
             )}

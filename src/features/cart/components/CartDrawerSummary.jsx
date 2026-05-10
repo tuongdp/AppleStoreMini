@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector, useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -10,7 +9,6 @@ import { formatPrice } from "@/lib/utils";
 import { ROUTES, SHIPPING } from "@/lib/constants";
 
 export default function CartDrawerSummary() {
-    const { t } = useTranslation("cart");
     const dispatch = useDispatch();
     const total = useSelector(selectCartTotal);
 
@@ -26,13 +24,13 @@ export default function CartDrawerSummary() {
             <div className="mb-3 space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">
-                        {t("summary.subtotal")}
+                        {"Tạm tính"}
                     </span>
                     <span>{formatPrice(total)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">
-                        {t("summary.shipping")}
+                        {"Phí vận chuyển"}
                     </span>
                     <span
                         className={
@@ -42,7 +40,7 @@ export default function CartDrawerSummary() {
                         }
                     >
                         {shippingFee === 0
-                            ? t("summary.freeShipping")
+                            ? "Miễn phí"
                             : formatPrice(shippingFee)}
                     </span>
                 </div>
@@ -53,12 +51,12 @@ export default function CartDrawerSummary() {
             {/* Total */}
             <div className="mb-1 flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">
-                    {t("summary.total")}
+                    {"Tổng cộng"}
                 </span>
                 <PriceDisplay price={grandTotal} size="md" />
             </div>
             <p className="mb-4 text-right text-xs text-muted-foreground">
-                {t("summary.vat")}
+                {"Đã bao gồm VAT"}
             </p>
 
             {/* Buttons */}
@@ -68,7 +66,7 @@ export default function CartDrawerSummary() {
                     asChild
                     onClick={handleClose}
                 >
-                    <Link to={ROUTES.CHECKOUT}>{t("drawer.checkout")}</Link>
+                    <Link to={ROUTES.CHECKOUT}>{"Thanh toán"}</Link>
                 </Button>
                 <Button
                     variant="outline"
@@ -76,7 +74,7 @@ export default function CartDrawerSummary() {
                     asChild
                     onClick={handleClose}
                 >
-                    <Link to={ROUTES.CART}>{t("drawer.viewCart")}</Link>
+                    <Link to={ROUTES.CART}>{"Xem giỏ hàng"}</Link>
                 </Button>
             </div>
         </div>

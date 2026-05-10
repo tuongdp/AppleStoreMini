@@ -1,4 +1,3 @@
-import { useTranslation } from "@/i18n/useTranslation";
 import { useSelector } from "react-redux";
 import { useGetProfileQuery } from "@/store/api/usersApi";
 import { selectCurrentUser } from "@/store/authSlice";
@@ -9,7 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
-    const { t } = useTranslation("profile");
     const userFromRedux = useSelector(selectCurrentUser);
 
     const { data: profileData, isLoading } = useGetProfileQuery();
@@ -28,10 +26,10 @@ export default function ProfilePage() {
             {/* Header */}
             <div className="mb-6">
                 <h2 className="text-xl font-semibold text-foreground">
-                    {t("info.title")}
+                    {"Thông tin cá nhân"}
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("info.subtitle")}
+                    {"Quản lý thông tin cá nhân của bạn"}
                 </p>
             </div>
 
@@ -42,10 +40,10 @@ export default function ProfilePage() {
                 <AvatarUpload user={profile} />
                 <div>
                     <p className="text-sm font-medium text-foreground">
-                        {t("info.avatar")}
+                        {"Ảnh đại diện"}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                        {t("avatar.uploadDesc")}
+                        {"JPG, PNG tối đa 5MB"}
                     </p>
                 </div>
             </div>

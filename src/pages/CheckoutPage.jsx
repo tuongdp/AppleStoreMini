@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronLeft, ShoppingCart } from "lucide-react";
 import { useCheckout } from "@/features/checkout/hooks/useCheckout";
 import { Button } from "@/components/ui/button";
@@ -17,8 +16,6 @@ import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function CheckoutPage() {
-    const { t } = useTranslation("checkout");
-
     const {
         currentStep,
         isSuccess,
@@ -46,9 +43,9 @@ export default function CheckoutPage() {
             <div className="flex min-h-[60vh] items-center justify-center">
                 <EmptyState
                     icon={ShoppingCart}
-                    title={t("cart.empty", { ns: "cart" })}
-                    description={t("cart.emptyDesc", { ns: "cart" })}
-                    actionLabel={t("btn.continueShopping", { ns: "common" })}
+                    title={"Giỏ hàng trống"}
+                    description={"Hãy thêm sản phẩm vào giỏ hàng của bạn"}
+                    actionLabel={"Tiếp tục mua sắm"}
                     actionHref={ROUTES.PRODUCTS}
                 />
             </div>
@@ -70,7 +67,7 @@ export default function CheckoutPage() {
             >
                 <Link to={ROUTES.CART}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
-                    {t("title", { ns: "cart" })}
+                    {"Giỏ hàng"}
                 </Link>
             </Button>
 
@@ -112,7 +109,7 @@ export default function CheckoutPage() {
                 <div className="w-full shrink-0 lg:w-80">
                     <div className="sticky top-6 rounded-2xl border border-border bg-card p-5">
                         <h3 className="mb-4 text-sm font-medium text-foreground">
-                            {t("confirm.orderSummary")}
+                            {"Tóm tắt đơn hàng"}
                         </h3>
 
                         {/* Items */}
@@ -181,13 +178,13 @@ export default function CheckoutPage() {
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                    {t("confirm.subtotal")}
+                                    {"Tạm tính"}
                                 </span>
                                 <span>{formatPrice(total)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                    {t("confirm.shipping")}
+                                    {"Phí vận chuyển"}
                                 </span>
                                 <span
                                     className={
@@ -197,7 +194,7 @@ export default function CheckoutPage() {
                                     }
                                 >
                                     {shippingFee === 0
-                                        ? t("confirm.freeShipping")
+                                        ? "Miễn phí"
                                         : formatPrice(shippingFee)}
                                 </span>
                             </div>
@@ -206,9 +203,7 @@ export default function CheckoutPage() {
                             {discountAmount > 0 && (
                                 <div className="flex justify-between text-green-600 dark:text-green-400">
                                     <span>
-                                        {t("confirm.discount", {
-                                            defaultValue: "Giảm giá",
-                                        })}{" "}
+                                        {"Giảm giá"}{" "}
                                         <code className="text-xs">
                                             ({appliedCoupon?.code})
                                         </code>
@@ -222,7 +217,7 @@ export default function CheckoutPage() {
 
                         <div className="flex items-center justify-between">
                             <span className="font-semibold text-foreground">
-                                {t("confirm.total")}
+                                {"Tổng cộng"}
                             </span>
                             <PriceDisplay price={grandTotal} size="lg" />
                         </div>

@@ -1,5 +1,4 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import {
     LayoutDashboard,
@@ -36,7 +35,6 @@ export const ADMIN_NAV_ITEMS = [
 ];
 
 export default function AdminSidebar({ onClose }) {
-    const { t } = useTranslation("admin");
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
@@ -56,7 +54,7 @@ export default function AdminSidebar({ onClose }) {
                     className="text-base font-semibold text-foreground transition-opacity hover:opacity-70"
                     onClick={onClose}
                 >
-                    {t("title")}
+                    {"Quản trị"}
                 </Link>
             </div>
 
@@ -97,7 +95,7 @@ export default function AdminSidebar({ onClose }) {
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                     <Store className="h-4 w-4 shrink-0" />
-                    {t("sidebar.backToStore")}
+                    {"Về trang Store"}
                 </Link>
 
                 <Separator className="my-1" />
@@ -126,7 +124,7 @@ export default function AdminSidebar({ onClose }) {
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                 >
                     <LogOut className="h-4 w-4 shrink-0" />
-                    {t("sidebar.logout", { ns: "profile" })}
+                    {"Đăng xuất"}
                 </button>
             </div>
         </div>

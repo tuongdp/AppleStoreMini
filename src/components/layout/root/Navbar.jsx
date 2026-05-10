@@ -13,22 +13,20 @@ import {
     toggleSearch,
     selectSearchOpen,
 } from "@/store/uiSlice";
-import { useTranslation } from "@/i18n/useTranslation";
 import { useScrolled } from "@/hooks/useScrollToTop";
 import { CATEGORIES, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import appleLogo from "@/assets/images/icons/apple.svg";
 
 export default function Navbar() {
-    const { t } = useTranslation();
     const dispatch = useDispatch();
     const mobileOpen = useSelector(selectMobileMenuOpen);
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
     const SIMPLE_NAV_LINKS = [
-        { label: t("nav.appleCare"), href: "/apple-care", icon: null },
+        { label: "appleCare", href: "/apple-care", icon: null },
 
-        { label: t("nav.news"), href: "/news", icon: null },
+        { label: "news", href: "/news", icon: null },
     ];
 
     return (

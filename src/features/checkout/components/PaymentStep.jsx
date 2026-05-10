@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Truck, Wallet, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -22,8 +21,6 @@ const PAYMENT_OPTIONS = [
 ];
 
 export default function PaymentStep({ defaultData, onNext, onBack }) {
-    const { t } = useTranslation("checkout");
-
     const [selectedMethod, setSelectedMethod] = useState(
         defaultData?.paymentMethod || PAYMENT_METHODS.COD,
     );
@@ -36,7 +33,7 @@ export default function PaymentStep({ defaultData, onNext, onBack }) {
     return (
         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <h2 className="mb-5 text-base font-semibold text-foreground">
-                {t("payment.title")}
+                {"Phương thức thanh toán"}
             </h2>
 
             <div className="space-y-3">
@@ -52,7 +49,7 @@ export default function PaymentStep({ defaultData, onNext, onBack }) {
 
             <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <Lock className="h-3.5 w-3.5" />
-                {t("payment.secure")}
+                {"Thanh toán được bảo mật và mã hoá"}
             </div>
 
             <Separator className="my-5" />
@@ -63,14 +60,14 @@ export default function PaymentStep({ defaultData, onNext, onBack }) {
                     className="rounded-full"
                     onClick={onBack}
                 >
-                    {t("payment.back")}
+                    {"Quay lại"}
                 </Button>
                 <Button
                     className="rounded-full px-8"
                     onClick={handleNext}
                     disabled={!selectedMethod}
                 >
-                    {t("payment.continue")}
+                    {"Tiếp tục"}
                 </Button>
             </div>
         </div>

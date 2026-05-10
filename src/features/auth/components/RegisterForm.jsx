@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, MailCheck } from "lucide-react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,6 @@ import { Separator } from "@/components/ui/separator";
 import { ROUTES } from "@/lib/constants";
 
 export default function RegisterForm() {
-    const { t } = useTranslation("auth");
     const { register, registerSuccess, sendVerification, isRegisterLoading } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -64,10 +62,10 @@ export default function RegisterForm() {
                     <MailCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h1 className="mb-2 text-xl font-semibold text-foreground">
-                    {t("verify.title")}
+                    {"Xác thực email"}
                 </h1>
                 <p className="mb-6 text-sm text-muted-foreground">
-                    {t("verify.sentDesc")}
+                    {"Email xác thực đã được gửi đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư và nhấp vào link xác thực."}
                 </p>
                 <Button
                     variant="outline"
@@ -75,12 +73,12 @@ export default function RegisterForm() {
                     onClick={handleResend}
                     disabled={resending}
                 >
-                    {resending ? t("verify.resending") : t("verify.resend")}
+                    {resending ? "Đang gửi..." : "Gửi lại email xác thực"}
                 </Button>
                 <p className="mt-6 text-center text-sm text-muted-foreground">
-                    {t("register.hasAccount")}{" "}
+                    {"Đã có tài khoản?"}{" "}
                     <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">
-                        {t("register.loginNow")}
+                        {"Đăng nhập"}
                     </Link>
                 </p>
             </div>
@@ -92,10 +90,10 @@ export default function RegisterForm() {
             {/* Title */}
             <div className="mb-6 text-center">
                 <h1 className="text-2xl font-semibold text-foreground">
-                    {t("register.title")}
+                    {"Tạo tài khoản"}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    {t("register.subtitle")}
+                    {"Tham gia cùng hàng triệu khách hàng Apple"}
                 </p>
             </div>
 
@@ -117,7 +115,7 @@ export default function RegisterForm() {
                         name="fullName"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t("register.fullName")}</FormLabel>
+                                <FormLabel>{"Họ và tên"}</FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder={t(
@@ -139,7 +137,7 @@ export default function RegisterForm() {
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t("register.email")}</FormLabel>
+                                <FormLabel>{"Email"}</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="email"
@@ -162,7 +160,7 @@ export default function RegisterForm() {
                         name="phone"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t("register.phone")}</FormLabel>
+                                <FormLabel>{"Số điện thoại"}</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="tel"
@@ -185,7 +183,7 @@ export default function RegisterForm() {
                         name="password"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{t("register.password")}</FormLabel>
+                                <FormLabel>{"Mật khẩu"}</FormLabel>
                                 <FormControl>
                                     <div className="relative">
                                         <Input
@@ -230,7 +228,7 @@ export default function RegisterForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    {t("register.confirmPassword")}
+                                    {"Xác nhận mật khẩu"}
                                 </FormLabel>
                                 <FormControl>
                                     <div className="relative">
@@ -286,21 +284,21 @@ export default function RegisterForm() {
                                 </FormControl>
                                 <FormLabel className="inline text-sm font-normal leading-relaxed text-muted-foreground cursor-pointer">
                                     <span>
-                                        {t("register.agreeTerms")}{" "}
+                                        {"Tôi đồng ý với"}{" "}
                                         <Link
                                             to="/terms"
                                             className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium"
                                             target="_blank"
                                         >
-                                            {t("register.terms")}
+                                            {"Điều khoản sử dụng"}
                                         </Link>{" "}
-                                        {t("register.and")}{" "}
+                                        {"và"}{" "}
                                         <Link
                                             to="/privacy"
                                             className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium"
                                             target="_blank"
                                         >
-                                            {t("register.privacy")}
+                                            {"Chính sách bảo mật"}
                                         </Link>
                                     </span>
                                 </FormLabel>
@@ -316,8 +314,8 @@ export default function RegisterForm() {
                         disabled={isRegisterLoading}
                     >
                         {isRegisterLoading
-                            ? t("register.submitting")
-                            : t("register.submit")}
+                            ? "Đang tạo tài khoản..."
+                            : "Tạo tài khoản"}
                     </Button>
                 </form>
             </Form>
@@ -326,12 +324,12 @@ export default function RegisterForm() {
 
             {/* Login link */}
             <p className="text-center text-sm text-muted-foreground">
-                {t("register.hasAccount")}{" "}
+                {"Đã có tài khoản?"}{" "}
                 <Link
                     to={ROUTES.LOGIN}
                     className="font-medium text-apple-blue hover:opacity-70"
                 >
-                    {t("register.loginNow")}
+                    {"Đăng nhập"}
                 </Link>
             </p>
         </div>

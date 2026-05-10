@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { useTranslation } from "@/i18n/useTranslation";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ProductDescription({ description }) {
-    const { t } = useTranslation("product");
     const [expanded, setExpanded] = useState(false);
     const [needsTruncation, setNeedsTruncation] = useState(false);
     const contentRef = useRef(null);
@@ -23,7 +21,7 @@ export default function ProductDescription({ description }) {
         <div>
             <div className="mb-6 text-center">
                 <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                    {t("detail.description")}
+                    {"Mô tả sản phẩm"}
                 </h2>
                 <div className="mx-auto mt-2 h-0.5 w-12 rounded-full bg-apple-blue/60" />
             </div>
@@ -52,7 +50,7 @@ export default function ProductDescription({ description }) {
                         onClick={() => setExpanded(!expanded)}
                         className="inline-flex items-center gap-1 text-sm font-medium text-apple-blue transition-colors hover:text-apple-blue/70"
                     >
-                        {expanded ? t("detail.showLess") : t("detail.showMore")}
+                        {expanded ? "Thu gọn" : "Xem thêm"}
                         <ChevronDown
                             className={cn(
                                 "h-4 w-4 transition-transform",

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { useTranslation } from "@/i18n/useTranslation";
 import { Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import QuantityInput from "@/components/shared/QuantityInput";
@@ -16,7 +15,6 @@ const getFirstImage = (images) => {
 
 export default function CartTableItem({ item, isLast }) {
   const variantId = item.variantId || item.product?.variantId;
-  const { t } = useTranslation("cart");
   const dispatch = useDispatch();
 
   const product = item.product || item.variant?.product;
@@ -61,14 +59,14 @@ export default function CartTableItem({ item, isLast }) {
               {product?.name}
             </Link>
             <p className="mt-1 text-xs text-muted-foreground">
-              {[color && `${t("item.color")}: ${color}`, storage && `${t("item.storage")}: ${storage}`, ram && `${t("item.ram")}: ${ram}`, edition && `${t("item.edition")}: ${edition}`].filter(Boolean).join(" · ")}
+              {[color && `${"Màu"}: ${color}`, storage && `${"Dung lượng"}: ${storage}`, ram && `${"RAM"}: ${ram}`, edition && `${"Phiên bản"}: ${edition}`].filter(Boolean).join(" · ")}
             </p>
             <button
               onClick={handleRemove}
               className="mt-2 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive md:hidden"
             >
               <Trash2 className="h-3 w-3" />
-              {t("item.remove")}
+              {"Xoá"}
             </button>
           </div>
         </div>
