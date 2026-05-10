@@ -29,7 +29,20 @@ export function formatPrice(price) {
     }).format(price);
 }
 
-// Tính phần trăm giảm giá
+// Format input khi đang gõ (chỉ thêm dấu phân cách, không ký hiệu tiền)
+export function formatPriceInput(value) {
+    if (value === "" || value === undefined || value === null) return "";
+    const num = typeof value === "string" ? Number(value.replace(/\D/g, "")) : Number(value);
+    if (!num && num !== 0) return "";
+    return new Intl.NumberFormat(getLocale()).format(num);
+}
+
+// Parse input đã format về number
+export function parsePriceInput(value) {
+    if (typeof value === "number") return value;
+    if (!value) return 0;
+    return Number(value.replace(/[^\d]/g, "")) || 0;
+}
 export function calcDiscount(price, salePrice) {
     if (!salePrice || salePrice >= price) return 0;
     return Math.round(((price - salePrice) / price) * 100);

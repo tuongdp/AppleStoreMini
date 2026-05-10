@@ -32,7 +32,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
-import { slugify, formatNumber, formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
+import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput, parsePriceInput } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
@@ -773,11 +773,11 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
                 )}
                 <div>
                     <Label className="text-xs">{t("productForm.price")} <span className="text-destructive">*</span></Label>
-                    <Input type="number" min={0} placeholder={t("productForm.pricePlaceholder")} value={price} onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1 h-9 text-xs" />
+                    <Input type="text" inputMode="numeric" placeholder={t("productForm.pricePlaceholder")} value={formatPriceInput(price)} onChange={(e) => setPrice(parsePriceInput(e.target.value))} className="mt-1 h-9 text-xs" />
                 </div>
                 <div>
                     <Label className="text-xs">{t("productForm.salePrice")}</Label>
-                    <Input type="number" min={0} placeholder={t("productForm.salePricePlaceholder")} value={salePrice} onChange={(e) => setSalePrice(e.target.value === "" ? "" : Number(e.target.value))} className="mt-1 h-9 text-xs" />
+                    <Input type="text" inputMode="numeric" placeholder={t("productForm.salePricePlaceholder")} value={formatPriceInput(salePrice)} onChange={(e) => setSalePrice(parsePriceInput(e.target.value) === 0 ? "" : parsePriceInput(e.target.value))} className="mt-1 h-9 text-xs" />
                 </div>
                 <div>
                     <Label className="text-xs">{t("productForm.stock")} <span className="text-destructive">*</span></Label>
