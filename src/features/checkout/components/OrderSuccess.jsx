@@ -61,27 +61,22 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
                                 className="flex items-center gap-3"
                             >
                                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1">
-                                    <img
-                                        src={
-                                            item.product?.images?.[0] ||
-                                            item.product?.image
-                                        }
-                                        alt={item.product?.name}
-                                        className="h-full w-full object-contain"
-                                    />
+                                    {item.image && (
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="h-full w-full object-contain"
+                                        />
+                                    )}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-xs font-medium text-foreground">
-                                        {item.product?.name}
+                                        {item.name}
                                     </p>
                                     <p className="text-xs text-muted-foreground">
                                         x{item.quantity}
-                                        {item.selectedStorage && (
-                                            <span>
-                                                {" "}
-                                                · {item.selectedStorage}
-                                            </span>
-                                        )}
+                                        {item.color && <span> · {item.color}</span>}
+                                        {item.storage && <span> · {item.storage}</span>}
                                     </p>
                                 </div>
                             </div>
