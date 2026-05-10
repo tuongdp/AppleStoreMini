@@ -11,10 +11,11 @@ import { cn } from "@/lib/utils";
 export default function SearchOverlay({ open, onClose }) {
     const { t } = useTranslation("product");
     const inputRef = useRef(null);
+    const panelRef = useRef(null);
 
     const {
         keyword,
-        isOpen,
+        isOpen: hasResults,
         isLoading,
         suggestions,
         handleKeywordChange,
@@ -25,41 +26,45 @@ export default function SearchOverlay({ open, onClose }) {
 
     useEffect(() => {
         if (open) {
-            setTimeout(() => inputRef.current?.focus(), 100);
+            setTimeout(() => inputRef.current?.focus(), 150);
+            document.body.style.overflow = "hidden";
         } else {
             handleClear();
+            document.body.style.overflow = "";
         }
+        return () => { document.body.style.overflow = ""; };
     }, [open]);
+
+    const close = () => {
+        handleClear();
+        onClose?.();
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         handleSearch();
-        onClose?.();
+        close();
     };
 
     useEffect(() => {
         const onKeyDown = (e) => {
-            if (e.key === "Escape") onClose?.();
+            if (e.key === "Escape") close();
         };
-        if (open) {
-            document.addEventListener("keydown", onKeyDown);
-            return () => document.removeEventListener("keydown", onKeyDown);
-        }
+        if (open) document.addEventListener("keydown", onKeyDown);
+        return () => document.removeEventListener("keydown", onKeyDown);
     }, [open]);
 
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-[60]">
+        <div className="fixed inset-0 z-[60] animate-in fade-in duration-200">
             <div
                 className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-                onClick={onClose}
+                onClick={close}
             />
             <div
-                className={cn(
-                    "absolute inset-x-0 top-0 z-10 border-b border-border bg-card shadow-2xl",
-                    "animate-in slide-in-from-top duration-300",
-                )}
+                ref={panelRef}
+                className="absolute inset-x-0 top-0 z-10 border-b border-border bg-card shadow-2xl animate-in slide-in-from-top duration-300"
             >
                 <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
                     <div className="flex items-center gap-3">
@@ -71,7 +76,7 @@ export default function SearchOverlay({ open, onClose }) {
                                     value={keyword}
                                     onChange={(e) => handleKeywordChange(e.target.value)}
                                     placeholder={t("search.placeholder")}
-                                    className="h-12 rounded-2xl pl-12 pr-12 text-base"
+                                    className="h-12 rounded-2xl pl-12 pr-12 text-base transition-all duration-200 focus-visible:ring-2 focus-visible:ring-foreground/20"
                                 />
                                 {keyword && (
                                     <button
@@ -89,7 +94,7 @@ export default function SearchOverlay({ open, onClose }) {
                             </div>
                         </form>
                         <button
-                            onClick={onClose}
+                            onClick={close}
                             className="shrink-0 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                             aria-label="Đóng"
                         >
@@ -97,22 +102,30 @@ export default function SearchOverlay({ open, onClose }) {
                         </button>
                     </div>
 
-                    {isOpen && (
-                        <div className="mt-4 max-h-[60vh] overflow-y-auto rounded-2xl border border-border bg-popover shadow-lg">
-                            {suggestions.length === 0 && !isLoading ? (
+                    <div
+                        className={cn(
+                            "mt-4 transition-all duration-300",
+                            hasResults
+                                ? "translate-y-0 opacity-100"
+                                : "translate-y-2 opacity-0 pointer-events-none",
+                        )}
+                    >
+                        <div className="max-h-[60vh] overflow-y-auto rounded-2xl border border-border bg-popover shadow-lg">
+                            {!hasResults && !isLoading ? (
                                 <div className="px-4 py-12 text-center text-sm text-muted-foreground">
                                     {t("search.noResults")}
                                 </div>
                             ) : (
                                 <div className="py-2">
-                                    {suggestions.map((product) => (
+                                    {suggestions.map((product, i) => (
                                         <button
                                             key={product.id}
                                             onClick={() => {
                                                 handleSelectSuggestion(product);
-                                                onClose?.();
+                                                close();
                                             }}
-                                            className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-muted"
+                                            className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-muted animate-in fade-in slide-in-from-bottom-1"
+                                            style={{ animationDelay: `${Math.min(i * 40, 300)}ms`, animationFillMode: "both" }}
                                         >
                                             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted/50 p-1.5">
                                                 <img
@@ -141,9 +154,9 @@ export default function SearchOverlay({ open, onClose }) {
                                                 to={`${ROUTES.SEARCH}?q=${encodeURIComponent(keyword)}`}
                                                 onClick={() => {
                                                     handleClear();
-                                                    onClose?.();
+                                                    close();
                                                 }}
-                                                className="flex items-center justify-center gap-1.5 rounded-full bg-foreground py-2.5 text-sm font-medium text-background hover:opacity-90 transition-opacity"
+                                                className="flex items-center justify-center gap-1.5 rounded-full bg-foreground py-2.5 text-sm font-medium text-background transition-all hover:opacity-90 hover:scale-[1.02]"
                                             >
                                                 <Search className="h-4 w-4" />
                                                 {t("search.viewAll")} &ldquo;{keyword}&rdquo;
@@ -153,7 +166,7 @@ export default function SearchOverlay({ open, onClose }) {
                                 </div>
                             )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>
