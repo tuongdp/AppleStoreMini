@@ -134,7 +134,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <User className="h-4 w-4" />
-                                    {"profile"}
+                                    {"Tài khoản"}
                                 </Link>
                                 <Link
                                     to={ROUTES.ORDERS}
