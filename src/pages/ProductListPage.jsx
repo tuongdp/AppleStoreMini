@@ -34,6 +34,16 @@ export default function ProductListPage() {
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
 
+    const slugOptionsFilters = useMemo(() => ({
+        category: filters.category,
+        limit: 100,
+        sort: "featured",
+    }), [filters.category]);
+
+    const { data: slugData } = useGetProductsQuery(slugOptionsFilters, {
+        skip: !filters.category,
+    });
+
     const products = useMemo(() => data?.products ?? [], [data?.products]);
     const pagination = data?.pagination ?? {};
 
@@ -54,9 +64,10 @@ export default function ProductListPage() {
     const currentCategory = categories.find((c) => c.slug === filters.category);
 
     const slugGroups = useMemo(() => {
-        if (!filters.category || !products.length) return [];
+        const source = slugData?.products ?? [];
+        if (!filters.category || !source.length) return [];
         const map = new Map();
-        products.forEach((p) => {
+        source.forEach((p) => {
             const parts = p.slug?.split("-") || [];
             if (parts.length >= 2) {
                 const family = parts.slice(0, 2).join("-");
@@ -66,7 +77,7 @@ export default function ProductListPage() {
         return [...map.entries()]
             .filter(([, count]) => count > 0)
             .sort((a, b) => b[1] - a[1]);
-    }, [products, filters.category]);
+    }, [slugData?.products, filters.category]);
 
     const totalPages = pagination.totalPages || 1;
     const currentPage = filters.page;
