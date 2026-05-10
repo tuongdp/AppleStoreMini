@@ -1,27 +1,39 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const TRUNCATE_HEIGHT = 200;
 
 export default function ProductDescription({ description }) {
     const [expanded, setExpanded] = useState(false);
     const [needsTruncation, setNeedsTruncation] = useState(false);
     const contentRef = useRef(null);
 
+    const checkTruncation = useCallback(() => {
+        if (contentRef.current) {
+            setNeedsTruncation(contentRef.current.scrollHeight > TRUNCATE_HEIGHT + 10);
+        }
+    }, []);
+
+    useEffect(() => {
+        checkTruncation();
+        const timer = setTimeout(checkTruncation, 300);
+        window.addEventListener("resize", checkTruncation);
+        return () => {
+            clearTimeout(timer);
+            window.removeEventListener("resize", checkTruncation);
+        };
+    }, [description, checkTruncation]);
+
     if (!description) return null;
 
     const isHtml = /<[a-z][\s\S]*>/i.test(description);
-
-    useEffect(() => {
-        if (contentRef.current) {
-            setNeedsTruncation(contentRef.current.scrollHeight > 200);
-        }
-    }, [description]);
 
     return (
         <div>
             <div className="mb-6 text-center">
                 <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-                    {"Mô tả sản phẩm"}
+                    Mô tả sản phẩm
                 </h2>
                 <div className="mx-auto mt-2 h-0.5 w-12 rounded-full bg-apple-blue/60" />
             </div>
