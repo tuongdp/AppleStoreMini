@@ -168,7 +168,7 @@ export default function AdminCouponList() {
                                                 className="text-xs"
                                             >
                                                 {coupon.discountType ===
-                                                "percent"
+                                                "PERCENT"
                                                     ? "Phần trăm"
                                                     : "Số tiền"}
                                             </Badge>
@@ -178,7 +178,7 @@ export default function AdminCouponList() {
                                         <TableCell>
                                             <span className="text-sm font-medium text-foreground">
                                                 {coupon.discountType ===
-                                                "percent"
+                                                "PERCENT"
                                                     ? `${coupon.discountValue}%`
                                                     : formatPrice(
                                                           coupon.discountValue,
@@ -186,7 +186,7 @@ export default function AdminCouponList() {
                                             </span>
                                             {coupon.maxDiscountAmount &&
                                                 coupon.discountType ===
-                                                    "percent" && (
+                                                    "PERCENT" && (
                                                     <p className="text-xs text-muted-foreground">
                                                         Tối đa{" "}
                                                         {formatPrice(
