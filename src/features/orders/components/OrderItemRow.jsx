@@ -2,8 +2,12 @@ import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { ROUTES } from "@/lib/constants";
+import { parseJsonField } from "@/lib/utils";
 
 export default function OrderItemRow({ item, isLast }) {
+    const images = parseJsonField(item.product?.images) || parseJsonField(item.images);
+    const firstImage = images?.[0] || item.product?.image || item.image;
+    const productName = item.product?.name || item.name;
     const color = item.color || item.selectedColor || item.variant?.color || "";
     const storage = item.storage || item.selectedStorage || item.variant?.storage || "";
     const ram = item.ram || item.selectedRam || item.variant?.ram || "";
@@ -22,8 +26,8 @@ export default function OrderItemRow({ item, isLast }) {
                     className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-1.5 transition-opacity hover:opacity-80"
                 >
                     <img
-                        src={item.product?.images?.[0] || item.product?.image}
-                        alt={item.product?.name}
+                        src={firstImage}
+                        alt={productName}
                         className="h-full w-full object-contain"
                     />
                 </Link>
@@ -38,7 +42,7 @@ export default function OrderItemRow({ item, isLast }) {
                         }
                         className="truncate text-sm font-medium text-foreground hover:text-apple-blue"
                     >
-                        {item.product?.name}
+                        {item.product?.name || item.name}
                     </Link>
 
                     {/* Variant */}
@@ -50,7 +54,7 @@ export default function OrderItemRow({ item, isLast }) {
                     <div className="mt-1.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <PriceDisplay
-                                price={item.price || item.product?.price}
+                                price={item.price || item.product?.price || 0}
                                 size="sm"
                             />
                             <span className="text-xs text-muted-foreground">
@@ -58,10 +62,7 @@ export default function OrderItemRow({ item, isLast }) {
                             </span>
                         </div>
                         <PriceDisplay
-                            price={
-                                (item.price || item.product?.price) *
-                                item.quantity
-                            }
+                            price={(item.price || item.product?.price || 0) * item.quantity}
                             size="sm"
                         />
                     </div>

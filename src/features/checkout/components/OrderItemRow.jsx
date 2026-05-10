@@ -3,12 +3,15 @@ import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { getEffectivePrice } from "@/store/cartSlice";
 import { ROUTES } from "@/lib/constants";
+import { parseJsonField } from "@/lib/utils";
 
 export default function OrderItemRow({ item, isLast }) {
     const product = item.product || item.variant?.product;
     const variant = item.variant;
     const unitPrice = getEffectivePrice(product, variant);
     const lineTotal = unitPrice * item.quantity;
+    const images = parseJsonField(product?.images);
+    const firstImage = images?.[0] || product?.image || item.image;
     const color = item.color || item.selectedColor || item.variant?.color || "";
     const storage = item.storage || item.selectedStorage || item.variant?.storage || "";
     const ram = item.ram || item.selectedRam || item.variant?.ram || "";
@@ -23,7 +26,7 @@ export default function OrderItemRow({ item, isLast }) {
                     className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-1.5 transition-opacity hover:opacity-80"
                 >
                     <img
-                        src={product?.images?.[0] || item.image || product?.image}
+                        src={firstImage}
                         alt={product?.name}
                         className="h-full w-full object-contain"
                     />

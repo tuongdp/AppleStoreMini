@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, parseJsonField } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION } from "@/lib/constants";
 import { useSearchParams } from "react-router-dom";
@@ -221,20 +221,18 @@ export default function AdminReviewList() {
                                     {/* Product */}
                                     <TableCell>
                                         <div className="flex items-center gap-2">
-                                            {review.product?.images?.[0] && (
+                                            {(() => {
+                                                const img = parseJsonField(review.product?.images)?.[0] || review.product?.image;
+                                                return img ? (
                                                 <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-0.5">
                                                     <img
-                                                        src={
-                                                            review.product
-                                                                .images[0]
-                                                        }
-                                                        alt={
-                                                            review.product?.name
-                                                        }
+                                                        src={img}
+                                                        alt={review.product?.name}
                                                         className="h-full w-full object-contain"
                                                     />
                                                 </div>
-                                            )}
+                                                ) : null;
+                                            })()}
                                             <p className="max-w-[140px] truncate text-sm text-foreground">
                                                 {review.product?.name}
                                             </p>

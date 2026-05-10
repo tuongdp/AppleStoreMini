@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { formatPrice, formatNumber } from "@/lib/utils";
+import { formatPrice, formatNumber, parseJsonField } from "@/lib/utils";
 import { ROUTES, CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -172,7 +172,7 @@ export default function AdminProductTable() {
                     <TableCell>
                       <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
                         <img
-                          src={product.images?.[0] || product.image}
+                          src={parseJsonField(product.images)?.[0] || product.image}
                           alt={product.name}
                           className="h-full w-full object-contain"
                         />

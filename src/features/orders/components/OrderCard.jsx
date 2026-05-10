@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "./OrderStatusBadge";
 import ReviewModal from "./ReviewModal";
-import { formatPrice, formatDateTime } from "@/lib/utils";
+import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS } from "@/lib/constants";
 
 export default function OrderCard({ order }) {
@@ -94,10 +94,12 @@ export default function OrderCard({ order }) {
                             >
                                 <img
                                     src={
-                                        item.product?.images?.[0] ||
-                                        item.product?.image
+                                        parseJsonField(item.product?.images)?.[0] ||
+                                        parseJsonField(item.images)?.[0] ||
+                                        item.product?.image ||
+                                        item.image
                                     }
-                                    alt={item.product?.name}
+                                    alt={item.product?.name || item.name}
                                     className="h-full w-full object-contain"
                                 />
                             </div>

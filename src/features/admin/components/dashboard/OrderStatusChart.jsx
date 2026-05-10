@@ -21,7 +21,7 @@ export default function OrderStatusChart() {
         limit: 100,
     });
 
-    const orders = data?.data || [];
+    const orders = data?.orders || [];
     const total = orders.length || 1;
 
     const counts = STATUS_LIST.reduce((acc, status) => {
