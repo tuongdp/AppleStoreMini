@@ -84,11 +84,11 @@ export default function OrderTimeline({ order }) {
                         >
                             <p
                                 className={cn(
-                                    "text-sm font-medium",
+                                    "text-sm",
                                     isDone &&
-                                        "text-green-600 dark:text-green-400",
-                                    isCurrent && "text-foreground",
-                                    isPending && "text-muted-foreground",
+                                        "font-semibold text-green-600 dark:text-green-400",
+                                    isCurrent && "font-semibold text-foreground",
+                                    isPending && "font-normal text-muted-foreground",
                                 )}
                             >
                                 {t(`timeline.${step}`)}
