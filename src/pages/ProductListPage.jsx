@@ -260,8 +260,8 @@ function FilterPanel({ filters, categories = [], products = [], onUpdate }) {
         const map = new Map();
         products.forEach((p) => {
             const parts = p.slug?.split("-") || [];
-            if (parts.length >= 4) {
-                const family = parts.slice(0, 4).join("-");
+            if (parts.length >= 2) {
+                const family = parts.slice(0, 2).join("-");
                 const count = map.get(family) || 0;
                 map.set(family, count + 1);
             }
@@ -320,7 +320,7 @@ function FilterPanel({ filters, categories = [], products = [], onUpdate }) {
                                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                 }`}
                             >
-                                <span className="capitalize">{slug.replace(/-/g, " ")}</span>
+                                <span>{slug.replace(/-/g, " ")}</span>
                                 <span className="ml-1 text-xs text-muted-foreground/60">({count})</span>
                             </button>
                         ))}
