@@ -8,18 +8,24 @@ export function cn(...inputs) {
 }
 
 const LOCALE_MAP = { vi: "vi-VN", en: "en-US" };
+const CURRENCY_MAP = { vi: "VND", en: "USD" };
 
 function getLocale() {
     return LOCALE_MAP[i18next.language] || "vi-VN";
 }
 
+function getCurrency() {
+    return CURRENCY_MAP[i18next.language] || "VND";
+}
+
 // ── Format giá tiền ────────────────────────────────────
 export function formatPrice(price) {
     if (!price && price !== 0) return "";
+    const currency = getCurrency();
     return new Intl.NumberFormat(getLocale(), {
         style: "currency",
-        currency: "VND",
-        maximumFractionDigits: 0,
+        currency,
+        maximumFractionDigits: currency === "VND" ? 0 : 2,
     }).format(price);
 }
 
