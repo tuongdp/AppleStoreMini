@@ -20,8 +20,8 @@ export default function ProductGrid({
         return (
             <EmptyState
                 icon={Package}
-                title={"products"}
-                description={"productsDesc"}
+                title={"Không có sản phẩm"}
+                description={"Thử thay đổi bộ lọc để xem thêm sản phẩm"}
             />
         );
     }

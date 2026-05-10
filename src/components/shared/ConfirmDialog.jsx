@@ -33,9 +33,9 @@ export default function ConfirmDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[400px]">
                 <DialogHeader>
-                    <DialogTitle>{title || "delete"}</DialogTitle>
+                    <DialogTitle>{title || "Xoá"}</DialogTitle>
                     <DialogDescription>
-                        {description || "deleteDesc"}
+                        {description || "Hành động này không thể hoàn tác."}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -45,7 +45,7 @@ export default function ConfirmDialog({
                         onClick={handleCancel}
                         disabled={isLoading}
                     >
-                        {cancelLabel || "cancel"}
+                        {cancelLabel || "Huỷ"}
                     </Button>
                     <Button
                         variant={variant}
@@ -53,8 +53,8 @@ export default function ConfirmDialog({
                         disabled={isLoading}
                     >
                         {isLoading
-                            ? "loading"
-                            : confirmLabel || "confirm"}
+                            ? "Đang xử lý..."
+                            : confirmLabel || "Xác nhận"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

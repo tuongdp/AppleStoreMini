@@ -16,7 +16,7 @@ export default function Breadcrumb({ items = [], className }) {
                 className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
             >
                 <Home className="h-3.5 w-3.5" />
-                <span className="sr-only">{"home"}</span>
+                <span className="sr-only">{"Trang chủ"}</span>
             </Link>
 
             {items.map((item, index) => {

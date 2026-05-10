@@ -40,7 +40,7 @@ export default function PriceDisplay({
 
             {hasDiscount && showSaved && (
                 <span className="text-xs text-green-600 dark:text-green-400">
-                    {"sale"} {formatPrice(saved)}
+                    {"Giảm "}{formatPrice(saved)}
                 </span>
             )}
         </div>

@@ -11,10 +11,10 @@ export default function NotFoundPage() {
 
             <div className="-mt-4">
                 <h2 className="mb-3 text-2xl font-semibold text-foreground">
-                    {"notFound"}
+                    {"Trang không tồn tại"}
                 </h2>
                 <p className="mb-8 max-w-sm text-sm text-muted-foreground">
-                    {"notFoundDesc"}
+                    {"Trang bạn tìm kiếm không tồn tại hoặc đã bị xoá."}
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-3">
@@ -22,13 +22,13 @@ export default function NotFoundPage() {
                         to={ROUTES.HOME}
                         className="rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-80"
                     >
-                        {"goHome"}
+                        {"Về trang chủ"}
                     </Link>
                     <Link
                         to={ROUTES.PRODUCTS}
                         className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                     >
-                        {"products"}
+                        {"Sản phẩm"}
                     </Link>
                 </div>
             </div>

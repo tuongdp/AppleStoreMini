@@ -204,7 +204,7 @@ export default function AdminLayout() {
 
                     {/* Title — desktop */}
                     <span className="hidden text-sm font-medium text-muted-foreground md:block">
-                        Admin {"admin"}
+                        Admin
                     </span>
 
                     {/* Actions */}

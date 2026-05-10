@@ -67,7 +67,7 @@ export default function NavbarMobile() {
                 {/* Categories */}
                 <div className="p-3">
                     <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {"products"}
+                        {"Sản phẩm"}
                     </p>
                     <div className="space-y-0.5">
                         {CATEGORIES.map((cat) => (
@@ -86,7 +86,7 @@ export default function NavbarMobile() {
                             onClick={handleClose}
                             className="flex items-center rounded-xl px-3 py-2.5 text-sm text-apple-blue transition-colors hover:bg-muted"
                         >
-                            {"viewAll"}
+                            {"Xem tất cả"}
                         </Link>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ export default function NavbarMobile() {
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <ShieldCheck className="h-4 w-4" />
-                            {"appleCare"}
+                            {"AppleCare"}
                         </Link>
                         <Link
                             to="/news"
@@ -113,7 +113,7 @@ export default function NavbarMobile() {
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                             <Newspaper className="h-4 w-4" />
-                            {"news"}
+                            {"Tin tức"}
                         </Link>
                     </div>
                 </div>
@@ -123,7 +123,7 @@ export default function NavbarMobile() {
                 {/* Account links */}
                 <div className="p-3">
                     <p className="mb-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                        {"profile"}
+                        {"Tài khoản"}
                     </p>
                     <div className="space-y-0.5">
                         {isAuthenticated ? (
@@ -142,7 +142,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <ShoppingBag className="h-4 w-4" />
-                                    {"orders"}
+                                    {"Đơn hàng"}
                                 </Link>
                                 <Link
                                     to={ROUTES.WISHLIST}
@@ -150,7 +150,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <Heart className="h-4 w-4" />
-                                    {"wishlist"}
+                                    {"Yêu thích"}
                                 </Link>
                             </>
                         ) : (
@@ -161,7 +161,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <LogIn className="h-4 w-4" />
-                                    {"login"}
+                                    {"Đăng nhập"}
                                 </Link>
                                 <Link
                                     to={ROUTES.REGISTER}
@@ -169,7 +169,7 @@ export default function NavbarMobile() {
                                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 >
                                     <UserPlus className="h-4 w-4" />
-                                    {"register"}
+                                    {"Đăng ký"}
                                 </Link>
                             </>
                         )}

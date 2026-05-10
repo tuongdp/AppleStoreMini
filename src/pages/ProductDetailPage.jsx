@@ -226,7 +226,7 @@ export default function ProductDetailPage() {
                     {"Không tìm thấy"}
                 </p>
                 <Button asChild variant="outline" className="rounded-full">
-                    <Link to={ROUTES.PRODUCTS}>{"reset"}</Link>
+                    <Link to={ROUTES.PRODUCTS}>{"Thử lại"}</Link>
                 </Button>
             </div>
         );
@@ -238,7 +238,7 @@ export default function ProductDetailPage() {
         <div className="section-padding py-8 md:py-12">
             <Breadcrumb
                 items={[
-                    { label: "title", href: ROUTES.PRODUCTS },
+                    { label: "Sản phẩm", href: ROUTES.PRODUCTS },
                     {
                         label: categoryDisplay,
                         href: `${ROUTES.PRODUCTS}?category=${categoryDisplay}`,
@@ -350,7 +350,7 @@ export default function ProductDetailPage() {
                     {allColors.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
-                                {"color"}
+                                {"Màu sắc"}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allColors.map((color) => {
@@ -394,7 +394,7 @@ export default function ProductDetailPage() {
                     {allStorages.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
-                                {"storage"}
+                                {"Dung lượng"}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allStorages.map((storage) => {
@@ -432,7 +432,7 @@ export default function ProductDetailPage() {
                     {allRams.length > 1 && (
                         <div>
                             <p className="mb-2 text-sm font-medium text-foreground">
-                                {"ram"}
+                                {"RAM"}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allRams.map((ram) => {
@@ -465,7 +465,7 @@ export default function ProductDetailPage() {
                     {/* Edition selector */}
                     {allEditions.length > 1 && (
                         <div>
-                            <p className="mb-2 text-sm font-medium text-foreground">{"edition"}</p>
+                            <p className="mb-2 text-sm font-medium text-foreground">{"Phiên bản"}</p>
                             <div className="flex flex-wrap gap-2">
                                 {allEditions.map((edition) => {
                                     const disabled = effectiveColor && effectiveStorage && effectiveRam
@@ -498,7 +498,7 @@ export default function ProductDetailPage() {
                     {allColors.length === 1 && allColors[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
-                                {"color"}
+                                {"Màu sắc"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allColors[0]}
@@ -510,7 +510,7 @@ export default function ProductDetailPage() {
                     {allStorages.length === 1 && allStorages[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
-                                {"storage"}
+                                {"Dung lượng"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allStorages[0]}
@@ -522,7 +522,7 @@ export default function ProductDetailPage() {
                     {allRams.length === 1 && allRams[0] && (
                         <div>
                             <p className="mb-1 text-sm font-medium text-foreground">
-                                {"ram"}
+                                {"RAM"}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {allRams[0]}
@@ -533,7 +533,7 @@ export default function ProductDetailPage() {
                     {/* Single edition display */}
                     {allEditions.length === 1 && allEditions[0] && (
                         <div>
-                            <p className="mb-1 text-sm font-medium text-foreground">{"edition"}</p>
+                            <p className="mb-1 text-sm font-medium text-foreground">{"Phiên bản"}</p>
                             <p className="text-sm text-muted-foreground">{allEditions[0]}</p>
                         </div>
                     )}
@@ -541,7 +541,7 @@ export default function ProductDetailPage() {
                     {invalidSelection && (
                         <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2">
                             <p className="text-sm font-medium text-destructive">
-                                {"invalidCombination"}
+                                {"Tổ hợp màu sắc, dung lượng, RAM và phiên bản này không tồn tại"}
                             </p>
                         </div>
                     )}
@@ -549,7 +549,7 @@ export default function ProductDetailPage() {
                     {/* Quantity */}
                     <div>
                         <p className="mb-3 text-sm font-medium text-foreground">
-                            {"quantity"}
+                            {"Số lượng"}
                         </p>
                         <QuantityInput
                             value={quantity}
@@ -564,7 +564,7 @@ export default function ProductDetailPage() {
                     <div className="flex gap-3">
                         {!selectedVariant ? (
                             <Button size="lg" className="flex-1 rounded-full text-base" disabled>
-                                {"unavailable"}
+                                {"Vui lòng chọn đầy đủ tuỳ chọn"}
                             </Button>
                         ) : inStock ? (
                             <Button
@@ -573,7 +573,7 @@ export default function ProductDetailPage() {
                                 asChild
                             >
                                 <Link to={ROUTES.CHECKOUT}>
-                                    {"buyNow"}
+                                    {"Mua ngay"}
                                 </Link>
                             </Button>
                         ) : (
@@ -582,7 +582,7 @@ export default function ProductDetailPage() {
                                 className="flex-1 rounded-full text-base"
                                 disabled
                             >
-                                {"outOfStock"}
+                                {"Hết hàng"}
                             </Button>
                         )}
                         <Button
@@ -593,7 +593,7 @@ export default function ProductDetailPage() {
                             disabled={!selectedVariant || !inStock || isAddingToCart}
                         >
                             <ShoppingCart className="h-5 w-5" />
-                            {"addToCart"}
+                            {"Thêm vào giỏ hàng"}
                         </Button>
                         <Button
                             size="lg"

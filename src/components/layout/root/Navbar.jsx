@@ -24,9 +24,9 @@ export default function Navbar() {
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
     const SIMPLE_NAV_LINKS = [
-        { label: "appleCare", href: "/apple-care", icon: null },
+        { label: "AppleCare", href: "/apple-care", icon: null },
 
-        { label: "news", href: "/news", icon: null },
+        { label: "Tin tức", href: "/news", icon: null },
     ];
 
     return (

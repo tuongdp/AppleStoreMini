@@ -41,7 +41,7 @@ export default function NavbarUserMenu() {
             >
                 <Link to={ROUTES.LOGIN}>
                     <LogIn className="h-5 w-5" />
-                    <span className="sr-only">{"login"}</span>
+                    <span className="sr-only">{"Đăng nhập"}</span>
                 </Link>
             </Button>
         );
@@ -79,7 +79,7 @@ export default function NavbarUserMenu() {
                         className="flex items-center gap-2"
                     >
                         <User className="h-4 w-4" />
-                        {"profile"}
+                        {"Tài khoản"}
                     </Link>
                 </DropdownMenuItem>
 
@@ -89,7 +89,7 @@ export default function NavbarUserMenu() {
                         className="flex items-center gap-2"
                     >
                         <Package className="h-4 w-4" />
-                        {"orders"}
+                        {"Đơn hàng"}
                     </Link>
                 </DropdownMenuItem>
 
@@ -99,7 +99,7 @@ export default function NavbarUserMenu() {
                         className="flex items-center gap-2"
                     >
                         <Heart className="h-4 w-4" />
-                        {"wishlist"}
+                        {"Yêu thích"}
                     </Link>
                 </DropdownMenuItem>
 
@@ -112,7 +112,7 @@ export default function NavbarUserMenu() {
                                 className="flex items-center gap-2"
                             >
                                 <Settings className="h-4 w-4" />
-                                {"admin"}
+                                {"Quản trị"}
                             </Link>
                         </DropdownMenuItem>
                     </>
@@ -125,7 +125,7 @@ export default function NavbarUserMenu() {
                     className="gap-2 text-red-500 focus:text-red-500"
                 >
                     <LogOut className="h-4 w-4" />
-                    {"logout"}
+                    {"Đăng xuất"}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

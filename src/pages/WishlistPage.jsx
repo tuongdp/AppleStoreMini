@@ -18,7 +18,7 @@ export default function WishlistPage() {
             <div className="mb-6 flex items-center gap-3">
                 <Heart className="h-5 w-5 text-foreground" />
                 <h2 className="text-xl font-semibold text-foreground">
-                    {"wishlist"}
+                    {"Yêu thích"}
                 </h2>
                 {count > 0 && (
                     <span className="text-sm font-normal text-muted-foreground">
@@ -32,8 +32,8 @@ export default function WishlistPage() {
                 <EmptyState
                     icon={HeartOff}
                     title={"wishlist"}
-                    description={"wishlistDesc"}
-                    actionLabel={"continueShopping"}
+                    description={"Lưu những sản phẩm bạn yêu thích để mua sau"}
+                    actionLabel={"Tiếp tục mua sắm"}
                     actionHref={ROUTES.PRODUCTS}
                 />
             ) : (

@@ -101,25 +101,12 @@ export default function ProductCard({ product }) {
                                 variant="outline"
                                 className="border-red-200 bg-red-50 text-[10px] text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
                             >
-                                {"outOfStock"}
+                                {"Hết hàng"}
                             </Badge>
                         )}
-                        {!isOutOfStock && showDiscount && (
-                            <Badge
-                                variant="destructive"
-                                className="text-[10px]"
-                            >
-                                -{discount}%
-                            </Badge>
-                        )}
-                        {!isOutOfStock && isLowStock && (
-                            <Badge className="bg-amber-100 text-[10px] text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
-                                {"Còn {{count}} sản phẩm"}
-                            </Badge>
-                        )}
-                        {!isOutOfStock && isNewProduct(product.createdAt) && (
-                            <Badge variant="secondary" className="text-[10px]">
-                                {"new"}
+                        {isNewProduct && (
+                            <Badge className="bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white dark:bg-green-600">
+                                {"Mới"}
                             </Badge>
                         )}
                     </div>
@@ -213,8 +200,8 @@ export default function ProductCard({ product }) {
                 >
                     <ShoppingCart className="h-3.5 w-3.5" />
                     {isOutOfStock
-                        ? "outOfStock"
-                        : "addToCart"}
+                        ? "Hết hàng"
+                        : "Thêm vào giỏ"}
                 </Button>
             </CardFooter>
         </Card>
