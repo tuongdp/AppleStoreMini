@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";

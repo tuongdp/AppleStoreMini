@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { Mail, Phone, Calendar, ShoppingBag } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

@@ -154,9 +154,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         setSpecs([...specs, ...newSpecs]);
         setShowImportSpecs(false);
         if (newSpecs.length < importedSpecs.length) {
-            toast.info(t("productForm.importSpecsDupSkipped", { count: importedSpecs.length - newSpecs.length }));
+            toast.info("importSpecsDupSkipped");
         }
-        toast.success(t("productForm.importSpecsSuccess", { count: newSpecs.length }));
+        toast.success("importSpecsSuccess");
     };
 
     // ── Option management ──
@@ -772,7 +772,7 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
             </div>
 
             <div>
-                <Label className="text-xs">{t("productForm.variantImages", { max: IMAGE.MAX_COUNT })}</Label>
+                <Label className="text-xs">{"variantImages"}</Label>
                 <div className="mt-1 flex flex-wrap gap-2">
                     {vImages.map((src, idx) => (
                         <div key={idx} className="group relative h-14 w-14 overflow-hidden rounded-lg bg-muted/30">

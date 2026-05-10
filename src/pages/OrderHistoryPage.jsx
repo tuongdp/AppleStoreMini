@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { useGetOrdersQuery } from "@/store/api/ordersApi";
 import OrderList from "@/features/orders/components/OrderList";

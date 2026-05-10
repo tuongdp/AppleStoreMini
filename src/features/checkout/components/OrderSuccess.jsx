@@ -81,7 +81,7 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
                         ))}
                         {order.items.length > 3 && (
                             <p className="text-xs text-muted-foreground">
-                                {t("success.moreItems", { count: order.items.length - 3 })}
+                                {"moreItems"}
                             </p>
                         )}
                     </div>

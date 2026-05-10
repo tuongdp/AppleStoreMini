@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
             }
 
             dispatch(setCredentials({ user, accessToken, refreshToken }));
-            toast.success(t("login.welcome", { name: user.fullName }));
+            toast.success("welcome");
             navigate(ROUTES.ADMIN_DASHBOARD);
         } catch (error) {
             toast.error(

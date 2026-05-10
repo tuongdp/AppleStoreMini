@@ -91,7 +91,7 @@ export default function PointsPage() {
                     </div>
                     <div className="mt-4 rounded-xl bg-white/10 px-4 py-2.5 text-xs text-white/80">
                         <Sparkles className="mr-1 inline h-3.5 w-3.5" />
-                        {t("points.earnRate", { rate: "1" })}
+                        {"earnRate"}
                     </div>
                 </div>
             </div>
@@ -198,10 +198,7 @@ export default function PointsPage() {
                     <DialogHeader>
                         <DialogTitle>{"Xác nhận đổi điểm"}</DialogTitle>
                         <DialogDescription>
-                            {selectedPkg && t("points.confirmDesc", {
-                                points: selectedPkg.points,
-                                label: selectedPkg.label,
-                            })}
+                            {selectedPkg && "confirmDesc"}
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0">
@@ -301,7 +298,7 @@ function PackageCard({ pkg, points, onRedeem, t }) {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Coins className="h-3.5 w-3.5 text-amber-500" />
-                        {t("points.needPoints", { points: pkg.points })}
+                        {"needPoints"}
                     </div>
                     <Button
                         size="sm"

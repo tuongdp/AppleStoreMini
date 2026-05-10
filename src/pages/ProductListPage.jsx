@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchX, X } from "lucide-react";

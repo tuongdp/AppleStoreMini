@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { MapPin, CreditCard, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

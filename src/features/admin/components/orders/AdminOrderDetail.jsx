@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { Package, MapPin, CreditCard } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";

@@ -108,7 +108,7 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                             {"Xem trước thông số"}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                            {t("productForm.importSpecsPreviewDesc", { file: fileName })}
+                            {"importSpecsPreviewDesc"}
                         </p>
                     </div>
                     <Button

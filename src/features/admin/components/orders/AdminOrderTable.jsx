@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { Search, Eye } from "lucide-react";

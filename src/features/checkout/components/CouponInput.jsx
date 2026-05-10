@@ -65,7 +65,7 @@ export default function CouponInput({
                             <code className="font-bold">
                                 {appliedCoupon.code}
                             </code>{" "}
-                            — {t("coupon.discountOff", { amount: formatPrice(appliedCoupon.discountAmount) })}
+                            — {"discountOff"}
                         </p>
                         {appliedCoupon.description && (
                             <p className="text-xs text-green-600/70 dark:text-green-400/70">

@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/lib/constants";
 

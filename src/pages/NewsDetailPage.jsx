@@ -70,8 +70,8 @@ function SidebarNewsCard({ news, index }) {
                     {news.title}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                    {news.readTime ? `${t("news.minRead", { time: news.readTime })} · ` : ""}
-                    {t("news.views", { count: news.viewCount?.toLocaleString() })}
+                    {news.readTime ? `${"minRead"} · ` : ""}
+                    {"views"}
                 </p>
             </div>
         </Link>
@@ -272,7 +272,7 @@ export default function NewsDetailPage() {
                             {news.readTime && (
                                 <span className="flex items-center gap-1.5">
                                     <Clock className="h-4 w-4" />
-                                    {t("news.minRead", { time: news.readTime })}
+                                    {"minRead"}
                                 </span>
                             )}
                             {news.author && (
@@ -287,7 +287,7 @@ export default function NewsDetailPage() {
                                 <span className="flex items-center gap-1">
                                     <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                                     {news.rating.toFixed(1)} (
-                                    {t("news.ratings", { count: news.ratingCount || 0 })})
+                                    {"ratings"})
                                 </span>
                             )}
                         </div>

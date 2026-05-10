@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 
 export default function AboutPage() {

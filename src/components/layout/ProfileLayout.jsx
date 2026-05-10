@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import ProfileSidebar from "./profile/ProfileSidebar";

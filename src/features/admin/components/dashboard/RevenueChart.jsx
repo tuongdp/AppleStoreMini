@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import {
     AreaChart,

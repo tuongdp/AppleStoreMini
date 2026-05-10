@@ -1,3 +1,4 @@
+import { t } from "@/i18n/useTranslation";
 import { useState } from "react";
 import { Plus, Trash2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ export default function AdminGlobalOptionsPage() {
                 hex: activeTab === "COLOR" ? newHex : null,
             }).unwrap();
             setNewValue("");
-            toast.success(t("productForm.toast.addOptionSuccess", { type: t(OPTION_TYPES.find((t2) => t2.value === activeTab)?.labelKey) }));
+            toast.success("addOptionSuccess");
         } catch (err) {
             toast.error(err?.data?.message || "Error");
         }
