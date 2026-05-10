@@ -59,17 +59,19 @@ export function useCheckout() {
         setAppliedCoupon(null);
     };
 
-    const handleMoMoPayment = async (orderId) => {
+            const handleMoMoPayment = async (orderId) => {
         try {
             const result = await createPayment(orderId).unwrap();
             if (result?.paymentUrl) {
                 window.location.href = result.paymentUrl;
+                return true;
             }
         } catch (error) {
             toast.error(t("error.paymentFailed"), {
                 description: error?.data?.message,
             });
         }
+        return false;
     };
 
     const handlePlaceOrder = async () => {
@@ -100,7 +102,8 @@ export function useCheckout() {
             dispatch(clearCart());
 
             if (checkoutData.paymentMethod === PAYMENT_METHODS.MOMO) {
-                await handleMoMoPayment(order.id);
+                const redirected = await handleMoMoPayment(order.id);
+                if (redirected) return;
             }
 
             setIsSuccess(true);
