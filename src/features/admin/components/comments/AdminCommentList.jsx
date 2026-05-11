@@ -107,14 +107,14 @@ export default function AdminCommentList() {
         }
     };
 
-    const handleToggleVisibility = async (comment) => {
+    const handleToggleVisibility = async (review) => {
         // ✅ MySQL integer id — không dùng _id
         try {
-            await toggleVisibility(comment.id).unwrap();
+            await toggleVisibility(review.id).unwrap();
             toast.success(
-                comment.isVisible !== false
-                    ? "Đã ẩn bình luận"
-                    : "Đã hiện bình luận",
+                review.isVisible !== false
+                    ? "Đã ẩn đánh giá"
+                    : "Đã hiện đánh giá",
             );
         } catch {
             toast.error("Có lỗi xảy ra");
@@ -158,7 +158,7 @@ export default function AdminCommentList() {
                         <TableRow className="hover:bg-transparent">
                             <TableHead>Người dùng</TableHead>
                             <TableHead>Sản phẩm</TableHead>
-                            <TableHead>Bình luận</TableHead>
+                            <TableHead>Đánh giá</TableHead>
                             <TableHead>Nội dung</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Ngày tạo</TableHead>
@@ -190,27 +190,27 @@ export default function AdminCommentList() {
                         ) : (
                             reviews.map((review) => (
                                 // ✅ MySQL integer id thuần
-                                <TableRow key={comment.id}>
+                                <TableRow key={review.id}>
                                     {/* User */}
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Avatar className="h-7 w-7">
                                                 <AvatarImage
-                                                    src={comment.user?.avatar}
-                                                    alt={comment.user?.fullName}
+                                                    src={review.user?.avatar}
+                                                    alt={review.user?.fullName}
                                                 />
                                                 <AvatarFallback className="text-xs">
-                                                    {comment.user?.fullName
+                                                    {review.user?.fullName
                                                         ?.charAt(0)
                                                         ?.toUpperCase() || "U"}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-medium text-foreground">
-                                                    {comment.user?.fullName}
+                                                    {review.user?.fullName}
                                                 </p>
                                                 <p className="truncate text-xs text-muted-foreground">
-                                                    {comment.user?.email}
+                                                    {review.user?.email}
                                                 </p>
                                             </div>
                                         </div>
@@ -220,32 +220,32 @@ export default function AdminCommentList() {
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             {(() => {
-                                                const img = parseJsonField(comment.product?.images)?.[0] || comment.product?.image;
+                                                const img = parseJsonField(review.product?.images)?.[0] || review.product?.image;
                                                 return img ? (
                                                 <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-0.5">
                                                     <img
                                                         src={img}
-                                                        alt={comment.product?.name}
+                                                        alt={review.product?.name}
                                                         className="h-full w-full object-contain"
                                                     />
                                                 </div>
                                                 ) : null;
                                             })()}
                                             <p className="max-w-[140px] truncate text-sm text-foreground">
-                                                {comment.product?.name}
+                                                {review.product?.name}
                                             </p>
                                         </div>
                                     </TableCell>
 
                                     {/* Rating */}
                                     <TableCell>
-                                        <StarDisplay rating={comment.rating} />
+                                        <StarDisplay rating={review.rating} />
                                     </TableCell>
 
                                     {/* Comment */}
                                     <TableCell>
                                         <p className="max-w-[200px] truncate text-sm text-muted-foreground">
-                                            {comment.comment || (
+                                            {review.content || (
                                                 <span className="italic">
                                                     Không có nhận xét
                                                 </span>
@@ -257,12 +257,12 @@ export default function AdminCommentList() {
                                     <TableCell>
                                         <Badge
                                             className={
-                                                comment.isVisible !== false
+                                                review.isVisible !== false
                                                     ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
                                                     : "bg-muted text-muted-foreground hover:bg-muted"
                                             }
                                         >
-                                            {comment.isVisible !== false
+                                            {review.isVisible !== false
                                                 ? "Hiển thị"
                                                 : "Đã ẩn"}
                                         </Badge>
@@ -271,7 +271,7 @@ export default function AdminCommentList() {
                                     {/* Date */}
                                     <TableCell>
                                         <span className="text-sm text-muted-foreground">
-                                            {formatDateTime(comment.createdAt)}
+                                            {formatDateTime(review.createdAt)}
                                         </span>
                                     </TableCell>
 
@@ -285,16 +285,16 @@ export default function AdminCommentList() {
                                                 disabled={isToggling}
                                                 onClick={() =>
                                                     handleToggleVisibility(
-                                                        comment,
+                                                        review,
                                                     )
                                                 }
                                                 title={
-                                                    comment.isVisible !== false
-                                                    ? "Ẩn bình luận"
-                                                    : "Hiện bình luận"
+                                                    review.isVisible !== false
+                                                        ? "Ẩn bình luận"
+                                                        : "Hiện bình luận"
                                                 }
                                             >
-                                                {                                                    comment.isVisible !== false ? (
+                                                {review.isVisible !== false ? (
                                                     <EyeOff className="h-4 w-4" />
                                                 ) : (
                                                     <Eye className="h-4 w-4" />
@@ -306,13 +306,14 @@ export default function AdminCommentList() {
                                                 size="icon"
                                                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                                 onClick={() =>
-                                                    setDeleteId(comment.id)
+                                                    setDeleteId(review.id)
                                                 }
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </TableCell>
+
                                 </TableRow>
                             ))
                         )}
