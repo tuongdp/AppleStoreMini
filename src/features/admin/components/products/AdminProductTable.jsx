@@ -134,8 +134,8 @@ export default function AdminProductTable() {
               <TableHead className="w-16">{"Hình ảnh sản phẩm"}</TableHead>
               <TableHead>{"Tên sản phẩm"}</TableHead>
               <TableHead>{"Danh mục"}</TableHead>
-              <TableHead>{"Giá bán"}</TableHead>
-              <TableHead>{"Giá bán"}</TableHead>
+              <TableHead>{"Giá gốc"}</TableHead>
+              <TableHead>{"Giá sale"}</TableHead>
               <TableHead className="text-right">{"Tồn kho"}</TableHead>
               <TableHead>{"Đã bán"}</TableHead>
               <TableHead>{"Trạng thái"}</TableHead>
@@ -155,10 +155,10 @@ export default function AdminProductTable() {
               ))
             ) : products.length === 0 ? (
               <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="py-12 text-center text-muted-foreground"
-                  >
+                <TableCell
+                  colSpan={9}
+                  className="py-12 text-center text-muted-foreground"
+                >
                   {"Không có dữ liệu"}
                 </TableCell>
               </TableRow>
@@ -170,7 +170,9 @@ export default function AdminProductTable() {
                     <TableCell>
                       <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
                         <img
-                          src={parseJsonField(product.images)?.[0] || product.image}
+                          src={
+                            parseJsonField(product.images)?.[0] || product.image
+                          }
                           alt={product.name}
                           className="h-full w-full object-contain"
                         />
@@ -190,7 +192,8 @@ export default function AdminProductTable() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      {product.salePrice && product.salePrice < product.price ? (
+                      {product.salePrice &&
+                      product.salePrice < product.price ? (
                         <span className="text-xs text-muted-foreground line-through">
                           {formatPrice(product.price)}
                         </span>
@@ -201,13 +204,18 @@ export default function AdminProductTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {product.salePrice && product.salePrice < product.price ? (
+                      {product.salePrice &&
+                      product.salePrice < product.price ? (
                         <>
                           <span className="text-sm font-medium text-green-600 dark:text-green-400">
                             {formatPrice(product.salePrice)}
                           </span>
                           <p className="text-xs text-muted-foreground">
-                            -{Math.round((1 - product.salePrice / product.price) * 100)}%
+                            -
+                            {Math.round(
+                              (1 - product.salePrice / product.price) * 100,
+                            )}
+                            %
                           </p>
                         </>
                       ) : (
@@ -215,13 +223,15 @@ export default function AdminProductTable() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={`text-sm font-medium ${
-                        product.stock > 10
-                          ? "text-foreground"
-                          : product.stock > 0
-                            ? "text-amber-600 dark:text-amber-400"
-                            : "text-red-600 dark:text-red-400"
-                      }`}>
+                      <span
+                        className={`text-sm font-medium ${
+                          product.stock > 10
+                            ? "text-foreground"
+                            : product.stock > 0
+                              ? "text-amber-600 dark:text-amber-400"
+                              : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
                         {formatNumber(product.stock ?? 0)}
                       </span>
                     </TableCell>
@@ -238,9 +248,7 @@ export default function AdminProductTable() {
                             : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"
                         }
                       >
-                        {product.inStock
-                          ? "Đang bán"
-                          : "Ngừng bán"}
+                        {product.inStock ? "Đang bán" : "Ngừng bán"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
