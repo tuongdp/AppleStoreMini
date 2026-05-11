@@ -291,11 +291,13 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                         <h3 className="mb-4 text-sm font-medium text-foreground">
                             Nội dung bài viết
                         </h3>
-                        <RichTextEditor
-                            content={content}
-                            onChange={handleContentChange}
-                            placeholder="Nhập nội dung bài viết..."
-                        />
+                        <div className="max-h-[500px] overflow-y-auto rounded-lg border border-border">
+                            <RichTextEditor
+                                content={content}
+                                onChange={handleContentChange}
+                                placeholder="Nhập nội dung bài viết..."
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -336,6 +338,7 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                             </span>
                                         </FormLabel>
                                         <Select
+                                            key={news?.id || "new"}
                                             value={field.value || ""}
                                             onValueChange={field.onChange}
                                             disabled={isLoading}
