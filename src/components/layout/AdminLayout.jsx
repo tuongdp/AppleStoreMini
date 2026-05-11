@@ -27,7 +27,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
-import { logout, selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
+import { logout, selectCurrentUser, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
   "backToStore": "Về trang Store",
@@ -51,29 +51,32 @@ const NAV_ITEMS = [
         key: "dashboard",
         href: ROUTES.ADMIN_DASHBOARD,
         icon: LayoutDashboard,
+        permission: "dashboard",
         end: true,
     },
-    { key: "products", href: ROUTES.ADMIN_PRODUCTS, icon: Package, end: false },
+    { key: "products", href: ROUTES.ADMIN_PRODUCTS, icon: Package, permission: "products", end: false },
     {
         key: "orders",
         href: ROUTES.ADMIN_ORDERS,
         icon: ShoppingCart,
+        permission: "orders",
         end: false,
     },
-    { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false, adminOnly: true },
-    { key: "comments", href: "/admin/comments", icon: MessageSquare, end: false },
-    { key: "news-comments", href: "/admin/news-comments", icon: MessageCircle, end: false },
-    { key: "coupons", href: "/admin/coupons", icon: Tag, end: false, adminOnly: true },
+    { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, permission: "users", end: false, adminOnly: true },
+    { key: "comments", href: "/admin/comments", icon: MessageSquare, permission: "comments", end: false },
+    { key: "news-comments", href: "/admin/news-comments", icon: MessageCircle, permission: "newsComments", end: false },
+    { key: "coupons", href: "/admin/coupons", icon: Tag, permission: "coupons", end: false, adminOnly: true },
     {
         key: "categories",
         href: "/admin/categories",
         icon: LayoutGrid,
+        permission: "categories",
         end: false,
     },
-    { key: "news", href: "/admin/news", icon: Newspaper, end: false },
-    { key: "banners", href: "/admin/banners", icon: FileSliders, end: false, adminOnly: true },
-    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, end: false, adminOnly: true },
-    { key: "options", href: "/admin/options", icon: ListFilter, end: false, adminOnly: true },
+    { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
+    { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false, adminOnly: true },
+    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false, adminOnly: true },
+    { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 
 function SidebarContent({ onClose }) {
@@ -81,8 +84,13 @@ function SidebarContent({ onClose }) {
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
     const isAdmin = useSelector(selectIsAdmin);
+    const permissions = useSelector(selectUserPermissions);
 
-    const visibleItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
+    const visibleItems = NAV_ITEMS.filter((item) => {
+        if (item.adminOnly && !isAdmin) return false;
+        if (item.permission && !isAdmin && !permissions.includes(item.permission)) return false;
+        return true;
+    });
 
     const handleLogout = () => {
         dispatch(logout());

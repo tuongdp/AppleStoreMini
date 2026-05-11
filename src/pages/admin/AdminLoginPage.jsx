@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
             const response = await login(values).unwrap();
             const { user, accessToken, refreshToken } = response.data;
 
-            if (user.role !== "admin") {
+            if (user.role !== "admin" && user.role !== "staff") {
                 toast.error("Bạn không có quyền truy cập trang quản trị.");
                 return;
             }

@@ -35,11 +35,23 @@ export const { setCredentials, logout, updateUser } = authSlice.actions;
 // ── Selectors ─────────────────────────────────────────
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
-export const selectIsAdmin = (state) => state.auth.user?.role === "admin";
+export const selectIsAdmin = (state) => state.auth.user?.role === "admin" && !state.auth.user?.isBlocked;
 export const selectUserRole = (state) => state.auth.user?.role;
 export const selectHasAdminAccess = (state) => {
-    const role = state.auth.user?.role;
-    return role === "admin" || role === "staff";
+    const user = state.auth.user;
+    if (!user || user.isBlocked) return false;
+    return user.role === "admin" || user.role === "staff";
+};
+export const selectUserPermissions = (state) => state.auth.user?.permissions || [];
+
+export const selectHasPermission = (permission) => (state) => {
+    const user = state.auth.user;
+    if (!user || user.isBlocked) return false;
+    if (user.role === "admin") return true;
+    if (user.role === "staff") {
+        return Array.isArray(user.permissions) && user.permissions.includes(permission);
+    }
+    return false;
 };
 export const selectAccessToken = (state) => state.auth.accessToken;
 
