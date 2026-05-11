@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs, Controller } from "swiper/modules";
@@ -18,10 +18,17 @@ export default function ImageGallery({ images = [], productName = "" }) {
     const [zoomOpen, setZoomOpen] = useState(false);
     const [zoomIndex, setZoomIndex] = useState(0);
 
+    const prevImagesRef = useRef(images);
     useEffect(() => {
-        setActiveIndex(0);
-        mainSwiper?.slideTo(0);
-    }, [images]);
+        if (prevImagesRef.current !== images) {
+            prevImagesRef.current = images;
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setActiveIndex(0);
+            if (mainSwiper) {
+                mainSwiper.slideTo(0);
+            }
+        }
+    }, [images, mainSwiper]);
 
     const openZoom = (index) => {
         setZoomIndex(index ?? activeIndex);
@@ -62,6 +69,8 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                     <img
                                         src={img}
                                         alt={`${productName} - ${i + 1}`}
+                                        width={600}
+                                        height={600}
                                         className="h-full w-full object-contain"
                                         onError={(e) => { e.currentTarget.src = productPlaceholder; }}
                                     />

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 
 const initialState = {
     items: [],
@@ -98,43 +98,54 @@ export default cartSlice.reducer;
 
 export const selectCartItems = (state) => state.cart.items;
 
-export const selectCartTotal = (state) =>
-    state.cart.items.reduce(
-        (total, item) => {
+export const selectCartTotal = createSelector(
+    [selectCartItems],
+    (items) =>
+        items.reduce(
+            (total, item) => {
+                const product = item.product || item.variant?.product;
+                const price = getEffectivePrice(product, item.variant);
+                return total + price * item.quantity;
+            },
+            0,
+        ),
+);
+
+export const selectCartCount = createSelector(
+    [selectCartItems],
+    (items) => items.reduce((total, item) => total + item.quantity, 0),
+);
+
+export const selectCartIsEmpty = createSelector(
+    [selectCartItems],
+    (items) => items.length === 0,
+);
+
+export const selectCartSavings = createSelector(
+    [selectCartItems],
+    (items) =>
+        items.reduce((total, item) => {
             const product = item.product || item.variant?.product;
-            const price = getEffectivePrice(product, item.variant);
-            return total + price * item.quantity;
-        },
-        0,
-    );
+            const variant = item.variant;
+            const target = variant || product;
+            if (!target) return total;
 
-export const selectCartCount = (state) =>
-    state.cart.items.reduce((total, item) => total + item.quantity, 0);
+            const flashOriginal = target.flashSale?.originalPrice || target.price;
+            const flashSale = target.flashSale?.salePrice;
+            const salePrice = target.salePrice;
+            const original = target.price ?? 0;
 
-export const selectCartIsEmpty = (state) => state.cart.items.length === 0;
+            const effectiveOriginal = flashSale && flashSale > 0 && flashSale < flashOriginal
+                ? flashOriginal
+                : original;
 
-export const selectCartSavings = (state) =>
-    state.cart.items.reduce((total, item) => {
-        const product = item.product || item.variant?.product;
-        const variant = item.variant;
-        const target = variant || product;
-        if (!target) return total;
+            const effectiveSale = flashSale && flashSale > 0 && flashSale < flashOriginal
+                ? flashSale
+                : (salePrice && salePrice > 0 && salePrice < original ? salePrice : null);
 
-        const flashOriginal = target.flashSale?.originalPrice || target.price;
-        const flashSale = target.flashSale?.salePrice;
-        const salePrice = target.salePrice;
-        const original = target.price ?? 0;
-
-        const effectiveOriginal = flashSale && flashSale > 0 && flashSale < flashOriginal
-            ? flashOriginal
-            : original;
-
-        const effectiveSale = flashSale && flashSale > 0 && flashSale < flashOriginal
-            ? flashSale
-            : (salePrice && salePrice > 0 && salePrice < original ? salePrice : null);
-
-        if (effectiveSale && effectiveSale < effectiveOriginal) {
-            return total + (effectiveOriginal - effectiveSale) * item.quantity;
-        }
-        return total;
-    }, 0);
+            if (effectiveSale && effectiveSale < effectiveOriginal) {
+                return total + (effectiveOriginal - effectiveSale) * item.quantity;
+            }
+            return total;
+        }, 0),
+);

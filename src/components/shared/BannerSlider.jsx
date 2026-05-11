@@ -26,7 +26,7 @@ export default function BannerSlider({ slides = [] }) {
                 loop
                 className="w-full"
             >
-                {slides.map((slide) => {
+                {slides.map((slide, i) => {
                     const Wrapper = slide.ctaLink ? Link : "div";
                     return (
                         <SwiperSlide key={slide.id}>
@@ -37,6 +37,9 @@ export default function BannerSlider({ slides = [] }) {
                                 <img
                                     src={slide.image}
                                     alt=""
+                                    width={1440}
+                                    height={375}
+                                    loading={i === 0 ? "eager" : "lazy"}
                                     className="absolute inset-0 h-full w-full object-cover"
                                 />
                             </Wrapper>

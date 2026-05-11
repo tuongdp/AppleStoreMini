@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,11 @@ import { cn } from "@/lib/utils";
 
 export default function SearchOverlay({ open, onClose }) {
     const inputRef = useRef(null);
-    const panelRef = useRef(null);
 
     const {
         keyword,
         isOpen: hasResults,
-        isLoading,
+        isFetching,
         suggestions,
         handleKeywordChange,
         handleSearch,
@@ -23,32 +22,40 @@ export default function SearchOverlay({ open, onClose }) {
     } = useProductSearch();
 
     useEffect(() => {
+        let timer;
         if (open) {
-            setTimeout(() => inputRef.current?.focus(), 150);
+            timer = setTimeout(() => inputRef.current?.focus(), 150);
             document.body.style.overflow = "hidden";
         } else {
             handleClear();
             document.body.style.overflow = "";
         }
-        return () => { document.body.style.overflow = ""; };
-    }, [open]);
+        return () => {
+            clearTimeout(timer);
+            document.body.style.overflow = "";
+        };
+    }, [open, handleClear]);
 
-    const close = () => {
+    const close = useCallback(() => {
         handleClear();
         onClose?.();
-    };
+    }, [handleClear, onClose]);
 
-    const handleSubmit = (e) => {
+    const closeRef = useRef(close);
+    useEffect(() => { closeRef.current = close; }, [close]);
+
+    const handleSubmit = useCallback((e) => {
         e.preventDefault();
         handleSearch();
         close();
-    };
+    }, [handleSearch, close]);
 
     useEffect(() => {
+        if (!open) return;
         const onKeyDown = (e) => {
-            if (e.key === "Escape") close();
+            if (e.key === "Escape") closeRef.current();
         };
-        if (open) document.addEventListener("keydown", onKeyDown);
+        document.addEventListener("keydown", onKeyDown);
         return () => document.removeEventListener("keydown", onKeyDown);
     }, [open]);
 
@@ -61,7 +68,6 @@ export default function SearchOverlay({ open, onClose }) {
                 onClick={close}
             />
             <div
-                ref={panelRef}
                 className="absolute inset-x-0 top-0 z-10 border-b border-border bg-card shadow-2xl animate-in slide-in-from-top duration-300"
             >
                 <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
@@ -82,7 +88,7 @@ export default function SearchOverlay({ open, onClose }) {
                                         onClick={handleClear}
                                         className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                     >
-                                        {isLoading ? (
+                                        {isFetching ? (
                                             <Loader2 className="h-5 w-5 animate-spin" />
                                         ) : (
                                             <X className="h-5 w-5" />
@@ -109,7 +115,7 @@ export default function SearchOverlay({ open, onClose }) {
                         )}
                     >
                         <div className="max-h-[60vh] overflow-y-auto rounded-2xl border border-border bg-popover shadow-lg">
-                            {!hasResults && !isLoading ? (
+                            {!hasResults && !isFetching ? (
                                 <div className="px-4 py-12 text-center text-sm text-muted-foreground">
                                     {"Không tìm thấy sản phẩm"}
                                 </div>
@@ -157,7 +163,7 @@ export default function SearchOverlay({ open, onClose }) {
                                                 className="flex items-center justify-center gap-1.5 rounded-full bg-foreground py-2.5 text-sm font-medium text-background transition-all hover:opacity-90 hover:scale-[1.02]"
                                             >
                                                 <Search className="h-4 w-4" />
-                                                {"Xem tất cả kết quả cho"} &ldquo;{keyword}&rdquo;
+                                                {"Xem tất cả kết quả cho"} {"\u201C"}{keyword}{"\u201D"}
                                             </Link>
                                         </div>
                                     )}

@@ -8,12 +8,11 @@ import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleAuthModal, toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
-import { formatPrice, calcDiscount, cn, parseJsonField } from "@/lib/utils";
+import { formatPrice, cn, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 import { productPlaceholder } from "@/assets/images";
 
-const LOW_STOCK_THRESHOLD = 5;
 const NEW_PRODUCT_DAYS = 30;
 
 function isNewProduct(createdAt) {
@@ -42,21 +41,12 @@ export default function ProductCard({ product }) {
         ? product.flashSale.originalPrice
         : product.price;
 
-    const discount = hasFlashSale
-        ? calcDiscount(product.flashSale.originalPrice, product.flashSale.salePrice)
-        : calcDiscount(product.price, effectivePrice);
-
     const showDiscount = hasFlashSale
         ? product.flashSale.salePrice < product.flashSale.originalPrice
         : product.salePrice && product.salePrice < product.price;
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
-    const isLowStock =
-        !isOutOfStock &&
-        stock !== null &&
-        stock > 0 &&
-        stock <= LOW_STOCK_THRESHOLD;
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -140,6 +130,8 @@ export default function ProductCard({ product }) {
                             productPlaceholder
                         }
                         alt={product.name}
+                        width={400}
+                        height={300}
                         className={cn(
                             "h-full w-full object-contain transition-transform duration-500",
                             !isOutOfStock && "group-hover:scale-105",

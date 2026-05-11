@@ -1,4 +1,6 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import LoadingScreen from "@/components/shared/LoadingScreen";
 
 // Layouts
 import RootLayout from "@/components/layout/RootLayout";
@@ -12,66 +14,83 @@ import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import AdminRoute from "@/features/auth/components/AdminRoute";
 import GuestRoute from "@/features/auth/components/GuestRoute";
 
-// Pages — public
-import HomePage from "@/pages/HomePage";
-import ProductListPage from "@/pages/ProductListPage";
-import ProductDetailPage from "@/pages/ProductDetailPage";
-import CartPage from "@/pages/CartPage";
-import SearchPage from "@/pages/SearchPage";
-import WishlistPage from "@/pages/WishlistPage";
+// Eager-loaded pages (critical path)
 import NotFoundPage from "@/pages/NotFoundPage";
 import ErrorPage from "@/pages/ErrorPage";
-import AboutPage from "@/pages/AboutPage";
-import ContactPage from "@/pages/ContactPage";
-import WarrantyPage from "@/pages/WarrantyPage";
-import ReturnPolicyPage from "@/pages/ReturnPolicyPage";
-import PrivacyPage from "@/pages/PrivacyPage";
-import TermsPage from "@/pages/TermsPage";
-import AppleCarePage from "@/pages/AppleCarePage";
 
-// Pages — auth
-import LoginPage from "@/pages/LoginPage";
-import RegisterPage from "@/pages/RegisterPage";
-import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
-import ChangePasswordPage from "@/pages/ChangePasswordPage";
+const Lazy = (importFn) => {
+    const Component = lazy(importFn);
+    return (
+        <Suspense fallback={<LoadingScreen />}>
+            <Component />
+        </Suspense>
+    );
+};
 
-// Pages — checkout
-import CheckoutPage from "@/pages/CheckoutPage";
+// Pages — public (lazy)
+const HomePage = () => Lazy(() => import("@/pages/HomePage"));
+const ProductListPage = () => Lazy(() => import("@/pages/ProductListPage"));
+const ProductDetailPage = () => Lazy(() => import("@/pages/ProductDetailPage"));
+const CartPage = () => Lazy(() => import("@/pages/CartPage"));
+const SearchPage = () => Lazy(() => import("@/pages/SearchPage"));
+const WishlistPage = () => Lazy(() => import("@/pages/WishlistPage"));
+const AboutPage = () => Lazy(() => import("@/pages/AboutPage"));
+const ContactPage = () => Lazy(() => import("@/pages/ContactPage"));
+const WarrantyPage = () => Lazy(() => import("@/pages/WarrantyPage"));
+const ReturnPolicyPage = () => Lazy(() => import("@/pages/ReturnPolicyPage"));
+const PrivacyPage = () => Lazy(() => import("@/pages/PrivacyPage"));
+const TermsPage = () => Lazy(() => import("@/pages/TermsPage"));
+const AppleCarePage = () => Lazy(() => import("@/pages/AppleCarePage"));
+const NewsPage = () => Lazy(() => import("@/pages/NewsPage"));
+const NewsDetailPage = () => Lazy(() => import("@/pages/NewsDetailPage"));
 
-// Pages — profile
-import ProfilePage from "@/pages/ProfilePage";
-import OrderHistoryPage from "@/pages/OrderHistoryPage";
-import OrderDetailPage from "@/pages/OrderDetailPage";
-import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import VerifyEmailPage from "@/pages/VerifyEmailPage";
-import PointsPage from "@/pages/PointsPage";
-import PaymentResult from "@/pages/PaymentResult";
+// Pages — auth (lazy)
+const LoginPage = () => Lazy(() => import("@/pages/LoginPage"));
+const RegisterPage = () => Lazy(() => import("@/pages/RegisterPage"));
+const ForgotPasswordPage = () => Lazy(() => import("@/pages/ForgotPasswordPage"));
+const ChangePasswordPage = () => Lazy(() => import("@/pages/ChangePasswordPage"));
+const ResetPasswordPage = () => Lazy(() => import("@/pages/ResetPasswordPage"));
+const VerifyEmailPage = () => Lazy(() => import("@/pages/VerifyEmailPage"));
 
-// Pages — admin
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminProductList from "@/pages/admin/AdminProductList";
-import AdminProductCreate from "@/pages/admin/AdminProductCreate";
-import AdminProductEdit from "@/pages/admin/AdminProductEdit";
-import AdminOrderList from "@/pages/admin/AdminOrderList";
-import AdminOrderDetail from "@/pages/admin/AdminOrderDetail";
-import AdminUserList from "@/pages/admin/AdminUserList";
-import AdminUserDetail from "@/pages/admin/AdminUserDetail";
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
-import AdminCommentPage from "./pages/admin/AdminCommentPage";
-import AdminNewsCommentPage from "./pages/admin/AdminNewsCommentPage";
-import AdminCouponPage from "@/pages/admin/AdminCouponPage";
-import AdminCategoryPage from "@/pages/admin/AdminCategoryPage";
-import NewsPage from "./pages/NewsPage";
-import NewsDetailPage from "./pages/NewsDetailPage";
-import AdminNewsPage from "./pages/admin/AdminNewsPage";
-import AdminNewsCreate from "./pages/admin/AdminNewsCreate";
-import AdminNewsEdit from "./pages/admin/AdminNewsEdit";
-import AdminBannerPage from "./pages/admin/AdminBannerPage";
-import AdminFlashSalePage from "./pages/admin/AdminFlashSalePage";
-import AdminGlobalOptionsPage from "./pages/admin/AdminGlobalOptionsPage";
+// Pages — checkout (lazy)
+const CheckoutPage = () => Lazy(() => import("@/pages/CheckoutPage"));
+
+// Pages — profile (lazy)
+const ProfilePage = () => Lazy(() => import("@/pages/ProfilePage"));
+const OrderHistoryPage = () => Lazy(() => import("@/pages/OrderHistoryPage"));
+const OrderDetailPage = () => Lazy(() => import("@/pages/OrderDetailPage"));
+const PointsPage = () => Lazy(() => import("@/pages/PointsPage"));
+const PaymentResult = ({ status }) => {
+    const Component = lazy(() => import("@/pages/PaymentResult"));
+    return (
+        <Suspense fallback={<LoadingScreen />}>
+            <Component status={status} />
+        </Suspense>
+    );
+};
+
+// Pages — admin (lazy)
+const AdminLoginPage = () => Lazy(() => import("@/pages/admin/AdminLoginPage"));
+const AdminDashboard = () => Lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminProductList = () => Lazy(() => import("@/pages/admin/AdminProductList"));
+const AdminProductCreate = () => Lazy(() => import("@/pages/admin/AdminProductCreate"));
+const AdminProductEdit = () => Lazy(() => import("@/pages/admin/AdminProductEdit"));
+const AdminOrderList = () => Lazy(() => import("@/pages/admin/AdminOrderList"));
+const AdminOrderDetail = () => Lazy(() => import("@/pages/admin/AdminOrderDetail"));
+const AdminUserList = () => Lazy(() => import("@/pages/admin/AdminUserList"));
+const AdminUserDetail = () => Lazy(() => import("@/pages/admin/AdminUserDetail"));
+const AdminCommentPage = () => Lazy(() => import("@/pages/admin/AdminCommentPage"));
+const AdminNewsCommentPage = () => Lazy(() => import("@/pages/admin/AdminNewsCommentPage"));
+const AdminCouponPage = () => Lazy(() => import("@/pages/admin/AdminCouponPage"));
+const AdminCategoryPage = () => Lazy(() => import("@/pages/admin/AdminCategoryPage"));
+const AdminNewsPage = () => Lazy(() => import("@/pages/admin/AdminNewsPage"));
+const AdminNewsCreate = () => Lazy(() => import("@/pages/admin/AdminNewsCreate"));
+const AdminNewsEdit = () => Lazy(() => import("@/pages/admin/AdminNewsEdit"));
+const AdminBannerPage = () => Lazy(() => import("@/pages/admin/AdminBannerPage"));
+const AdminFlashSalePage = () => Lazy(() => import("@/pages/admin/AdminFlashSalePage"));
+const AdminGlobalOptionsPage = () => Lazy(() => import("@/pages/admin/AdminGlobalOptionsPage"));
 
 export const router = createBrowserRouter([
-    // ── Public ───────────────────────────────────────────
     {
         path: "/",
         element: <RootLayout />,
@@ -95,7 +114,6 @@ export const router = createBrowserRouter([
             { path: "payment/success", element: <PaymentResult status="success" /> },
             { path: "payment/fail", element: <PaymentResult status="fail" /> },
 
-            // ── Profile ──────────────────────────────────────────
             {
                 path: "profile",
                 element: (
@@ -108,46 +126,27 @@ export const router = createBrowserRouter([
                     { path: "wishlist", element: <WishlistPage /> },
                     { path: "orders", element: <OrderHistoryPage /> },
                     { path: "orders/:id", element: <OrderDetailPage /> },
-                    {
-                        path: "change-password",
-                        element: <ChangePasswordPage />,
-                    },
-                    {
-                        path: "points",
-                        element: <PointsPage />,
-                    },
+                    { path: "change-password", element: <ChangePasswordPage /> },
+                    { path: "points", element: <PointsPage /> },
                 ],
             },
         ],
     },
 
-    // ── Auth ─────────────────────────────────────────────
     {
         element: <AuthLayout />,
         children: [
             {
                 path: "login",
-                element: (
-                    <GuestRoute>
-                        <LoginPage />
-                    </GuestRoute>
-                ),
+                element: <GuestRoute><LoginPage /></GuestRoute>,
             },
             {
                 path: "register",
-                element: (
-                    <GuestRoute>
-                        <RegisterPage />
-                    </GuestRoute>
-                ),
+                element: <GuestRoute><RegisterPage /></GuestRoute>,
             },
             {
                 path: "forgot-password",
-                element: (
-                    <GuestRoute>
-                        <ForgotPasswordPage />
-                    </GuestRoute>
-                ),
+                element: <GuestRoute><ForgotPasswordPage /></GuestRoute>,
             },
             {
                 path: "reset-password/:token",
@@ -156,7 +155,6 @@ export const router = createBrowserRouter([
         ],
     },
 
-    // ── Checkout ─────────────────────────────────────────
     {
         element: (
             <ProtectedRoute>
@@ -166,25 +164,6 @@ export const router = createBrowserRouter([
         children: [{ path: "checkout", element: <CheckoutPage /> }],
     },
 
-    // // ── Profile ──────────────────────────────────────────
-    // {
-    //     path: "profile",
-    //     element: (
-    //         <ProtectedRoute>
-    //             <ProfileLayout />
-    //         </ProtectedRoute>
-    //     ),
-    //     children: [
-    //         { index: true, element: <ProfilePage /> },
-    //         { path: "wishlist", element: <WishlistPage /> },
-    //         { path: "orders", element: <OrderHistoryPage /> },
-    //         { path: "orders/:id", element: <OrderDetailPage /> },
-    //         { path: "addresses", element: <AddressBookPage /> },
-    //         { path: "change-password", element: <ChangePasswordPage /> },
-    //     ],
-    // },
-
-    // ── Admin ─────────────────────────────────────────────
     {
         path: "admin/login",
         element: <AdminLoginPage />,
@@ -220,6 +199,5 @@ export const router = createBrowserRouter([
         ],
     },
 
-    // ── 404 ───────────────────────────────────────────────
     { path: "*", element: <NotFoundPage /> },
 ]);

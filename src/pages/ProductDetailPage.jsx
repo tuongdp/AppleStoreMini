@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -30,59 +30,7 @@ import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
-function CountdownTimer({ endTime }) {
-    const [remaining, setRemaining] = useState(null);
-
-    useEffect(() => {
-        const update = () => {
-            const diff = new Date(endTime).getTime() - Date.now();
-            if (diff <= 0) {
-                setRemaining({ d: 0, h: 0, m: 0, s: 0 });
-                return;
-            }
-            const totalSec = Math.floor(diff / 1000);
-            setRemaining({
-                d: Math.floor(totalSec / 86400),
-                h: Math.floor((totalSec % 86400) / 3600),
-                m: Math.floor((totalSec % 3600) / 60),
-                s: totalSec % 60,
-            });
-        };
-        update();
-        const timer = setInterval(update, 1000);
-        return () => clearInterval(timer);
-    }, [endTime]);
-
-    if (!remaining) return null;
-
-    const pad = (n) => String(n).padStart(2, "0");
-
-    return (
-        <div className="flex items-center gap-1 font-mono tabular-nums">
-            {remaining.d > 0 && (
-                <>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-xs font-bold text-amber-600 dark:text-amber-400 shadow-sm">
-                        {pad(remaining.d)}
-                    </span>
-                    <span className="mr-0.5 text-[10px] font-medium text-amber-600/70 dark:text-amber-400/70">
-                        {"ngày"}
-                    </span>
-                </>
-            )}
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-amber-600 dark:text-amber-400 shadow-sm">
-                {pad(remaining.h)}
-            </span>
-            <span className="text-sm font-bold text-amber-500/50 dark:text-amber-400/50">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-amber-600 dark:text-amber-400 shadow-sm">
-                {pad(remaining.m)}
-            </span>
-            <span className="text-sm font-bold text-amber-500/50 dark:text-amber-400/50">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background text-sm font-bold text-amber-600 dark:text-amber-400 shadow-sm">
-                {pad(remaining.s)}
-            </span>
-        </div>
-    );
-}
+import CountdownTimer from "@/components/shared/CountdownTimer";
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -149,10 +97,23 @@ export default function ProductDetailPage() {
     const stock = selectedVariant?.stock ?? 0;
 
     const flashSaleData = selectedVariant?.flashSale ?? null;
-    const hasActiveFlashSale = flashSaleData &&
-        flashSaleData.salePrice &&
-        flashSaleData.endTime &&
-        new Date(flashSaleData.endTime).getTime() > Date.now(); // eslint-disable-line react-hooks/purity
+    const [hasActiveFlashSale, setHasActiveFlashSale] = useState(false);
+
+    useEffect(() => {
+        if (!flashSaleData?.endTime || !flashSaleData?.salePrice) {
+            setHasActiveFlashSale(false);
+            return;
+        }
+        const check = () => {
+            setHasActiveFlashSale(
+                !!flashSaleData.salePrice &&
+                new Date(flashSaleData.endTime).getTime() > Date.now()
+            );
+        };
+        check();
+        const timer = setInterval(check, 1000);
+        return () => clearInterval(timer);
+    }, [flashSaleData?.endTime, flashSaleData?.salePrice]);
 
     const displayOriginalPrice = hasActiveFlashSale ? flashSaleData.originalPrice : selectedVariant?.price;
     const displaySalePrice = hasActiveFlashSale ? null : selectedVariant?.salePrice;
@@ -168,19 +129,15 @@ export default function ProductDetailPage() {
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const isInWishlist = useSelector(selectIsInWishlist(product?.id));
 
-    const slugRef = useRef(slug);
     const [quantity, setQuantity] = useState(1);
     const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
 
     useEffect(() => {
-        if (slugRef.current !== slug) {
-            slugRef.current = slug;
-            setSelectedColor("");
-            setSelectedStorage("");
-            setSelectedRam("");
-            setSelectedEdition("");
-            setQuantity(1);
-        }
+        setSelectedColor("");
+        setSelectedStorage("");
+        setSelectedRam("");
+        setSelectedEdition("");
+        setQuantity(1);
     }, [slug]);
 
     const handleAddToCart = async () => {

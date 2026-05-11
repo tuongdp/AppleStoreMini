@@ -138,7 +138,7 @@ export function isValidEmail(email) {
 }
 
 export function isValidPhone(phone) {
-    return /^(0[3|5|7|8|9])+([0-9]{8})$/.test(phone);
+    return /^0[35789][0-9]{8}$/.test(phone);
 }
 
 // ── Array ──────────────────────────────────────────────
@@ -182,22 +182,27 @@ export function isValidImageFile(file) {
 export const parseJsonField = (field) => {
     if (!field) return [];
     if (Array.isArray(field)) return field;
-    try {
-        return JSON.parse(field);
-    } catch {
-        return [];
+    if (typeof field === "object") return field;
+    if (typeof field === "string" && (field.startsWith("[") || field.startsWith("{"))) {
+        try {
+            return JSON.parse(field);
+        } catch {
+            return [];
+        }
     }
+    return [field];
 };
 
 // ── Image upload ──────────────────────────────────────
 export async function uploadBlobImages(urls, uploadFn) {
+    let counter = 0;
     return Promise.all(
         urls.map(async (url) => {
             if (typeof url !== "string" || !url.startsWith("blob:")) return url;
             const res = await fetch(url);
             const blob = await res.blob();
             const ext = blob.type.split("/")[1] || "jpg";
-            const file = new File([blob], `image-${Date.now()}.${ext}`, { type: blob.type });
+            const file = new File([blob], `image-${Date.now()}-${counter++}.${ext}`, { type: blob.type });
             const fd = new FormData();
             fd.append("image", file);
             const result = await uploadFn(fd);

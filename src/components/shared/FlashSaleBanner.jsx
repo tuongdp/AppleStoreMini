@@ -3,47 +3,7 @@ import { Clock, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductSlider from "@/components/shared/ProductSlider";
 import ProductCard from "@/components/shared/ProductCard";
-
-function CountdownTimer({ endTime }) {
-    const calcRemaining = () => {
-        const diff = new Date(endTime).getTime() - Date.now();
-        if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
-        const totalSec = Math.floor(diff / 1000);
-        return {
-            d: Math.floor(totalSec / 86400),
-            h: Math.floor((totalSec % 86400) / 3600),
-            m: Math.floor((totalSec % 3600) / 60),
-            s: totalSec % 60,
-        };
-    };
-
-    const [remaining, setRemaining] = useState(calcRemaining);
-
-    useEffect(() => {
-        const timer = setInterval(() => setRemaining(calcRemaining), 1000);
-        return () => clearInterval(timer);
-    }, [endTime]);
-
-    const pad = (n) => String(n).padStart(2, "0");
-
-    return (
-        <div className="flex items-center gap-1 font-mono text-lg font-bold tabular-nums">
-            {remaining.d > 0 && (
-                <>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-xs text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">
-                        {pad(remaining.d)}
-                    </span>
-                    <span className="mr-0.5 text-[10px] text-muted-foreground">{"ngày"}</span>
-                </>
-            )}
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.h)}</span>
-            <span className="text-muted-foreground/40">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.m)}</span>
-            <span className="text-muted-foreground/40">:</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/15 text-sm text-amber-600 dark:bg-amber-400/20 dark:text-amber-400">{pad(remaining.s)}</span>
-        </div>
-    );
-}
+import CountdownTimer from "@/components/shared/CountdownTimer";
 
 function FlashSaleSkeleton() {
     return (
@@ -69,9 +29,17 @@ function FlashSaleSkeleton() {
 }
 
 export default function FlashSaleBanner({ flashSale, isLoading }) {
-    const isExpired = useMemo(() => {
+    const [isExpired, setIsExpired] = useState(() => {
         if (!flashSale?.endTime) return true;
         return new Date(flashSale.endTime).getTime() <= Date.now();
+    });
+
+    useEffect(() => {
+        if (!flashSale?.endTime) return;
+        const timer = setInterval(() => {
+            setIsExpired(new Date(flashSale.endTime).getTime() <= Date.now());
+        }, 1000);
+        return () => clearInterval(timer);
     }, [flashSale?.endTime]);
 
     const products = useMemo(() => {
