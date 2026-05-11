@@ -90,6 +90,7 @@ export const PAYMENT_METHODS = {
 // ── User roles ────────────────────────────────────────
 export const USER_ROLES = {
     ADMIN: "admin",
+    STAFF: "staff",
     USER: "user",
 };
 

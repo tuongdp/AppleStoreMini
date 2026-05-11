@@ -36,6 +36,11 @@ export const { setCredentials, logout, updateUser } = authSlice.actions;
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsAdmin = (state) => state.auth.user?.role === "admin";
+export const selectUserRole = (state) => state.auth.user?.role;
+export const selectHasAdminAccess = (state) => {
+    const role = state.auth.user?.role;
+    return role === "admin" || role === "staff";
+};
 export const selectAccessToken = (state) => state.auth.accessToken;
 
 export default authSlice.reducer;

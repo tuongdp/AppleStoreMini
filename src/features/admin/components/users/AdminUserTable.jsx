@@ -1,10 +1,12 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import {
     Search,
     Eye,
     ShieldCheck,
     ShieldOff,
+    Shield,
     MoreHorizontal,
     Trash2,
 } from "lucide-react";
@@ -14,6 +16,7 @@ import {
     useToggleUserStatusMutation,
     useDeleteUserMutation,
 } from "@/store/api/usersApi";
+import { selectIsAdmin } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -51,14 +54,22 @@ import { useDebounce } from "@/hooks/useDebounce";
 // Dùng lowercase để so sánh nhất quán
 const ROLE = {
     ADMIN: "admin",
+    STAFF: "staff",
     USER: "user",
 };
 
 const ROLE_OPTIONS = [
     { value: "all", label: "Tất cả" },
     { value: ROLE.USER, label: "Người dùng" },
+    { value: ROLE.STAFF, label: "Nhân viên" },
     { value: ROLE.ADMIN, label: "Quản trị viên" },
 ];
+
+const ROLE_LABEL = {
+    [ROLE.ADMIN]: "Quản trị viên",
+    [ROLE.STAFF]: "Nhân viên",
+    [ROLE.USER]: "Người dùng",
+};
 
 export default function AdminUserTable() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -66,6 +77,7 @@ export default function AdminUserTable() {
         searchParams.get("search") || "",
     );
     const [deleteId, setDeleteId] = useState(null);
+    const isAdmin = useSelector(selectIsAdmin);
 
     const debouncedSearch = useDebounce(searchInput, 400);
 
@@ -97,9 +109,8 @@ export default function AdminUserTable() {
         setSearchParams(params);
     };
 
-    const handleToggleRole = async (user) => {
-        // ✅ BE role là lowercase, usersApi.updateUserRole sẽ .toUpperCase() trước khi gửi
-        const newRole = user.role === ROLE.ADMIN ? ROLE.USER : ROLE.ADMIN;
+    const handleSetRole = async (user, newRole) => {
+        if (user.role === newRole) return;
         try {
             await updateRole({ id: user.id, role: newRole }).unwrap();
             toast.success("Cập nhật vai trò thành công");
@@ -236,12 +247,12 @@ export default function AdminUserTable() {
                                             className={
                                                 user.role === ROLE.ADMIN
                                                     ? "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/30 dark:text-purple-400"
-                                                    : "bg-muted text-muted-foreground hover:bg-muted"
+                                                    : user.role === ROLE.STAFF
+                                                      ? "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400"
+                                                      : "bg-muted text-muted-foreground hover:bg-muted"
                                             }
                                         >
-                                            {user.role === ROLE.ADMIN
-                                                ? "Quản trị viên"
-                                                : "Người dùng"}
+                                            {ROLE_LABEL[user.role] || "Người dùng"}
                                         </Badge>
                                     </TableCell>
 
@@ -299,45 +310,52 @@ export default function AdminUserTable() {
                                                     </Link>
                                                 </DropdownMenuItem>
 
-                                                <DropdownMenuItem
-                                                    className="gap-2"
-                                                    disabled={isUpdating}
-                                                    onClick={() =>
-                                                        handleToggleRole(user)
-                                                    }
-                                                >
-                                                    <ShieldCheck className="h-4 w-4" />
-                                                    {user.role === ROLE.ADMIN
-                                                        ? "Người dùng"
-                                                        : "Quản trị viên"}
-                                                </DropdownMenuItem>
-
-                                                <DropdownMenuItem
-                                                    className="gap-2"
-                                                    disabled={isToggling}
-                                                    onClick={() =>
-                                                        handleToggleStatus(
-                                                            user.id,
-                                                        )
-                                                    }
-                                                >
-                                                    <ShieldOff className="h-4 w-4" />
-                                                    {user.isBlocked
-                                                        ? "Bỏ chặn"
-                                                        : "Chặn"}
-                                                </DropdownMenuItem>
-
-                                                <DropdownMenuSeparator />
-
-                                                <DropdownMenuItem
-                                                    className="gap-2 text-destructive focus:text-destructive"
-                                                    onClick={() =>
-                                                        setDeleteId(user.id)
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                    {"Xoá"}
-                                                </DropdownMenuItem>
+                                                {isAdmin && (
+                                                    <>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            className="gap-2"
+                                                            disabled={isUpdating || user.role === ROLE.ADMIN}
+                                                            onClick={() => handleSetRole(user, ROLE.ADMIN)}
+                                                        >
+                                                            <ShieldCheck className="h-4 w-4" />
+                                                            {"Đặt làm Quản trị viên"}
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            className="gap-2"
+                                                            disabled={isUpdating || user.role === ROLE.STAFF}
+                                                            onClick={() => handleSetRole(user, ROLE.STAFF)}
+                                                        >
+                                                            <Shield className="h-4 w-4" />
+                                                            {"Đặt làm Nhân viên"}
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            className="gap-2"
+                                                            disabled={isUpdating || user.role === ROLE.USER}
+                                                            onClick={() => handleSetRole(user, ROLE.USER)}
+                                                        >
+                                                            <ShieldOff className="h-4 w-4" />
+                                                            {"Đặt làm Người dùng"}
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            className="gap-2"
+                                                            disabled={isToggling}
+                                                            onClick={() => handleToggleStatus(user.id)}
+                                                        >
+                                                            <ShieldOff className="h-4 w-4" />
+                                                            {user.isBlocked ? "Bỏ chặn" : "Chặn"}
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            className="gap-2 text-destructive focus:text-destructive"
+                                                            onClick={() => setDeleteId(user.id)}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                            {"Xoá"}
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

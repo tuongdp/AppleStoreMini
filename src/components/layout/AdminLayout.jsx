@@ -27,7 +27,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
-import { logout, selectCurrentUser } from "@/store/authSlice";
+import { logout, selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
   "backToStore": "Về trang Store",
@@ -60,10 +60,10 @@ const NAV_ITEMS = [
         icon: ShoppingCart,
         end: false,
     },
-    { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false },
+    { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false, adminOnly: true },
     { key: "comments", href: "/admin/comments", icon: MessageSquare, end: false },
     { key: "news-comments", href: "/admin/news-comments", icon: MessageCircle, end: false },
-    { key: "coupons", href: "/admin/coupons", icon: Tag, end: false },
+    { key: "coupons", href: "/admin/coupons", icon: Tag, end: false, adminOnly: true },
     {
         key: "categories",
         href: "/admin/categories",
@@ -71,15 +71,18 @@ const NAV_ITEMS = [
         end: false,
     },
     { key: "news", href: "/admin/news", icon: Newspaper, end: false },
-    { key: "banners", href: "/admin/banners", icon: FileSliders, end: false },
-    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, end: false },
-    { key: "options", href: "/admin/options", icon: ListFilter, end: false },
+    { key: "banners", href: "/admin/banners", icon: FileSliders, end: false, adminOnly: true },
+    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, end: false, adminOnly: true },
+    { key: "options", href: "/admin/options", icon: ListFilter, end: false, adminOnly: true },
 ];
 
 function SidebarContent({ onClose }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
+    const isAdmin = useSelector(selectIsAdmin);
+
+    const visibleItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -102,7 +105,7 @@ function SidebarContent({ onClose }) {
 
             {/* Nav */}
             <nav className="flex-1 space-y-0.5 p-3">
-                {NAV_ITEMS.map((item) => (
+                {visibleItems.map((item) => (
                     <NavLink
                         key={item.key}
                         to={item.href}

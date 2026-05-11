@@ -1,12 +1,11 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { selectIsAuthenticated, selectIsAdmin } from "@/store/authSlice";
+import { selectIsAuthenticated, selectHasAdminAccess } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
 export default function AdminRoute({ children }) {
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isAdmin = useSelector(selectIsAdmin);
-    const location = useLocation();
+    const hasAdminAccess = useSelector(selectHasAdminAccess);
 
     if (!isAuthenticated) {
         return (
@@ -18,7 +17,7 @@ export default function AdminRoute({ children }) {
         );
     }
 
-    if (!isAdmin) {
+    if (!hasAdminAccess) {
         return <Navigate to={ROUTES.HOME} replace />;
     }
 

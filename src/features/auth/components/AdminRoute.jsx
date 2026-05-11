@@ -1,11 +1,11 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated, selectIsAdmin } from "@/store/authSlice";
+import { selectIsAuthenticated, selectHasAdminAccess } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
 export default function AdminRoute({ children }) {
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isAdmin = useSelector(selectIsAdmin);
+    const hasAdminAccess = useSelector(selectHasAdminAccess);
 
     // Chưa đăng nhập — về trang login
     if (!isAuthenticated) {
@@ -18,8 +18,8 @@ export default function AdminRoute({ children }) {
         );
     }
 
-    // Đã đăng nhập nhưng không phải admin — về trang chủ
-    if (!isAdmin) {
+    // Đã đăng nhập nhưng không có quyền admin/staff — về trang chủ
+    if (!hasAdminAccess) {
         return <Navigate to={ROUTES.HOME} replace />;
     }
 

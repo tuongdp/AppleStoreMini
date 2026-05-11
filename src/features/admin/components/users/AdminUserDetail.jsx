@@ -11,12 +11,15 @@ import {
     formatDateTime,
     formatNumber,
 } from "@/lib/utils";
-import { ROUTES, USER_ROLES } from "@/lib/constants";
+import { ROUTES } from "@/lib/constants";
 
 export default function AdminUserDetail({ user, orders = [] }) {
-    // ✅ BE auth.service.js getUserResponse() trả role lowercase ("admin"/"user")
-    // USER_ROLES constant cần khớp lowercase nếu so sánh ở đây
-    const isAdmin = user.role === "admin" || user.role === USER_ROLES.ADMIN;
+    const roleLabel =
+        user.role === "admin"
+            ? "Quản trị viên"
+            : user.role === "staff"
+              ? "Nhân viên"
+              : "Người dùng";
 
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -37,12 +40,14 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     <div className="mt-2 flex items-center justify-center gap-2">
                         <Badge
                             className={
-                                isAdmin
+                                user.role === "admin"
                                     ? "bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400"
-                                    : "bg-muted text-muted-foreground"
+                                    : user.role === "staff"
+                                      ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400"
+                                      : "bg-muted text-muted-foreground"
                             }
                         >
-                            {isAdmin ? "Quản trị viên" : "Người dùng"}
+                            {roleLabel}
                         </Badge>
                         <Badge
                             className={
