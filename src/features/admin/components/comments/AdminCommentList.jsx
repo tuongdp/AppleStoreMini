@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Search, Star, Trash2, Eye, EyeOff } from "lucide-react";
 import {
-    useGetAllReviewsQuery,
-    useDeleteReviewMutation,
-    useToggleReviewVisibilityMutation,
-} from "@/store/api/reviewsApi";
+    useGetAllCommentsQuery,
+    useAdminDeleteCommentMutation,
+    useToggleCommentVisibilityMutation,
+} from "@/store/api/commentsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +60,7 @@ function StarDisplay({ rating }) {
     );
 }
 
-export default function AdminReviewList() {
+export default function AdminCommentList() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(
         searchParams.get("search") || "",
@@ -76,13 +76,13 @@ export default function AdminReviewList() {
         search: debouncedSearch || undefined,
     };
 
-    const { data, isLoading } = useGetAllReviewsQuery(filters);
-    const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
+    const { data, isLoading } = useGetAllCommentsQuery(filters);
+    const [deleteComment, { isLoading: isDeleting }] = useAdminDeleteCommentMutation();
     const [toggleVisibility, { isLoading: isToggling }] =
-        useToggleReviewVisibilityMutation();
+        useToggleCommentVisibilityMutation();
 
-    // ✅ reviewsApi transformResponse → { reviews, pagination }
-    const reviews = data?.reviews ?? [];
+    // ✅ commentsApi transformResponse → { comments, pagination }
+    const comments = data?.comments ?? [];
     const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
@@ -98,8 +98,8 @@ export default function AdminReviewList() {
 
     const handleDelete = async () => {
         try {
-            await deleteReview(deleteId).unwrap();
-            toast.success("Đã xóa đánh giá");
+            await deleteComment(deleteId).unwrap();
+            toast.success("Đã xóa bình luận");
         } catch {
             toast.error("Có lỗi xảy ra");
         } finally {
@@ -107,14 +107,14 @@ export default function AdminReviewList() {
         }
     };
 
-    const handleToggleVisibility = async (review) => {
+    const handleToggleVisibility = async (comment) => {
         // ✅ MySQL integer id — không dùng _id
         try {
-            await toggleVisibility(review.id).unwrap();
+            await toggleVisibility(comment.id).unwrap();
             toast.success(
-                review.isVisible !== false
-                    ? "Đã ẩn đánh giá"
-                    : "Đã hiện đánh giá",
+                comment.isVisible !== false
+                    ? "Đã ẩn bình luận"
+                    : "Đã hiện bình luận",
             );
         } catch {
             toast.error("Có lỗi xảy ra");
@@ -158,7 +158,7 @@ export default function AdminReviewList() {
                         <TableRow className="hover:bg-transparent">
                             <TableHead>Người dùng</TableHead>
                             <TableHead>Sản phẩm</TableHead>
-                            <TableHead>Đánh giá</TableHead>
+                            <TableHead>Bình luận</TableHead>
                             <TableHead>Nội dung</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Ngày tạo</TableHead>
@@ -178,7 +178,7 @@ export default function AdminReviewList() {
                                     ))}
                                 </TableRow>
                             ))
-                        ) : reviews.length === 0 ? (
+                        ) : comments.length === 0 ? (
                             <TableRow>
                                 <TableCell
                                     colSpan={7}
@@ -188,29 +188,29 @@ export default function AdminReviewList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            reviews.map((review) => (
+                            comments.map((comment) => (
                                 // ✅ MySQL integer id thuần
-                                <TableRow key={review.id}>
+                                <TableRow key={comment.id}>
                                     {/* User */}
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <Avatar className="h-7 w-7">
                                                 <AvatarImage
-                                                    src={review.user?.avatar}
-                                                    alt={review.user?.fullName}
+                                                    src={comment.user?.avatar}
+                                                    alt={comment.user?.fullName}
                                                 />
                                                 <AvatarFallback className="text-xs">
-                                                    {review.user?.fullName
+                                                    {comment.user?.fullName
                                                         ?.charAt(0)
                                                         ?.toUpperCase() || "U"}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-medium text-foreground">
-                                                    {review.user?.fullName}
+                                                    {comment.user?.fullName}
                                                 </p>
                                                 <p className="truncate text-xs text-muted-foreground">
-                                                    {review.user?.email}
+                                                    {comment.user?.email}
                                                 </p>
                                             </div>
                                         </div>
@@ -220,32 +220,32 @@ export default function AdminReviewList() {
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             {(() => {
-                                                const img = parseJsonField(review.product?.images)?.[0] || review.product?.image;
+                                                const img = parseJsonField(comment.product?.images)?.[0] || comment.product?.image;
                                                 return img ? (
                                                 <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-0.5">
                                                     <img
                                                         src={img}
-                                                        alt={review.product?.name}
+                                                        alt={comment.product?.name}
                                                         className="h-full w-full object-contain"
                                                     />
                                                 </div>
                                                 ) : null;
                                             })()}
                                             <p className="max-w-[140px] truncate text-sm text-foreground">
-                                                {review.product?.name}
+                                                {comment.product?.name}
                                             </p>
                                         </div>
                                     </TableCell>
 
                                     {/* Rating */}
                                     <TableCell>
-                                        <StarDisplay rating={review.rating} />
+                                        <StarDisplay rating={comment.rating} />
                                     </TableCell>
 
                                     {/* Comment */}
                                     <TableCell>
                                         <p className="max-w-[200px] truncate text-sm text-muted-foreground">
-                                            {review.comment || (
+                                            {comment.comment || (
                                                 <span className="italic">
                                                     Không có nhận xét
                                                 </span>
@@ -257,12 +257,12 @@ export default function AdminReviewList() {
                                     <TableCell>
                                         <Badge
                                             className={
-                                                review.isVisible !== false
+                                                comment.isVisible !== false
                                                     ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
                                                     : "bg-muted text-muted-foreground hover:bg-muted"
                                             }
                                         >
-                                            {review.isVisible !== false
+                                            {comment.isVisible !== false
                                                 ? "Hiển thị"
                                                 : "Đã ẩn"}
                                         </Badge>
@@ -271,7 +271,7 @@ export default function AdminReviewList() {
                                     {/* Date */}
                                     <TableCell>
                                         <span className="text-sm text-muted-foreground">
-                                            {formatDateTime(review.createdAt)}
+                                            {formatDateTime(comment.createdAt)}
                                         </span>
                                     </TableCell>
 
@@ -285,16 +285,16 @@ export default function AdminReviewList() {
                                                 disabled={isToggling}
                                                 onClick={() =>
                                                     handleToggleVisibility(
-                                                        review,
+                                                        comment,
                                                     )
                                                 }
                                                 title={
-                                                    review.isVisible !== false
-                                                        ? "Ẩn đánh giá"
-                                                        : "Hiện đánh giá"
+                                                    comment.isVisible !== false
+                                                    ? "Ẩn bình luận"
+                                                    : "Hiện bình luận"
                                                 }
                                             >
-                                                {review.isVisible !== false ? (
+                                                {                                                    comment.isVisible !== false ? (
                                                     <EyeOff className="h-4 w-4" />
                                                 ) : (
                                                     <Eye className="h-4 w-4" />
@@ -306,7 +306,7 @@ export default function AdminReviewList() {
                                                 size="icon"
                                                 className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                                 onClick={() =>
-                                                    setDeleteId(review.id)
+                                                    setDeleteId(comment.id)
                                                 }
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -360,8 +360,8 @@ export default function AdminReviewList() {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title="Xóa đánh giá"
-                description="Bạn có chắc muốn xóa đánh giá này? Hành động này không thể hoàn tác."
+                title="Xóa bình luận"
+                description="Bạn có chắc muốn xóa bình luận này? Hành động này không thể hoàn tác."
                 onConfirm={handleDelete}
                 isLoading={isDeleting}
             />

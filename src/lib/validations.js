@@ -24,9 +24,9 @@ const v = (key) => {
     "product.slugInvalid": "Slug chỉ chứa chữ thường, số và dấu gạch ngang",
     "product.categoryRequired": "Vui lòng chọn danh mục",
     "product.descriptionMinLength": "Mô tả tối thiểu 10 ký tự",
-    "review.ratingRequired": "Vui lòng chọn số sao",
-    "review.commentMinLength": "Bình luận tối thiểu 10 ký tự",
-    "review.commentMaxLength": "Bình luận tối đa 500 ký tự",
+    "comment.ratingRequired": "Vui lòng chọn số sao",
+    "comment.commentMinLength": "Bình luận tối thiểu 10 ký tự",
+    "comment.commentMaxLength": "Bình luận tối đa 500 ký tự",
     "cancelReason.required": "Vui lòng nhập lý do hủy đơn (tối thiểu 10 ký tự)",
   };
   return texts[key] || key;
@@ -185,16 +185,16 @@ export const productSchema = z.object({
     isActive: z.boolean().default(true),
 });
 
-// ── Review ────────────────────────────────────────────
-export const reviewSchema = z.object({
+// ── Comment ───────────────────────────────────────────
+export const commentSchema = z.object({
     rating: z.coerce
         .number()
-        .min(1, { message: v("review.ratingRequired") })
+        .min(1, { message: v("comment.ratingRequired") })
         .max(5),
     comment: z
         .string()
-        .min(10, { message: v("review.commentMinLength") })
-        .max(500, { message: v("review.commentMaxLength") }),
+        .min(10, { message: v("comment.commentMinLength") })
+        .max(500, { message: v("comment.commentMaxLength") }),
 });
 
 // ── Cancel order ──────────────────────────────────────

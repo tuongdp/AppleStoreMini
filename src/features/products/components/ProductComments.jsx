@@ -1,38 +1,40 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import {
-    useGetReviewsQuery,
-    useDeleteReviewMutation,
-} from "@/store/api/reviewsApi";
+import { useGetCommentsQuery, useDeleteCommentMutation } from "@/store/api/commentsApi";
 import { selectCurrentUser } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import ProductReviewSummary from "./ProductReviewSummary";
-import ProductReviewItem from "./ProductReviewItem";
+import ProductCommentSummary from "./ProductCommentSummary";
+import ProductCommentItem from "./ProductCommentItem";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
 
-export default function ProductReviews({ product }) {
+export default function ProductComments({ product }) {
     const productId = product?._id || product?.id;
     const currentUser = useSelector(selectCurrentUser);
 
     const [deleteId, setDeleteId] = useState(null);
     const [page, setPage] = useState(1);
 
-    const { data, isLoading } = useGetReviewsQuery({
-        productId,
+    const { data, isLoading } = useGetCommentsQuery({
+        type: "product",
+        targetId: productId,
         params: { page, limit: 5 },
     });
-    const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
+    const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation();
 
-    const reviews = data ?? [];
+    const comments = data ?? [];
     const pagination = {};
 
     const handleDelete = async () => {
         try {
-            await deleteReview(deleteId).unwrap();
-            toast.success("Đã xoá đánh giá");
+            await deleteComment({
+                type: "product",
+                targetId: productId,
+                commentId: deleteId,
+            }).unwrap();
+            toast.success("Đã xoá bình luận");
         } catch {
             toast.error("Có lỗi xảy ra");
         } finally {
@@ -43,13 +45,13 @@ export default function ProductReviews({ product }) {
     return (
         <div className="space-y-6">
             <h2 className="text-xl font-semibold text-foreground">
-                {"Đánh giá từ khách hàng"}
+                {"Bình luận từ khách hàng"}
             </h2>
 
             {/* Summary */}
             {product.rating > 0 && (
                 <>
-                    <ProductReviewSummary
+                    <ProductCommentSummary
                         rating={product.rating}
                         reviewCount={product.reviewCount}
                         distribution={product.ratingDistribution || {}}
@@ -58,7 +60,7 @@ export default function ProductReviews({ product }) {
                 </>
             )}
 
-            {/* Reviews list */}
+            {/* Comment list */}
             {isLoading ? (
                 <div className="space-y-6">
                     {[...Array(3)].map((_, i) => (
@@ -74,27 +76,27 @@ export default function ProductReviews({ product }) {
                         </div>
                     ))}
                 </div>
-            ) : reviews.length === 0 ? (
+            ) : comments.length === 0 ? (
                 <div className="py-10 text-center">
                     <p className="text-sm font-medium text-foreground">
-                        {"Chưa có đánh giá nào"}
+                        {"Chưa có bình luận nào"}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                        {"Hãy là người đầu tiên đánh giá sản phẩm này"}
+                        {"Hãy là người đầu tiên bình luận về sản phẩm này"}
                     </p>
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {reviews.map((review, index) => (
-                        <div key={review._id || review.id}>
-                            <ProductReviewItem
-                                review={review}
+                    {comments.map((comment, index) => (
+                        <div key={comment._id || comment.id}>
+                            <ProductCommentItem
+                                comment={comment}
                                 currentUserId={
                                     currentUser?._id || currentUser?.id
                                 }
                                 onDelete={setDeleteId}
                             />
-                            {index < reviews.length - 1 && (
+                            {index < comments.length - 1 && (
                                 <Separator className="mt-6" />
                             )}
                         </div>
@@ -133,7 +135,7 @@ export default function ProductReviews({ product }) {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title={"Xoá đánh giá"}
+                title={"Xoá bình luận"}
                 description={"Hành động này không thể hoàn tác."}
                 onConfirm={handleDelete}
                 isLoading={isDeleting}

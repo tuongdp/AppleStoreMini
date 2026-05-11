@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { reviewSchema } from "@/lib/validations";
+import { commentSchema } from "@/lib/validations";
 import {
-    useCreateReviewMutation,
-    useUpdateReviewMutation,
-} from "@/store/api/reviewsApi";
+    useCreateCommentMutation,
+    useUpdateCommentMutation,
+} from "@/store/api/commentsApi";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -19,20 +19,20 @@ import {
 import StarRating from "@/components/shared/StarRating";
 import { toast } from "sonner";
 
-export default function ReviewForm({
+export default function CommentForm({
     productId,
     orderId,
-    review,
+    comment,
     onSuccess,
     onCancel,
 }) {
-    const isEditing = !!review;
-    const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
-    const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
+    const isEditing = !!comment;
+    const [createComment, { isLoading: isCreating }] = useCreateCommentMutation();
+    const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation();
     const isLoading = isCreating || isUpdating;
 
     const form = useForm({
-        resolver: zodResolver(reviewSchema),
+        resolver: zodResolver(commentSchema),
         defaultValues: {
             rating: 0,
             comment: "",
@@ -40,32 +40,35 @@ export default function ReviewForm({
     });
 
     useEffect(() => {
-        if (review) {
+        if (comment) {
             form.reset({
-                rating: review.rating || 0,
-                comment: review.comment || "",
+                rating: comment.rating || 0,
+                comment: comment.comment || "",
             });
         }
-    }, [review, form]);
+    }, [comment, form]);
 
     const onSubmit = async (values) => {
         try {
             if (isEditing) {
-                await updateReview({
-                    reviewId: review._id || review.id,
+                await updateComment({
+                    type: "product",
+                    targetId: productId,
+                    commentId: comment._id || comment.id,
                     ...values,
                 }).unwrap();
             } else {
-                await createReview({
-                    productId,
+                await createComment({
+                    type: "product",
+                    targetId: productId,
                     ...(orderId && { orderId }),
                     ...values,
                 }).unwrap();
             }
 
-            toast.success("Đánh giá của bạn đã được gửi");
+            toast.success("Bình luận của bạn đã được gửi");
             form.reset();
-            onSuccess?.(values); // trả về data để OrderCard lưu vào reviewedMap
+            onSuccess?.(values); // trả về data để OrderCard lưu vào commentedMap
         } catch {
             toast.error("Có lỗi xảy ra");
         }
@@ -80,7 +83,7 @@ export default function ReviewForm({
                     name="rating"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{"Đánh giá của bạn"}</FormLabel>
+                            <FormLabel>{"Xếp hạng của bạn"}</FormLabel>
                             <FormControl>
                                 <StarRating
                                     rating={field.value}
@@ -136,7 +139,7 @@ export default function ReviewForm({
                     >
                         {isLoading
                             ? "Đang gửi..."
-                            : "Gửi đánh giá"}
+                            : "Gửi bình luận"}
                     </Button>
                 </div>
             </form>

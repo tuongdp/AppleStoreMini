@@ -4,56 +4,56 @@ import { ChevronRight, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "./OrderStatusBadge";
-import ReviewModal from "./ReviewModal";
+import CommentModal from "./CommentModal";
 import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS } from "@/lib/constants";
 
 export default function OrderCard({ order }) {
-    const [reviewItem, setReviewItem] = useState(null);
+    const [commentItem, setCommentItem] = useState(null);
 
-    // Track sản phẩm đã review trong session
-    // key: productId, value: review data đã submit (hoặc true nếu không có data)
-    const [reviewedMap, setReviewedMap] = useState({});
+    // Track sản phẩm đã bình luận trong session
+    // key: productId, value: comment data đã submit (hoặc true nếu không có data)
+    const [commentedMap, setCommentedMap] = useState({});
 
     const visibleItems = order.items?.slice(0, 3) || [];
     const remainCount = (order.items?.length || 0) - visibleItems.length;
     const isDelivered = (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED;
     const deliveredItems = isDelivered ? order.items || [] : [];
 
-    // Chưa review = chưa có isReviewed từ server VÀ chưa review trong session
+    // Chưa bình luận = chưa có isReviewed từ server VÀ chưa bình luận trong session
     const unreviewedItems = deliveredItems.filter((item) => {
         const pid = item.product?._id || item.product?.id;
-        return !item.isReviewed && !reviewedMap[pid];
+        return !item.isReviewed && !commentedMap[pid];
     });
 
-    // Đã review trong session hiện tại
+    // Đã bình luận trong session hiện tại
     const reviewedInSession = deliveredItems.filter((item) => {
         const pid = item.product?._id || item.product?.id;
-        return !!reviewedMap[pid];
+        return !!commentedMap[pid];
     });
 
-    // Đã review từ server (isReviewed = true), chưa review lại trong session
+    // Đã bình luận từ server (isReviewed = true), chưa bình luận lại trong session
     const reviewedFromServer = deliveredItems.filter((item) => {
         const pid = item.product?._id || item.product?.id;
-        return item.isReviewed && !reviewedMap[pid];
+        return item.isReviewed && !commentedMap[pid];
     });
 
-    const handleReviewSuccess = (item, reviewData) => {
+    const handleCommentSuccess = (item, commentData) => {
         const pid = item.product?._id || item.product?.id;
-        setReviewedMap((prev) => ({
+        setCommentedMap((prev) => ({
             ...prev,
-            [pid]: reviewData || true,
+            [pid]: commentData || true,
         }));
-        setReviewItem(null);
+        setCommentItem(null);
     };
 
-    // Mở modal — nếu đã review trong session thì truyền existing review vào
-    const handleOpenReview = (item) => {
+    // Mở modal — nếu đã bình luận trong session thì truyền existing comment vào
+    const handleOpenComment = (item) => {
         const pid = item.product?._id || item.product?.id;
-        const existing = reviewedMap[pid];
-        setReviewItem({
+        const existing = commentedMap[pid];
+        setCommentItem({
             ...item,
-            existingReview: typeof existing === "object" ? existing : null,
+            existingComment: typeof existing === "object" ? existing : null,
         });
     };
 
@@ -139,16 +139,16 @@ export default function OrderCard({ order }) {
                     </div>
                 </div>
 
-                {/* Review section */}
+                {/* Comment section */}
                 {showReviewSection && (
                     <>
                         <Separator />
                         <div className="flex flex-wrap items-center gap-2 px-4 py-3">
-                            {/* Chờ đánh giá */}
+                            {/* Chờ bình luận */}
                             {unreviewedItems.length > 0 && (
                                 <>
                                     <span className="text-xs text-muted-foreground">
-                                        {"Chờ đánh giá:"}
+                                        {"Chờ bình luận:"}
                                     </span>
                                     {unreviewedItems.map((item, index) => (
                                         <Button
@@ -157,7 +157,7 @@ export default function OrderCard({ order }) {
                                             size="sm"
                                             className="h-7 rounded-full text-xs"
                                             onClick={() =>
-                                                handleOpenReview(item)
+                                                handleOpenComment(item)
                                             }
                                         >
                                             <Star className="mr-1 h-3 w-3" />
@@ -170,14 +170,14 @@ export default function OrderCard({ order }) {
                                 </>
                             )}
 
-                            {/* Đã đánh giá trong session — click để xem lại */}
+                            {/* Đã bình luận trong session — click để xem lại */}
                             {reviewedInSession.map((item, index) => (
                                 <Button
                                     key={`session-${index}`}
                                     variant="ghost"
                                     size="sm"
                                     className="h-7 rounded-full text-xs text-green-600 hover:text-green-700 dark:text-green-400"
-                                    onClick={() => handleOpenReview(item)}
+                                    onClick={() => handleOpenComment(item)}
                                 >
                                     <CheckCircle2 className="mr-1 h-3 w-3" />
                                     {item.product?.name
@@ -187,7 +187,7 @@ export default function OrderCard({ order }) {
                                 </Button>
                             ))}
 
-                            {/* Đã đánh giá từ server */}
+                            {/* Đã bình luận từ server */}
                             {reviewedFromServer.map((item, index) => (
                                 <span
                                     key={`server-${index}`}
@@ -230,16 +230,16 @@ export default function OrderCard({ order }) {
                 </div>
             </div>
 
-            {/* Review Modal */}
-            {reviewItem && (
-                <ReviewModal
-                    open={!!reviewItem}
-                    onOpenChange={(open) => !open && setReviewItem(null)}
-                    product={reviewItem.product}
+            {/* Comment Modal */}
+            {commentItem && (
+                <CommentModal
+                    open={!!commentItem}
+                    onOpenChange={(open) => !open && setCommentItem(null)}
+                    product={commentItem.product}
                     orderId={order._id || order.id}
-                    existingReview={reviewItem.existingReview}
-                    onSuccess={(reviewData) =>
-                        handleReviewSuccess(reviewItem, reviewData)
+                    existingComment={commentItem.existingComment}
+                    onSuccess={(commentData) =>
+                        handleCommentSuccess(commentItem, commentData)
                     }
                 />
             )}

@@ -7,9 +7,9 @@ import StarRating from "@/components/shared/StarRating";
 import { selectCurrentUser } from "@/store/authSlice";
 import { timeAgo } from "@/lib/utils";
 
-export default function ProductReviewItem({ review, onEdit, onDelete }) {
+export default function ProductCommentItem({ comment, onEdit, onDelete }) {
     const currentUser = useSelector(selectCurrentUser);
-    const isOwner = currentUser?.id === review.user?.id;
+    const isOwner = currentUser?.id === comment.user?.id;
 
     return (
         <div className="space-y-3">
@@ -18,20 +18,20 @@ export default function ProductReviewItem({ review, onEdit, onDelete }) {
                 <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
                         <AvatarImage
-                            src={review.user?.avatar}
-                            alt={review.user?.fullName}
+                            src={comment.user?.avatar}
+                            alt={comment.user?.fullName}
                         />
                         <AvatarFallback className="text-xs">
-                            {review.user?.fullName?.charAt(0)?.toUpperCase() ||
+                            {comment.user?.fullName?.charAt(0)?.toUpperCase() ||
                                 "U"}
                         </AvatarFallback>
                     </Avatar>
                     <div>
                         <div className="flex items-center gap-2">
                             <p className="text-sm font-medium text-foreground">
-                                {review.user?.fullName}
+                                {comment.user?.fullName}
                             </p>
-                            {review.isVerifiedPurchase && (
+                            {comment.isVerifiedPurchase && (
                                 <Badge
                                     variant="outline"
                                     className="border-green-500/30 bg-green-50 text-xs text-green-700 dark:bg-green-950/30 dark:text-green-400"
@@ -41,9 +41,9 @@ export default function ProductReviewItem({ review, onEdit, onDelete }) {
                             )}
                         </div>
                         <div className="mt-0.5 flex items-center gap-2">
-                            <StarRating rating={review.rating} size="sm" />
+                            <StarRating rating={comment.rating} size="sm" />
                             <span className="text-xs text-muted-foreground">
-                                {timeAgo(review.createdAt)}
+                                {timeAgo(comment.createdAt)}
                             </span>
                         </div>
                     </div>
@@ -56,7 +56,7 @@ export default function ProductReviewItem({ review, onEdit, onDelete }) {
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                            onClick={() => onEdit?.(review)}
+                            onClick={() => onEdit?.(comment)}
                         >
                             <Pencil className="h-3.5 w-3.5" />
                         </Button>
@@ -64,7 +64,7 @@ export default function ProductReviewItem({ review, onEdit, onDelete }) {
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                            onClick={() => onDelete?.(review.id)}
+                            onClick={() => onDelete?.(comment.id)}
                         >
                             <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -74,20 +74,20 @@ export default function ProductReviewItem({ review, onEdit, onDelete }) {
 
             {/* Comment */}
             <p className="text-sm leading-relaxed text-foreground">
-                {review.comment}
+                {comment.comment}
             </p>
 
-            {/* Review images */}
-            {review.images?.length > 0 && (
+            {/* Comment images */}
+            {comment.images?.length > 0 && (
                 <div className="flex gap-2">
-                    {review.images.map((img, index) => (
+                    {comment.images.map((img, index) => (
                         <div
                             key={index}
                             className="h-16 w-16 overflow-hidden rounded-lg bg-muted/30"
                         >
                             <img
                                 src={img}
-                                alt={`Review ${index + 1}`}
+                                alt={`Ảnh ${index + 1}`}
                                 className="h-full w-full object-cover"
                             />
                         </div>

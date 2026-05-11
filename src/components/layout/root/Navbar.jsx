@@ -16,7 +16,7 @@ import {
 import { useScrolled } from "@/hooks/useScrollToTop";
 import { CATEGORIES, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import appleLogo from "@/assets/images/icons/apple.svg";
+import { appleLogo } from "@/assets/images";
 
 export default function Navbar() {
     const dispatch = useDispatch();

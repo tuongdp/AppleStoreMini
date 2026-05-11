@@ -4,7 +4,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import ReviewForm from "@/features/products/components/ReviewForm";
+import CommentForm from "@/features/products/components/CommentForm";
 
 // ✅ images có thể là JSON string (MySQL) hoặc array đã parse
 const getFirstImage = (images) => {
@@ -17,20 +17,20 @@ const getFirstImage = (images) => {
     }
 };
 
-export default function ReviewModal({
+export default function CommentModal({
     open,
     onOpenChange,
     product,
     orderId,
-    existingReview,
+    existingComment,
     onSuccess,
 }) {
-    const handleSuccess = (reviewData) => {
-        onSuccess?.(reviewData);
+    const handleSuccess = (commentData) => {
+        onSuccess?.(commentData);
         onOpenChange(false);
     };
 
-    const isEditing = !!existingReview;
+    const isEditing = !!existingComment;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -38,8 +38,8 @@ export default function ReviewModal({
                 <DialogHeader>
                     <DialogTitle className="text-base font-semibold">
                         {isEditing
-                            ? "Chỉnh sửa đánh giá"
-                            : "Viết đánh giá"}
+                            ? "Chỉnh sửa bình luận"
+                            : "Viết bình luận"}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -59,11 +59,11 @@ export default function ReviewModal({
                     </div>
                 )}
 
-                <ReviewForm
+                <CommentForm
                     // ✅ MySQL integer id — không có _id
                     productId={product?.id}
                     orderId={orderId}
-                    review={existingReview}
+                    comment={existingComment}
                     onSuccess={handleSuccess}
                     onCancel={() => onOpenChange(false)}
                 />

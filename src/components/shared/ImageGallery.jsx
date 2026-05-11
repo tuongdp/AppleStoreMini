@@ -5,7 +5,7 @@ import { Navigation, Pagination, Thumbs, Controller } from "swiper/modules";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
+import { productPlaceholder } from "@/assets/images";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";

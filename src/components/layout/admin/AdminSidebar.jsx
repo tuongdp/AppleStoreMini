@@ -28,7 +28,7 @@ const SIDEBAR_MAP = {
   "options": "Tùy chọn",
   "orders": "Đơn hàng",
   "products": "Sản phẩm",
-  "reviews": "Đánh giá",
+  "comments": "Bình luận",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };
@@ -47,7 +47,7 @@ export const ADMIN_NAV_ITEMS = [
         end: false,
     },
     { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false },
-    { key: "reviews", href: "/admin/reviews", icon: Star, end: false },
+    { key: "comments", href: "/admin/comments", icon: Star, end: false },
 ];
 
 export default function AdminSidebar({ onClose }) {

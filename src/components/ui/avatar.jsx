@@ -5,7 +5,7 @@ import { Avatar as AvatarPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 
-import avatarPlaceholder from "@/assets/images/placeholder/avatar-placeholder.jpg";
+import { avatarPlaceholder } from "@/assets/images";
 
 function Avatar({ className, size = "default", ...props }) {
     return (

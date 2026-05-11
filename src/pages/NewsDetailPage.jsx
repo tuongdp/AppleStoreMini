@@ -12,11 +12,9 @@ import {
 import {
     useGetNewsQuery,
     useGetNewsBySlugQuery,
-    useGetNewsCommentsQuery,
-    useCreateNewsCommentMutation,
-    useDeleteNewsCommentMutation,
     useRateNewsMutation,
 } from "@/store/api/newsApi";
+import { useGetCommentsQuery, useCreateCommentMutation, useDeleteCommentMutation } from "@/store/api/commentsApi";
 import { selectIsAuthenticated, selectCurrentUser } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -143,17 +141,18 @@ export default function NewsDetailPage() {
     const news = data;
 
     const { data: commentsData, isLoading: isCommentsLoading } =
-        useGetNewsCommentsQuery(
+        useGetCommentsQuery(
             {
-                newsId: news?._id || news?.id,
+                type: "news",
+                targetId: news?._id || news?.id,
                 params: { page: commentPage, limit: 10 },
             },
             { skip: !news },
         );
     const [createComment, { isLoading: isCommenting }] =
-        useCreateNewsCommentMutation();
+        useCreateCommentMutation();
     const [deleteComment, { isLoading: isDeletingComment }] =
-        useDeleteNewsCommentMutation();
+        useDeleteCommentMutation();
     const [rateNews] = useRateNewsMutation();
 
     const comments = commentsData || [];
@@ -164,7 +163,8 @@ export default function NewsDetailPage() {
         if (!comment.trim()) return;
         try {
             await createComment({
-                newsId: news._id || news.id,
+                type: "news",
+                targetId: news._id || news.id,
                 content: comment,
             }).unwrap();
             setComment("");
@@ -194,7 +194,8 @@ export default function NewsDetailPage() {
     const handleDeleteComment = async (commentId) => {
         try {
             await deleteComment({
-                newsId: news._id || news.id,
+                type: "news",
+                targetId: news._id || news.id,
                 commentId,
             }).unwrap();
             toast.success("Đã xóa bình luận");

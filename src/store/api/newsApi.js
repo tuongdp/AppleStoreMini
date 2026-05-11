@@ -19,42 +19,6 @@ export const newsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // GET /news/:newsId/comments
-        getNewsComments: builder.query({
-            query: ({ newsId, params }) => ({
-                url: `/news/${newsId}/comments`,
-                params,
-            }),
-            providesTags: (_, __, { newsId }) => [
-                { type: "NewsComments", id: newsId },
-            ],
-            transformResponse: (response) => response.data,
-        }),
-
-        // POST /news/:newsId/comments
-        createNewsComment: builder.mutation({
-            query: ({ newsId, ...data }) => ({
-                url: `/news/${newsId}/comments`,
-                method: "POST",
-                body: data,
-            }),
-            invalidatesTags: (_, __, { newsId }) => [
-                { type: "NewsComments", id: newsId },
-            ],
-            transformResponse: (response) => response.data,
-        }),
-
-        // DELETE /news/:newsId/comments/:commentId
-        deleteNewsComment: builder.mutation({
-            query: ({ newsId, commentId }) => ({
-                url: `/news/${newsId}/comments/${commentId}`,
-                method: "DELETE",
-            }),
-            invalidatesTags: (_, __, { newsId }) => [
-                { type: "NewsComments", id: newsId },
-            ],
-        }),
-
         // POST /news/:newsId/rate
         rateNews: builder.mutation({
             query: ({ newsId, rating }) => ({
@@ -121,9 +85,6 @@ export const newsApi = baseApi.injectEndpoints({
 export const {
     useGetNewsQuery,
     useGetNewsBySlugQuery,
-    useGetNewsCommentsQuery,
-    useCreateNewsCommentMutation,
-    useDeleteNewsCommentMutation,
     useRateNewsMutation,
     useGetAllNewsQuery,
     useCreateNewsMutation,

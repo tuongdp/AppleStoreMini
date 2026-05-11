@@ -1,7 +1,7 @@
 import StarRating from "@/components/shared/StarRating";
 import { cn } from "@/lib/utils";
 
-export default function ProductReviewSummary({
+export default function ProductCommentSummary({
     rating = 0,
     reviewCount = 0,
     distribution = {},
@@ -15,7 +15,7 @@ export default function ProductReviewSummary({
                 </span>
                 <StarRating rating={rating} size="md" />
                 <span className="text-xs text-muted-foreground">
-                    {reviewCount} {"đánh giá"}
+                    {reviewCount} {"bình luận"}
                 </span>
             </div>
 

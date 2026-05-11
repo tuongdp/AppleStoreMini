@@ -570,7 +570,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between">
-                                    <span>{"Đánh giá"}</span>
+                                    <span>{"Bình luận"}</span>
                                     <span className="text-foreground">{product.reviewCount ?? 0}</span>
                                 </div>
                                 <Separator />

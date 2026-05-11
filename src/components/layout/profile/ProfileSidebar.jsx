@@ -19,7 +19,7 @@ const SIDEBAR_MAP = {
   "options": "Tùy chọn",
   "orders": "Đơn hàng",
   "products": "Sản phẩm",
-  "reviews": "Đánh giá",
+  "comments": "Bình luận",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };

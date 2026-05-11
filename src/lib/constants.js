@@ -37,12 +37,7 @@ export const ROUTES = {
 };
 
 // ── Categories ────────────────────────────────────────
-import iphoneImg from "@/assets/images/categories/iphone.jpg";
-import ipadImg from "@/assets/images/categories/ipad.jpg";
-import macImg from "@/assets/images/categories/mac.jpg";
-import watchImg from "@/assets/images/categories/watch.jpg";
-import airpodsImg from "@/assets/images/categories/airpods.jpg";
-import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
+import { iphoneImg, ipadImg, macImg, watchImg, airpodsImg, productPlaceholder } from "@/assets/images";
 
 export const CATEGORIES = [
     { label: "iPhone", value: "iphone", href: "/products?category=iphone", image: iphoneImg },
@@ -172,8 +167,8 @@ export const CHECKOUT_STEPS = [
     { step: 3, key: "confirm", label: "Xác nhận" },
 ];
 
-// ── Review ────────────────────────────────────────────
-export const REVIEW_SORT_OPTIONS = [
+// ── Comment ────────────────────────────────────────────
+export const COMMENT_SORT_OPTIONS = [
     { label: "Mới nhất", value: "newest" },
     { label: "Cũ nhất", value: "oldest" },
     { label: "Sao cao nhất", value: "highest" },

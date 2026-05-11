@@ -40,7 +40,7 @@ const SIDEBAR_MAP = {
   "options": "Tùy chọn",
   "orders": "Đơn hàng",
   "products": "Sản phẩm",
-  "reviews": "Đánh giá",
+  "comments": "Bình luận",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };
@@ -59,7 +59,7 @@ const NAV_ITEMS = [
         end: false,
     },
     { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false },
-    { key: "reviews", href: "/admin/reviews", icon: MessageSquare, end: false },
+    { key: "comments", href: "/admin/comments", icon: MessageSquare, end: false },
     { key: "coupons", href: "/admin/coupons", icon: Tag, end: false },
     {
         key: "categories",

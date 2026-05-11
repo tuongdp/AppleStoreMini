@@ -11,7 +11,7 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { formatPrice, calcDiscount, cn, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
-import productPlaceholder from "@/assets/images/placeholder/product-placeholder.jpg";
+import { productPlaceholder } from "@/assets/images";
 
 const LOW_STOCK_THRESHOLD = 5;
 const NEW_PRODUCT_DAYS = 30;

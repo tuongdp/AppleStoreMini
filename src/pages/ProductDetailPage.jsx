@@ -25,7 +25,7 @@ import ProductImageGallery from "@/features/products/components/ProductImageGall
 import ProductDescription from "@/features/products/components/ProductDescription";
 import ProductSpecification from "@/features/products/components/ProductSpecification";
 import SpecsAccordion from "@/components/shared/SpecsAccordion";
-import ProductReviews from "@/features/products/components/ProductReviews";
+import ProductComments from "@/features/products/components/ProductComments";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
@@ -634,7 +634,7 @@ export default function ProductDetailPage() {
                 <ProductDescription description={product.description} />
             </div>
             <Separator className="my-12" />
-            <ProductReviews product={product} />
+            <ProductComments product={product} />
 
             {/* Related */}
             <Separator className="my-12" />
