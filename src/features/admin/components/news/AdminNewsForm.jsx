@@ -67,6 +67,7 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
     const [uploadEditorImage, { isLoading: isUploading }] = useUploadEditorImageMutation();
     const [content, setContent] = useState(news?.content || "");
     const [thumbnailPreview, setThumbnailPreview] = useState(news?.thumbnail || "");
+    const [selectReady, setSelectReady] = useState(false);
     const fileInputRef = useRef(null);
 
     const form = useForm({
@@ -94,6 +95,12 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
               }
             : undefined,
     });
+
+    useEffect(() => {
+        if (selectReady) return;
+        const t = setTimeout(() => setSelectReady(true), 0);
+        return () => clearTimeout(t);
+    }, [selectReady]);
 
     useEffect(() => {
         if (news) {
@@ -338,6 +345,7 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                             </span>
                                         </FormLabel>
                                         <Select
+                                            key={`${news?.id || "new"}-${selectReady}`}
                                             value={field.value}
                                             onValueChange={field.onChange}
                                             disabled={isLoading}
