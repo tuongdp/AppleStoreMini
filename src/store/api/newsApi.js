@@ -26,8 +26,8 @@ export const newsApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: { rating },
             }),
-            invalidatesTags: (_, __, { newsId }) => [
-                { type: "NewsItem", id: newsId },
+            invalidatesTags: (_, __, { slug }) => [
+                { type: "NewsItem", id: slug },
             ],
             transformResponse: (response) => response.data,
         }),
@@ -84,7 +84,10 @@ export const newsApi = baseApi.injectEndpoints({
         getNewsComments: builder.query({
             query: ({ newsId, params }) => ({ url: `/news/${newsId}/comments`, params }),
             providesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => ({
+                comments: response.data,
+                pagination: response.pagination,
+            }),
         }),
 
         createNewsComment: builder.mutation({

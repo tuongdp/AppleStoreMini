@@ -93,7 +93,7 @@ export default function AdminNewsCommentList() {
                                     <TableCell>
                                         <Link to={`/news/${comment.news?.slug}`} className="max-w-[160px] truncate text-sm text-blue-600 hover:underline block">{comment.news?.title}</Link>
                                     </TableCell>
-                                    <TableCell><p className="max-w-[250px] truncate text-sm">{comment.content}</p></TableCell>
+                                    <TableCell><p className="max-w-[250px] break-words text-sm">{comment.content}</p></TableCell>
                                     <TableCell><span className="text-sm text-muted-foreground">{formatDateTime(comment.createdAt)}</span></TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(comment.id)}>

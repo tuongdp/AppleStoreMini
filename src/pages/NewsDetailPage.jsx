@@ -70,8 +70,8 @@ function SidebarNewsCard({ news, index }) {
                     {news.title}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                    {news.readTime ? `${"minRead"} · ` : ""}
-                    {"views"}
+                    {news.readTime ? `${news.readTime} phút đọc · ` : ""}
+                    {news.viewCount || 0} lượt xem
                 </p>
             </div>
         </Link>
@@ -156,8 +156,8 @@ export default function NewsDetailPage() {
         useDeleteNewsCommentMutation();
     const [rateNews] = useRateNewsMutation();
 
-    const comments = commentsData || [];
-    const commentPagination = {};
+    const comments = commentsData?.comments || [];
+    const commentPagination = commentsData?.pagination || {};
 
     const handleComment = async (e) => {
         e.preventDefault();
@@ -183,6 +183,7 @@ export default function NewsDetailPage() {
         try {
             await rateNews({
                 newsId: news._id || news.id,
+                slug,
                 rating: value,
             }).unwrap();
             toast.success("Đã đánh giá bài viết");
@@ -272,7 +273,7 @@ export default function NewsDetailPage() {
                             {news.readTime && (
                                 <span className="flex items-center gap-1.5">
                                     <Clock className="h-4 w-4" />
-                                    {"minRead"}
+                                    {news.readTime} phút đọc
                                 </span>
                             )}
                             {news.author && (
@@ -286,8 +287,7 @@ export default function NewsDetailPage() {
                             {news.rating > 0 && (
                                 <span className="flex items-center gap-1">
                                     <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                                    {news.rating.toFixed(1)} (
-                                    {"ratings"})
+                                    {news.rating.toFixed(1)} ({news.ratingCount || 0} đánh giá)
                                 </span>
                             )}
                         </div>
@@ -468,9 +468,9 @@ export default function NewsDetailPage() {
                                                             </button>
                                                         )}
                                                     </div>
-                                                    <p className="mt-1 text-sm text-foreground">
-                                                        {cmt.content}
-                                                    </p>
+                                                <p className="mt-1 break-words text-sm text-foreground">
+                                                    {cmt.content}
+                                                </p>
                                                 </div>
                                             </div>
                                         );
