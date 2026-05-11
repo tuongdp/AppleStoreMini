@@ -8,6 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION } from "@/lib/constants";
+import { cn } from "@/lib/utils";
+
+const ALL_CATEGORIES = [
+    { value: "", label: "Tất cả" },
+    { value: "iPhone", label: "iPhone" },
+    { value: "Mac", label: "Mac" },
+    { value: "iPad", label: "iPad" },
+    { value: "Watch", label: "Watch" },
+    { value: "Âm thanh", label: "Âm thanh" },
+    { value: "Phụ kiện", label: "Phụ kiện" },
+    { value: "Dịch vụ", label: "Dịch vụ" },
+];
 
 export default function NewsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -15,12 +27,13 @@ export default function NewsPage() {
     const debouncedSearch = useDebounce(searchInput, 400);
 
     const page = Number(searchParams.get("page")) || 1;
+    const activeCategory = searchParams.get("category") || "";
 
     const { data, isLoading } = useGetNewsQuery({
         page,
         limit: PAGINATION.DEFAULT_LIMIT,
         search: debouncedSearch || undefined,
-        status: "published",
+        category: activeCategory || undefined,
     });
 
     const news = data?.news || [];
@@ -57,6 +70,26 @@ export default function NewsPage() {
                             className="rounded-full pl-9"
                         />
                     </div>
+                </div>
+
+                {/* Category tabs */}
+                <div className="mb-6 -mx-1 flex flex-wrap gap-1">
+                    {ALL_CATEGORIES.map((cat) => (
+                        <button
+                            key={cat.value}
+                            type="button"
+                            onClick={() => updateParam("category", cat.value)}
+                            className={cn(
+                                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                                (activeCategory === cat.value) ||
+                                (!activeCategory && cat.value === "")
+                                    ? "bg-foreground text-background"
+                                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                            )}
+                        >
+                            {cat.label}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Grid */}
