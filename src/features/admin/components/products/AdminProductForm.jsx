@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -44,7 +44,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const { data: categories } = useGetAdminCategoriesQuery();
 
     const [specs, setSpecs] = useState([]);
-    const [options, setOptions] = useState([]);
     const [variants, setVariants] = useState([]);
     const [editingVariantIdx, setEditingVariantIdx] = useState(null);
     const [showVariantForm, setShowVariantForm] = useState(false);
@@ -60,11 +59,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [updateVariantApi] = useUpdateVariantMutation();
     const [uploadImage] = useUploadEditorImageMutation();
     const [createProductApi] = useCreateProductMutation();
-
-    const colorOptions = useMemo(() => options.filter((o) => o.type === "COLOR"), [options]);
-    const storageOptions = useMemo(() => options.filter((o) => o.type === "STORAGE"), [options]);
-    const ramOptions = useMemo(() => options.filter((o) => o.type === "RAM"), [options]);
-    const editionOptions = useMemo(() => options.filter((o) => o.type === "EDITION"), [options]);
 
     const form = useForm({
         resolver: zodResolver(productSchema),
@@ -96,14 +90,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 specArray = [];
             }
             setSpecs(specArray);
-
-            const productOptions = (product.options || []).map((o) => ({
-                id: o.id,
-                type: o.type,
-                value: o.value,
-                hex: o.hex || null,
-            }));
-            setOptions(productOptions);
 
             const productVariants = (product.variants || []).map((v) => ({
                 id: v.id,
@@ -225,7 +211,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     description: formValues.description || "",
                     isActive: formValues.isActive ?? true,
                     specifications: buildSpecsArray(),
-                    options: options.map(({ type, value, hex }) => hex ? { type, value, hex } : { type, value }),
                     variants: [{
                         color: color.trim(),
                         storage: storage.trim(),
@@ -329,7 +314,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             ...values,
             productId: autoCreatedId,
             specifications: buildSpecsArray(),
-            options: options.map(({ type, value, hex }) => hex ? { type, value, hex } : { type, value }),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
                 price: Number(rest.price) || 0,
@@ -627,25 +611,17 @@ function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], stora
     const { data: globalRams = [] } = useGetGlobalOptionsQuery("RAM");
     const { data: globalEditions = [] } = useGetGlobalOptionsQuery("EDITION");
 
-    const mergeOptions = (perProduct, global) => {
-        const seen = new Set();
-        const merged = [];
-        const add = (o) => {
-            const val = o.value?.toLowerCase();
-            if (!seen.has(val)) {
-                seen.add(val);
-                merged.push({ value: o.value, label: o.value, prefix: o.hex ? <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: o.hex }} /> : null });
-            }
-        };
-        perProduct.forEach(add);
-        global.forEach(add);
-        return merged;
-    };
+    const mapGlobalOptions = (global) =>
+        global.map((o) => ({
+            value: o.value,
+            label: o.value,
+            prefix: o.hex ? <span className="inline-block h-3 w-3 rounded-full border" style={{ backgroundColor: o.hex }} /> : null,
+        }));
 
-    const allColorOptions = mergeOptions(colorOptions, globalColors);
-    const allStorageOptions = mergeOptions(storageOptions, globalStorages);
-    const allRamOptions = mergeOptions(ramOptions, globalRams);
-    const allEditionOptions = mergeOptions(editionOptions, globalEditions);
+    const allColorOptions = mapGlobalOptions(globalColors);
+    const allStorageOptions = mapGlobalOptions(globalStorages);
+    const allRamOptions = mapGlobalOptions(globalRams);
+    const allEditionOptions = mapGlobalOptions(globalEditions);
 
     useEffect(() => {
         vImagesRef.current = vImages;

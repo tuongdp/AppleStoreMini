@@ -164,45 +164,6 @@ export const productsApi = baseApi.injectEndpoints({
             }),
             transformResponse: (response) => response.data,
         }),
-
-        // ── Options ────────────────────────────────────
-        getOptions: builder.query({
-            query: ({ productId, type }) => ({
-                url: `/admin/products/${productId}/options`,
-                params: type ? { type } : undefined,
-            }),
-            providesTags: (_, __, { productId }) => [{ type: "Options", id: productId }],
-            transformResponse: (response) => response.data,
-        }),
-
-        createOption: builder.mutation({
-            query: ({ productId, ...data }) => ({
-                url: `/admin/products/${productId}/options`,
-                method: "POST",
-                body: data,
-            }),
-            invalidatesTags: (_, __, { productId }) => [{ type: "Product", id: productId }],
-            transformResponse: (response) => response.data,
-        }),
-
-        updateOption: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/admin/options/${id}`,
-                method: "PUT",
-                body: data,
-            }),
-            invalidatesTags: ["Options"],
-            transformResponse: (response) => response.data,
-        }),
-
-        deleteOption: builder.mutation({
-            query: (arg) => ({
-                url: `/admin/options/${arg.id}`,
-                method: "DELETE",
-            }),
-            invalidatesTags: (_, __, arg) =>
-                arg.productId ? [{ type: "Product", id: arg.productId }] : [],
-        }),
     }),
 });
 
@@ -226,8 +187,4 @@ export const {
     useCheckVariantOrdersQuery,
     useLazyCheckVariantOrdersQuery,
     useUploadEditorImageMutation,
-    useGetOptionsQuery,
-    useCreateOptionMutation,
-    useUpdateOptionMutation,
-    useDeleteOptionMutation,
 } = productsApi;
