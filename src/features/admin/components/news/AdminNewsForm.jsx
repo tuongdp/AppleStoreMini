@@ -83,7 +83,7 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
         },
     });
 
-    const newsIdRef = useRef(news?.id);
+    const newsIdRef = useRef(null);
     useEffect(() => {
         if (news && news.id !== newsIdRef.current) {
             newsIdRef.current = news.id;
