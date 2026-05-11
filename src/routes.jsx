@@ -57,6 +57,7 @@ import AdminUserList from "@/pages/admin/AdminUserList";
 import AdminUserDetail from "@/pages/admin/AdminUserDetail";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminCommentPage from "./pages/admin/AdminCommentPage";
+import AdminNewsCommentPage from "./pages/admin/AdminNewsCommentPage";
 import AdminCouponPage from "@/pages/admin/AdminCouponPage";
 import AdminCategoryPage from "@/pages/admin/AdminCategoryPage";
 import NewsPage from "./pages/NewsPage";
@@ -205,6 +206,7 @@ export const router = createBrowserRouter([
             { path: "users", element: <AdminUserList /> },
             { path: "users/:id", element: <AdminUserDetail /> },
             { path: "comments", element: <AdminCommentPage /> },
+            { path: "news-comments", element: <AdminNewsCommentPage /> },
             { path: "coupons", element: <AdminCouponPage /> },
             { path: "categories", element: <AdminCategoryPage /> },
             { path: "news", element: <AdminNewsPage /> },

@@ -102,6 +102,12 @@ export const newsApi = baseApi.injectEndpoints({
             query: (commentId) => ({ url: `/admin/news/comments/${commentId}`, method: "DELETE" }),
             invalidatesTags: ["NewsComments"],
         }),
+
+        getAllNewsComments: builder.query({
+            query: (params) => ({ url: "/admin/news/comments", params }),
+            providesTags: ["NewsComments"],
+            transformResponse: (response) => ({ comments: response.data, pagination: response.pagination }),
+        }),
     }),
 });
 
@@ -118,4 +124,5 @@ export const {
     useCreateNewsCommentMutation,
     useDeleteNewsCommentMutation,
     useAdminDeleteNewsCommentMutation,
+    useGetAllNewsCommentsQuery,
 } = newsApi;

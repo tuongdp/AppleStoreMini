@@ -9,7 +9,8 @@ const SEGMENT_MAP = {
     products: "Sản phẩm",
     orders: "Đơn hàng",
     users: "Người dùng",
-    comments: "Bình luận",
+    comments: "Bình luận SP",
+    "news-comments": "Bình luận tin",
     create: "Tạo mới",
     edit: "Chỉnh sửa",
 };

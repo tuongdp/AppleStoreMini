@@ -6,6 +6,7 @@ import {
     ShoppingCart,
     Users,
     Star,
+    MessageSquare,
     LogOut,
     Store,
     ChevronRight,
@@ -28,7 +29,8 @@ const SIDEBAR_MAP = {
   "options": "Tùy chọn",
   "orders": "Đơn hàng",
   "products": "Sản phẩm",
-  "comments": "Bình luận",
+  "comments": "Bình luận SP",
+  "news-comments": "Bình luận tin",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };
@@ -48,6 +50,7 @@ export const ADMIN_NAV_ITEMS = [
     },
     { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false },
     { key: "comments", href: "/admin/comments", icon: Star, end: false },
+    { key: "news-comments", href: "/admin/news-comments", icon: MessageSquare, end: false },
 ];
 
 export default function AdminSidebar({ onClose }) {

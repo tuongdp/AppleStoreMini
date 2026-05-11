@@ -12,6 +12,7 @@ import {
     ChevronRight,
     Store,
     MessageSquare,
+    MessageCircle,
     Tag,
     LayoutGrid,
     Newspaper,
@@ -40,7 +41,8 @@ const SIDEBAR_MAP = {
   "options": "Tùy chọn",
   "orders": "Đơn hàng",
   "products": "Sản phẩm",
-  "comments": "Bình luận",
+  "comments": "Bình luận SP",
+  "news-comments": "Bình luận tin",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };
@@ -60,6 +62,7 @@ const NAV_ITEMS = [
     },
     { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, end: false },
     { key: "comments", href: "/admin/comments", icon: MessageSquare, end: false },
+    { key: "news-comments", href: "/admin/news-comments", icon: MessageCircle, end: false },
     { key: "coupons", href: "/admin/coupons", icon: Tag, end: false },
     {
         key: "categories",
