@@ -87,6 +87,7 @@ export default function RevenueChart() {
                     </p>
                 </div>
             ) : (
+                <div className="text-foreground [&_.recharts-text]:fill-[hsl(var(--foreground))] [&_.recharts-cartesian-axis-tick-value]:fill-[hsl(var(--muted-foreground))]">
                 <ResponsiveContainer width="100%" height={280}>
                     <AreaChart
                         data={chartData}
@@ -102,38 +103,33 @@ export default function RevenueChart() {
                             >
                                 <stop
                                     offset="5%"
-                                    stopColor="hsl(var(--foreground))"
+                                    stopColor="currentColor"
                                     stopOpacity={0.15}
                                 />
                                 <stop
                                     offset="95%"
-                                    stopColor="hsl(var(--foreground))"
+                                    stopColor="currentColor"
                                     stopOpacity={0}
                                 />
                             </linearGradient>
                         </defs>
                         <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="hsl(var(--border))"
+                            stroke="currentColor"
+                            strokeOpacity={0.1}
                             vertical={false}
                         />
                         <XAxis
                             dataKey="label"
                             axisLine={false}
                             tickLine={false}
-                            tick={{
-                                fontSize: 11,
-                                fill: "hsl(var(--muted-foreground))",
-                            }}
+                            tick={{ fontSize: 11 }}
                             dy={8}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{
-                                fontSize: 11,
-                                fill: "hsl(var(--muted-foreground))",
-                            }}
+                            tick={{ fontSize: 11 }}
                             tickFormatter={(value) => {
                                 if (value >= 1_000_000_000)
                                     return `${(value / 1_000_000_000).toFixed(1)}B`;
@@ -149,18 +145,19 @@ export default function RevenueChart() {
                         <Area
                             type="monotone"
                             dataKey="revenue"
-                            stroke="hsl(var(--foreground))"
+                            stroke="currentColor"
                             strokeWidth={2}
                             fill="url(#revenueGradient)"
                             dot={false}
                             activeDot={{
                                 r: 4,
-                                fill: "hsl(var(--foreground))",
+                                fill: "currentColor",
                                 strokeWidth: 0,
                             }}
                         />
                     </AreaChart>
                 </ResponsiveContainer>
+                </div>
             )}
 
             {/* ✅ data là object trực tiếp sau transformResponse — không cần .data thêm */}
