@@ -1,11 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { SearchX, X } from "lucide-react";
+import { SearchX, X, SlidersHorizontal } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import ProductGrid from "@/features/products/components/ProductGrid";
 import EmptyState from "@/components/shared/EmptyState";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
     Select,
     SelectContent,
@@ -14,8 +15,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
-import { ROUTES, SORT_OPTIONS, PAGINATION } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { ROUTES, SORT_OPTIONS, PRICE_RANGES, PAGINATION } from "@/lib/constants";
+import { cn, formatPrice } from "@/lib/utils";
 
 export default function ProductListPage() {
     const { categories } = useCategories();
@@ -25,10 +26,17 @@ export default function ProductListPage() {
         page: Number(searchParams.get("page")) || PAGINATION.DEFAULT_PAGE,
         limit: Number(searchParams.get("limit")) || PAGINATION.DEFAULT_LIMIT,
         category: searchParams.get("category") || undefined,
+        minPrice: searchParams.get("minPrice") || undefined,
+        maxPrice: searchParams.get("maxPrice") || undefined,
         sort: searchParams.get("sort") || "featured",
         search: searchParams.get("search") || undefined,
         slug: searchParams.get("slug") || undefined,
     };
+
+    const [priceRange, setPriceRange] = useState([
+        Number(filters.minPrice) || 0,
+        Number(filters.maxPrice) || 100000000,
+    ]);
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
 
@@ -57,44 +65,17 @@ export default function ProductListPage() {
         setSearchParams(params);
     };
 
-    const clearAll = () => setSearchParams({});
-
-    const currentCategory = categories.find((c) => c.slug === filters.category);
-
-    const slugGroups = useMemo(() => {
-        const source = slugData?.products ?? [];
-        if (!filters.category || !source.length) return [];
-        const map = new Map();
-        source.forEach((p) => {
-            const parts = p.slug?.split("-") || [];
-            const n = p.slug?.startsWith("apple-") ? 3 : 2;
-            if (parts.length > n) {
-                const family = parts.slice(0, n).join("-");
-                map.set(family, (map.get(family) || 0) + 1);
-            }
-        });
-        return [...map.entries()]
-            .filter(([, count]) => count > 0)
-            .sort((a, b) => b[1] - a[1]);
-    }, [slugData?.products, filters.category]);
-
-    const totalPages = pagination.totalPages || 1;
-    const currentPage = filters.page;
-
-    const getPageNumbers = () => {
-        const delta = 2;
-        const range = [];
-        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-            range.push(i);
-        }
-        if (currentPage - delta > 2) range.unshift("...");
-        if (currentPage + delta < totalPages - 1) range.push("...");
-        if (totalPages > 1) { range.unshift(1); range.push(totalPages); }
-        else { range.unshift(1); }
-        return [...new Set(range)];
+    const clearAll = () => {
+        setSearchParams({});
+        setPriceRange([0, 100000000]);
     };
 
-    const hasActiveFilters = filters.category || filters.slug;
+    const handlePriceCommit = (value) => {
+        updateFilter("minPrice", value[0] > 0 ? String(value[0]) : "");
+        updateFilter("maxPrice", value[1] < 100000000 ? String(value[1]) : "");
+    };
+
+    const hasActiveFilters = filters.category || filters.slug || filters.minPrice || filters.maxPrice;
 
     return (
         <div className="section-padding py-8 md:py-12">
@@ -192,6 +173,46 @@ export default function ProductListPage() {
                             ))}
                         </SelectContent>
                     </Select>
+                </div>
+
+                {/* Price filter */}
+                <div className="mb-6 rounded-2xl border border-border bg-card p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                        <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">Khoảng giá</span>
+                        <span className="text-sm text-muted-foreground">
+                            {formatPrice(priceRange[0])} – {priceRange[1] >= 100000000 ? "∞" : formatPrice(priceRange[1])}
+                        </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                        {PRICE_RANGES.map((range) => (
+                            <button
+                                key={range.label}
+                                onClick={() => {
+                                    setPriceRange([range.min, range.max]);
+                                    updateFilter("minPrice", range.min > 0 ? String(range.min) : "");
+                                    updateFilter("maxPrice", range.max < 999999999 ? String(range.max) : "");
+                                }}
+                                className={cn(
+                                    "rounded-full border px-3 py-1 text-xs transition-colors",
+                                    Number(filters.minPrice || 0) === range.min && (Number(filters.maxPrice || 999999999) === range.max || (!filters.maxPrice && range.max === 999999999))
+                                        ? "border-amber-500/50 bg-amber-500/10 text-amber-700 dark:border-amber-400/50 dark:bg-amber-400/10 dark:text-amber-400"
+                                        : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                                )}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
+                    </div>
+                    <Slider
+                        min={0}
+                        max={100000000}
+                        step={1000000}
+                        value={priceRange}
+                        onValueChange={setPriceRange}
+                        onValueCommit={handlePriceCommit}
+                        className="mt-2"
+                    />
                 </div>
 
                 {/* Product grid */}
