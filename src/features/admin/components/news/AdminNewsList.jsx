@@ -147,22 +147,22 @@ export default function AdminNewsList() {
                                                 </div>
                                             )}
                                             <div className="min-w-0">
-                                                <p className="max-w-[240px] truncate text-sm font-medium text-foreground">
+                                                <p className="max-w-[200px] truncate text-sm font-medium text-foreground">
                                                     {item.title}
                                                 </p>
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="max-w-[200px] truncate text-xs text-muted-foreground">
                                                     /{item.slug}
                                                 </p>
                                             </div>
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <span className="text-sm text-muted-foreground">
+                                        <span className="max-w-[100px] truncate block text-sm text-muted-foreground">
                                             {item.category || "—"}
                                         </span>
                                     </TableCell>
                                     <TableCell>
-                                        <span className="text-sm text-muted-foreground">
+                                        <span className="max-w-[120px] truncate block text-sm text-muted-foreground">
                                             {item.author || "—"}
                                         </span>
                                     </TableCell>

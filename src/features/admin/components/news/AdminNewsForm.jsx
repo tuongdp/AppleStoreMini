@@ -81,26 +81,26 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
             readTime: undefined,
             isPublished: false,
         },
+        values: news
+            ? {
+                  title: news.title || "",
+                  slug: news.slug || "",
+                  excerpt: news.excerpt || "",
+                  thumbnail: news.thumbnail || "",
+                  category: news.category || "",
+                  author: news.author || currentUser?.fullName || "",
+                  readTime: news.readTime || undefined,
+                  isPublished: news.isPublished ?? false,
+              }
+            : undefined,
     });
 
-    const newsIdRef = useRef(null);
     useEffect(() => {
-        if (news && news.id !== newsIdRef.current) {
-            newsIdRef.current = news.id;
-            form.reset({
-                title: news.title || "",
-                slug: news.slug || "",
-                excerpt: news.excerpt || "",
-                thumbnail: news.thumbnail || "",
-                category: news.category || "",
-                author: news.author || currentUser?.fullName || "",
-                readTime: news.readTime || undefined,
-                isPublished: news.isPublished ?? false,
-            });
+        if (news) {
             setContent(news.content || "");
             setThumbnailPreview(news.thumbnail || "");
         }
-    }, [news, form, currentUser]);
+    }, [news]);
 
     useEffect(() => {
         if (!isEditing) {
@@ -338,8 +338,7 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                             </span>
                                         </FormLabel>
                                         <Select
-                                            key={news?.id || "new"}
-                                            value={field.value || ""}
+                                            value={field.value}
                                             onValueChange={field.onChange}
                                             disabled={isLoading}
                                         >
