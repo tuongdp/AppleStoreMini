@@ -96,12 +96,26 @@ export const ordersApi = baseApi.injectEndpoints({
         }),
 
         // GET /admin/dashboard/revenue?period=week|month|year
-        // BE trả: { chart, totalRevenue, totalOrders, revenueChange }
         getRevenueStats: builder.query({
-            query: (params) => ({
-                url: "/admin/dashboard/revenue",
-                params,
-            }),
+            query: (params) => ({ url: "/admin/dashboard/revenue", params }),
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/low-stock
+        getLowStock: builder.query({
+            query: () => "/admin/dashboard/low-stock",
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/category-revenue
+        getCategoryRevenue: builder.query({
+            query: () => "/admin/dashboard/category-revenue",
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/points
+        getPointsStats: builder.query({
+            query: () => "/admin/dashboard/points",
             transformResponse: (response) => response.data,
         }),
     }),
@@ -118,4 +132,7 @@ export const {
     useGetAdminOrderByIdQuery,
     useUpdateOrderStatusMutation,
     useGetRevenueStatsQuery,
+    useGetLowStockQuery,
+    useGetCategoryRevenueQuery,
+    useGetPointsStatsQuery,
 } = ordersApi;
