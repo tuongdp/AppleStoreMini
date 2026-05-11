@@ -191,6 +191,21 @@ export default function AdminOrderDetail({ order }) {
                             </span>
                         </div>
                     </div>
+
+                    {/* Note */}
+                    {order.note && (
+                        <div className="rounded-2xl border border-border bg-card p-5">
+                            <div className="mb-3 flex items-center gap-2">
+                                <StickyNote className="h-4 w-4 text-muted-foreground" />
+                                <h3 className="text-sm font-medium text-foreground">
+                                    Ghi chú đơn hàng
+                                </h3>
+                            </div>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                {order.note}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* ── Right — Timeline ── */}
@@ -201,22 +216,6 @@ export default function AdminOrderDetail({ order }) {
                         </h3>
                         <OrderTimeline order={order} />
                     </div>
-                    </div>
-
-                    {/* Note */}
-                    {order.note && (
-                        <div className="rounded-2xl border border-border bg-card p-5">
-                            <div className="mb-3 flex items-center gap-2">
-                                <StickyNote className="h-4 w-4 text-muted-foreground" />
-                                <h3 className="text-sm font-medium text-foreground">
-                                    {"Ghi chú đơn hàng"}
-                                </h3>
-                            </div>
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                                {order.note}
-                            </p>
-                        </div>
-                    )}
                 </div>
         </div>
     );
