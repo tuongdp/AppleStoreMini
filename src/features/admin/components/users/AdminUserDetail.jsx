@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, Calendar, ShoppingBag } from "lucide-react";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { Mail, Phone, Calendar, ShoppingBag, ShieldCheck, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
+import { useUpdateUserPermissionsMutation } from "@/store/api/usersApi";
+import { selectIsAdmin } from "@/store/authSlice";
 import {
     formatPrice,
     formatDate,
@@ -12,14 +16,46 @@ import {
     formatNumber,
 } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import { toast } from "sonner";
 
 export default function AdminUserDetail({ user, orders = [] }) {
+    const isAdmin = useSelector(selectIsAdmin);
+    const [perms, setPerms] = useState(user.permissions || []);
+    const [updatePerms, { isLoading: isUpdatingPerms }] = useUpdateUserPermissionsMutation();
+
     const roleLabel =
         user.role === "admin"
             ? "Quản trị viên"
             : user.role === "staff"
               ? "Nhân viên"
               : "Người dùng";
+
+    const ALL_PERMISSIONS = [
+        { key: "dashboard", label: "Tổng quan" },
+        { key: "products", label: "Sản phẩm" },
+        { key: "orders", label: "Đơn hàng" },
+        { key: "users", label: "Người dùng" },
+        { key: "news", label: "Tin tức" },
+        { key: "comments", label: "Bình luận" },
+        { key: "categories", label: "Danh mục" },
+    ];
+
+    const togglePerm = (key) => {
+        setPerms((prev) => {
+            const arr = Array.isArray(prev) ? [...prev] : [];
+            if (arr.includes(key)) return arr.filter((k) => k !== key);
+            return [...arr, key];
+        });
+    };
+
+    const handleSavePerms = async () => {
+        try {
+            await updatePerms({ id: user.id, permissions: perms }).unwrap();
+            toast.success("Đã cập nhật quyền");
+        } catch {
+            toast.error("Có lỗi xảy ra");
+        }
+    };
 
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -137,6 +173,51 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         )}
                     </div>
                 </div>
+
+                {isAdmin && user.role === "staff" && (
+                    <div className="rounded-2xl border border-border bg-card p-5">
+                        <div className="mb-3 flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4 text-blue-600" />
+                            <h3 className="text-sm font-medium text-foreground">
+                                Phân quyền nhân viên
+                            </h3>
+                        </div>
+                        <div className="space-y-2">
+                            {ALL_PERMISSIONS.map((p) => {
+                                const checked = Array.isArray(perms) && perms.includes(p.key);
+                                return (
+                                    <label
+                                        key={p.key}
+                                        className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-muted/50"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => togglePerm(p.key)}
+                                            className="h-4 w-4 rounded accent-blue-600"
+                                        />
+                                        <span className="text-foreground">{p.label}</span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                        <Button
+                            size="sm"
+                            className="mt-3 w-full rounded-full"
+                            disabled={isUpdatingPerms}
+                            onClick={handleSavePerms}
+                        >
+                            {isUpdatingPerms ? (
+                                <>
+                                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                    Đang lưu...
+                                </>
+                            ) : (
+                                "Lưu quyền"
+                            )}
+                        </Button>
+                    </div>
+                )}
             </div>
 
             {/* ── Right — Orders + Addresses ── */}

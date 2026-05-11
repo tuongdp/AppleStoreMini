@@ -79,6 +79,17 @@ export const usersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        // PATCH /admin/users/:id/permissions — BE nhận { permissions }
+        updateUserPermissions: builder.mutation({
+            query: ({ id, permissions }) => ({
+                url: `/admin/users/${id}/permissions`,
+                method: "PATCH",
+                body: { permissions },
+            }),
+            invalidatesTags: ["Users"],
+            transformResponse: (response) => response.data,
+        }),
+
         // PATCH /admin/users/:id/toggle
         toggleUserStatus: builder.mutation({
             query: (id) => ({
@@ -107,6 +118,7 @@ export const {
     useGetAllUsersQuery,
     useGetUserByIdQuery,
     useUpdateUserRoleMutation,
+    useUpdateUserPermissionsMutation,
     useToggleUserStatusMutation,
     useDeleteUserMutation,
 } = usersApi;
