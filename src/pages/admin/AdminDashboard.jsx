@@ -68,6 +68,7 @@ export default function AdminDashboard() {
     const { data: points } = useGetPointsStatsQuery();
     const { data: couponStats } = useGetCouponStatsQuery();
     const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
+    const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
 
     const STAT_CARDS = [
         { title: "Tổng doanh thu", value: formatPrice(stats?.totalRevenue ?? 0), icon: DollarSign, color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30" },

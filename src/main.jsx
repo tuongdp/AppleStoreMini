@@ -6,6 +6,7 @@ import { store, persistor } from "./store";
 import AppProviders from "./providers/AppProviders";
 import { Toaster } from "@/components/ui/sonner";
 import LoadingScreen from "./components/shared/LoadingScreen";
+import ErrorBoundary from "./components/shared/ErrorBoundary";
 import App from "./App.jsx";
 import "./index.css";
 import { injectStore } from "./lib/axios";
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Provider store={store}>
         <PersistGate loading={<LoadingScreen />} persistor={persistor}>
             <AppProviders>
-                <App />
+                <ErrorBoundary>
+                    <App />
+                </ErrorBoundary>
                 <Toaster />
             </AppProviders>
         </PersistGate>
