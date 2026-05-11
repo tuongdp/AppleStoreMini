@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MessageCircle, X, Send, Loader2, Bot, User, ExternalLink } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatPrice } from "@/lib/utils";
@@ -61,25 +61,22 @@ export default function ChatWidget() {
 
     return (
         <>
-            {/* Floating button */}
             <button
                 onClick={() => setOpen(!open)}
                 className={cn(
                     "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110",
                     open
                         ? "bg-destructive text-destructive-foreground"
-                        : "bg-apple-blue text-white",
+                        : "bg-primary text-primary-foreground",
                 )}
             >
                 {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
             </button>
 
-            {/* Chat window */}
             {open && (
                 <div className="fixed bottom-24 right-6 z-50 flex h-[500px] w-[380px] max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-border bg-card shadow-2xl">
-                    {/* Header */}
-                    <div className="flex items-center gap-3 rounded-t-2xl border-b border-border bg-muted/50 px-4 py-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-apple-blue text-white">
+                    <div className="flex shrink-0 items-center gap-3 rounded-t-2xl border-b border-border bg-muted/50 px-4 py-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                             <Bot className="h-4 w-4" />
                         </div>
                         <div>
@@ -88,7 +85,6 @@ export default function ChatWidget() {
                         </div>
                     </div>
 
-                    {/* Messages */}
                     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
                         {messages.map((msg, i) => (
                             <div
@@ -102,7 +98,7 @@ export default function ChatWidget() {
                                     className={cn(
                                         "flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
                                         msg.role === "bot"
-                                            ? "bg-apple-blue/10 text-apple-blue"
+                                            ? "bg-primary/10 text-primary"
                                             : "bg-muted text-foreground",
                                     )}
                                 >
@@ -117,7 +113,7 @@ export default function ChatWidget() {
                                         "max-w-[80%] rounded-2xl px-3 py-2 text-sm",
                                         msg.role === "bot"
                                             ? "bg-muted text-foreground"
-                                            : "bg-apple-blue text-white",
+                                            : "bg-primary text-primary-foreground",
                                     )}
                                 >
                                     <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -129,9 +125,9 @@ export default function ChatWidget() {
                                                     to={`/products/${p.slug}`}
                                                     target="_blank"
                                                     onClick={() => setOpen(false)}
-                                                    className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-background/50"
+                                                    className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-accent"
                                                 >
-                                                    <span className="line-clamp-1 font-medium">{p.name}</span>
+                                                    <span className="line-clamp-1 font-medium text-foreground">{p.name}</span>
                                                     <span className="shrink-0 text-muted-foreground">
                                                         {p.price ? formatPrice(p.price) : "Liên hệ"}
                                                     </span>
@@ -144,7 +140,7 @@ export default function ChatWidget() {
                         ))}
                         {loading && (
                             <div className="flex gap-2">
-                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-apple-blue/10 text-apple-blue">
+                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                                     <Bot className="h-3.5 w-3.5" />
                                 </div>
                                 <div className="rounded-2xl bg-muted px-4 py-2">
@@ -155,8 +151,7 @@ export default function ChatWidget() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input */}
-                    <div className="border-t border-border p-3">
+                    <div className="shrink-0 border-t border-border p-3">
                         <div className="flex gap-2">
                             <Textarea
                                 value={input}
