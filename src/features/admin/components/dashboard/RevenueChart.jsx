@@ -87,7 +87,12 @@ export default function RevenueChart() {
                     </p>
                 </div>
             ) : (
-                <div className="text-foreground [&_.recharts-text]:fill-[hsl(var(--foreground))] [&_.recharts-cartesian-axis-tick-value]:fill-[hsl(var(--muted-foreground))]">
+                <>
+                <style>{`
+                  .revenue-chart-wrap .recharts-cartesian-axis-tick-value { fill: hsl(var(--muted-foreground)) !important; }
+                  .revenue-chart-wrap .recharts-cartesian-axis-tick line { stroke: hsl(var(--muted-foreground) / 0.2) !important; }
+                `}</style>
+                <div className="revenue-chart-wrap">
                 <ResponsiveContainer width="100%" height={280}>
                     <AreaChart
                         data={chartData}
@@ -157,6 +162,8 @@ export default function RevenueChart() {
                         />
                     </AreaChart>
                 </ResponsiveContainer>
+                </div>
+                </>
                 </div>
             )}
 
