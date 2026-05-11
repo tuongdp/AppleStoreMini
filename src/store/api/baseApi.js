@@ -87,7 +87,7 @@ export const baseApi = createApi({
     "Users",
     "User",
     "Reviews",
-    "Comments",
+    "NewsComments",
     "Cart",
     "Profile",
     "Addresses",

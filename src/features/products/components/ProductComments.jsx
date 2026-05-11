@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetCommentsQuery, useDeleteCommentMutation } from "@/store/api/commentsApi";
+import { useGetReviewsQuery, useDeleteReviewMutation } from "@/store/api/productReviewApi";
 import { selectCurrentUser } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,22 +17,20 @@ export default function ProductComments({ product }) {
     const [deleteId, setDeleteId] = useState(null);
     const [page, setPage] = useState(1);
 
-    const { data, isLoading } = useGetCommentsQuery({
-        type: "product",
-        targetId: productId,
+    const { data, isLoading } = useGetReviewsQuery({
+        productId,
         params: { page, limit: 5 },
     });
-    const [deleteComment, { isLoading: isDeleting }] = useDeleteCommentMutation();
+    const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
 
     const comments = data ?? [];
     const pagination = {};
 
     const handleDelete = async () => {
         try {
-            await deleteComment({
-                type: "product",
-                targetId: productId,
-                commentId: deleteId,
+            await deleteReview({
+                productId,
+                reviewId: deleteId,
             }).unwrap();
             toast.success("Đã xoá bình luận");
         } catch {

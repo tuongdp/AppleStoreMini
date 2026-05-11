@@ -2,10 +2,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { commentSchema } from "@/lib/validations";
-import {
-    useCreateCommentMutation,
-    useUpdateCommentMutation,
-} from "@/store/api/commentsApi";
+import { useCreateReviewMutation, useUpdateReviewMutation } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -27,8 +24,8 @@ export default function CommentForm({
     onCancel,
 }) {
     const isEditing = !!comment;
-    const [createComment, { isLoading: isCreating }] = useCreateCommentMutation();
-    const [updateComment, { isLoading: isUpdating }] = useUpdateCommentMutation();
+    const [createReview, { isLoading: isCreating }] = useCreateReviewMutation();
+    const [updateReview, { isLoading: isUpdating }] = useUpdateReviewMutation();
     const isLoading = isCreating || isUpdating;
 
     const form = useForm({
@@ -51,16 +48,14 @@ export default function CommentForm({
     const onSubmit = async (values) => {
         try {
             if (isEditing) {
-                await updateComment({
-                    type: "product",
-                    targetId: productId,
-                    commentId: comment._id || comment.id,
+                await updateReview({
+                    productId,
+                    reviewId: comment._id || comment.id,
                     ...values,
                 }).unwrap();
             } else {
-                await createComment({
-                    type: "product",
-                    targetId: productId,
+                await createReview({
+                    productId,
                     ...(orderId && { orderId }),
                     ...values,
                 }).unwrap();

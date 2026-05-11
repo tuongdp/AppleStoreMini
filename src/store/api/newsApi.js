@@ -79,6 +79,29 @@ export const newsApi = baseApi.injectEndpoints({
             invalidatesTags: ["News"],
             transformResponse: (response) => response.data,
         }),
+
+        // ── News Comments ──────────────────────────────
+        getNewsComments: builder.query({
+            query: ({ newsId, params }) => ({ url: `/news/${newsId}/comments`, params }),
+            providesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
+            transformResponse: (response) => response.data,
+        }),
+
+        createNewsComment: builder.mutation({
+            query: ({ newsId, ...data }) => ({ url: `/news/${newsId}/comments`, method: "POST", body: data }),
+            invalidatesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
+            transformResponse: (response) => response.data,
+        }),
+
+        deleteNewsComment: builder.mutation({
+            query: ({ newsId, commentId }) => ({ url: `/news/${newsId}/comments/${commentId}`, method: "DELETE" }),
+            invalidatesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
+        }),
+
+        adminDeleteNewsComment: builder.mutation({
+            query: (commentId) => ({ url: `/admin/news/comments/${commentId}`, method: "DELETE" }),
+            invalidatesTags: ["NewsComments"],
+        }),
     }),
 });
 
@@ -91,4 +114,8 @@ export const {
     useUpdateNewsMutation,
     useDeleteNewsMutation,
     useToggleNewsStatusMutation,
+    useGetNewsCommentsQuery,
+    useCreateNewsCommentMutation,
+    useDeleteNewsCommentMutation,
+    useAdminDeleteNewsCommentMutation,
 } = newsApi;

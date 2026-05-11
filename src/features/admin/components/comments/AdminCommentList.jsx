@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Search, Star, Trash2, Eye, EyeOff } from "lucide-react";
 import {
-    useGetAllCommentsQuery,
-    useAdminDeleteCommentMutation,
-    useToggleCommentVisibilityMutation,
-} from "@/store/api/commentsApi";
+    useGetAllReviewsQuery,
+    useAdminDeleteReviewMutation,
+    useToggleReviewVisibilityMutation,
+} from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -76,13 +76,13 @@ export default function AdminCommentList() {
         search: debouncedSearch || undefined,
     };
 
-    const { data, isLoading } = useGetAllCommentsQuery(filters);
-    const [deleteComment, { isLoading: isDeleting }] = useAdminDeleteCommentMutation();
+    const { data, isLoading } = useGetAllReviewsQuery(filters);
+    const [deleteReview, { isLoading: isDeleting }] = useAdminDeleteReviewMutation();
     const [toggleVisibility, { isLoading: isToggling }] =
-        useToggleCommentVisibilityMutation();
+        useToggleReviewVisibilityMutation();
 
     // ✅ commentsApi transformResponse → { comments, pagination }
-    const comments = data?.comments ?? [];
+    const reviews = data?.reviews ?? [];
     const pagination = data?.pagination ?? {};
 
     const updateParam = (key, value) => {
@@ -98,7 +98,7 @@ export default function AdminCommentList() {
 
     const handleDelete = async () => {
         try {
-            await deleteComment(deleteId).unwrap();
+            await deleteReview(deleteId).unwrap();
             toast.success("Đã xóa bình luận");
         } catch {
             toast.error("Có lỗi xảy ra");
@@ -178,7 +178,7 @@ export default function AdminCommentList() {
                                     ))}
                                 </TableRow>
                             ))
-                        ) : comments.length === 0 ? (
+                        ) : reviews.length === 0 ? (
                             <TableRow>
                                 <TableCell
                                     colSpan={7}
@@ -188,7 +188,7 @@ export default function AdminCommentList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            comments.map((comment) => (
+                            reviews.map((review) => (
                                 // ✅ MySQL integer id thuần
                                 <TableRow key={comment.id}>
                                     {/* User */}
