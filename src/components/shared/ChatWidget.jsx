@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MessageCircle, X, Send, Loader2, Bot, User, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-export default function ChatWidget({ products }) {
+export default function ChatWidget() {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
@@ -36,16 +37,14 @@ export default function ChatWidget({ products }) {
             const res = await fetch(`${BASE_URL}/chat`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: text,
-                    products: products?.slice(0, 5) || [],
-                }),
+                body: JSON.stringify({ message: text }),
             });
 
             const data = await res.json();
             const reply = data?.data?.reply || "Xin lỗi, tôi chưa hiểu ý bạn. Bạn có thể hỏi lại được không?";
+            const products = data?.data?.products || [];
 
-            setMessages((prev) => [...prev, { role: "bot", text: reply }]);
+            setMessages((prev) => [...prev, { role: "bot", text: reply, products }]);
         } catch {
             toast.error("Không thể kết nối AI, vui lòng thử lại");
         } finally {
@@ -122,6 +121,24 @@ export default function ChatWidget({ products }) {
                                     )}
                                 >
                                     <p className="whitespace-pre-wrap">{msg.text}</p>
+                                    {msg.products?.length > 0 && (
+                                        <div className="mt-2 space-y-1.5 border-t border-border pt-2">
+                                            {msg.products.map((p) => (
+                                                <Link
+                                                    key={p.slug}
+                                                    to={`/products/${p.slug}`}
+                                                    target="_blank"
+                                                    onClick={() => setOpen(false)}
+                                                    className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-background/50"
+                                                >
+                                                    <span className="line-clamp-1 font-medium">{p.name}</span>
+                                                    <span className="shrink-0 text-muted-foreground">
+                                                        {p.price ? formatPrice(p.price) : "Liên hệ"}
+                                                    </span>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
