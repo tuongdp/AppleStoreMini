@@ -1,58 +1,53 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { toast } from "sonner";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { contactSchema } from "@/lib/validations";
+
+const CONTACT_INFO = [
+    {
+        icon: MapPin,
+        label: "Địa chỉ",
+        value: "41/1 Khu phố 7, Phường 2, Đắk Lắk",
+    },
+    {
+        icon: Phone,
+        label: "Hotline",
+        value: "0562456055 (miễn phí)",
+    },
+    {
+        icon: Mail,
+        label: "Email",
+        value: "phuctuong123456@gmail.com",
+    },
+    {
+        icon: Clock,
+        label: "Giờ làm việc",
+        value: "8:00 – 21:00, tất cả các ngày",
+    },
+];
 
 export default function ContactPage() {
-    const CONTACT_INFO = [
-        {
-            icon: MapPin,
-            label: "Địa chỉ",
-            value: "41/1 Khu phố 7, Phường 2, Đắk Lắk",
-        },
-        {
-            icon: Phone,
-            label: "Hotline",
-            value: "0562456055 (miễn phí)",
-        },
-        {
-            icon: Mail,
-            label: "Email",
-            value: "phuctuong123456@gmail.com",
-        },
-        {
-            icon: Clock,
-            label: "Giờ làm việc",
-            value: "8:00 – 21:00, tất cả các ngày",
-        },
-    ];
-
-    const [form, setForm] = useState({
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
+    const form = useForm({
+        resolver: zodResolver(contactSchema),
+        defaultValues: { name: "", email: "", phone: "", message: "" },
     });
 
-    const handleChange = (e) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
+    const onSubmit = (values) => {
         toast.success("Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
-
-        setForm({
-            name: "",
-            email: "",
-            phone: "",
-            message: "",
-        });
+        form.reset();
     };
 
     return (
@@ -65,7 +60,6 @@ export default function ContactPage() {
                 </h1>
 
                 <div className="grid gap-8 md:grid-cols-2">
-                    {/* Contact info */}
                     <div className="space-y-6">
                         <p className="text-sm leading-relaxed text-muted-foreground">
                             {"Chúng tôi luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ qua các kênh bên dưới hoặc để lại tin nhắn, chúng tôi sẽ phản hồi trong vòng 24 giờ."}
@@ -93,69 +87,80 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Contact form */}
-                    <form
-                        onSubmit={handleSubmit}
-                        className="space-y-4 rounded-2xl border border-border bg-card p-6"
-                    >
-                        <h2 className="text-base font-medium text-foreground">
-                            {"Gửi tin nhắn"}
-                        </h2>
+                    <Form {...form}>
+                        <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+                        >
+                            <h2 className="text-base font-medium text-foreground">
+                                {"Gửi tin nhắn"}
+                            </h2>
 
-                        <div className="space-y-1.5">
-                            <Label htmlFor="name">{"Họ và tên"}</Label>
-                            <Input
-                                id="name"
+                            <FormField
+                                control={form.control}
                                 name="name"
-                                placeholder={"Nguyễn Văn A"}
-                                value={form.name}
-                                onChange={handleChange}
-                                required
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Họ và tên"}</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder={"Nguyễn Văn A"} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
 
-                        <div className="space-y-1.5">
-                            <Label htmlFor="email">{"Email"}</Label>
-                            <Input
-                                id="email"
+                            <FormField
+                                control={form.control}
                                 name="email"
-                                type="email"
-                                placeholder={"email@example.com"}
-                                value={form.email}
-                                onChange={handleChange}
-                                required
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Email"}</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" placeholder={"email@example.com"} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
 
-                        <div className="space-y-1.5">
-                            <Label htmlFor="phone">{"Số điện thoại"}</Label>
-                            <Input
-                                id="phone"
+                            <FormField
+                                control={form.control}
                                 name="phone"
-                                type="tel"
-                                placeholder={"0901234567"}
-                                value={form.phone}
-                                onChange={handleChange}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Số điện thoại (tuỳ chọn)"}</FormLabel>
+                                        <FormControl>
+                                            <Input type="tel" placeholder={"0901234567"} {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
 
-                        <div className="space-y-1.5">
-                            <Label htmlFor="message">{"Nội dung"}</Label>
-                            <Textarea
-                                id="message"
+                            <FormField
+                                control={form.control}
                                 name="message"
-                                placeholder={"Nhập nội dung bạn muốn liên hệ..."}
-                                rows={4}
-                                value={form.message}
-                                onChange={handleChange}
-                                required
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Nội dung"}</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder={"Nhập nội dung bạn muốn liên hệ..."}
+                                                rows={4}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                        </div>
 
-                        <Button type="submit" className="w-full rounded-full">
-                            {"Gửi tin nhắn"}
-                        </Button>
-                    </form>
+                            <Button type="submit" className="w-full rounded-full">
+                                {"Gửi tin nhắn"}
+                            </Button>
+                        </form>
+                    </Form>
                 </div>
             </div>
         </div>

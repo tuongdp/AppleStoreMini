@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
     Plus,
     Pencil,
     Trash2,
-    Eye,
-    EyeOff,
     ImagePlus,
     Loader2,
 } from "lucide-react";
@@ -21,16 +21,31 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { bannerSchema } from "@/lib/validations";
 
 function BannerForm({ banner, onClose }) {
     const isEditing = !!banner;
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(banner?.image || null);
-    const [order, setOrder] = useState(banner?.order ?? 0);
-    const [ctaLink, setCtaLink] = useState(banner?.ctaLink || "/products");
+
+    const form = useForm({
+        resolver: zodResolver(bannerSchema),
+        defaultValues: {
+            order: banner?.order ?? 0,
+            ctaLink: banner?.ctaLink || "/products",
+        },
+    });
 
     const [createBanner, { isLoading: isCreating }] = useCreateBannerMutation();
     const [updateBanner, { isLoading: isUpdating }] = useUpdateBannerMutation();
@@ -39,15 +54,23 @@ function BannerForm({ banner, onClose }) {
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            toast.error("Vui lòng chọn file ảnh");
+            return;
+        }
         setImageFile(file);
         setImagePreview(URL.createObjectURL(file));
     };
 
-    const onSubmit = async () => {
+    const onSubmit = async (values) => {
+        if (!isEditing && !imageFile) {
+            toast.error("Vui lòng chọn ảnh banner");
+            return;
+        }
         try {
             const formData = new FormData();
-            if (order !== undefined) formData.append("order", String(order));
-            if (ctaLink) formData.append("ctaLink", ctaLink);
+            formData.append("order", String(values.order));
+            formData.append("ctaLink", values.ctaLink);
             if (imageFile) formData.append("image", imageFile);
 
             if (isEditing) {
@@ -67,91 +90,104 @@ function BannerForm({ banner, onClose }) {
     };
 
     return (
-        <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-5">
-            {/* Image upload + preview */}
-            <div>
-                <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {"Ảnh banner"}
-                </label>
-                {imagePreview && (
-                    <div className="mb-3 h-40 w-full overflow-hidden rounded-xl bg-muted">
-                        <img
-                            src={imagePreview}
-                            alt="preview"
-                            className="h-full w-full object-cover"
-                        />
-                    </div>
-                )}
-                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-3 hover:bg-muted/30">
-                    <ImagePlus className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                        {imageFile ? imageFile.name : "Chọn ảnh banner..."}
-                    </span>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageChange}
-                    />
-                </label>
-            </div>
-
-            {/* Order */}
-            <div>
-                <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {"Thứ tự hiển thị"}
-                </label>
-                <Input
-                    type="number"
-                    min={0}
-                    value={order}
-                    onChange={(e) => setOrder(Number(e.target.value))}
-                    className="w-24"
-                />
-            </div>
-
-            {/* CTA Link */}
-            <div>
-                <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {"Link liên kết"}
-                </label>
-                <Input
-                    value={ctaLink}
-                    onChange={(e) => setCtaLink(e.target.value)}
-                    placeholder="/products?category=iphone"
-                />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
-                    onClick={onClose}
-                    disabled={isLoading}
-                >
-                    {"Huỷ"}
-                </Button>
-                <Button
-                    type="submit"
-                    size="sm"
-                    className="rounded-full"
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                            {"Đang lưu..."}
-                        </>
-                    ) : isEditing ? (
-                        "Cập nhật"
-                    ) : (
-                        "Tạo banner"
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <div>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground">
+                        {"Ảnh banner"}
+                        {!isEditing && <span className="text-destructive"> *</span>}
+                    </label>
+                    {imagePreview && (
+                        <div className="mb-3 h-40 w-full overflow-hidden rounded-xl bg-muted">
+                            <img
+                                src={imagePreview}
+                                alt="preview"
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
                     )}
-                </Button>
-            </div>
-        </form>
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-3 hover:bg-muted/30">
+                        <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                            {imageFile ? imageFile.name : "Chọn ảnh banner..."}
+                        </span>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageChange}
+                        />
+                    </label>
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="order"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{"Thứ tự hiển thị"}</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    className="w-24"
+                                    {...field}
+                                    onChange={(e) => field.onChange(Number(e.target.value))}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="ctaLink"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{"Link liên kết"}</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="/products?category=iphone"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={onClose}
+                        disabled={isLoading}
+                    >
+                        {"Huỷ"}
+                    </Button>
+                    <Button
+                        type="submit"
+                        size="sm"
+                        className="rounded-full"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                {"Đang lưu..."}
+                            </>
+                        ) : isEditing ? (
+                            "Cập nhật"
+                        ) : (
+                            "Tạo banner"
+                        )}
+                    </Button>
+                </div>
+            </form>
+        </Form>
     );
 }
 

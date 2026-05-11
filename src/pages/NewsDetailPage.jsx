@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -23,8 +25,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
 import RichTextViewer from "@/components/shared/RichTextViewer";
 import { formatDate, formatDateTime, cn } from "@/lib/utils";
+import { newsCommentSchema } from "@/lib/validations";
 import { toast } from "sonner";
 
 function StarRatingInput({ value, onChange }) {
@@ -135,9 +145,13 @@ export default function NewsDetailPage() {
     const { slug } = useParams();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const currentUser = useSelector(selectCurrentUser);
-    const [comment, setComment] = useState("");
     const [rating, setRating] = useState(0);
     const [commentPage, setCommentPage] = useState(1);
+
+    const commentForm = useForm({
+        resolver: zodResolver(newsCommentSchema),
+        defaultValues: { comment: "" },
+    });
 
     const { data, isLoading, isError } = useGetNewsBySlugQuery(slug);
     const news = data;
@@ -159,15 +173,13 @@ export default function NewsDetailPage() {
     const comments = commentsData?.comments || [];
     const commentPagination = commentsData?.pagination || {};
 
-    const handleComment = async (e) => {
-        e.preventDefault();
-        if (!comment.trim()) return;
+    const handleComment = async (values) => {
         try {
             await createComment({
                 newsId: news._id || news.id,
-                content: comment,
+                content: values.comment,
             }).unwrap();
-            setComment("");
+            commentForm.reset();
             toast.success("Đã gửi bình luận");
         } catch {
             toast.error("Có lỗi xảy ra, vui lòng thử lại");
@@ -342,48 +354,55 @@ export default function NewsDetailPage() {
                             </h3>
 
                             {isAuthenticated ? (
-                                <form
-                                    onSubmit={handleComment}
-                                    className="mb-6 flex gap-3"
-                                >
-                                    <Avatar className="h-8 w-8 shrink-0">
-                                        <AvatarImage
-                                            src={currentUser?.avatar}
-                                        />
-                                        <AvatarFallback className="text-xs">
-                                            {currentUser?.fullName
-                                                ?.charAt(0)
-                                                ?.toUpperCase() || "U"}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 space-y-2">
-                                        <Textarea
-                                            value={comment}
-                                            onChange={(e) =>
-                                                setComment(e.target.value)
-                                            }
-                                            placeholder={"Viết bình luận của bạn..."}
-                                            rows={3}
-                                            disabled={isCommenting}
-                                        />
-                                        <div className="flex justify-end">
-                                            <Button
-                                                type="submit"
-                                                size="sm"
-                                                className="rounded-full"
-                                                disabled={
-                                                    isCommenting ||
-                                                    !comment.trim()
-                                                }
-                                            >
-                                                <Send className="mr-1.5 h-3.5 w-3.5" />
-                                                {isCommenting
-                                                    ? "Đang gửi..."
-                                                    : "Gửi bình luận"}
-                                            </Button>
+                                <Form {...commentForm}>
+                                    <form
+                                        onSubmit={commentForm.handleSubmit(handleComment)}
+                                        className="mb-6 flex gap-3"
+                                    >
+                                        <Avatar className="h-8 w-8 shrink-0">
+                                            <AvatarImage
+                                                src={currentUser?.avatar}
+                                            />
+                                            <AvatarFallback className="text-xs">
+                                                {currentUser?.fullName
+                                                    ?.charAt(0)
+                                                    ?.toUpperCase() || "U"}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 space-y-2">
+                                            <FormField
+                                                control={commentForm.control}
+                                                name="comment"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Textarea
+                                                                {...field}
+                                                                placeholder={"Viết bình luận của bạn..."}
+                                                                rows={3}
+                                                                disabled={isCommenting}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <div className="flex justify-end">
+                                                <Button
+                                                    type="submit"
+                                                    size="sm"
+                                                    className="rounded-full"
+                                                    disabled={isCommenting}
+                                                >
+                                                    <Send className="mr-1.5 h-3.5 w-3.5" />
+                                                    {isCommenting
+                                                        ? "Đang gửi..."
+                                                        : "Gửi bình luận"}
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </Form>
                             ) : (
                                 <div className="mb-6 rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
                                     <Link

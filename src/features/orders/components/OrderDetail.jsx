@@ -1,8 +1,17 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Package, MapPin, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderTimeline from "./OrderTimeline";
 import OrderItemRow from "./OrderItemRow";
@@ -12,6 +21,7 @@ import {
     useCancelOrderMutation,
     useConfirmDeliveredMutation,
 } from "@/store/api/ordersApi";
+import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";
@@ -26,7 +36,11 @@ const PAYMENT_MAP = {
 };
 export default function OrderDetail({ order }) {
     const [cancelOpen, setCancelOpen] = useState(false);
-    const [cancelReason, setCancelReason] = useState("");
+
+    const cancelForm = useForm({
+        resolver: zodResolver(cancelOrderSchema),
+        defaultValues: { reason: "" },
+    });
 
     const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
     const [confirmDelivered, { isLoading: isConfirming }] =
@@ -37,9 +51,6 @@ export default function OrderDetail({ order }) {
     );
     const canConfirm = order.status === ORDER_STATUS.SHIPPING;
 
-    // ✅ BE lưu shipping address dưới dạng flat fields (không phải object lồng nhau)
-    // order.shippingFullName, order.shippingPhone, order.shippingAddress,
-    // order.shippingWard, order.shippingDistrict, order.shippingProvince
     const shippingInfo = {
         fullName: order.shippingFullName,
         phone: order.shippingPhone,
@@ -49,20 +60,23 @@ export default function OrderDetail({ order }) {
         province: order.shippingProvince,
     };
 
-    // ✅ BE dùng discountAmount (không phải discount)
     const shippingFee = order.shippingFee ?? 0;
     const discountAmount = order.discountAmount ?? 0;
 
-    const handleCancel = async () => {
+    const handleCancel = async (values) => {
         try {
-            // ✅ MySQL id là integer, không có _id
-            await cancelOrder({ id: order.id, reason: cancelReason }).unwrap();
+            await cancelOrder({ id: order.id, reason: values.reason }).unwrap();
             toast.success("Đã huỷ đơn hàng thành công");
-            setCancelReason("");
+            cancelForm.reset();
             setCancelOpen(false);
         } catch {
             toast.error("Huỷ đơn hàng thất bại, vui lòng thử lại");
         }
+    };
+
+    const handleCancelOpen = (open) => {
+        setCancelOpen(open);
+        if (!open) cancelForm.reset();
     };
 
     const handleConfirmDelivered = async () => {
@@ -265,23 +279,33 @@ export default function OrderDetail({ order }) {
             {/* Cancel dialog */}
             <ConfirmDialog
                 open={cancelOpen}
-                onOpenChange={setCancelOpen}
+                onOpenChange={handleCancelOpen}
                 title={"Huỷ đơn hàng"}
                 description={
                     <div className="space-y-3">
                         <p className="text-sm text-muted-foreground">
                             {"Bạn có chắc chắn muốn huỷ đơn hàng này không?"}
                         </p>
-                        <Textarea
-                            placeholder={"Nhập lý do huỷ đơn hàng"}
-                            value={cancelReason}
-                            onChange={(e) => setCancelReason(e.target.value)}
-                            rows={3}
+                        <FormField
+                            control={cancelForm.control}
+                            name="reason"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder={"Nhập lý do huỷ đơn hàng"}
+                                            rows={3}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
                     </div>
                 }
                 confirmLabel={"Xác nhận huỷ"}
-                onConfirm={handleCancel}
+                onConfirm={cancelForm.handleSubmit(handleCancel)}
                 isLoading={isCancelling}
             />
         </div>

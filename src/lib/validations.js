@@ -15,6 +15,10 @@ const v = (key) => {
     "fullName.maxLength": "Họ tên tối đa 50 ký tự",
     "phone.required": "Vui lòng nhập số điện thoại",
     "phone.invalid": "Số điện thoại không hợp lệ",
+    "phone.optionalInvalid": "Số điện thoại không hợp lệ",
+    "name.required": "Vui lòng nhập họ tên",
+    "message.required": "Vui lòng nhập nội dung",
+    "message.minLength": "Nội dung tối thiểu 10 ký tự",
     "terms.required": "Vui lòng đồng ý với điều khoản sử dụng",
     "address.fullNameRequired": "Vui lòng nhập họ tên người nhận",
     "address.addressMinLength": "Địa chỉ tối thiểu 10 ký tự",
@@ -56,7 +60,7 @@ export const registerSchema = z
         phone: z
             .string()
             .min(1, { message: v("phone.required") })
-            .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, {
+            .regex(/^0[35789][0-9]{8}$/, {
                 message: v("phone.invalid"),
             }),
         password: z
@@ -128,7 +132,7 @@ export const profileSchema = z.object({
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
-        .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, {
+        .regex(/^0[35789][0-9]{8}$/, {
             message: v("phone.invalid"),
         }),
     birthday: z.string().optional(),
@@ -142,7 +146,7 @@ export const addressSchema = z.object({
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
-        .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, {
+        .regex(/^0[35789][0-9]{8}$/, {
             message: v("phone.invalid"),
         }),
     address: z.string().min(10, { message: v("address.addressMinLength") }),
@@ -155,7 +159,7 @@ export const checkoutSchema = z.object({
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
-        .regex(/^(0[3|5|7|8|9])+([0-9]{8})$/, {
+        .regex(/^0[35789][0-9]{8}$/, {
             message: v("phone.invalid"),
         }),
     address: z.string().min(10, { message: v("address.addressMinLength") }),
@@ -200,4 +204,37 @@ export const commentSchema = z.object({
 // ── Cancel order ──────────────────────────────────────
 export const cancelOrderSchema = z.object({
     reason: z.string().min(10, { message: v("cancelReason.required") }),
+});
+
+// ── Contact ───────────────────────────────────────────
+export const contactSchema = z.object({
+    name: z.string().min(2, { message: v("name.required") }),
+    email: z
+        .string()
+        .min(1, { message: v("email.required") })
+        .email({ message: v("email.invalid") }),
+    phone: z
+        .string()
+        .optional()
+        .refine((val) => !val || /^0[35789][0-9]{8}$/.test(val), {
+            message: v("phone.optionalInvalid"),
+        }),
+    message: z
+        .string()
+        .min(10, { message: v("message.minLength") })
+        .max(1000),
+});
+
+// ── Banner ────────────────────────────────────────────
+export const bannerSchema = z.object({
+    order: z.coerce.number().int().min(0),
+    ctaLink: z.string().min(1, "Vui lòng nhập link liên kết"),
+});
+
+// ── News Comment ───────────────────────────────────────
+export const newsCommentSchema = z.object({
+    comment: z
+        .string()
+        .min(10, { message: v("comment.commentMinLength") })
+        .max(500, { message: v("comment.commentMaxLength") }),
 });
