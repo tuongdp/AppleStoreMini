@@ -22,20 +22,24 @@ export default function ProductListPage() {
     const { categories } = useCategories();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const filters = {
-        page: Number(searchParams.get("page")) || PAGINATION.DEFAULT_PAGE,
-        limit: Number(searchParams.get("limit")) || PAGINATION.DEFAULT_LIMIT,
-        category: searchParams.get("category") || undefined,
-        minPrice: searchParams.get("minPrice") || undefined,
-        maxPrice: searchParams.get("maxPrice") || undefined,
-        sort: searchParams.get("sort") || "featured",
-        search: searchParams.get("search") || undefined,
-        slug: searchParams.get("slug") || undefined,
-    };
+    const filters = useMemo(() => {
+        const raw = {
+            page: Number(searchParams.get("page")) || PAGINATION.DEFAULT_PAGE,
+            limit: Number(searchParams.get("limit")) || PAGINATION.DEFAULT_LIMIT,
+            category: searchParams.get("category") || undefined,
+            minPrice: searchParams.get("minPrice") || undefined,
+            maxPrice: searchParams.get("maxPrice") || undefined,
+            sort: searchParams.get("sort") || "featured",
+            search: searchParams.get("search") || undefined,
+            slug: searchParams.get("slug") || undefined,
+        };
+        // Remove undefined keys so RTK Query doesn't serialize them as "undefined"
+        return Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined));
+    }, [searchParams]);
 
     const [priceRange, setPriceRange] = useState([
-        Number(filters.minPrice) || 0,
-        Number(filters.maxPrice) || 100000000,
+        Number(searchParams.get("minPrice")) || 0,
+        Number(searchParams.get("maxPrice")) || 100000000,
     ]);
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
