@@ -67,47 +67,21 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
     const [uploadEditorImage, { isLoading: isUploading }] = useUploadEditorImageMutation();
     const [content, setContent] = useState(news?.content || "");
     const [thumbnailPreview, setThumbnailPreview] = useState(news?.thumbnail || "");
-    const [selectReady, setSelectReady] = useState(false);
     const fileInputRef = useRef(null);
 
     const form = useForm({
         resolver: zodResolver(newsSchema),
         defaultValues: {
-            title: "",
-            slug: "",
-            excerpt: "",
-            thumbnail: "",
-            category: "",
-            author: currentUser?.fullName || "",
-            readTime: undefined,
-            isPublished: false,
+            title: news?.title || "",
+            slug: news?.slug || "",
+            excerpt: news?.excerpt || "",
+            thumbnail: news?.thumbnail || "",
+            category: news?.category || "",
+            author: news?.author || currentUser?.fullName || "",
+            readTime: news?.readTime || undefined,
+            isPublished: news?.isPublished ?? false,
         },
-        values: news
-            ? {
-                  title: news.title || "",
-                  slug: news.slug || "",
-                  excerpt: news.excerpt || "",
-                  thumbnail: news.thumbnail || "",
-                  category: news.category || "",
-                  author: news.author || currentUser?.fullName || "",
-                  readTime: news.readTime || undefined,
-                  isPublished: news.isPublished ?? false,
-              }
-            : undefined,
     });
-
-    useEffect(() => {
-        if (selectReady) return;
-        const t = setTimeout(() => setSelectReady(true), 0);
-        return () => clearTimeout(t);
-    }, [selectReady]);
-
-    useEffect(() => {
-        if (news) {
-            setContent(news.content || "");
-            setThumbnailPreview(news.thumbnail || "");
-        }
-    }, [news]);
 
     useEffect(() => {
         if (!isEditing) {
@@ -345,7 +319,6 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                             </span>
                                         </FormLabel>
                                         <Select
-                                            key={`${news?.id || "new"}-${selectReady}`}
                                             value={field.value}
                                             onValueChange={field.onChange}
                                             disabled={isLoading}
