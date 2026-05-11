@@ -17,6 +17,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import SocialLoginButtons from "./SocialLoginButtons";
 import { ROUTES } from "@/lib/constants";
 
 export default function RegisterForm() {
@@ -311,6 +312,8 @@ export default function RegisterForm() {
             </Form>
 
             <Separator className="my-6" />
+
+            <SocialLoginButtons />
 
             {/* Login link */}
             <p className="text-center text-sm text-muted-foreground">

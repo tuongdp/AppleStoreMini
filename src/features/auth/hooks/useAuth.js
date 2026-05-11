@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -6,6 +6,7 @@ import {
     useRegisterMutation,
     useLogoutMutation,
     useSendVerificationMutation,
+    useGoogleLoginMutation,
 } from "@/store/api/authApi";
 import {
     selectCurrentUser,
@@ -33,6 +34,8 @@ export function useAuth() {
     const [logoutMutation, { isLoading: isLogoutLoading }] =
         useLogoutMutation();
     const [sendVerificationMutation] = useSendVerificationMutation();
+    const [googleLoginMutation, { isLoading: isGoogleLoginLoading }] =
+        useGoogleLoginMutation();
     const [syncCart] = useSyncCartMutation();
 
     const login = async (credentials, redirectTo = ROUTES.HOME) => {
@@ -67,6 +70,75 @@ export function useAuth() {
     };
 
     const [registerSuccess, setRegisterSuccess] = useState(false);
+    const [isGoogleInit, setIsGoogleInit] = useState(false);
+
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    const handleGoogleResponse = useCallback(
+        async (response) => {
+            try {
+                await googleLoginMutation(response.credential).unwrap();
+
+                if (cartItems.length > 0) {
+                    try {
+                        await syncCart(
+                            cartItems.map((item) => ({
+                                product: item.product._id || item.product.id,
+                                quantity: item.quantity,
+                                selectedColor: item.selectedColor,
+                                selectedStorage: item.selectedStorage,
+                            })),
+                        ).unwrap();
+                    } catch {
+                        // Sync fail không ảnh hưởng login
+                    }
+                }
+
+                navigate(ROUTES.HOME);
+            } catch {
+                // Lỗi đã được xử lý trong mutation
+            }
+        },
+        [googleLoginMutation, cartItems, syncCart, navigate],
+    );
+
+    useEffect(() => {
+        if (!googleClientId) return;
+
+        if (window.google?.accounts?.id) {
+            window.google.accounts.id.initialize({
+                client_id: googleClientId,
+                callback: handleGoogleResponse,
+            });
+            setIsGoogleInit(true);
+            return;
+        }
+
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            window.google.accounts.id.initialize({
+                client_id: googleClientId,
+                callback: handleGoogleResponse,
+            });
+            setIsGoogleInit(true);
+        };
+        document.body.appendChild(script);
+
+        return () => {
+            const el = document.querySelector(
+                'script[src="https://accounts.google.com/gsi/client"]',
+            );
+            if (el) el.remove();
+        };
+    }, [googleClientId, handleGoogleResponse]);
+
+    const loginWithGoogle = useCallback(() => {
+        if (!isGoogleInit || !window.google?.accounts?.id) return;
+        window.google.accounts.id.prompt();
+    }, [isGoogleInit]);
 
     const register = async (data) => {
         try {
@@ -115,10 +187,12 @@ export function useAuth() {
         isLoginLoading,
         isRegisterLoading,
         isLogoutLoading,
+        isGoogleLoginLoading,
 
         login,
         register,
         logout: logoutUser,
         sendVerification,
+        loginWithGoogle,
     };
 }

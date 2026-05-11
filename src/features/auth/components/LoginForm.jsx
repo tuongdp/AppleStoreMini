@@ -17,6 +17,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import SocialLoginButtons from "./SocialLoginButtons";
 import { ROUTES } from "@/lib/constants";
 
 export default function LoginForm() {
@@ -191,6 +192,8 @@ export default function LoginForm() {
                     </Button>
                 </form>
             </Form>
+
+            <SocialLoginButtons />
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
                 {"Chưa có tài khoản?"}{" "}
