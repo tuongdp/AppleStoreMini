@@ -67,7 +67,7 @@ export default function ChatWidget() {
                     "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110",
                     open
                         ? "bg-destructive text-destructive-foreground"
-                        : "bg-primary text-primary-foreground",
+                        : "bg-foreground text-background",
                 )}
             >
                 {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
