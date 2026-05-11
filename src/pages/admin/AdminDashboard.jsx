@@ -1,9 +1,9 @@
-import { DollarSign, ShoppingBag, Users, Package, Clock, AlertTriangle, Coins, TrendingUp, TrendingDown } from "lucide-react";
+import { DollarSign, ShoppingBag, Users, Package, Clock, AlertTriangle, Coins, TrendingUp, TrendingDown, TicketPercent } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetRevenueStatsQuery, useGetLowStockQuery, useGetCategoryRevenueQuery, useGetPointsStatsQuery } from "@/store/api/ordersApi";
+import { useGetRevenueStatsQuery, useGetLowStockQuery, useGetCategoryRevenueQuery, useGetPointsStatsQuery, useGetCouponStatsQuery } from "@/store/api/ordersApi";
 import { useGetAllUsersQuery } from "@/store/api/usersApi";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import RevenueChart from "@/features/admin/components/dashboard/RevenueChart";
@@ -66,8 +66,8 @@ export default function AdminDashboard() {
     const { data: lowStock = [] } = useGetLowStockQuery();
     const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
     const { data: points } = useGetPointsStatsQuery();
+    const { data: couponStats } = useGetCouponStatsQuery();
     const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
-    const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
 
     const STAT_CARDS = [
         { title: "Tổng doanh thu", value: formatPrice(stats?.totalRevenue ?? 0), icon: DollarSign, color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30" },
@@ -77,6 +77,8 @@ export default function AdminDashboard() {
         { title: "Tổng đơn hàng", value: formatNumber(stats?.totalOrders ?? 0), icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
         { title: "Tổng người dùng", value: formatNumber(usersData?.pagination?.total ?? 0), icon: Users, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/30" },
         { title: "Điểm loyalty", value: formatNumber(points?.totalPoints ?? 0), icon: Coins, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
+        { title: "Voucher đã dùng", value: formatNumber(couponStats?.totalCouponOrders ?? 0), icon: TicketPercent, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-950/30" },
+        { title: "Tiền giảm từ voucher", value: formatPrice(couponStats?.totalDiscountAmount ?? 0), icon: TicketPercent, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-950/30" },
     ];
 
     return (

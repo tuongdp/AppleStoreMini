@@ -109,7 +109,7 @@ export default function RevenueChart() {
                     </p>
                 </div>
             ) : (
-                <ResponsiveContainer width="100%" height={280}>
+                <ResponsiveContainer key={period} width="100%" height={280}>
                     <AreaChart
                         data={chartData}
                         margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
@@ -191,7 +191,7 @@ export default function RevenueChart() {
                     </div>
                     <div className="text-center">
                         <p className="text-xs text-muted-foreground">
-                            {"so với tháng trước"}
+                            {period === "week" ? "so với tuần trước" : period === "year" ? "so với năm trước" : "so với tháng trước"}
                         </p>
                         <p
                             className={cn(

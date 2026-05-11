@@ -118,6 +118,12 @@ export const ordersApi = baseApi.injectEndpoints({
             query: () => "/admin/dashboard/points",
             transformResponse: (response) => response.data,
         }),
+
+        // GET /admin/dashboard/coupon-stats
+        getCouponStats: builder.query({
+            query: () => "/admin/dashboard/coupon-stats",
+            transformResponse: (response) => response.data,
+        }),
     }),
 });
 
@@ -135,4 +141,5 @@ export const {
     useGetLowStockQuery,
     useGetCategoryRevenueQuery,
     useGetPointsStatsQuery,
+    useGetCouponStatsQuery,
 } = ordersApi;
