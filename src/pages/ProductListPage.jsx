@@ -69,14 +69,29 @@ export default function ProductListPage() {
         setSearchParams(params);
     };
 
+    const updateFilters = (updates) => {
+        const params = new URLSearchParams(searchParams);
+        updates.forEach(([key, value]) => {
+            if (value) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+        });
+        params.set("page", "1");
+        setSearchParams(params);
+    };
+
     const clearAll = () => {
         setSearchParams({});
         setPriceRange([0, 100000000]);
     };
 
     const handlePriceCommit = (value) => {
-        updateFilter("minPrice", value[0] > 0 ? String(value[0]) : "");
-        updateFilter("maxPrice", value[1] < 100000000 ? String(value[1]) : "");
+        updateFilters([
+            ["minPrice", value[0] > 0 ? String(value[0]) : ""],
+            ["maxPrice", value[1] < 100000000 ? String(value[1]) : ""],
+        ]);
     };
 
     const hasActiveFilters = filters.category || filters.slug || filters.minPrice || filters.maxPrice;
@@ -229,8 +244,10 @@ export default function ProductListPage() {
                                 key={range.label}
                                 onClick={() => {
                                     setPriceRange([range.min, range.max]);
-                                    updateFilter("minPrice", range.min > 0 ? String(range.min) : "");
-                                    updateFilter("maxPrice", range.max < 999999999 ? String(range.max) : "");
+                                    updateFilters([
+                                        ["minPrice", range.min > 0 ? String(range.min) : ""],
+                                        ["maxPrice", range.max < 999999999 ? String(range.max) : ""],
+                                    ]);
                                 }}
                                 className={cn(
                                     "rounded-full border px-3 py-1 text-xs transition-colors",
