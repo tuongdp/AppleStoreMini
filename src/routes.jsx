@@ -211,7 +211,7 @@ export const router = createBrowserRouter([
             { path: "categories", element: <AdminCategoryPage /> },
             { path: "news", element: <AdminNewsPage /> },
             { path: "news/create", element: <AdminNewsCreate /> },
-            { path: "news/:id/edit", element: <AdminNewsEdit /> },
+            { path: "news/:slug/edit", element: <AdminNewsEdit /> },
             { path: "banners", element: <AdminBannerPage /> },
             { path: "flash-sales", element: <AdminFlashSalePage /> },
             { path: "options", element: <AdminGlobalOptionsPage /> },

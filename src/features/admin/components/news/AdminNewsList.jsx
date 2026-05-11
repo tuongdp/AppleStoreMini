@@ -220,7 +220,7 @@ export default function AdminNewsList() {
                                                 asChild
                                             >
                                                 <Link
-                                                    to={`/admin/news/${item.id}/edit`}
+                                                    to={`/admin/news/${item.slug}/edit`}
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </Link>

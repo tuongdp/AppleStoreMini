@@ -19,6 +19,12 @@ export const newsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        getAdminNewsBySlug: builder.query({
+            query: (slug) => `/admin/news/${slug}`,
+            providesTags: (_, __, slug) => [{ type: "NewsItem", id: slug }],
+            transformResponse: (response) => response.data,
+        }),
+
         // POST /news/:newsId/rate
         rateNews: builder.mutation({
             query: ({ newsId, rating }) => ({
@@ -117,6 +123,7 @@ export const newsApi = baseApi.injectEndpoints({
 export const {
     useGetNewsQuery,
     useGetNewsBySlugQuery,
+    useGetAdminNewsBySlugQuery,
     useRateNewsMutation,
     useGetAllNewsQuery,
     useCreateNewsMutation,

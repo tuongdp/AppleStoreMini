@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import {
-    useGetNewsBySlugQuery,
+    useGetAdminNewsBySlugQuery,
     useUpdateNewsMutation,
 } from "@/store/api/newsApi";
 import AdminNewsForm from "@/features/admin/components/news/AdminNewsForm";
@@ -10,16 +10,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function AdminNewsEdit() {
-    const { id } = useParams();
+    const { slug } = useParams();
     const navigate = useNavigate();
-    const { data, isLoading, isError } = useGetNewsBySlugQuery(id);
+    const { data: news, isLoading, isError } = useGetAdminNewsBySlugQuery(slug);
     const [updateNews, { isLoading: isUpdating }] = useUpdateNewsMutation();
-    const news = data?.data;
 
     const handleSubmit = async (values) => {
         try {
-            await updateNews({ id, ...values }).unwrap();
+            await updateNews({ id: news.id, ...values }).unwrap();
             toast.success("Đã cập nhật bài viết");
+            navigate("/admin/news");
         } catch (error) {
             toast.error(error?.data?.message || "Có lỗi xảy ra");
         }
