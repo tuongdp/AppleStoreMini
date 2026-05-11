@@ -12,11 +12,14 @@ import { toast } from "sonner";
 import { ORDER_STATUS } from "@/lib/constants";
 
 const STATUS_MAP = {
-  "empty": "Không có dữ liệu",
-  "error": "Có lỗi xảy ra",
-  "loading": "Đang tải...",
-  "notFound": "Không tìm thấy",
-  "success": "Thành công"
+    pending: "Chờ xác nhận",
+    confirmed: "Đã xác nhận",
+    processing: "Đang xử lý",
+    shipping: "Đang giao hàng",
+    delivered: "Đã giao hàng",
+    cancelled: "Đã huỷ",
+    refunding: "Đang hoàn tiền",
+    refunded: "Đã hoàn tiền",
 };
 const STATUS_OPTIONS = [
     ORDER_STATUS.PENDING,
