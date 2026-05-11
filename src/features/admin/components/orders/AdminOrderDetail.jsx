@@ -217,6 +217,7 @@ export default function AdminOrderDetail({ order }) {
                         <OrderTimeline order={order} />
                     </div>
                 </div>
+            </div>
         </div>
     );
 }
