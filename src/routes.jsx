@@ -20,6 +20,7 @@ import CartPage from "@/pages/CartPage";
 import SearchPage from "@/pages/SearchPage";
 import WishlistPage from "@/pages/WishlistPage";
 import NotFoundPage from "@/pages/NotFoundPage";
+import ErrorPage from "@/pages/ErrorPage";
 import AboutPage from "@/pages/AboutPage";
 import ContactPage from "@/pages/ContactPage";
 import WarrantyPage from "@/pages/WarrantyPage";
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
     {
         path: "/",
         element: <RootLayout />,
+        errorElement: <ErrorPage />,
         children: [
             { index: true, element: <HomePage /> },
             { path: "products", element: <ProductListPage /> },

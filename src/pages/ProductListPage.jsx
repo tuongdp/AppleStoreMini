@@ -77,6 +77,8 @@ export default function ProductListPage() {
 
     const hasActiveFilters = filters.category || filters.slug || filters.minPrice || filters.maxPrice;
 
+    const currentCategory = categories.find((c) => c.slug === filters.category);
+
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
