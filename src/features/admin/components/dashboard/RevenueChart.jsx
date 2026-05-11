@@ -37,6 +37,28 @@ function CustomTooltip({ active, payload, label }) {
     );
 }
 
+function AxisTick({ x, y, payload }) {
+    return (
+        <text x={x} y={y} dy={8} textAnchor="middle" fontSize={11} className="fill-muted-foreground">
+            {payload.value}
+        </text>
+    );
+}
+
+function YAxisTick({ x, y, payload }) {
+    return (
+        <text x={x} y={y} dy={3} textAnchor="end" fontSize={11} className="fill-muted-foreground">
+            {payload.value >= 1_000_000_000
+                ? `${(payload.value / 1_000_000_000).toFixed(1)}B`
+                : payload.value >= 1_000_000
+                    ? `${(payload.value / 1_000_000).toFixed(0)}M`
+                    : payload.value >= 1_000
+                        ? `${(payload.value / 1_000).toFixed(0)}K`
+                        : payload.value}
+        </text>
+    );
+}
+
 export default function RevenueChart() {
     const [period, setPeriod] = useState("month");
 
@@ -87,12 +109,6 @@ export default function RevenueChart() {
                     </p>
                 </div>
             ) : (
-                <>
-                <style>{`
-                  .revenue-chart-wrap .recharts-cartesian-axis-tick-value { fill: hsl(var(--muted-foreground)) !important; }
-                  .revenue-chart-wrap .recharts-cartesian-axis-tick line { stroke: hsl(var(--muted-foreground) / 0.2) !important; }
-                `}</style>
-                <div className="revenue-chart-wrap">
                 <ResponsiveContainer width="100%" height={280}>
                     <AreaChart
                         data={chartData}
@@ -128,22 +144,12 @@ export default function RevenueChart() {
                             dataKey="label"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 11 }}
-                            dy={8}
+                            tick={<AxisTick />}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 11 }}
-                            tickFormatter={(value) => {
-                                if (value >= 1_000_000_000)
-                                    return `${(value / 1_000_000_000).toFixed(1)}B`;
-                                if (value >= 1_000_000)
-                                    return `${(value / 1_000_000).toFixed(0)}M`;
-                                if (value >= 1_000)
-                                    return `${(value / 1_000).toFixed(0)}K`;
-                                return value;
-                            }}
+                            tick={<YAxisTick />}
                             width={56}
                         />
                         <Tooltip content={<CustomTooltip />} />
@@ -162,9 +168,6 @@ export default function RevenueChart() {
                         />
                     </AreaChart>
                 </ResponsiveContainer>
-                </div>
-                </>
-                </div>
             )}
 
             {/* ✅ data là object trực tiếp sau transformResponse — không cần .data thêm */}
