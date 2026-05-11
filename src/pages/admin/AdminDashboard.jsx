@@ -12,7 +12,11 @@ import TopProducts from "@/features/admin/components/dashboard/TopProducts";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
-const DONUT_COLORS = ["#3b82f6", "#f59e0b", "#10b981", "#ec4899", "#8b5cf6", "#ef4444", "#06b6d4", "#84cc16"];
+const DONUT_COLORS = [
+    "hsl(217,91%,60%)", "hsl(38,92%,50%)", "hsl(160,84%,39%)",
+    "hsl(330,81%,60%)", "hsl(262,83%,58%)", "hsl(0,84%,60%)",
+    "hsl(189,94%,43%)", "hsl(80,70%,50%)"
+];
 
 function CategoryDonut({ data }) {
     const total = data.reduce((s, d) => s + d.value, 0);
@@ -26,13 +30,12 @@ function CategoryDonut({ data }) {
         return { ...d, pct, start, end: cumulative, color: DONUT_COLORS[i % DONUT_COLORS.length] };
     });
 
-    const conicGradient = segments.map((s) => `${s.color} ${s.start}% ${s.end}%`).join(", ");
     const cx = 100, cy = 100, r = 70, strokeW = 20;
 
     return (
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
             <svg viewBox="0 0 200 200" className="h-44 w-44 shrink-0 -rotate-90">
-                <circle cx={cx} cy={cy} r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth={strokeW} />
+                <circle cx={cx} cy={cy} r={r} fill="none" className="stroke-muted" strokeWidth={strokeW} />
                 {segments.map((s) => {
                     const startAngle = (s.start / 100) * 2 * Math.PI;
                     const endAngle = (s.end / 100) * 2 * Math.PI;
@@ -41,16 +44,16 @@ function CategoryDonut({ data }) {
                     const large = s.pct > 50 ? 1 : 0;
                     return <path key={s.label} d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`} fill={s.color} />;
                 })}
-                <circle cx={cx} cy={cy} r={r - strokeW} fill="hsl(var(--card))" />
-                <text x={cx} y={cy - 8} textAnchor="middle" fill="currentColor" className="text-lg font-bold" transform={`rotate(90 ${cx} ${cy})`}>{formatPrice(total)}</text>
-                <text x={cx} y={cy + 12} textAnchor="middle" fill="hsl(var(--muted-foreground))" className="text-xs" transform={`rotate(90 ${cx} ${cy})`}>Tổng</text>
+                <circle cx={cx} cy={cy} r={r - strokeW} className="fill-card" />
+                <text x={cx} y={cy - 8} textAnchor="middle" className="fill-foreground text-base font-bold" transform={`rotate(90 ${cx} ${cy})`}>{formatPrice(total)}</text>
+                <text x={cx} y={cy + 12} textAnchor="middle" className="fill-muted-foreground text-[10px]" transform={`rotate(90 ${cx} ${cy})`}>Tổng</text>
             </svg>
             <div className="space-y-2">
                 {segments.map((s) => (
                     <div key={s.label} className="flex items-center gap-2 text-sm">
                         <span className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                         <span className="text-muted-foreground">{s.label}</span>
-                        <span className="font-medium ml-auto">{s.pct.toFixed(1)}%</span>
+                        <span className="font-medium ml-auto tabular-nums">{s.pct.toFixed(1)}%</span>
                     </div>
                 ))}
             </div>
