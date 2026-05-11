@@ -77,7 +77,40 @@ export default function ProductListPage() {
 
     const hasActiveFilters = filters.category || filters.slug || filters.minPrice || filters.maxPrice;
 
+    const slugGroups = useMemo(() => {
+        const source = slugData?.products ?? [];
+        if (!filters.category || !source.length) return [];
+        const map = new Map();
+        source.forEach((p) => {
+            const parts = p.slug?.split("-") || [];
+            const n = p.slug?.startsWith("apple-") ? 3 : 2;
+            if (parts.length > n) {
+                const family = parts.slice(0, n).join("-");
+                map.set(family, (map.get(family) || 0) + 1);
+            }
+        });
+        return [...map.entries()]
+            .filter(([, count]) => count > 0)
+            .sort((a, b) => b[1] - a[1]);
+    }, [slugData?.products, filters.category]);
+
     const currentCategory = categories.find((c) => c.slug === filters.category);
+
+    const totalPages = pagination.totalPages || 1;
+    const currentPage = filters.page;
+
+    const getPageNumbers = () => {
+        const delta = 2;
+        const range = [];
+        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+            range.push(i);
+        }
+        if (currentPage - delta > 2) range.unshift("...");
+        if (currentPage + delta < totalPages - 1) range.push("...");
+        if (totalPages > 1) { range.unshift(1); range.push(totalPages); }
+        else { range.unshift(1); }
+        return [...new Set(range)];
+    };
 
     return (
         <div className="section-padding py-8 md:py-12">
