@@ -5,6 +5,7 @@ import TrustBadges from "@/components/shared/TrustBadges";
 import CartDrawer from "@/features/cart/components/CartDrawer";
 import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
+import ChatWidget from "@/components/shared/ChatWidget";
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { closeAll } from "@/store/uiSlice";
@@ -28,6 +29,7 @@ export default function RootLayout() {
             <Footer />
             <ScrollToTopButton />
             <CartDrawer />
+            <ChatWidget />
         </div>
     );
 }
