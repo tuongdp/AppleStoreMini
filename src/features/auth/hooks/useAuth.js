@@ -70,14 +70,12 @@ export function useAuth() {
     };
 
     const [registerSuccess, setRegisterSuccess] = useState(false);
-    const [isGoogleInit, setIsGoogleInit] = useState(false);
-
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
     const handleGoogleResponse = useCallback(
         async (response) => {
             try {
-                await googleLoginMutation(response.credential).unwrap();
+                await googleLoginMutation(response).unwrap();
 
                 if (cartItems.length > 0) {
                     try {
@@ -104,27 +102,12 @@ export function useAuth() {
 
     useEffect(() => {
         if (!googleClientId) return;
-
-        if (window.google?.accounts?.id) {
-            window.google.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: handleGoogleResponse,
-            });
-            setIsGoogleInit(true);
-            return;
-        }
+        if (window.google?.accounts?.oauth2) return;
 
         const script = document.createElement("script");
         script.src = "https://accounts.google.com/gsi/client";
         script.async = true;
         script.defer = true;
-        script.onload = () => {
-            window.google.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: handleGoogleResponse,
-            });
-            setIsGoogleInit(true);
-        };
         document.body.appendChild(script);
 
         return () => {
@@ -133,12 +116,24 @@ export function useAuth() {
             );
             if (el) el.remove();
         };
-    }, [googleClientId, handleGoogleResponse]);
+    }, [googleClientId]);
 
     const loginWithGoogle = useCallback(() => {
-        if (!isGoogleInit || !window.google?.accounts?.id) return;
-        window.google.accounts.id.prompt();
-    }, [isGoogleInit]);
+        if (!window.google?.accounts?.oauth2) return;
+
+        const client = window.google.accounts.oauth2.initCodeClient({
+            client_id: googleClientId,
+            scope: "email profile openid",
+            ux_mode: "popup",
+            callback: (response) => {
+                if (response.code) {
+                    handleGoogleResponse({ code: response.code });
+                }
+            },
+        });
+
+        client.requestCode();
+    }, [googleClientId, handleGoogleResponse]);
 
     const register = async (data) => {
         try {

@@ -92,10 +92,10 @@ export const authApi = baseApi.injectEndpoints({
         }),
 
         googleLogin: builder.mutation({
-            query: (credential) => ({
+            query: (body) => ({
                 url: "/auth/google",
                 method: "POST",
-                body: { credential },
+                body,
             }),
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
