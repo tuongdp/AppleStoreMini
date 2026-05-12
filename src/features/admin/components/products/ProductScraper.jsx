@@ -7,8 +7,139 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCreateGlobalOptionMutation } from "@/store/api/globalOptionsApi";
 import { selectAccessToken } from "@/store/authSlice";
+import { slugify } from "@/lib/utils";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
+
+const CORS_PROXIES = [
+    (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+];
+
+function parseHtml(doc, sourceUrl) {
+    const text = (sel) => doc.querySelector(sel)?.textContent?.trim() || "";
+
+    const name = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")
+        || doc.querySelector("h1")?.textContent?.trim()
+        || text("title");
+
+    const category = (() => {
+        try { return new URL(sourceUrl).pathname.split("/").filter(Boolean)[0] || ""; }
+        catch { return ""; }
+    })();
+
+    const descMeta = doc.querySelector('meta[property="og:description"]')?.getAttribute("content");
+    const description = descMeta ? `<p>${descMeta}</p>` : "";
+
+    const specs = [];
+    const paramItems = doc.querySelectorAll(".parameter-item, .spec-item, .charactestic-item");
+    paramItems.forEach((el) => {
+        const label = el.querySelector("label, .label, .name, .charactestic-name")?.textContent?.trim();
+        const val = el.querySelector("span, div, .value, .charactestic-value")?.textContent?.trim();
+        if (label && val) specs.push({ key: label, value: val });
+    });
+    if (specs.length === 0) {
+        doc.querySelectorAll("table tr, .tsTable tr").forEach((row) => {
+            const cols = row.querySelectorAll("td, th");
+            if (cols.length >= 2) {
+                const k = cols[0].textContent.trim();
+                const v = cols[1].textContent.trim();
+                if (k && v && !k.includes("Thông số") && !k.includes("Tiêu chí")) specs.push({ key: k, value: v });
+            }
+        });
+    }
+
+    const colors = [];
+    const seenColors = new Set();
+    doc.querySelectorAll('[style*="background"], .color-item, [class*="color"] a, [class*="color"] button').forEach((el) => {
+        const title = el.getAttribute("title") || el.getAttribute("aria-label") || el.textContent?.trim();
+        const style = el.getAttribute("style") || "";
+        const hexMatch = style.match(/#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}/);
+        if (title && !seenColors.has(title.toLowerCase()) && title.length < 50) {
+            seenColors.add(title.toLowerCase());
+            colors.push({ value: title, hex: hexMatch ? hexMatch[0] : null });
+        }
+    });
+    if (colors.length === 0) {
+        doc.querySelectorAll("img[alt]").forEach((el) => {
+            const alt = el.getAttribute("alt");
+            if (alt && alt.length < 30 && !seenColors.has(alt.toLowerCase())) {
+                seenColors.add(alt.toLowerCase());
+                colors.push({ value: alt, hex: null });
+            }
+        });
+    }
+
+    const storages = [];
+    const seenStorages = new Set();
+    doc.body.querySelectorAll("*").forEach((el) => {
+        if (el.children.length === 0) {
+            const t = el.textContent.trim();
+            const m = t.match(/^(\d+\s*(GB|TB|MB))$/i);
+            if (m && !seenStorages.has(m[1].toLowerCase())) {
+                seenStorages.add(m[1].toLowerCase());
+                storages.push({ value: m[1] });
+            }
+        }
+    });
+    if (storages.length === 0) {
+        doc.querySelectorAll('[class*="storage"] a, [class*="storage"] button, [class*="option"] a, [class*="option"] button').forEach((el) => {
+            const t = el.textContent.trim();
+            const m = t.match(/(\d+\s*(GB|TB|MB))/i);
+            if (m && !seenStorages.has(m[1].toLowerCase())) {
+                seenStorages.add(m[1].toLowerCase());
+                storages.push({ value: m[1] });
+            }
+        });
+    }
+
+    let salePrice = null;
+    let price = 0;
+    const priceMeta = doc.querySelector('meta[property="product:price:amount"]')?.getAttribute("content");
+    if (priceMeta) salePrice = Number(priceMeta);
+    if (!salePrice) {
+        const sp = doc.querySelector(".price, .special-price, .box-price-present .price, .product-price")?.textContent?.replace(/[^\d]/g, "");
+        if (sp) salePrice = Number(sp);
+    }
+    const op = doc.querySelector(".old-price, .original-price, .box-price-present .old-price, .regular-price")?.textContent?.replace(/[^\d]/g, "");
+    if (op) price = Number(op);
+    if (salePrice && !price) { price = salePrice; salePrice = null; }
+    if (salePrice && price && salePrice >= price) [price, salePrice] = [salePrice, price];
+
+    const images = [];
+    const seenImgs = new Set();
+    doc.querySelectorAll("img[src]").forEach((el) => {
+        const src = el.getAttribute("src") || el.getAttribute("data-src");
+        if (src && !seenImgs.has(src) && !src.includes("placeholder") && !src.includes("spacer")
+            && (src.includes("tgdd.vn") || src.includes("thegioididong") || src.includes("topzone") || src.includes("cdn"))) {
+            seenImgs.add(src);
+            if (images.length < 20) images.push(src);
+        }
+    });
+    if (images.length === 0) {
+        const ogImg = doc.querySelector('meta[property="og:image"]')?.getAttribute("content");
+        if (ogImg) images.push(ogImg);
+    }
+
+    const variantColors = colors.length > 0 ? colors : [{ value: "" }];
+    const variantStorages = storages.length > 0 ? storages : [{ value: "" }];
+    const variants = [];
+    for (const c of variantColors) {
+        for (const s of variantStorages) {
+            variants.push({
+                color: c.value, storage: s.value, ram: "", edition: "",
+                price: price || 0, salePrice: salePrice || null, stock: 0,
+                images: [...images],
+            });
+        }
+    }
+
+    return {
+        name, slug: slugify(name), category, description,
+        specifications: specs, colorOptions: colors, storageOptions: storages,
+        price, salePrice, variants, images,
+    };
+}
 
 export default function ProductScraper({ onDataReady, disabled }) {
     const [url, setUrl] = useState("");
@@ -27,20 +158,63 @@ export default function ProductScraper({ onDataReady, disabled }) {
         setError(null);
         setScrapeResult(null);
 
+        let html = null;
+        let lastError = null;
+
+        for (const buildProxyUrl of CORS_PROXIES) {
+            try {
+                const proxyUrl = buildProxyUrl(url.trim());
+                const res = await fetch(proxyUrl);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                html = await res.text();
+                break;
+            } catch (err) {
+                lastError = err.message;
+            }
+        }
+
+        if (!html) {
+            setError(`Không thể tải trang (${lastError || "unknown"}). CORS proxy có thể đang quá tải, thử lại sau.`);
+            setIsScraping(false);
+            return;
+        }
+
         try {
-            const res = await fetch(`${API_BASE}/admin/scrape/product`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-                },
-                body: JSON.stringify({ url: url.trim() }),
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.message || "Lỗi khi lấy dữ liệu");
-            setScrapeResult(json.data);
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const data = parseHtml(doc, url.trim());
+
+            if (!data.name) {
+                setError("Không tìm thấy tên sản phẩm. Trang có thể đã thay đổi cấu trúc.");
+                setIsScraping(false);
+                return;
+            }
+
+            let newGlobalOptions = [];
+            if (data.colorOptions.length > 0 || data.storageOptions.length > 0) {
+                try {
+                    const token = accessToken;
+                    const res = await fetch(`${API_BASE}/admin/scrape/check-options`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                        },
+                        body: JSON.stringify({
+                            colors: data.colorOptions.map((c) => c.value),
+                            storages: data.storageOptions.map((s) => s.value),
+                        }),
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        newGlobalOptions = json.data || [];
+                    }
+                } catch { /* non-critical */ }
+            }
+
+            setScrapeResult({ ...data, newGlobalOptions });
         } catch (err) {
-            setError(err.message);
+            setError("Lỗi phân tích dữ liệu: " + (err.message || "unknown"));
         } finally {
             setIsScraping(false);
         }
@@ -99,7 +273,7 @@ export default function ProductScraper({ onDataReady, disabled }) {
                 <div className="border-t border-border px-5 pb-5 pt-4 space-y-4">
                     <div className="flex gap-2">
                         <Input
-                            placeholder="Dán URL sản phẩm TopZone..."
+                            placeholder="Dán URL sản phẩm TopZone hoặc TGDĐ..."
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             disabled={isScraping || disabled}
