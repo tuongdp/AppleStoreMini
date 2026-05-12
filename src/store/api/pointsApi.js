@@ -32,6 +32,12 @@ export const pointsApi = baseApi.injectEndpoints({
             invalidatesTags: ["Points"],
             transformResponse: (response) => response.data,
         }),
+
+        getMyCoupons: builder.query({
+            query: () => "/points/my-coupons",
+            providesTags: ["Points"],
+            transformResponse: (response) => response.data,
+        }),
     }),
 });
 
@@ -40,4 +46,5 @@ export const {
     useGetPointsHistoryQuery,
     useGetRedeemPackagesQuery,
     useRedeemPointsMutation,
+    useGetMyCouponsQuery,
 } = pointsApi;

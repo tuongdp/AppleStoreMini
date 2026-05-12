@@ -60,6 +60,7 @@ const ProfilePage = () => Lazy(() => import("@/pages/ProfilePage"));
 const OrderHistoryPage = () => Lazy(() => import("@/pages/OrderHistoryPage"));
 const OrderDetailPage = () => Lazy(() => import("@/pages/OrderDetailPage"));
 const PointsPage = () => Lazy(() => import("@/pages/PointsPage"));
+const MyCouponsPage = () => Lazy(() => import("@/pages/MyCouponsPage"));
 const PaymentResult = ({ status }) => {
     const Component = lazy(() => import("@/pages/PaymentResult"));
     return (
@@ -128,6 +129,7 @@ export const router = createBrowserRouter([
                     { path: "orders/:id", element: <OrderDetailPage /> },
                     { path: "change-password", element: <ChangePasswordPage /> },
                     { path: "points", element: <PointsPage /> },
+                    { path: "my-coupons", element: <MyCouponsPage /> },
                 ],
             },
         ],

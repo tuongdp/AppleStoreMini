@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
+import { User, ShoppingBag, Heart, Lock, Coins, Ticket, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import ProfileSidebarItem from "./ProfileSidebarItem";
@@ -8,111 +8,123 @@ import { logout, selectCurrentUser } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
 const SIDEBAR_MAP = {
-  "backToStore": "Về trang Store",
-  "banners": "Banner",
-  "categories": "Danh mục",
-  "coupons": "Khuyến mãi",
-  "dashboard": "Tổng quan",
-  "flashSales": "Flash Sale",
-  "logout": "Đăng xuất",
-  "news": "Tin tức",
-  "options": "Tùy chọn",
-  "orders": "Đơn hàng",
-  "products": "Sản phẩm",
-  "comments": "Bình luận",
-  "settings": "Cài đặt",
-  "users": "Người dùng"
+  backToStore: "Về trang Store",
+  banners: "Banner",
+  categories: "Danh mục",
+  coupons: "Khuyến mãi",
+  dashboard: "Tổng quan",
+  flashSales: "Flash Sale",
+  logout: "Đăng xuất",
+  news: "Tin tức",
+  options: "Tùy chọn",
+  orders: "Đơn hàng",
+  products: "Sản phẩm",
+  comments: "Bình luận",
+  settings: "Cài đặt",
+  users: "Người dùng",
+  profile: "Trang cá nhân",
+  wishlist: "Yêu thích",
+  changePassword: "Đổi mật khẩu",
+  points: "Điểm thưởng",
+  myCoupons: "Mã giảm giá của tôi",
 };
+
 const NAV_ITEMS = [
-    {
-        key: "profile",
-        href: ROUTES.PROFILE,
-        icon: User,
-        end: true,
-    },
-    {
-        key: "orders",
-        href: ROUTES.ORDERS,
-        icon: ShoppingBag,
-        end: false,
-    },
-    {
-        key: "wishlist",
-        href: ROUTES.WISHLIST,
-        icon: Heart,
-        end: true,
-    },
-    {
-        key: "changePassword",
-        href: `${ROUTES.PROFILE}/change-password`,
-        icon: Lock,
-        end: true,
-    },
-    {
-        key: "points",
-        href: ROUTES.POINTS,
-        icon: Coins,
-        end: true,
-    },
+  {
+    key: "profile",
+    href: ROUTES.PROFILE,
+    icon: User,
+    end: true,
+  },
+  {
+    key: "orders",
+    href: ROUTES.ORDERS,
+    icon: ShoppingBag,
+    end: false,
+  },
+  {
+    key: "wishlist",
+    href: ROUTES.WISHLIST,
+    icon: Heart,
+    end: true,
+  },
+  {
+    key: "changePassword",
+    href: `${ROUTES.PROFILE}/change-password`,
+    icon: Lock,
+    end: true,
+  },
+  {
+    key: "points",
+    href: ROUTES.POINTS,
+    icon: Coins,
+    end: true,
+  },
+  {
+    key: "myCoupons",
+    href: "/profile/my-coupons",
+    icon: Ticket,
+    end: true,
+  },
 ];
 
 export default function ProfileSidebar({ onClose }) {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const user = useSelector(selectCurrentUser);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector(selectCurrentUser);
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate(ROUTES.HOME);
-        onClose?.();
-    };
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate(ROUTES.HOME);
+    onClose?.();
+  };
 
-    return (
-        <div className="rounded-2xl border border-border bg-card p-4">
-            {/* User info */}
-            <div className="mb-4 flex items-center gap-3 px-2 py-3">
-                <Avatar className="h-12 w-12">
-                    <AvatarImage src={user?.avatar} alt={user?.fullName} />
-                    <AvatarFallback className="bg-muted text-sm font-medium">
-                        {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-foreground">
-                        {user?.fullName}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                        {user?.email}
-                    </p>
-                </div>
-            </div>
-
-            <Separator className="mb-2" />
-
-            {/* Nav items */}
-            <nav className="flex flex-col gap-0.5">
-                {NAV_ITEMS.map((item) => (
-                    <ProfileSidebarItem
-                        key={item.key}
-                        href={item.href}
-                        icon={item.icon}
-                        label={(SIDEBAR_MAP[item.key] || item.key)}
-                        end={item.end}
-                        onClick={onClose}
-                    />
-                ))}
-
-                <Separator className="my-2" />
-
-                {/* Logout */}
-                <button
-                    onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
-                >
-                    <LogOut className="h-4 w-4 shrink-0" />
-                    {"Đăng xuất"}
-                </button>
-            </nav>
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      {/* User info */}
+      <div className="mb-4 flex items-center gap-3 px-2 py-3">
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={user?.avatar} alt={user?.fullName} />
+          <AvatarFallback className="bg-muted text-sm font-medium">
+            {user?.fullName?.charAt(0)?.toUpperCase() || "U"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-foreground">
+            {user?.fullName}
+          </p>
+          <p className="truncate text-xs text-muted-foreground">
+            {user?.email}
+          </p>
         </div>
-    );
+      </div>
+
+      <Separator className="mb-2" />
+
+      {/* Nav items */}
+      <nav className="flex flex-col gap-0.5">
+        {NAV_ITEMS.map((item) => (
+          <ProfileSidebarItem
+            key={item.key}
+            href={item.href}
+            icon={item.icon}
+            label={SIDEBAR_MAP[item.key] || item.key}
+            end={item.end}
+            onClick={onClose}
+          />
+        ))}
+
+        <Separator className="my-2" />
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          {"Đăng xuất"}
+        </button>
+      </nav>
+    </div>
+  );
 }
