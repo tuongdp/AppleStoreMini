@@ -62,7 +62,7 @@ const CONTACT_ITEMS = [
 export default function AboutPage() {
   return (
     <div className="section-padding py-12">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-7xl">
         <Breadcrumb items={[{ label: "Về chúng tôi" }]} className="mb-6" />
 
         <h1 className="mb-2 text-3xl font-semibold text-foreground">
