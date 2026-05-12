@@ -9,23 +9,26 @@ export default function QuantityInput({
     max = 99,
     onChange,
     disabled = false,
-    size = "md", // sm | md | lg
+    size = "md",
     className,
 }) {
     const sizes = {
         sm: {
+            wrapper: "h-7 gap-0 px-0",
             btn: "h-7 w-7",
-            input: "h-7 w-10 text-xs",
+            input: "h-7 w-8 text-xs",
             icon: "h-3 w-3",
         },
         md: {
-            btn: "h-9 w-9",
-            input: "h-9 w-12 text-sm",
-            icon: "h-4 w-4",
+            wrapper: "h-8 gap-0 px-0",
+            btn: "h-8 w-8",
+            input: "h-8 w-10 text-sm",
+            icon: "h-3.5 w-3.5",
         },
         lg: {
-            btn: "h-11 w-11",
-            input: "h-11 w-14 text-base",
+            wrapper: "h-10 gap-0 px-0",
+            btn: "h-10 w-10",
+            input: "h-10 w-12 text-base",
             icon: "h-4 w-4",
         },
     };
@@ -60,26 +63,27 @@ export default function QuantityInput({
     return (
         <div
             className={cn(
-                "flex items-center overflow-hidden rounded-full border border-border bg-background",
-                disabled && "cursor-not-allowed opacity-50",
+                "inline-flex items-center rounded-lg border border-border bg-background",
+                "transition-colors hover:border-foreground/20",
+                disabled && "cursor-not-allowed opacity-50 hover:border-border",
+                sizes[size].wrapper,
                 className,
             )}
         >
-            {/* Decrease button */}
             <Button
                 type="button"
                 variant="ghost"
                 onClick={handleDecrease}
                 disabled={disabled || value <= min}
                 className={cn(
-                    "rounded-none rounded-l-full border-none",
+                    "shrink-0 rounded-l-md border-none transition-colors",
+                    "hover:bg-muted",
                     sizes[size].btn,
                 )}
             >
-                <Minus className={sizes[size].icon} />
+                <Minus className={sizes[size].icon} strokeWidth={2} />
             </Button>
 
-            {/* Input */}
             <Input
                 type="number"
                 value={value}
@@ -89,23 +93,25 @@ export default function QuantityInput({
                 onBlur={handleBlur}
                 disabled={disabled}
                 className={cn(
-                    "rounded-none border-none text-center [appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+                    "rounded-none border-x border-border bg-transparent text-center font-medium",
+                    "[appearance:textfield] focus-visible:ring-0",
+                    "[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
                     sizes[size].input,
                 )}
             />
 
-            {/* Increase button */}
             <Button
                 type="button"
                 variant="ghost"
                 onClick={handleIncrease}
                 disabled={disabled || value >= max}
                 className={cn(
-                    "rounded-none rounded-r-full border-none",
+                    "shrink-0 rounded-r-md border-none transition-colors",
+                    "hover:bg-muted",
                     sizes[size].btn,
                 )}
             >
-                <Plus className={sizes[size].icon} />
+                <Plus className={sizes[size].icon} strokeWidth={2} />
             </Button>
         </div>
     );

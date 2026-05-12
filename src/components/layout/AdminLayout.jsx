@@ -31,18 +31,18 @@ import { logout, selectCurrentUser, selectIsAdmin, selectUserPermissions } from 
 
 const SIDEBAR_MAP = {
   "backToStore": "Về trang Store",
-  "banners": "Banner",
+  "banners": "Banner quảng cáo",
   "categories": "Danh mục",
   "coupons": "Khuyến mãi",
   "dashboard": "Tổng quan",
-  "flashSales": "Flash Sale",
+  "flashSales": "Giảm sốc",
   "logout": "Đăng xuất",
   "news": "Tin tức",
   "options": "Tùy chọn",
   "orders": "Đơn hàng",
   "products": "Sản phẩm",
-  "comments": "Bình luận SP",
-  "news-comments": "Bình luận tin",
+  "comments": "Bình luận sản phẩm",
+  "news-comments": "Bình luận tin tức",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };
