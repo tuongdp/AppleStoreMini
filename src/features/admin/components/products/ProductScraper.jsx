@@ -12,8 +12,8 @@ import { slugify } from "@/lib/utils";
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 const CORS_PROXIES = [
+    (url) => `/api/proxy?url=${encodeURIComponent(url)}`,
     (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
 ];
 
 function parseHtml(doc, sourceUrl) {
