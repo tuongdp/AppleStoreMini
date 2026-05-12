@@ -40,7 +40,7 @@ export default function BannerSlider({ slides = [] }) {
                                     width={1440}
                                     height={375}
                                     loading={i === 0 ? "eager" : "lazy"}
-                                    className="absolute inset-0 h-full w-full object-cover"
+                                    className="absolute inset-0 h-full w-full object-contain"
                                 />
                             </Wrapper>
                         </SwiperSlide>
