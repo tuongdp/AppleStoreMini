@@ -1,17 +1,27 @@
+export const config = {
+    runtime: "nodejs",
+};
+
 export default async function handler(req, res) {
+    if (req.method === "OPTIONS") {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        return res.status(200).end();
+    }
+
     const url = req.query.url;
     if (!url) {
         return res.status(400).json({ error: "Missing url parameter" });
     }
 
+    let decodedUrl;
     try {
-        const decodedUrl = decodeURIComponent(url);
-        new URL(decodedUrl); // validate
+        decodedUrl = decodeURIComponent(url);
+        new URL(decodedUrl);
     } catch {
         return res.status(400).json({ error: "Invalid URL" });
     }
-
-    const decodedUrl = decodeURIComponent(url);
 
     try {
         const fetchRes = await fetch(decodedUrl, {
@@ -24,18 +34,17 @@ export default async function handler(req, res) {
             redirect: "follow",
         });
 
-        if (!fetchRes.ok) {
-            return res.status(fetchRes.status).json({ error: `Upstream returned ${fetchRes.status}` });
-        }
-
         const body = await fetchRes.text();
 
         res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
         res.setHeader("Content-Type", "text/html; charset=utf-8");
-        res.status(200).send(body);
+        res.setHeader("Cache-Control", "public, max-age=300");
+        return res.status(200).send(body);
     } catch (err) {
-        res.status(500).json({ error: "Proxy fetch failed: " + (err.message || "unknown") });
+        return res.status(502).json({
+            error: "proxy_fetch_failed",
+            message: err.message || "Unknown error",
+            code: err.cause?.code || err.code || "unknown",
+        });
     }
 }
