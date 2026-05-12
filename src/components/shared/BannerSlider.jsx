@@ -8,7 +8,7 @@ import "swiper/css/effect-fade";
 function BannerSkeleton() {
     return (
         <section className="w-full overflow-hidden">
-            <div className="h-48 w-full animate-pulse bg-muted sm:h-64 md:h-[375px]" />
+            <div className="aspect-[1440/375] w-full animate-pulse bg-muted" />
         </section>
     );
 }
@@ -24,7 +24,7 @@ export default function BannerSlider({ slides = [] }) {
                 autoplay={{ delay: 5000, disableOnInteraction: false }}
                 pagination={{ clickable: true }}
                 loop
-                className="h-48 w-full sm:h-64 md:h-[375px]"
+                className="aspect-[1440/375] w-full"
             >
                 {slides.map((slide, i) => {
                     const Wrapper = slide.ctaLink ? Link : "div";
@@ -40,7 +40,7 @@ export default function BannerSlider({ slides = [] }) {
                                     width={1440}
                                     height={375}
                                     loading={i === 0 ? "eager" : "lazy"}
-                                    className="absolute inset-0 h-full w-full object-contain"
+                                    className="absolute inset-0 h-full w-full object-cover"
                                 />
                             </Wrapper>
                         </SwiperSlide>
