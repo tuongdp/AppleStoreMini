@@ -465,10 +465,10 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
                                                         <div className="flex items-center justify-end gap-0.5">
-                                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground" onClick={() => openVariantForm(idx)}>
+                                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground" onClick={() => openVariantForm(idx)}>
                                                                 <Edit3 className="h-3.5 w-3.5" />
                                                             </Button>
-                                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive" onClick={() => handleDeleteVariant(idx)}>
+                                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive" onClick={() => handleDeleteVariant(idx)}>
                                                                 {isCreatingProduct ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                                                             </Button>
                                                         </div>
