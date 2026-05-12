@@ -23,7 +23,7 @@ import {
 } from "@/store/api/ordersApi";
 import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
-import { formatPrice, formatDateTime } from "@/lib/utils";
+import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
 import { ORDER_STATUS } from "@/lib/constants";
 
 const PAYMENT_MAP = {
@@ -212,7 +212,7 @@ export default function OrderDetail({ order }) {
                                 {shippingInfo.fullName}
                             </p>
                             <p className="text-muted-foreground">
-                                {shippingInfo.phone}
+                                {formatPhone(shippingInfo.phone)}
                             </p>
                             <p className="text-muted-foreground">
                                 {shippingInfo.address}, {shippingInfo.ward},{" "}

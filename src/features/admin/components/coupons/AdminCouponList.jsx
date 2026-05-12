@@ -19,7 +19,7 @@ import {
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import AdminCouponForm from "./AdminCouponForm";
 import { toast } from "sonner";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { formatPrice, formatDate, formatNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 export default function AdminCouponList() {
@@ -214,9 +214,9 @@ export default function AdminCouponList() {
                                                         : "text-foreground",
                                                 )}
                                             >
-                                                {coupon.usedCount || 0}
+                                                {formatNumber(coupon.usedCount || 0)}
                                                 {coupon.maxUsage
-                                                    ? ` / ${coupon.maxUsage}`
+                                                    ? ` / ${formatNumber(coupon.maxUsage)}`
                                                     : " / ∞"}
                                             </span>
                                         </TableCell>

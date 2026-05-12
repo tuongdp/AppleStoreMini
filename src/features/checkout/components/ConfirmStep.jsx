@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import OrderItemRow from "./OrderItemRow";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatPhone } from "@/lib/utils";
 import { PAYMENT_METHODS } from "@/lib/constants";
 
 const PAYMENT_MAP = {
@@ -42,7 +42,7 @@ export default function ConfirmStep({
                         <p className="font-medium text-foreground">
                             {fullName}
                         </p>
-                        <p className="text-muted-foreground">{phone}</p>
+                        <p className="text-muted-foreground">{formatPhone(phone)}</p>
                         <p className="text-muted-foreground">
                             {address}
                         </p>

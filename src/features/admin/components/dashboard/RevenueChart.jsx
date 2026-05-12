@@ -11,7 +11,7 @@ import {
 import { useGetRevenueStatsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 const PERIODS = [
@@ -186,7 +186,7 @@ export default function RevenueChart() {
                             {"Tổng đơn hàng"}
                         </p>
                         <p className="mt-0.5 text-sm font-semibold text-foreground">
-                            {data.totalOrders ?? 0}
+                            {formatNumber(data.totalOrders ?? 0)}
                         </p>
                     </div>
                     <div className="text-center">

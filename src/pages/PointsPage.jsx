@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Coins, Gift, Copy, Check, ChevronRight, ArrowLeft, History, Sparkles } from "lucide-react";
 import { useGetMyPointsQuery, useGetRedeemPackagesQuery, useGetPointsHistoryQuery, useRedeemPointsMutation } from "@/store/api/pointsApi";
-import { formatDateTime, formatPrice } from "@/lib/utils";
+import { formatDateTime, formatPrice, formatNumber } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,7 +82,7 @@ export default function PointsPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm text-white/80">{"Số dư điểm"}</p>
-                            <p className="mt-1 text-4xl font-bold">{points.toLocaleString()}</p>
+                            <p className="mt-1 text-4xl font-bold">{formatNumber(points)}</p>
                             <p className="mt-1 text-sm text-white/70">{"Điểm"}</p>
                         </div>
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
@@ -257,7 +257,7 @@ export default function PointsPage() {
                                                         : "text-red-600 dark:text-red-400"
                                                 }`}
                                             >
-                                                {isEarn ? "+" : ""}{tx.points}
+                                                {isEarn ? "+" : "-"}{formatNumber(Math.abs(tx.points))}
                                             </span>
                                         </div>
                                     );
@@ -297,7 +297,7 @@ function PackageCard({ pkg, points, onRedeem }) {
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Coins className="h-3.5 w-3.5 text-amber-500" />
                         <span className="font-semibold text-foreground">
-                            {pkg.pointsCost?.toLocaleString("vi-VN")} điểm
+                            {formatNumber(pkg.pointsCost)} điểm
                         </span>
                     </div>
                     <Button

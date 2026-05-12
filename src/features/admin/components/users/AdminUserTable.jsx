@@ -46,7 +46,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { formatDate, formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber, formatPhone } from "@/lib/utils";
 import { ROUTES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -237,7 +237,7 @@ export default function AdminUserTable() {
                                     {/* Phone */}
                                     <TableCell>
                                         <span className="text-sm text-muted-foreground">
-                                            {user.phone || "—"}
+                                            {user.phone ? formatPhone(user.phone) : "—"}
                                         </span>
                                     </TableCell>
 

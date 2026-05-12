@@ -141,6 +141,15 @@ export function isValidPhone(phone) {
     return /^0[35789][0-9]{8}$/.test(phone);
 }
 
+export function formatPhone(phone) {
+    if (!phone) return "";
+    const cleaned = String(phone).replace(/\D/g, "");
+    if (cleaned.length === 10) {
+        return `${cleaned.slice(0, 4)} ${cleaned.slice(4, 7)} ${cleaned.slice(7)}`;
+    }
+    return phone;
+}
+
 // ── Array ──────────────────────────────────────────────
 export function groupBy(array, key) {
     return array.reduce((result, item) => {

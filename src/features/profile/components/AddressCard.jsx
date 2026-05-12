@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, formatPhone } from "@/lib/utils";
 
 export default function AddressCard({
     address,
@@ -36,7 +36,7 @@ export default function AddressCard({
                                     {address.fullName}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                    {address.phone}
+                                    {formatPhone(address.phone)}
                                 </span>
                                 {address.isDefault && (
                                     <Badge

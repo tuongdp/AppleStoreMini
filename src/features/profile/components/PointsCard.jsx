@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Coins, ChevronDown, ChevronUp, Gift } from "lucide-react";
 import { useGetPointsHistoryQuery } from "@/store/api/pointsApi";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatNumber } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -31,7 +31,7 @@ export default function PointsCard({ points }) {
                     <div>
                         <p className="text-sm text-muted-foreground">{"Số dư điểm"}</p>
                         <p className="text-xl font-semibold text-foreground">
-                            {points ?? 0} {"Điểm"}
+                            {formatNumber(points ?? 0)} {"Điểm"}
                         </p>
                     </div>
                 </div>
@@ -88,7 +88,7 @@ export default function PointsCard({ points }) {
                                                     : "text-red-600 dark:text-red-400"
                                             }`}
                                         >
-                                            {isEarn ? "+" : ""}{tx.points}
+                                            {isEarn ? "+" : "-"}{formatNumber(Math.abs(tx.points))}
                                         </span>
                                     </div>
                                 );

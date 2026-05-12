@@ -1,6 +1,6 @@
 import { MapPin, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatPhone } from "@/lib/utils";
 
 export default function AddressSavedList({
     addresses = [],
@@ -38,7 +38,7 @@ export default function AddressSavedList({
                                         {addr.fullName}
                                     </span>
                                     <span className="text-xs text-muted-foreground">
-                                        {addr.phone}
+                                        {formatPhone(addr.phone)}
                                     </span>
                                     {addr.isDefault && (
                                         <Badge

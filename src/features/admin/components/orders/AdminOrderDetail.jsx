@@ -5,7 +5,7 @@ import OrderTimeline from "@/features/orders/components/OrderTimeline";
 import OrderItemRow from "@/features/orders/components/OrderItemRow";
 import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { formatPrice, formatDateTime } from "@/lib/utils";
+import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -137,7 +137,7 @@ export default function AdminOrderDetail({ order }) {
                                     {order.user?.email}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {order.user?.phone}
+                                    {order.user?.phone ? formatPhone(order.user.phone) : "—"}
                                 </p>
                             </div>
                         </div>
@@ -155,7 +155,7 @@ export default function AdminOrderDetail({ order }) {
                                     {shippingInfo.fullName}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {shippingInfo.phone}
+                                    {formatPhone(shippingInfo.phone)}
                                 </p>
                                 <p className="text-muted-foreground">
                                     {shippingInfo.address}, {shippingInfo.ward},{" "}

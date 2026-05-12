@@ -26,6 +26,7 @@ import {
     formatDate,
     formatDateTime,
     formatNumber,
+    formatPhone,
 } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
@@ -138,7 +139,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 {user.phone && (
                                     <span className="inline-flex items-center gap-1.5">
                                         <Phone className="h-3.5 w-3.5" />
-                                        {user.phone}
+                                        {formatPhone(user.phone)}
                                     </span>
                                 )}
                                 <span className="inline-flex items-center gap-1.5">
