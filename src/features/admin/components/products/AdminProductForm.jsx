@@ -38,7 +38,7 @@ import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 
 const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
 
-export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated, initialData }) {
+export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated }) {
     const isEdit = !!product;
 
     const { data: categories } = useGetAdminCategoriesQuery();
@@ -52,24 +52,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [autoCreatedId, setAutoCreatedId] = useState(null);
     const [isCreatingProduct, setIsCreatingProduct] = useState(false);
     const [showImportSpecs, setShowImportSpecs] = useState(false);
-
-    useEffect(() => {
-        if (!initialData) return;
-
-        form.reset({
-            name: initialData.name || "",
-            slug: initialData.slug || "",
-            category: initialData.category || "",
-            description: initialData.description || "",
-            isActive: true,
-        });
-
-        setSpecs(initialData.specifications || []);
-
-        if (initialData.variants?.length > 0) {
-            setVariants(initialData.variants);
-        }
-    }, [initialData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const [deleteVariant] = useDeleteVariantMutation();
     const [checkOrders] = useLazyCheckVariantOrdersQuery();

@@ -3,7 +3,6 @@ import { useState, useRef } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useCreateProductMutation, useUpdateProductMutation, useUploadEditorImageMutation } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
-import ProductScraper from "@/features/admin/components/products/ProductScraper";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants";
@@ -15,16 +14,10 @@ export default function AdminProductCreate() {
     const [updateProduct] = useUpdateProductMutation();
     const [uploadImage] = useUploadEditorImageMutation();
     const [isSaving, setIsSaving] = useState(false);
-    const [initialData, setInitialData] = useState(null);
     const autoCreatedIdRef = useRef(null);
 
     const handleProductAutoCreated = (productId) => {
         autoCreatedIdRef.current = productId;
-    };
-
-    const handleScrapeData = (data) => {
-        setInitialData(data);
-        toast.success("Dữ liệu đã được nạp vào form. Vui lòng kiểm tra lại trước khi lưu.");
     };
 
     const handleSubmit = async (values) => {
@@ -72,21 +65,13 @@ export default function AdminProductCreate() {
                 </Link>
             </Button>
 
-            <ProductScraper onDataReady={handleScrapeData} disabled={isSaving} />
-
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
                     {"Tạo sản phẩm mới"}
                 </h1>
             </div>
 
-            <AdminProductForm
-                key={initialData ? initialData.slug : "new"}
-                onSubmit={handleSubmit}
-                isLoading={isSaving}
-                onProductAutoCreated={handleProductAutoCreated}
-                initialData={initialData}
-            />
+            <AdminProductForm onSubmit={handleSubmit} isLoading={isSaving} onProductAutoCreated={handleProductAutoCreated} />
         </div>
     );
 }
