@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
             }
 
             dispatch(setCredentials({ user, accessToken, refreshToken }));
-            toast.success("welcome");
+            toast.success("Đăng nhập thành công");
             navigate(ROUTES.ADMIN_DASHBOARD);
         } catch (error) {
             toast.error(
