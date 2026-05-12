@@ -26,7 +26,7 @@ function SheetClose({
 function SheetPortal({
   ...props
 }) {
-  return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
+  return <SheetPrimitive.Portal container={document.getElementById("modal") || undefined} data-slot="sheet-portal" {...props} />;
 }
 
 function SheetOverlay({

@@ -22,7 +22,7 @@ function DialogTrigger({
 function DialogPortal({
   ...props
 }) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+  return <DialogPrimitive.Portal container={document.getElementById("modal") || undefined} data-slot="dialog-portal" {...props} />;
 }
 
 function DialogClose({

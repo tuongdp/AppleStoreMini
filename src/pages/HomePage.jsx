@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -17,6 +18,7 @@ import BannerSlider from "@/components/shared/BannerSlider";
 import FlashSaleBanner from "@/components/shared/FlashSaleBanner";
 import ProductSlider from "@/components/shared/ProductSlider";
 import SectionTitle from "@/components/shared/SectionTitle";
+import WelcomeModal, { isWelcomeDismissed } from "@/components/shared/WelcomeModal";
 
 import { ROUTES } from "@/lib/constants";
 
@@ -70,6 +72,8 @@ function CategoryProductSlider({ slug, label }) {
 }
 
 export default function HomePage() {
+  const [showWelcome, setShowWelcome] = useState(() => !isWelcomeDismissed());
+
   const { data: flashSale, isLoading: isFlashLoading } =
     useGetActiveFlashSaleQuery();
   const { data: bannerData, isLoading: isBannerLoading } = useGetBannersQuery();
@@ -87,6 +91,8 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
+      <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />
+
       <BannerSlider slides={banners} isLoading={isBannerLoading} />
 
       <FlashSaleBanner flashSale={flashSale} isLoading={isFlashLoading} />
