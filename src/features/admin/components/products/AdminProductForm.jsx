@@ -488,10 +488,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                     initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
                                     onSave={saveVariant}
                                     onCancel={cancelVariantForm}
-                                    colorOptions={colorOptions}
-                                    storageOptions={storageOptions}
-                                    ramOptions={ramOptions}
-                                    editionOptions={editionOptions}
                                     uploadImage={uploadImage}
                                     isSaving={isCreatingProduct}
                                 />
@@ -593,7 +589,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     );
 }
 
-function VariantInlineForm({ initial, onSave, onCancel, colorOptions = [], storageOptions = [], ramOptions = [], editionOptions = [], uploadImage, isSaving }) {
+function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving }) {
     const [color, setColor] = useState(initial?.color || "");
     const [storage, setStorage] = useState(initial?.storage || "");
     const [ram, setRam] = useState(initial?.ram || "");

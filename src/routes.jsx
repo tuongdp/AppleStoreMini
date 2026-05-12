@@ -137,6 +137,7 @@ export const router = createBrowserRouter([
 
     {
         element: <AuthLayout />,
+        errorElement: <ErrorPage />,
         children: [
             {
                 path: "login",
@@ -163,12 +164,14 @@ export const router = createBrowserRouter([
                 <CheckoutLayout />
             </ProtectedRoute>
         ),
+        errorElement: <ErrorPage />,
         children: [{ path: "checkout", element: <CheckoutPage /> }],
     },
 
     {
         path: "admin/login",
         element: <AdminLoginPage />,
+        errorElement: <ErrorPage />,
     },
 
     {
@@ -178,6 +181,7 @@ export const router = createBrowserRouter([
                 <AdminLayout />
             </AdminRoute>
         ),
+        errorElement: <ErrorPage />,
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
             { path: "dashboard", element: <AdminDashboard /> },
