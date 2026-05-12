@@ -16,7 +16,7 @@ const authSlice = createSlice({
             if (user) state.user = user;
             if (accessToken) state.accessToken = accessToken;
             if (refreshToken) state.refreshToken = refreshToken;
-            state.isAuthenticated = true;
+            state.isAuthenticated = !!state.accessToken;
         },
         logout: (state) => {
             state.user = null;
@@ -34,7 +34,7 @@ export const { setCredentials, logout, updateUser } = authSlice.actions;
 
 // ── Selectors ─────────────────────────────────────────
 export const selectCurrentUser = (state) => state.auth.user;
-export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectIsAuthenticated = (state) => !!state.auth.accessToken;
 export const selectIsAdmin = (state) => state.auth.user?.role === "admin" && !state.auth.user?.isBlocked;
 export const selectUserRole = (state) => state.auth.user?.role;
 export const selectHasAdminAccess = (state) => {

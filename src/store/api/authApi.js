@@ -69,6 +69,13 @@ export const authApi = baseApi.injectEndpoints({
             }),
         }),
 
+        sendChangePasswordCode: builder.mutation({
+            query: () => ({
+                url: "/auth/send-change-password-code",
+                method: "POST",
+            }),
+        }),
+
         verifyEmail: builder.mutation({
             query: (data) => ({
                 url: "/auth/verify-email",
@@ -115,6 +122,7 @@ export const {
     useForgotPasswordMutation,
     useResetPasswordMutation,
     useChangePasswordMutation,
+    useSendChangePasswordCodeMutation,
     useVerifyEmailMutation,
     useSendVerificationMutation,
     useGoogleLoginMutation,

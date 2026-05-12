@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 const TRUNCATE_HEIGHT = 200;
 
@@ -66,7 +67,7 @@ export default function ProductDescription({ description }) {
                 {isHtml ? (
                     <div
                         className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: description }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }}
                     />
                 ) : (
                     <p className="whitespace-pre-line">{description}</p>

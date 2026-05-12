@@ -296,10 +296,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         const variant = variants[idx];
         if (!variant.id) { setBlockedVariant(null); return; }
         try {
-            await fetch(
-                `${import.meta.env.VITE_API_URL}/admin/variants/${variant.id}`,
-                { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ inStock: false }) }
-            );
+            await updateVariantApi({ variantId: variant.id, inStock: false }).unwrap();
             setVariants(variants.map((v, i) => i === idx ? { ...v, inStock: false } : v));
             toast.success("Đã tắt trạng thái còn hàng");
         } catch {

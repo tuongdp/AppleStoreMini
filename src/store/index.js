@@ -46,7 +46,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: "apple-store",
     storage,
-    whitelist: ["auth", "cart", "wishlist"],
+    whitelist: ["cart", "wishlist"],
     blacklist: [baseApi.reducerPath, "ui"],
 };
 

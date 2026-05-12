@@ -11,6 +11,8 @@ const v = (key) => {
     "password.confirmNewRequired": "Vui lòng xác nhận mật khẩu mới",
     "password.notMatch": "Mật khẩu không khớp",
     "password.sameAsOld": "Mật khẩu mới không được trùng với mật khẩu cũ",
+    "password.verificationRequired": "Vui lòng nhập mã xác nhận",
+    "password.verificationLength": "Mã xác nhận gồm 6 chữ số",
     "fullName.minLength": "Họ tên tối thiểu 2 ký tự",
     "fullName.maxLength": "Họ tên tối đa 50 ký tự",
     "phone.required": "Vui lòng nhập số điện thoại",
@@ -103,9 +105,10 @@ export const resetPasswordSchema = z
 
 export const changePasswordSchema = z
     .object({
-        currentPassword: z
+        verificationCode: z
             .string()
-            .min(1, { message: v("password.currentRequired") }),
+            .min(1, { message: v("password.verificationRequired") })
+            .length(6, { message: v("password.verificationLength") }),
         newPassword: z
             .string()
             .min(8, { message: v("password.minLength") })
@@ -117,10 +120,6 @@ export const changePasswordSchema = z
     .refine((data) => data.newPassword === data.confirmPassword, {
         message: v("password.notMatch"),
         path: ["confirmPassword"],
-    })
-    .refine((data) => data.currentPassword !== data.newPassword, {
-        message: v("password.sameAsOld"),
-        path: ["newPassword"],
     });
 
 // ── Profile ───────────────────────────────────────────

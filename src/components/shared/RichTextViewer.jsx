@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 /**
  * RichTextViewer — hiển thị HTML content từ TipTap editor
@@ -17,7 +18,7 @@ export default function RichTextViewer({ content, className }) {
                 "prose-blockquote:border-l-foreground/20 prose-blockquote:text-muted-foreground",
                 className,
             )}
-            dangerouslySetInnerHTML={{ __html: content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
         />
     );
 }
