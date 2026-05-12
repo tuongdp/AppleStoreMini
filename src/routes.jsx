@@ -18,79 +18,75 @@ import GuestRoute from "@/features/auth/components/GuestRoute";
 import NotFoundPage from "@/pages/NotFoundPage";
 import ErrorPage from "@/pages/ErrorPage";
 
-const Lazy = (importFn) => {
-    const Component = lazy(importFn);
-    return (
-        <Suspense fallback={<LoadingScreen />}>
-            <Component />
-        </Suspense>
-    );
+const lazyPage = (importFn) => {
+    const LazyComponent = lazy(importFn);
+    return function PageWrapper(props) {
+        return (
+            <Suspense fallback={<LoadingScreen />}>
+                <LazyComponent {...props} />
+            </Suspense>
+        );
+    };
 };
 
-// Pages — public (lazy)
-const HomePage = () => Lazy(() => import("@/pages/HomePage"));
-const ProductListPage = () => Lazy(() => import("@/pages/ProductListPage"));
-const ProductDetailPage = () => Lazy(() => import("@/pages/ProductDetailPage"));
-const CartPage = () => Lazy(() => import("@/pages/CartPage"));
-const SearchPage = () => Lazy(() => import("@/pages/SearchPage"));
-const WishlistPage = () => Lazy(() => import("@/pages/WishlistPage"));
-const AboutPage = () => Lazy(() => import("@/pages/AboutPage"));
-const ContactPage = () => Lazy(() => import("@/pages/ContactPage"));
-const WarrantyPage = () => Lazy(() => import("@/pages/WarrantyPage"));
-const ReturnPolicyPage = () => Lazy(() => import("@/pages/ReturnPolicyPage"));
-const PrivacyPage = () => Lazy(() => import("@/pages/PrivacyPage"));
-const TermsPage = () => Lazy(() => import("@/pages/TermsPage"));
-const AppleCarePage = () => Lazy(() => import("@/pages/AppleCarePage"));
-const NewsPage = () => Lazy(() => import("@/pages/NewsPage"));
-const NewsDetailPage = () => Lazy(() => import("@/pages/NewsDetailPage"));
+// Pages — public
+const HomePage = lazyPage(() => import("@/pages/HomePage"));
+const ProductListPage = lazyPage(() => import("@/pages/ProductListPage"));
+const ProductDetailPage = lazyPage(() => import("@/pages/ProductDetailPage"));
+const CartPage = lazyPage(() => import("@/pages/CartPage"));
+const SearchPage = lazyPage(() => import("@/pages/SearchPage"));
+const WishlistPage = lazyPage(() => import("@/pages/WishlistPage"));
+const AboutPage = lazyPage(() => import("@/pages/AboutPage"));
+const ContactPage = lazyPage(() => import("@/pages/ContactPage"));
+const WarrantyPage = lazyPage(() => import("@/pages/WarrantyPage"));
+const ReturnPolicyPage = lazyPage(() => import("@/pages/ReturnPolicyPage"));
+const PrivacyPage = lazyPage(() => import("@/pages/PrivacyPage"));
+const TermsPage = lazyPage(() => import("@/pages/TermsPage"));
+const AppleCarePage = lazyPage(() => import("@/pages/AppleCarePage"));
+const NewsPage = lazyPage(() => import("@/pages/NewsPage"));
+const NewsDetailPage = lazyPage(() => import("@/pages/NewsDetailPage"));
 
-// Pages — auth (lazy)
-const LoginPage = () => Lazy(() => import("@/pages/LoginPage"));
-const RegisterPage = () => Lazy(() => import("@/pages/RegisterPage"));
-const ForgotPasswordPage = () => Lazy(() => import("@/pages/ForgotPasswordPage"));
-const ChangePasswordPage = () => Lazy(() => import("@/pages/ChangePasswordPage"));
-const ResetPasswordPage = () => Lazy(() => import("@/pages/ResetPasswordPage"));
-const VerifyEmailPage = () => Lazy(() => import("@/pages/VerifyEmailPage"));
+// Pages — auth
+const LoginPage = lazyPage(() => import("@/pages/LoginPage"));
+const RegisterPage = lazyPage(() => import("@/pages/RegisterPage"));
+const ForgotPasswordPage = lazyPage(() => import("@/pages/ForgotPasswordPage"));
+const ChangePasswordPage = lazyPage(() => import("@/pages/ChangePasswordPage"));
+const ResetPasswordPage = lazyPage(() => import("@/pages/ResetPasswordPage"));
+const VerifyEmailPage = lazyPage(() => import("@/pages/VerifyEmailPage"));
 
-// Pages — checkout (lazy)
-const CheckoutPage = () => Lazy(() => import("@/pages/CheckoutPage"));
+// Pages — checkout
+const CheckoutPage = lazyPage(() => import("@/pages/CheckoutPage"));
 
-// Pages — profile (lazy)
-const ProfilePage = () => Lazy(() => import("@/pages/ProfilePage"));
-const OrderHistoryPage = () => Lazy(() => import("@/pages/OrderHistoryPage"));
-const OrderDetailPage = () => Lazy(() => import("@/pages/OrderDetailPage"));
-const PointsPage = () => Lazy(() => import("@/pages/PointsPage"));
-const MyCouponsPage = () => Lazy(() => import("@/pages/MyCouponsPage"));
-const PaymentResult = ({ status }) => {
-    const Component = lazy(() => import("@/pages/PaymentResult"));
-    return (
-        <Suspense fallback={<LoadingScreen />}>
-            <Component status={status} />
-        </Suspense>
-    );
-};
+// Pages — profile
+const ProfilePage = lazyPage(() => import("@/pages/ProfilePage"));
+const OrderHistoryPage = lazyPage(() => import("@/pages/OrderHistoryPage"));
+const OrderDetailPage = lazyPage(() => import("@/pages/OrderDetailPage"));
+const PointsPage = lazyPage(() => import("@/pages/PointsPage"));
+const MyCouponsPage = lazyPage(() => import("@/pages/MyCouponsPage"));
+const PaymentResult = lazyPage(() => import("@/pages/PaymentResult"));
 
-// Pages — admin (lazy)
-const AdminLoginPage = () => Lazy(() => import("@/pages/admin/AdminLoginPage"));
-const AdminDashboard = () => Lazy(() => import("@/pages/admin/AdminDashboard"));
-const AdminProductList = () => Lazy(() => import("@/pages/admin/AdminProductList"));
-const AdminProductCreate = () => Lazy(() => import("@/pages/admin/AdminProductCreate"));
-const AdminProductEdit = () => Lazy(() => import("@/pages/admin/AdminProductEdit"));
-const AdminOrderList = () => Lazy(() => import("@/pages/admin/AdminOrderList"));
-const AdminOrderDetail = () => Lazy(() => import("@/pages/admin/AdminOrderDetail"));
-const AdminUserList = () => Lazy(() => import("@/pages/admin/AdminUserList"));
-const AdminUserDetail = () => Lazy(() => import("@/pages/admin/AdminUserDetail"));
-const AdminCommentPage = () => Lazy(() => import("@/pages/admin/AdminCommentPage"));
-const AdminNewsCommentPage = () => Lazy(() => import("@/pages/admin/AdminNewsCommentPage"));
-const AdminCouponPage = () => Lazy(() => import("@/pages/admin/AdminCouponPage"));
-const AdminCategoryPage = () => Lazy(() => import("@/pages/admin/AdminCategoryPage"));
-const AdminNewsPage = () => Lazy(() => import("@/pages/admin/AdminNewsPage"));
-const AdminNewsCreate = () => Lazy(() => import("@/pages/admin/AdminNewsCreate"));
-const AdminNewsEdit = () => Lazy(() => import("@/pages/admin/AdminNewsEdit"));
-const AdminBannerPage = () => Lazy(() => import("@/pages/admin/AdminBannerPage"));
-const AdminFlashSalePage = () => Lazy(() => import("@/pages/admin/AdminFlashSalePage"));
-const AdminGlobalOptionsPage = () => Lazy(() => import("@/pages/admin/AdminGlobalOptionsPage"));
+// Pages — admin
+const AdminLoginPage = lazyPage(() => import("@/pages/admin/AdminLoginPage"));
+const AdminDashboard = lazyPage(() => import("@/pages/admin/AdminDashboard"));
+const AdminProductList = lazyPage(() => import("@/pages/admin/AdminProductList"));
+const AdminProductCreate = lazyPage(() => import("@/pages/admin/AdminProductCreate"));
+const AdminProductEdit = lazyPage(() => import("@/pages/admin/AdminProductEdit"));
+const AdminOrderList = lazyPage(() => import("@/pages/admin/AdminOrderList"));
+const AdminOrderDetail = lazyPage(() => import("@/pages/admin/AdminOrderDetail"));
+const AdminUserList = lazyPage(() => import("@/pages/admin/AdminUserList"));
+const AdminUserDetail = lazyPage(() => import("@/pages/admin/AdminUserDetail"));
+const AdminCommentPage = lazyPage(() => import("@/pages/admin/AdminCommentPage"));
+const AdminNewsCommentPage = lazyPage(() => import("@/pages/admin/AdminNewsCommentPage"));
+const AdminCouponPage = lazyPage(() => import("@/pages/admin/AdminCouponPage"));
+const AdminCategoryPage = lazyPage(() => import("@/pages/admin/AdminCategoryPage"));
+const AdminNewsPage = lazyPage(() => import("@/pages/admin/AdminNewsPage"));
+const AdminNewsCreate = lazyPage(() => import("@/pages/admin/AdminNewsCreate"));
+const AdminNewsEdit = lazyPage(() => import("@/pages/admin/AdminNewsEdit"));
+const AdminBannerPage = lazyPage(() => import("@/pages/admin/AdminBannerPage"));
+const AdminFlashSalePage = lazyPage(() => import("@/pages/admin/AdminFlashSalePage"));
+const AdminGlobalOptionsPage = lazyPage(() => import("@/pages/admin/AdminGlobalOptionsPage"));
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter([
     {
         path: "/",
