@@ -38,6 +38,25 @@
                     }
                 } catch (e) {}
             })();
+
+            window.addEventListener("error", function (e) {
+                if (
+                    e.message &&
+                    /dynamically imported module|importing a module|Failed to fetch/i.test(e.message)
+                ) {
+                    window.location.reload();
+                }
+            });
+
+            window.addEventListener("unhandledrejection", function (e) {
+                if (
+                    e.reason &&
+                    e.reason.message &&
+                    /dynamically imported module|importing a module|Failed to fetch/i.test(e.reason.message)
+                ) {
+                    window.location.reload();
+                }
+            });
         </script>
     </head>
     <body>

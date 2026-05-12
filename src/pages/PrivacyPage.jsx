@@ -52,7 +52,7 @@ const PRIVACY_ITEMS = [
 export default function PrivacyPage() {
     return (
         <div className="section-padding py-12">
-            <div className="mx-auto max-w-3xl">
+            <div className="mx-auto max-w-4xl">
                 <Breadcrumb items={[{ label: "Chính sách bảo mật" }]} className="mb-6" />
 
                 <div className="mb-8 flex items-center gap-3">
