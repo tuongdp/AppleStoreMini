@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,15 +41,9 @@ const couponSchema = z.object({
     expiresAt: z.string().optional(),
 });
 
-export default function AdminCouponForm({ coupon, onClose }) {
-    const isEditing = !!coupon;
-    const [createCoupon, { isLoading: isCreating }] = useCreateCouponMutation();
-    const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation();
-    const isLoading = isCreating || isUpdating;
-
-    const form = useForm({
-        resolver: zodResolver(couponSchema),
-        defaultValues: {
+const buildDefaultValues = (coupon) => {
+    if (!coupon) {
+        return {
             code: "",
             description: "",
             discountType: "percent",
@@ -60,28 +53,35 @@ export default function AdminCouponForm({ coupon, onClose }) {
             maxUsage: undefined,
             pointsCost: undefined,
             expiresAt: "",
-        },
+        };
+    }
+    return {
+        code: coupon.code || "",
+        description: coupon.description || "",
+        discountType: String(coupon.discountType || "percent").toLowerCase(),
+        discountValue: coupon.discountValue || 10,
+        maxDiscountAmount: coupon.maxDiscountAmount || undefined,
+        minOrderAmount: coupon.minOrderAmount || undefined,
+        maxUsage: coupon.maxUsage || undefined,
+        pointsCost: coupon.pointsCost || undefined,
+        expiresAt: coupon.expiresAt
+            ? new Date(coupon.expiresAt).toISOString().split("T")[0]
+            : "",
+    };
+};
+
+export default function AdminCouponForm({ coupon, onClose }) {
+    const isEditing = !!coupon;
+    const [createCoupon, { isLoading: isCreating }] = useCreateCouponMutation();
+    const [updateCoupon, { isLoading: isUpdating }] = useUpdateCouponMutation();
+    const isLoading = isCreating || isUpdating;
+
+    const form = useForm({
+        resolver: zodResolver(couponSchema),
+        defaultValues: buildDefaultValues(coupon),
     });
 
     const watchDiscountType = form.watch("discountType");
-
-    useEffect(() => {
-        if (coupon) {
-            form.reset({
-                code: coupon.code || "",
-                description: coupon.description || "",
-                discountType: (coupon.discountType || "percent").toLowerCase(),
-                discountValue: coupon.discountValue || 10,
-                maxDiscountAmount: coupon.maxDiscountAmount || undefined,
-                minOrderAmount: coupon.minOrderAmount || undefined,
-                maxUsage: coupon.maxUsage || undefined,
-                pointsCost: coupon.pointsCost || undefined,
-                expiresAt: coupon.expiresAt
-                    ? new Date(coupon.expiresAt).toISOString().split("T")[0]
-                    : "",
-            });
-        }
-    }, [coupon, form]);
 
     const onSubmit = async (values) => {
         const payload = {
