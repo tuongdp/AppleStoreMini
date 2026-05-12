@@ -275,8 +275,8 @@ export default function ProductListPage() {
                 {products.length === 0 && !isLoading ? (
                     <EmptyState
                         icon={SearchX}
-                        title={"products"}
-                        description={"productsDesc"}
+                        title={"Không tìm thấy sản phẩm"}
+                        description={"Thử thay đổi bộ lọc hoặc từ khoá tìm kiếm"}
                         actionLabel={"Xoá bộ lọc"}
                         onAction={clearAll}
                     />
