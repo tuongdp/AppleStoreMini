@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Loader2, Link2, ChevronDown, ChevronUp, CheckCircle2, AlertTriangle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCreateGlobalOptionMutation } from "@/store/api/globalOptionsApi";
+import { selectAccessToken } from "@/store/authSlice";
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
@@ -17,6 +19,7 @@ export default function ProductScraper({ onDataReady, disabled }) {
     const [isCreatingOptions, setIsCreatingOptions] = useState(false);
 
     const [createGlobalOption] = useCreateGlobalOptionMutation();
+    const accessToken = useSelector(selectAccessToken);
 
     const handleScrape = async () => {
         if (!url.trim()) return;
@@ -25,15 +28,11 @@ export default function ProductScraper({ onDataReady, disabled }) {
         setScrapeResult(null);
 
         try {
-            const token = JSON.parse(localStorage.getItem("persist:root") || "{}")?.auth
-                ? JSON.parse(JSON.parse(localStorage.getItem("persist:root") || "{}").auth)?.accessToken
-                : null;
-
             const res = await fetch(`${API_BASE}/admin/scrape/product`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
                 },
                 body: JSON.stringify({ url: url.trim() }),
             });
