@@ -46,7 +46,7 @@ export default function OrderDetail({ order }) {
     const [confirmDelivered, { isLoading: isConfirming }] =
         useConfirmDeliveredMutation();
 
-    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED].includes(
+    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
         order.status,
     );
     const canConfirm = order.status === ORDER_STATUS.SHIPPING;

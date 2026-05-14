@@ -46,6 +46,16 @@ export const ordersApi = baseApi.injectEndpoints({
             invalidatesTags: ["Orders", "Order"],
         }),
 
+        // POST /admin/orders/:id/cancel — admin huỷ + gửi email cho user
+        cancelOrderByAdmin: builder.mutation({
+            query: ({ id, reason }) => ({
+                url: `/admin/orders/${id}/cancel`,
+                method: "POST",
+                body: { reason },
+            }),
+            invalidatesTags: ["Orders", "Order"],
+        }),
+
         // POST /orders/:id/confirm-delivered
         // Chỉ dùng được khi status === "SHIPPING"
         createPayment: builder.mutation({
@@ -133,6 +143,7 @@ export const {
     useCreateOrderMutation,
     useCreatePaymentMutation,
     useCancelOrderMutation,
+    useCancelOrderByAdminMutation,
     useConfirmDeliveredMutation,
     useGetAllOrdersQuery,
     useGetAdminOrderByIdQuery,

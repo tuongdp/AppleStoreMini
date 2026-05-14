@@ -1,11 +1,28 @@
-import { Package, MapPin, CreditCard, StickyNote } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Package, MapPin, CreditCard, StickyNote, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
 import OrderTimeline from "@/features/orders/components/OrderTimeline";
 import OrderItemRow from "@/features/orders/components/OrderItemRow";
 import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import PriceDisplay from "@/components/shared/PriceDisplay";
+import { useCancelOrderByAdminMutation } from "@/store/api/ordersApi";
+import { cancelOrderSchema } from "@/lib/validations";
+import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
+import { ORDER_STATUS } from "@/lib/constants";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -30,6 +47,35 @@ export default function AdminOrderDetail({ order }) {
     const shippingFee = order?.shippingFee ?? 0;
     const discountAmount = order?.discountAmount ?? 0;
 
+    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
+        order.status,
+    );
+
+    const [cancelOpen, setCancelOpen] = useState(false);
+
+    const cancelForm = useForm({
+        resolver: zodResolver(cancelOrderSchema),
+        defaultValues: { reason: "" },
+    });
+
+    const [cancelOrderByAdmin, { isLoading: isCancelling }] = useCancelOrderByAdminMutation();
+
+    const handleCancel = async (values) => {
+        try {
+            await cancelOrderByAdmin({ id: order.id, reason: values.reason }).unwrap();
+            toast.success("Đã huỷ đơn hàng và gửi email thông báo cho khách hàng");
+            cancelForm.reset();
+            setCancelOpen(false);
+        } catch {
+            toast.error("Huỷ đơn hàng thất bại, vui lòng thử lại");
+        }
+    };
+
+    const handleCancelOpen = (open) => {
+        setCancelOpen(open);
+        if (!open) cancelForm.reset();
+    };
+
     return (
         <div className="space-y-4">
             {/* Header */}
@@ -46,11 +92,23 @@ export default function AdminOrderDetail({ order }) {
                     </p>
                 </div>
 
-                {/* ✅ MySQL integer id */}
-                <AdminOrderStatusUpdate
-                    orderId={order.id}
-                    currentStatus={order.status}
-                />
+                <div className="flex items-center gap-2">
+                    {canCancel && (
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full text-destructive hover:text-destructive"
+                            onClick={() => setCancelOpen(true)}
+                        >
+                            <XCircle className="mr-1.5 h-4 w-4" />
+                            {"Huỷ đơn hàng"}
+                        </Button>
+                    )}
+                    <AdminOrderStatusUpdate
+                        orderId={order.id}
+                        currentStatus={order.status}
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -218,6 +276,38 @@ export default function AdminOrderDetail({ order }) {
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={cancelOpen}
+                onOpenChange={handleCancelOpen}
+                title={"Huỷ đơn hàng"}
+                description={
+                    <div className="space-y-3">
+                        <p className="text-sm text-muted-foreground">
+                            {"Bạn có chắc chắn muốn huỷ đơn hàng này? Email thông báo sẽ được gửi đến khách hàng."}
+                        </p>
+                        <FormField
+                            control={cancelForm.control}
+                            name="reason"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder={"Nhập lý do huỷ đơn hàng"}
+                                            rows={3}
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                }
+                confirmLabel={"Xác nhận huỷ"}
+                onConfirm={cancelForm.handleSubmit(handleCancel)}
+                isLoading={isCancelling}
+            />
         </div>
     );
 }
