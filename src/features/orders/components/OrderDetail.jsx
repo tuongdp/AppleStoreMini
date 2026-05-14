@@ -282,27 +282,29 @@ export default function OrderDetail({ order }) {
                 onOpenChange={handleCancelOpen}
                 title={"Huỷ đơn hàng"}
                 description={
-                    <div className="space-y-3">
-                        <p className="text-sm text-muted-foreground">
-                            {"Bạn có chắc chắn muốn huỷ đơn hàng này không?"}
-                        </p>
-                        <FormField
-                            control={cancelForm.control}
-                            name="reason"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Textarea
-                                            placeholder={"Nhập lý do huỷ đơn hàng"}
-                                            rows={3}
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    <Form {...cancelForm}>
+                        <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground">
+                                {"Bạn có chắc chắn muốn huỷ đơn hàng này không?"}
+                            </p>
+                            <FormField
+                                control={cancelForm.control}
+                                name="reason"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder={"Nhập lý do huỷ đơn hàng"}
+                                                rows={3}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </Form>
                 }
                 confirmLabel={"Xác nhận huỷ"}
                 onConfirm={cancelForm.handleSubmit(handleCancel)}
