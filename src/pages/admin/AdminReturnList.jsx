@@ -151,14 +151,14 @@ export default function AdminReturnList() {
                       {RETURN_REQUEST_STATUS_MAP[ret.status] || ret.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <TableCell className="text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1">
                       {ret.status === "PENDING" && (
                         <>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 text-green-600 hover:text-green-700"
+                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
                             onClick={() => handleApprove(ret.id)}
                             disabled={isApproving}
                           >
@@ -167,18 +167,18 @@ export default function AdminReturnList() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 text-destructive hover:text-destructive"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                             onClick={() => setRejectId(ret.id)}
                           >
                             <X className="h-4 w-4" />
                           </Button>
                         </>
                       )}
-                      <Link to={`/admin/returns/${ret.id}`}>
-                        <Button size="sm" variant="ghost" className="h-8">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" asChild>
+                        <Link to={`/admin/returns/${ret.id}`}>
                           <Eye className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
