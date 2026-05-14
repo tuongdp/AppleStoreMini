@@ -6,7 +6,19 @@ import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "./OrderStatusBadge";
 import CommentModal from "./CommentModal";
 import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
-import { ROUTES, ORDER_STATUS } from "@/lib/constants";
+import { ROUTES, ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
+
+function ReturnStatusBadge({ returnRequest }) {
+    if (!returnRequest) return null;
+    if (returnRequest.status === RETURN_REQUEST_STATUS.PENDING) {
+        return (
+            <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                Chờ trả hàng
+            </span>
+        );
+    }
+    return null;
+}
 
 export default function OrderCard({ order }) {
     const [commentItem, setCommentItem] = useState(null);
@@ -76,7 +88,10 @@ export default function OrderCard({ order }) {
                             {formatDateTime(order.createdAt)}
                         </span>
                     </div>
-                    <OrderStatusBadge status={order.status} />
+                    <div className="flex items-center gap-2">
+                        <OrderStatusBadge status={order.status} />
+                        <ReturnStatusBadge returnRequest={order.returnRequests?.[0]} />
+                    </div>
                 </div>
 
                 <Separator />

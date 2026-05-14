@@ -19,10 +19,11 @@ import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { useCancelOrderByAdminMutation } from "@/store/api/ordersApi";
+import { useApproveReturnMutation, useRejectReturnMutation } from "@/store/api/ordersApi";
 import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
-import { ORDER_STATUS } from "@/lib/constants";
+import { ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -33,6 +34,28 @@ const PAYMENT_MAP = {
   "unpaid": "Chưa thanh toán"
 };
 export default function AdminOrderDetail({ order }) {
+    const returnRequest = order.returnRequest || order.returnRequests?.[0];
+
+    const [approveReturn, { isLoading: isApproving }] = useApproveReturnMutation();
+    const [rejectReturn, { isLoading: isRejecting }] = useRejectReturnMutation();
+
+    const handleApprove = async () => {
+        try {
+            await approveReturn(returnRequest.id).unwrap();
+            toast.success("Đã duyệt trả hàng và hoàn tiền");
+        } catch {
+            toast.error("Duyệt trả hàng thất bại");
+        }
+    };
+
+    const handleReject = async () => {
+        try {
+            await rejectReturn({ returnId: returnRequest.id, adminNote: "" }).unwrap();
+            toast.success("Đã từ chối yêu cầu trả hàng");
+        } catch {
+            toast.error("Từ chối thất bại");
+        }
+    };
     // ✅ BE lưu shipping address dưới dạng flat fields (giống OrderDetail user)
     const shippingInfo = {
         fullName: order.shippingFullName,
@@ -109,6 +132,57 @@ export default function AdminOrderDetail({ order }) {
                         currentStatus={order.status}
                     />
                 </div>
+
+                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.PENDING && (
+                    <div className="mt-3 w-full rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-3 dark:bg-yellow-950/30">
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <p className="text-sm font-medium">Yêu cầu trả hàng đang chờ duyệt</p>
+                                <p className="text-xs text-muted-foreground">
+                                    {returnRequest.reason && `Lý do: ${returnRequest.reason} — `}
+                                    {returnRequest.description?.slice(0, 80)}
+                                </p>
+                            </div>
+                            <div className="flex shrink-0 gap-2">
+                                <Button
+                                    size="sm"
+                                    className="rounded-full bg-green-600 hover:bg-green-700"
+                                    onClick={handleApprove}
+                                    disabled={isApproving}
+                                >
+                                    {isApproving ? "..." : "Duyệt & Hoàn tiền"}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="rounded-full text-destructive"
+                                    onClick={handleReject}
+                                    disabled={isRejecting}
+                                >
+                                    Từ chối
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.APPROVED && (
+                    <div className="mt-3 w-full rounded-lg border-l-4 border-blue-400 bg-blue-50 p-3 dark:bg-blue-950/30">
+                        <p className="text-sm font-medium">Đã duyệt, đang xử lý hoàn tiền</p>
+                    </div>
+                )}
+
+                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.REFUNDED && (
+                    <div className="mt-3 w-full rounded-lg border-l-4 border-green-400 bg-green-50 p-3 dark:bg-green-950/30">
+                        <p className="text-sm font-medium">Đã hoàn tiền</p>
+                    </div>
+                )}
+
+                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.REJECTED && (
+                    <div className="mt-3 w-full rounded-lg border-l-4 border-red-400 bg-red-50 p-3 dark:bg-red-950/30">
+                        <p className="text-sm font-medium">Đã từ chối yêu cầu trả hàng</p>
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

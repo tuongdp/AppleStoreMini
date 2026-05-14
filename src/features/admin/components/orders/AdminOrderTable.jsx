@@ -26,7 +26,7 @@ import {
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime } from "@/lib/utils";
-import { ROUTES, ORDER_STATUS, PAGINATION } from "@/lib/constants";
+import { ROUTES, ORDER_STATUS, PAGINATION, RETURN_REQUEST_STATUS } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const PAYMENT_MAP = {
@@ -151,6 +151,7 @@ export default function AdminOrderTable() {
               <TableHead>{"Tổng tiền"}</TableHead>
               <TableHead>{"Thanh toán"}</TableHead>
               <TableHead>{"Trạng thái"}</TableHead>
+              <TableHead>{"Trả hàng"}</TableHead>
               <TableHead className="text-right">{"Thao tác"}</TableHead>
             </TableRow>
           </TableHeader>
@@ -158,7 +159,7 @@ export default function AdminOrderTable() {
             {isLoading ? (
               [...Array(6)].map((_, i) => (
                 <TableRow key={i}>
-                  {[...Array(7)].map((_, j) => (
+                  {[...Array(8)].map((_, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-5 w-full" />
                     </TableCell>
@@ -168,7 +169,7 @@ export default function AdminOrderTable() {
             ) : orders.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className="py-12 text-center text-muted-foreground"
                 >
                   {"Không có dữ liệu"}
@@ -218,6 +219,25 @@ export default function AdminOrderTable() {
                   </TableCell>
                   <TableCell>
                     <OrderStatusBadge status={order.status} />
+                  </TableCell>
+                  <TableCell>
+                    {order.returnRequests?.[0]?.status === RETURN_REQUEST_STATUS.PENDING ? (
+                      <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                        Chờ duyệt
+                      </span>
+                    ) : order.returnRequests?.[0]?.status === RETURN_REQUEST_STATUS.APPROVED ? (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                        Đã duyệt
+                      </span>
+                    ) : order.returnRequests?.[0]?.status === RETURN_REQUEST_STATUS.REFUNDED ? (
+                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                        Đã hoàn tiền
+                      </span>
+                    ) : order.returnRequests?.[0]?.status === RETURN_REQUEST_STATUS.REJECTED ? (
+                      <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                        Từ chối
+                      </span>
+                    ) : null}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
