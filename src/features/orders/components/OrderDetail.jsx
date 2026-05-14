@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Package, MapPin, CreditCard, FileText } from "lucide-react";
+import { Package, MapPin, CreditCard, FileText, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Form,
     FormControl,
@@ -20,11 +28,13 @@ import PriceDisplay from "@/components/shared/PriceDisplay";
 import {
     useCancelOrderMutation,
     useConfirmDeliveredMutation,
+    useCreateReturnRequestMutation,
+    useGetOrderReturnRequestQuery,
 } from "@/store/api/ordersApi";
-import { cancelOrderSchema } from "@/lib/validations";
+import { cancelOrderSchema, returnRequestSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
-import { ORDER_STATUS } from "@/lib/constants";
+import { ORDER_STATUS, RETURN_REASON_MAP } from "@/lib/constants";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -36,6 +46,30 @@ const PAYMENT_MAP = {
 };
 export default function OrderDetail({ order }) {
     const [cancelOpen, setCancelOpen] = useState(false);
+    const [returnOpen, setReturnOpen] = useState(false);
+
+    const returnForm = useForm({
+        resolver: zodResolver(returnRequestSchema),
+        defaultValues: { reason: "DEFECTIVE", description: "", items: [] },
+    });
+
+    const [createReturnRequest, { isLoading: isReturning }] = useCreateReturnRequestMutation();
+
+    const { data: returnRequestData } = useGetOrderReturnRequestQuery(order.id, {
+        skip: !order.id || (order.status || "").toLowerCase() !== "delivered",
+    });
+
+    const returnRequest = returnRequestData?.data;
+
+    const canReturn =
+        (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED &&
+        order.deliveredAt &&
+        new Date(order.deliveredAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) &&
+        (!returnRequest || returnRequest.status === "REJECTED");
+
+    const daysLeft = order.deliveredAt
+        ? Math.ceil((new Date(order.deliveredAt).getTime() + 7 * 24 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
+        : 0;
 
     const cancelForm = useForm({
         resolver: zodResolver(cancelOrderSchema),
@@ -104,6 +138,11 @@ export default function OrderDetail({ order }) {
                             {"Ngày đặt hàng"}:{" "}
                             {formatDateTime(order.createdAt)}
                         </p>
+                        {canReturn && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Bạn còn {daysLeft} ngày để yêu cầu trả hàng (hết hạn {order.deliveredAt ? new Date(new Date(order.deliveredAt).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN") : ""})
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -129,8 +168,61 @@ export default function OrderDetail({ order }) {
                                 {"Huỷ đơn hàng"}
                             </Button>
                         )}
+                        {canReturn && (
+                            <Button
+                                size="sm"
+                                variant="destructive"
+                                className="rounded-full"
+                                onClick={() => {
+                                    const initialItems = order.items?.map((item) => ({
+                                        orderItemId: item.id,
+                                        quantity: item.quantity,
+                                    })) || [];
+                                    returnForm.reset({ reason: "DEFECTIVE", description: "", items: initialItems });
+                                    setReturnOpen(true);
+                                }}
+                            >
+                                <RotateCcw className="mr-1.5 h-4 w-4" />
+                                Yêu cầu trả hàng
+                            </Button>
+                        )}
                     </div>
                 </div>
+                {!canReturn && returnRequest && returnRequest.status !== "REJECTED" && returnRequest.status !== undefined && (
+                    <div className={`mt-3 rounded-lg border-l-4 p-3 ${
+                        returnRequest.status === "PENDING"
+                            ? "border-yellow-400 bg-yellow-50 dark:bg-yellow-950/30"
+                            : returnRequest.status === "APPROVED"
+                            ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30"
+                            : "border-green-400 bg-green-50 dark:bg-green-950/30"
+                    }`}>
+                        <p className="text-sm font-medium">
+                            {returnRequest.status === "PENDING"
+                                ? "Yêu cầu trả hàng đang được xem xét"
+                                : returnRequest.status === "APPROVED"
+                                ? "Đã duyệt, đang xử lý hoàn tiền"
+                                : "Đã hoàn tiền"}
+                        </p>
+                        {returnRequest.status === "PENDING" && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Admin sẽ phản hồi trong thời gian sớm nhất
+                            </p>
+                        )}
+                    </div>
+                )}
+
+                {!canReturn && returnRequest && returnRequest.status === "REJECTED" && (
+                    <div className="mt-3 rounded-lg border-l-4 border-red-400 bg-red-50 dark:bg-red-950/30 p-3">
+                        <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                            Yêu cầu trả hàng bị từ chối
+                        </p>
+                        {returnRequest.adminNote && (
+                            <p className="mt-1 text-xs text-red-600 dark:text-red-500">
+                                {returnRequest.adminNote}
+                            </p>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -194,7 +286,7 @@ export default function OrderDetail({ order }) {
                                 <PriceDisplay
                                     price={order.totalAmount}
                                     size="md"
-                                />
+                                 />
                             </div>
                         </div>
                     </div>
@@ -309,6 +401,117 @@ export default function OrderDetail({ order }) {
                 confirmLabel={"Xác nhận huỷ"}
                 onConfirm={cancelForm.handleSubmit(handleCancel)}
                 isLoading={isCancelling}
+            />
+
+            {/* Return request dialog */}
+            <ConfirmDialog
+                open={returnOpen}
+                onOpenChange={(open) => {
+                    setReturnOpen(open);
+                    if (!open) returnForm.reset();
+                }}
+                title="Yêu cầu trả hàng"
+                description={
+                    <Form {...returnForm}>
+                        <div className="space-y-4">
+                            <p className="text-sm text-muted-foreground">
+                                Chọn sản phẩm bạn muốn trả và cung cấp lý do
+                            </p>
+
+                            <FormField
+                                control={returnForm.control}
+                                name="items"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="space-y-2">
+                                            {order.items?.map((item) => (
+                                                <label
+                                                    key={item.id || item._id}
+                                                    className="flex items-center gap-3 rounded-lg border p-3 cursor-pointer hover:bg-muted/50"
+                                                >
+                                                    <Checkbox
+                                                        checked={field.value?.some((i) => i.orderItemId === (item.id || item._id))}
+                                                        onCheckedChange={(checked) => {
+                                                            const itemId = item.id || item._id;
+                                                            if (checked) {
+                                                                field.onChange([
+                                                                    ...field.value,
+                                                                    { orderItemId: itemId, quantity: item.quantity || 1 },
+                                                                ]);
+                                                            } else {
+                                                                field.onChange(
+                                                                    field.value.filter((i) => i.orderItemId !== itemId)
+                                                                );
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium truncate">{item.name}</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {formatPrice(item.price)} x {item.quantity || 1}
+                                                        </p>
+                                                    </div>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={returnForm.control}
+                                name="reason"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Chọn lý do trả hàng" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {Object.entries(RETURN_REASON_MAP).map(([key, label]) => (
+                                                    <SelectItem key={key} value={key}>
+                                                        {label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={returnForm.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder="Mô tả chi tiết vấn đề gặp phải..."
+                                                rows={3}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </Form>
+                }
+                confirmLabel="Gửi yêu cầu"
+                onConfirm={returnForm.handleSubmit(async (values) => {
+                    try {
+                        await createReturnRequest({ id: order.id, ...values }).unwrap();
+                        toast.success("Đã gửi yêu cầu trả hàng");
+                        returnForm.reset();
+                        setReturnOpen(false);
+                    } catch {
+                        toast.error("Gửi yêu cầu thất bại, vui lòng thử lại");
+                    }
+                })}
+                isLoading={isReturning}
             />
         </div>
     );
