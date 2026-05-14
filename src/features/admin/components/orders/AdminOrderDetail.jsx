@@ -48,7 +48,7 @@ export default function AdminOrderDetail({ order }) {
     const discountAmount = order?.discountAmount ?? 0;
 
     const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
-        order.status,
+        (order.status || "").toLowerCase(),
     );
 
     const [cancelOpen, setCancelOpen] = useState(false);

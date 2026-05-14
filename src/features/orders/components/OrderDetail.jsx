@@ -47,9 +47,9 @@ export default function OrderDetail({ order }) {
         useConfirmDeliveredMutation();
 
     const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
-        order.status,
+        (order.status || "").toLowerCase(),
     );
-    const canConfirm = order.status === ORDER_STATUS.SHIPPING;
+    const canConfirm = (order.status || "").toLowerCase() === ORDER_STATUS.SHIPPING;
 
     const shippingInfo = {
         fullName: order.shippingFullName,

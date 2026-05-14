@@ -24,9 +24,9 @@ const TIMELINE_STEPS = [
 export default function OrderTimeline({ order }) {
     // Nếu đơn bị huỷ — hiện timeline huỷ riêng
     if (
-        order.status === ORDER_STATUS.CANCELLED ||
-        order.status === ORDER_STATUS.REFUNDING ||
-        order.status === ORDER_STATUS.REFUNDED
+        (order.status || "").toLowerCase() === ORDER_STATUS.CANCELLED ||
+        (order.status || "").toLowerCase() === ORDER_STATUS.REFUNDING ||
+        (order.status || "").toLowerCase() === ORDER_STATUS.REFUNDED
     ) {
         return <CancelledTimeline order={order} />;
     }
