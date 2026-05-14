@@ -2,7 +2,6 @@ import { Link, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useGetOrderByIdQuery } from "@/store/api/ordersApi";
 import OrderDetail from "@/features/orders/components/OrderDetail";
-import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
@@ -32,13 +31,6 @@ export default function OrderDetailPage() {
 
     return (
         <div className="space-y-4">
-            <Breadcrumb
-                items={[
-                    { label: "Đơn hàng của tôi", href: ROUTES.ORDERS },
-                    { label: `#${order.code}` },
-                ]}
-            />
-
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ORDERS}>
                     <ChevronLeft className="mr-1 h-4 w-4" />
