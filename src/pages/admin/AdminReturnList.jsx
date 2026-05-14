@@ -22,7 +22,7 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Textarea } from "@/components/ui/textarea";
 
 const STATUS_FILTERS = [
-  { label: "Tất cả", value: "" },
+  { label: "Tất cả", value: "all" },
   { label: "Chờ duyệt", value: "PENDING" },
   { label: "Đã duyệt", value: "APPROVED" },
   { label: "Đã từ chối", value: "REJECTED" },
@@ -32,11 +32,11 @@ const STATUS_FILTERS = [
 export default function AdminReturnList() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [rejectId, setRejectId] = useState(null);
   const [adminNote, setAdminNote] = useState("");
 
-  const { data, isLoading } = useGetAllReturnsQuery({ page, limit: 10, status: statusFilter || undefined, search: search || undefined });
+  const { data, isLoading } = useGetAllReturnsQuery({ page, limit: 10, status: statusFilter !== "all" ? statusFilter : undefined, search: search || undefined });
   const [approveReturn, { isLoading: isApproving }] = useApproveReturnMutation();
   const [rejectReturn, { isLoading: isRejecting }] = useRejectReturnMutation();
 
