@@ -102,6 +102,7 @@ export const baseApi = createApi({
     "GlobalOptions",
     "GlobalOption",
     "Points",
+    "Returns",
   ],
   endpoints: () => ({}),
 });

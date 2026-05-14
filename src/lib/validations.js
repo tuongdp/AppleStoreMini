@@ -237,3 +237,22 @@ export const newsCommentSchema = z.object({
         .min(10, { message: v("comment.commentMinLength") })
         .max(500, { message: v("comment.commentMaxLength") }),
 });
+
+// ── Return / Refund ───────────────────────────────────
+export const returnRequestSchema = z.object({
+    reason: z.enum(["DEFECTIVE", "WRONG_ITEM", "DAMAGED", "MISSING", "OTHER"], {
+        errorMap: () => ({ message: "Vui lòng chọn lý do trả hàng" }),
+    }),
+    description: z
+        .string()
+        .min(10, "Mô tả phải có ít nhất 10 ký tự")
+        .max(1000, "Mô tả không được vượt quá 1000 ký tự"),
+    items: z
+        .array(
+            z.object({
+                orderItemId: z.string().min(1),
+                quantity: z.number().int().min(1),
+            })
+        )
+        .min(1, "Vui lòng chọn ít nhất một sản phẩm để trả"),
+});

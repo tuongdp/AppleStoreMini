@@ -56,6 +56,66 @@ export const ordersApi = baseApi.injectEndpoints({
             invalidatesTags: ["Orders", "Order"],
         }),
 
+        // ── Return / Refund ───────────────────────────────────
+        createReturnRequest: builder.mutation({
+            query: ({ id, ...body }) => ({
+                url: `/orders/${id}/return`,
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: (result, error, { id }) => [
+                "Orders",
+                { type: "Order", id },
+                "Returns",
+            ],
+        }),
+        getOrderReturnRequest: builder.query({
+            query: (id) => `/orders/${id}/return`,
+            providesTags: (result, error, id) => [{ type: "Returns", id: `order-${id}` }],
+        }),
+        getMyReturns: builder.query({
+            query: (params = {}) => ({ url: "/returns", params }),
+            providesTags: ["Returns"],
+        }),
+        getReturnById: builder.query({
+            query: (returnId) => `/returns/${returnId}`,
+            providesTags: (result, error, returnId) => [{ type: "Returns", id: returnId }],
+        }),
+        // Admin
+        getAllReturns: builder.query({
+            query: (params = {}) => ({ url: "/admin/returns", params }),
+            providesTags: ["Returns"],
+        }),
+        getAdminReturnById: builder.query({
+            query: (returnId) => `/admin/returns/${returnId}`,
+            providesTags: (result, error, returnId) => [{ type: "Returns", id: returnId }],
+        }),
+        approveReturn: builder.mutation({
+            query: (returnId) => ({
+                url: `/admin/returns/${returnId}/approve`,
+                method: "POST",
+            }),
+            invalidatesTags: (result, error, returnId) => [
+                "Orders",
+                { type: "Order" },
+                "Returns",
+                { type: "Returns", id: returnId },
+            ],
+        }),
+        rejectReturn: builder.mutation({
+            query: ({ returnId, adminNote }) => ({
+                url: `/admin/returns/${returnId}/reject`,
+                method: "POST",
+                body: { adminNote },
+            }),
+            invalidatesTags: (result, error, { returnId }) => [
+                "Orders",
+                { type: "Order" },
+                "Returns",
+                { type: "Returns", id: returnId },
+            ],
+        }),
+
         // POST /orders/:id/confirm-delivered
         // Chỉ dùng được khi status === "SHIPPING"
         createPayment: builder.mutation({
@@ -153,4 +213,12 @@ export const {
     useGetCategoryRevenueQuery,
     useGetPointsStatsQuery,
     useGetCouponStatsQuery,
+    useCreateReturnRequestMutation,
+    useGetOrderReturnRequestQuery,
+    useGetMyReturnsQuery,
+    useGetReturnByIdQuery,
+    useGetAllReturnsQuery,
+    useGetAdminReturnByIdQuery,
+    useApproveReturnMutation,
+    useRejectReturnMutation,
 } = ordersApi;
