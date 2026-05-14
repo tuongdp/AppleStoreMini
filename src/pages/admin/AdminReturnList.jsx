@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -17,7 +23,7 @@ import { useGetAllReturnsQuery, useApproveReturnMutation, useRejectReturnMutatio
 import { RETURN_REQUEST_STATUS_MAP, RETURN_REQUEST_STATUS_COLOR, RETURN_REASON_MAP } from "@/lib/constants";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { toast } from "sonner";
-import { Check, X, Eye, Search } from "lucide-react";
+import { Check, X, Eye, Search, MoreHorizontal } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -30,6 +36,7 @@ const STATUS_FILTERS = [
 ];
 
 export default function AdminReturnList() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -151,35 +158,39 @@ export default function AdminReturnList() {
                       {RETURN_REQUEST_STATUS_MAP[ret.status] || ret.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1">
-                      {ret.status === "PENDING" && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700"
-                            onClick={() => handleApprove(ret.id)}
-                            disabled={isApproving}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            onClick={() => setRejectId(ret.id)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" asChild>
-                        <Link to={`/admin/returns/${ret.id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {ret.status === "PENDING" && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => handleApprove(ret.id)}
+                              disabled={isApproving}
+                              className="text-green-600"
+                            >
+                              <Check className="mr-2 h-4 w-4" />
+                              Duyệt & Hoàn tiền
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setRejectId(ret.id)}
+                              className="text-destructive"
+                            >
+                              <X className="mr-2 h-4 w-4" />
+                              Từ chối
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuItem onClick={() => navigate(`/admin/returns/${ret.id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Xem chi tiết
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
