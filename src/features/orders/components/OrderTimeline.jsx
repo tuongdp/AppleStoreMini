@@ -22,13 +22,14 @@ const TIMELINE_STEPS = [
 ];
 
 export default function OrderTimeline({ order }) {
-    // Nếu đơn bị huỷ — hiện timeline huỷ riêng
-    if (
-        (order.status || "").toLowerCase() === ORDER_STATUS.CANCELLED ||
-        (order.status || "").toLowerCase() === ORDER_STATUS.REFUNDING ||
-        (order.status || "").toLowerCase() === ORDER_STATUS.REFUNDED
-    ) {
-        return <CancelledTimeline order={order} />;
+    const statusKey = (order.status || "").toLowerCase();
+
+    if (statusKey === ORDER_STATUS.REFUNDING || statusKey === ORDER_STATUS.REFUNDED) {
+      return <RefundTimeline order={order} />;
+    }
+
+    if (statusKey === ORDER_STATUS.CANCELLED) {
+      return <CancelledTimeline order={order} />;
     }
 
     const currentIndex = TIMELINE_STEPS.indexOf((order.status || "").toLowerCase());
@@ -111,6 +112,103 @@ export default function OrderTimeline({ order }) {
             })}
         </div>
     );
+}
+
+// Timeline cho refund/return
+function RefundTimeline({ order }) {
+  const steps = TIMELINE_STEPS.map((step) => ({
+    status: step,
+    timestamp: order.statusHistory?.find((h) => h.status === step)?.createdAt,
+    done: true,
+  }));
+
+  const isRefunded = (order.status || "").toLowerCase() === ORDER_STATUS.REFUNDED;
+  const refundingStep = {
+    status: ORDER_STATUS.REFUNDING,
+    timestamp: order.statusHistory?.find(
+      (h) => h.status === ORDER_STATUS.REFUNDING,
+    )?.createdAt,
+    done: isRefunded,
+    current: !isRefunded,
+  };
+
+  const allSteps = [...steps, refundingStep];
+  if (isRefunded) {
+    allSteps.push({
+      status: ORDER_STATUS.REFUNDED,
+      timestamp: order.statusHistory?.find(
+        (h) => h.status === ORDER_STATUS.REFUNDED,
+      )?.createdAt,
+      done: true,
+      current: true,
+    });
+  }
+
+  return (
+    <div className="space-y-0">
+      {allSteps.map((step, index) => {
+        const isLast = index === allSteps.length - 1;
+        const isDone = step.done && !step.current;
+        const isCurrent = step.current;
+
+        return (
+          <div key={`${step.status}-${index}`} className="flex gap-4">
+            <div className="flex flex-col items-center">
+              <div
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                  isDone && "border-green-500 bg-green-500 text-white",
+                  isCurrent &&
+                    step.status === ORDER_STATUS.REFUNDING &&
+                    "border-pink-500 bg-pink-500 text-white",
+                  isCurrent &&
+                    step.status === ORDER_STATUS.REFUNDED &&
+                    "border-gray-400 bg-gray-400 text-white",
+                )}
+              >
+                {isDone ? (
+                  <Check className="h-4 w-4" />
+                ) : isCurrent ? (
+                  <Clock className="h-4 w-4" />
+                ) : (
+                  <span className="h-2 w-2 rounded-full bg-border" />
+                )}
+              </div>
+              {!isLast && (
+                <div
+                  className={cn(
+                    "mt-1 w-0.5 flex-1 min-h-[32px]",
+                    isDone ? "bg-green-500" : "bg-border",
+                  )}
+                />
+              )}
+            </div>
+            <div className={cn("pb-6 min-w-0 flex-1", isLast && "pb-0")}>
+              <p
+                className={cn(
+                  "text-sm",
+                  isDone && "font-semibold text-green-600 dark:text-green-400",
+                  isCurrent &&
+                    step.status === ORDER_STATUS.REFUNDING &&
+                    "font-semibold text-pink-600 dark:text-pink-400",
+                  isCurrent &&
+                    step.status === ORDER_STATUS.REFUNDED &&
+                    "font-semibold text-gray-600 dark:text-gray-400",
+                )}
+              >
+                {TIMELINE_MAP[step.status] || step.status}
+              </p>
+              {step.timestamp && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {formatDateTime(step.timestamp)}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // Timeline riêng cho đơn bị huỷ
