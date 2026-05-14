@@ -115,8 +115,8 @@ export default function ProductDetailPage() {
         return () => clearInterval(timer);
     }, [flashSaleData?.endTime, flashSaleData?.salePrice]);
 
-    const displayOriginalPrice = hasActiveFlashSale ? flashSaleData.originalPrice : selectedVariant?.price;
-    const displaySalePrice = hasActiveFlashSale ? null : selectedVariant?.salePrice;
+    const displayOriginalPrice = (hasActiveFlashSale && flashSaleData) ? flashSaleData.originalPrice : selectedVariant?.price;
+    const displaySalePrice = (hasActiveFlashSale && flashSaleData) ? null : selectedVariant?.salePrice;
 
     const productImages = useMemo(() => {
         const variantImages = selectedVariant?.images || [];
@@ -250,7 +250,7 @@ export default function ProductDetailPage() {
                         />
                     )}
 
-                    {hasActiveFlashSale && (
+                    {hasActiveFlashSale && flashSaleData && (
                         <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-amber-500/10 dark:from-amber-400/15 dark:via-amber-300/5 dark:to-amber-400/15 p-4">
                             <div className="mb-3 flex items-center gap-2">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 dark:bg-amber-400/25">
