@@ -47,6 +47,7 @@ export const loginSchema = z.object({
     password: z
         .string()
         .min(8, { message: v("password.minLength") }),
+    rememberMe: z.boolean().optional().default(false),
 });
 
 export const registerSchema = z

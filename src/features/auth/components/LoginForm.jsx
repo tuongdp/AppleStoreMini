@@ -9,6 +9,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useSendVerificationMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Form,
     FormControl,
@@ -36,11 +37,13 @@ export default function LoginForm() {
         defaultValues: {
             email: "",
             password: "",
+            rememberMe: false,
         },
     });
 
     const onSubmit = async (values) => {
         setServerError("");
+        localStorage.setItem("rememberMe", values.rememberMe ? "true" : "false");
         const result = await login(values);
 
         if (result.success) {
@@ -177,6 +180,25 @@ export default function LoginForm() {
                                     </div>
                                 </FormControl>
                                 <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="rememberMe"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center gap-2 space-y-0">
+                                <FormControl>
+                                    <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        disabled={isLoginLoading}
+                                    />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal cursor-pointer">
+                                    {"Ghi nhớ đăng nhập"}
+                                </FormLabel>
                             </FormItem>
                         )}
                     />

@@ -164,6 +164,7 @@ export function useAuth() {
         } catch (error) {
             console.error("Logout server error:", error);
         } finally {
+            localStorage.removeItem("rememberMe");
             dispatch(logoutAction());
             dispatch(clearCart());
             navigate(ROUTES.HOME);

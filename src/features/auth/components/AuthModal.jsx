@@ -82,11 +82,12 @@ function LoginFormInModal({ onSuccess }) {
 
     const form = useForm({
         resolver: zodResolver(loginSchema),
-        defaultValues: { email: "", password: "" },
+        defaultValues: { email: "", password: "", rememberMe: false },
     });
 
     const onSubmit = async (values) => {
         setServerError("");
+        localStorage.setItem("rememberMe", values.rememberMe ? "true" : "false");
         const result = await login(values);
         if (result.success) {
             onSuccess();
@@ -156,6 +157,24 @@ function LoginFormInModal({ onSuccess }) {
                                 </div>
                             </FormControl>
                             <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="rememberMe"
+                    render={({ field }) => (
+                        <FormItem className="flex items-center gap-2 space-y-0">
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    disabled={isLoginLoading}
+                                />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal cursor-pointer">
+                                {"Ghi nhớ đăng nhập"}
+                            </FormLabel>
                         </FormItem>
                     )}
                 />

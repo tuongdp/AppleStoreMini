@@ -23,13 +23,20 @@ import { baseApi } from "./api/baseApi";
 // Thay thế toàn bộ import storage bằng đoạn này
 const storage = {
     getItem: (key) => {
-        return Promise.resolve(localStorage.getItem(key));
+        const sessionVal = sessionStorage.getItem(key);
+        if (sessionVal) return Promise.resolve(sessionVal);
+        const localVal = localStorage.getItem(key);
+        return Promise.resolve(localVal);
     },
     setItem: (key, value) => {
-        localStorage.setItem(key, value);
+        sessionStorage.setItem(key, value);
+        if (localStorage.getItem("rememberMe") === "true") {
+            localStorage.setItem(key, value);
+        }
         return Promise.resolve();
     },
     removeItem: (key) => {
+        sessionStorage.removeItem(key);
         localStorage.removeItem(key);
         return Promise.resolve();
     },
@@ -46,7 +53,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: "apple-store",
     storage,
-    whitelist: ["cart", "wishlist"],
+    whitelist: ["auth", "cart", "wishlist"],
     blacklist: [baseApi.reducerPath, "ui"],
 };
 

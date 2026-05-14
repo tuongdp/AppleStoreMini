@@ -37,10 +37,10 @@ export const authApi = baseApi.injectEndpoints({
         getMe: builder.query({
             query: () => "/auth/me",
             providesTags: ["Profile"],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(setCredentials({ user: data.data }));
+                    dispatch(setCredentials({ ...data.data, rememberMe: arg.rememberMe }));
                 } catch { /* noop */ }
             },
         }),

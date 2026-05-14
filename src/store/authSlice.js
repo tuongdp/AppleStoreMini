@@ -5,6 +5,7 @@ const initialState = {
     accessToken: null,
     refreshToken: null,
     isAuthenticated: false,
+    rememberMe: false,
 };
 
 const authSlice = createSlice({
@@ -12,10 +13,11 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         setCredentials: (state, action) => {
-            const { user, accessToken, refreshToken } = action.payload;
+            const { user, accessToken, refreshToken, rememberMe } = action.payload;
             if (user) state.user = user;
             if (accessToken) state.accessToken = accessToken;
             if (refreshToken) state.refreshToken = refreshToken;
+            if (rememberMe !== undefined) state.rememberMe = rememberMe;
             state.isAuthenticated = !!state.accessToken;
         },
         logout: (state) => {
@@ -23,6 +25,7 @@ const authSlice = createSlice({
             state.accessToken = null;
             state.refreshToken = null;
             state.isAuthenticated = false;
+            state.rememberMe = false;
         },
         updateUser: (state, action) => {
             state.user = { ...state.user, ...action.payload };
