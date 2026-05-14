@@ -26,7 +26,6 @@ export default function ConfirmDialog({
 
     const handleConfirm = async () => {
         await onConfirm?.();
-        onOpenChange(false);
     };
 
     return (
