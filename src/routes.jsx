@@ -86,7 +86,6 @@ const AdminBannerPage = lazyPage(() => import("@/pages/admin/AdminBannerPage"));
 const AdminFlashSalePage = lazyPage(() => import("@/pages/admin/AdminFlashSalePage"));
 const AdminGlobalOptionsPage = lazyPage(() => import("@/pages/admin/AdminGlobalOptionsPage"));
 const AdminShopSettingsPage = lazyPage(() => import("@/pages/admin/AdminShopSettings"));
-const AdminAISettingsPage = lazyPage(() => import("@/pages/admin/AdminAISettings"));
 const AdminReturnList = lazyPage(() => import("@/pages/admin/AdminReturnList"));
 const AdminReturnDetail = lazyPage(() => import("@/pages/admin/AdminReturnDetail"));
 
@@ -205,7 +204,6 @@ export const router = createBrowserRouter([
             { path: "flash-sales", element: <AdminFlashSalePage /> },
             { path: "options", element: <AdminGlobalOptionsPage /> },
             { path: "settings/shop", element: <AdminShopSettingsPage /> },
-            { path: "settings/ai", element: <AdminAISettingsPage /> },
         ],
     },
 
