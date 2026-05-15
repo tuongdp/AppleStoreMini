@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Bot, User, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn, formatPrice } from "@/lib/utils";
@@ -19,6 +19,26 @@ export default function ChatWidget() {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef(null);
+
+    useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const rec = new SpeechRecognition();
+            rec.lang = "vi-VN";
+            rec.interimResults = false;
+            rec.maxAlternatives = 1;
+            rec.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                setInput(transcript);
+                setIsListening(false);
+            };
+            rec.onerror = () => setIsListening(false);
+            rec.onend = () => setIsListening(false);
+            recognitionRef.current = rec;
+        }
+    }, []);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,6 +76,18 @@ export default function ChatWidget() {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             handleSend();
+        }
+    };
+
+    const toggleVoice = () => {
+        const rec = recognitionRef.current;
+        if (!rec) return;
+        if (isListening) {
+            rec.stop();
+            setIsListening(false);
+        } else {
+            rec.start();
+            setIsListening(true);
         }
     };
 
@@ -162,6 +194,20 @@ export default function ChatWidget() {
                                 className="min-h-0 resize-none rounded-xl text-sm"
                                 disabled={loading}
                             />
+                            {recognitionRef.current && (
+                                <button
+                                    type="button"
+                                    onClick={toggleVoice}
+                                    className={cn(
+                                        "shrink-0 rounded-full p-2 transition-colors",
+                                        isListening
+                                            ? "bg-red-500 text-white animate-pulse"
+                                            : "text-muted-foreground hover:text-foreground",
+                                    )}
+                                >
+                                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                                </button>
+                            )}
                             <Button
                                 size="icon"
                                 className="h-9 w-9 shrink-0 rounded-full"
