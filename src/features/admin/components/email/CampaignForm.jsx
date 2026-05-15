@@ -55,7 +55,7 @@ export default function CampaignForm() {
         subject: "",
         content: "",
         targetAudience: "all",
-        productId: "",
+        productId: "__none__",
         tone: "professional",
     });
 
@@ -67,7 +67,7 @@ export default function CampaignForm() {
                 subject: existing.subject || "",
                 content: existing.content || "",
                 targetAudience: existing.targetAudience || "all",
-                productId: existing.productId || "",
+                productId: existing.productId || "__none__",
                 tone: existing.tone || "professional",
             });
         }
@@ -95,12 +95,15 @@ export default function CampaignForm() {
         if (!form.subject.trim()) { toast.error("Vui lòng nhập tiêu đề"); return; }
         if (!form.content.trim()) { toast.error("Vui lòng nhập nội dung HTML"); return; }
 
+        const payload = { ...form };
+        if (payload.productId === "__none__") payload.productId = undefined;
+
         try {
             if (isEdit) {
-                await updateCampaign({ id, ...form }).unwrap();
+                await updateCampaign({ id, ...payload }).unwrap();
                 toast.success("Đã cập nhật chiến dịch");
             } else {
-                await createCampaign(form).unwrap();
+                await createCampaign(payload).unwrap();
                 toast.success("Đã tạo chiến dịch mới");
             }
             navigate(ROUTES.ADMIN_EMAIL_MARKETING);
@@ -215,7 +218,7 @@ export default function CampaignForm() {
                                         <SelectValue placeholder="Chọn sản phẩm (tùy chọn)" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">-- Không chọn --</SelectItem>
+                                        <SelectItem value="__none__">-- Không chọn --</SelectItem>
                                         {products.map((p) => (
                                             <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                                         ))}
