@@ -113,12 +113,7 @@ export default function AdminOrderTable() {
     }
   };
 
-  const STATUS_LABELS = {
-    pending: "Chờ xác nhận", confirmed: "Đã xác nhận", processing: "Đang xử lý",
-    shipping: "Đang giao hàng", delivered: "Đã giao hàng", cancelled: "Đã huỷ",
-    refunding: "Đang hoàn tiền", refunded: "Đã hoàn tiền",
-  };
-  const PAYMENT_LABELS = {
+  const EXPORT_PAYMENT_LABELS = {
     cod: "COD", momo: "MoMo", vnpay: "VNPay", zalopay: "ZaloPay",
     bank_transfer: "Chuyển khoản",
   };
@@ -141,8 +136,8 @@ export default function AdminOrderTable() {
     customerName: o.user?.fullName || "—",
     phone: o.user?.phone || "—",
     createdAt: o.createdAt,
-    status: STATUS_LABELS[o.status?.toLowerCase()] || o.status,
-    paymentMethod: PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod || "—",
+    status: STATUS_MAP[o.status?.toLowerCase()] || o.status,
+    paymentMethod: EXPORT_PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod || "—",
     isPaid: o.isPaid ? "Đã TT" : "Chưa TT",
     totalAmount: o.totalAmount || 0,
     discountAmount: o.discountAmount || 0,
