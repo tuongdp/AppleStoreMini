@@ -44,7 +44,7 @@ function colIndex(n) {
 }
 
 function autoWidth(rows, cols, max = 40) {
-    return cols.map((col, i) => {
+    return cols.map((col) => {
         let w = col.label ? col.label.length : 8;
         for (const row of rows) {
             const v = row[col.key];

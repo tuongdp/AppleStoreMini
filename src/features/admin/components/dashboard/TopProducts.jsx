@@ -92,6 +92,8 @@ export default function TopProducts() {
                         {p.label}
                     </Button>
                 ))}
+                </div>
+                <ExportButton onExportExcel={handleExportTopProdExcel} onExportPDF={handleExportTopProdPDF} loading={isExporting} />
             </div>
 
             {data.length === 0 ? (
@@ -140,8 +142,6 @@ export default function TopProducts() {
                             </div>
                         </Link>
                 ))}
-                </div>
-                <ExportButton onExportExcel={handleExportTopProdExcel} onExportPDF={handleExportTopProdPDF} loading={isExporting} />
             </div>
             )}
         </div>
