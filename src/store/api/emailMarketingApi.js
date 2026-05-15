@@ -104,6 +104,16 @@ export const emailMarketingApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        // ── Admin: Auto Generate ──
+        autoGenerateCampaign: builder.mutation({
+            query: (strategy) => ({
+                url: `/admin/email-campaigns/auto-generate?strategy=${strategy || "both"}`,
+                method: "GET",
+            }),
+            invalidatesTags: ["Campaigns"],
+            transformResponse: (response) => response.data,
+        }),
+
         // ── Admin: Email Logs ──
         getEmailLogs: builder.query({
             query: (params) => ({ url: "/admin/email-logs", params }),
@@ -130,4 +140,5 @@ export const {
     useSendCampaignMutation,
     useGetCampaignStatsQuery,
     useGetEmailLogsQuery,
+    useAutoGenerateCampaignMutation,
 } = emailMarketingApi;

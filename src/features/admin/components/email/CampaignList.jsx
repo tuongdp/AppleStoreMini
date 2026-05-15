@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Send, Edit, Trash2, Eye, BarChart3, Mail } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Send, Edit, Trash2, BarChart3, Sparkles, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import {
     Table,
@@ -21,6 +23,7 @@ import {
     useGetCampaignsQuery,
     useDeleteCampaignMutation,
     useSendCampaignMutation,
+    useAutoGenerateCampaignMutation,
 } from "@/store/api/emailMarketingApi";
 
 const STATUS_MAP = {
@@ -36,11 +39,14 @@ export default function CampaignList() {
     const [deleteId, setDeleteId] = useState(null);
     const [statsId, setStatsId] = useState(null);
     const [statsData, setStatsData] = useState(null);
+    const [showAutoDialog, setShowAutoDialog] = useState(false);
+    const [strategy, setStrategy] = useState("both");
     const limit = 10;
 
     const { data, isLoading } = useGetCampaignsQuery({ page, limit });
     const [deleteCampaign, { isLoading: deleting }] = useDeleteCampaignMutation();
     const [sendCampaign, { isLoading: sending }] = useSendCampaignMutation();
+    const [autoGenerate, { isLoading: generating }] = useAutoGenerateCampaignMutation();
 
     const campaigns = data?.campaigns ?? [];
     const pagination = data?.pagination;
@@ -79,16 +85,34 @@ export default function CampaignList() {
         }
     };
 
+    const handleAutoGenerate = async () => {
+        try {
+            const result = await autoGenerate(strategy).unwrap();
+            setShowAutoDialog(false);
+            toast.success(`AI đã tạo chiến dịch "${result.campaign?.subject}"`, {
+                action: { label: "Xem", onClick: () => navigate(ROUTES.ADMIN_EMAIL_CAMPAIGN_EDIT(result.campaign?.id)) },
+            });
+        } catch {
+            toast.error("AI không thể tạo chiến dịch, thử lại sau");
+        }
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-sm font-medium text-muted-foreground">
                     {pagination ? `${pagination.total} chiến dịch` : ""}
                 </h2>
-                <Button onClick={() => navigate(ROUTES.ADMIN_EMAIL_CAMPAIGN_CREATE)}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Tạo chiến dịch
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={() => setShowAutoDialog(true)}>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        AI Tự tạo
+                    </Button>
+                    <Button onClick={() => navigate(ROUTES.ADMIN_EMAIL_CAMPAIGN_CREATE)}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Tạo chiến dịch
+                    </Button>
+                </div>
             </div>
 
             <Card className="border-border">
@@ -250,6 +274,60 @@ export default function CampaignList() {
                             <Button variant="outline" className="w-full" onClick={() => { setStatsData(null); setStatsId(null); }}>
                                 Đóng
                             </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {/* AI Auto Generate Dialog */}
+            {showAutoDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAutoDialog(false)}>
+                    <Card className="w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                                <Sparkles className="h-4 w-4 text-blue-600" />
+                                AI Tự động tạo chiến dịch
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <p className="text-sm text-muted-foreground">
+                                AI sẽ phân tích sản phẩm và tự động tạo nội dung email marketing phù hợp.
+                            </p>
+
+                            <RadioGroup value={strategy} onValueChange={setStrategy}>
+                                <div className="flex items-start gap-3 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/50" onClick={() => setStrategy("both")}>
+                                    <RadioGroupItem value="both" id="both" />
+                                    <div>
+                                        <Label htmlFor="both" className="text-sm font-medium cursor-pointer">Kết hợp cả 2</Label>
+                                        <p className="text-xs text-muted-foreground">Sản phẩm tồn kho + sản phẩm bán chạy</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/50" onClick={() => setStrategy("push_inventory")}>
+                                    <RadioGroupItem value="push_inventory" id="push" />
+                                    <div>
+                                        <Label htmlFor="push" className="text-sm font-medium cursor-pointer">Đẩy hàng tồn</Label>
+                                        <p className="text-xs text-muted-foreground">Sản phẩm còn tồn, ít bán, ít lượt xem</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/50" onClick={() => setStrategy("hot_products")}>
+                                    <RadioGroupItem value="hot_products" id="hot" />
+                                    <div>
+                                        <Label htmlFor="hot" className="text-sm font-medium cursor-pointer">Sản phẩm hot</Label>
+                                        <p className="text-xs text-muted-foreground">Sản phẩm bán chạy, nhiều lượt xem</p>
+                                    </div>
+                                </div>
+                            </RadioGroup>
+
+                            <div className="flex gap-2 justify-end">
+                                <Button variant="outline" onClick={() => setShowAutoDialog(false)}>Hủy</Button>
+                                <Button onClick={handleAutoGenerate} disabled={generating}>
+                                    {generating ? (
+                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Đang tạo...</>
+                                    ) : (
+                                        <><Sparkles className="mr-2 h-4 w-4" />Tạo chiến dịch</>
+                                    )}
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
