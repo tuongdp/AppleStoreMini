@@ -20,6 +20,8 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import AdminCouponForm from "./AdminCouponForm";
 import { toast } from "sonner";
 import { formatPrice, formatDate, formatNumber } from "@/lib/utils";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 import { cn } from "@/lib/utils";
 
 export default function AdminCouponList() {
@@ -43,6 +45,66 @@ export default function AdminCouponList() {
         } finally {
             setDeleteId(null);
         }
+    };
+
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const couponColumns = [
+        { key: "code", label: "Mã" },
+        { key: "description", label: "Mô tả" },
+        { key: "discountType", label: "Loại giảm" },
+        { key: "discountValue", label: "Giá trị" },
+        { key: "minOrderAmount", label: "Đơn tối thiểu", format: "currency" },
+        { key: "usedCount", label: "Đã dùng / Tối đa" },
+        { key: "expiresAt", label: "HSD", format: "date" },
+        { key: "isActive", label: "Trạng thái" },
+    ];
+
+    const DISCOUNT_TYPE_LABELS = { PERCENT: "%", FIXED: "VNĐ" };
+
+    const getCouponExportRows = () =>
+        coupons.map((c) => ({
+            code: c.code,
+            description: c.description || "—",
+            discountType: DISCOUNT_TYPE_LABELS[c.discountType] || c.discountType,
+            discountValue:
+                c.discountType === "PERCENT"
+                    ? `${c.discountValue}% (tối đa ${(c.maxDiscountAmount || 0).toLocaleString("vi-VN")}đ)`
+                    : `${(c.discountValue || 0).toLocaleString("vi-VN")}đ`,
+            minOrderAmount: c.minOrderAmount || 0,
+            usedCount: `${c.usedCount || 0} / ${c.maxUsage || "∞"}`,
+            expiresAt: c.expiresAt,
+            isActive: c.isActive ? "Đang kích hoạt" : "Đã tắt",
+        }));
+
+    const handleExportCouponsExcel = () => {
+        if (coupons.length === 0) {
+            toast("Không có dữ liệu để xuất");
+            return;
+        }
+        exportExcel({
+            sheets: [
+                {
+                    name: "Coupon",
+                    columns: couponColumns,
+                    rows: getCouponExportRows(),
+                },
+            ],
+            filename: `Coupon_${new Date().toISOString().slice(0, 10)}`,
+        });
+    };
+
+    const handleExportCouponsPDF = () => {
+        if (coupons.length === 0) {
+            toast("Không có dữ liệu để xuất");
+            return;
+        }
+        exportPDF({
+            title: "Danh sách mã giảm giá",
+            columns: couponColumns,
+            rows: getCouponExportRows(),
+            filename: `Coupon_${new Date().toISOString().slice(0, 10)}`,
+        });
     };
 
     const handleToggle = async (coupon) => {
@@ -84,10 +146,18 @@ export default function AdminCouponList() {
                 <p className="text-sm text-muted-foreground">
                     {coupons.length} mã giảm giá
                 </p>
-                <Button className="rounded-full" onClick={handleAdd}>
-                    <Plus className="mr-1.5 h-4 w-4" />
-                    Thêm mã mới
-                </Button>
+                <div className="flex items-center gap-3">
+                    <ExportButton
+                        onExportExcel={handleExportCouponsExcel}
+                        onExportPDF={handleExportCouponsPDF}
+                        loading={isExporting}
+                        disabled={isLoading}
+                    />
+                    <Button className="rounded-full" onClick={handleAdd}>
+                        <Plus className="mr-1.5 h-4 w-4" />
+                        Thêm mã mới
+                    </Button>
+                </div>
             </div>
 
             {/* Form inline */}
