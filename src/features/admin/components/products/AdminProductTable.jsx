@@ -36,6 +36,8 @@ import { toast } from "sonner";
 import { formatPrice, formatNumber, parseJsonField } from "@/lib/utils";
 import { ROUTES, CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 
 export default function AdminProductTable() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -82,6 +84,43 @@ export default function AdminProductTable() {
     }
   };
 
+  const { exportExcel, exportPDF, isExporting } = useExport();
+
+  const productColumns = [
+    { key: "name", label: "Tên sản phẩm" },
+    { key: "category", label: "Danh mục" },
+    { key: "price", label: "Giá gốc", format: "currency" },
+    { key: "salePrice", label: "Giá KM", format: "currency" },
+    { key: "stock", label: "Tồn kho" },
+    { key: "soldCount", label: "Đã bán" },
+    { key: "status", label: "Trạng thái" },
+    { key: "variants", label: "Biến thể" },
+  ];
+
+  const getProductExportRows = () => products.map((p) => ({
+    name: p.name,
+    category: p.category || "—",
+    price: p.price || 0,
+    salePrice: p.salePrice && p.salePrice < p.price ? p.salePrice : null,
+    stock: p.stock ?? 0,
+    soldCount: p.soldCount || 0,
+    status: p.inStock ? "Đang bán" : "Ngừng bán",
+    variants: (p.variants || []).map((v) => {
+      const parts = [v.color, v.storage, v.ram].filter(Boolean);
+      return `${parts.join(" ")} (Tồn: ${v.stock})`;
+    }).join("; ") || "—",
+  }));
+
+  const handleExportProductsExcel = () => {
+    if (products.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+    exportExcel({ sheets: [{ name: "SanPham", columns: productColumns, rows: getProductExportRows() }], filename: `SanPham_${new Date().toISOString().slice(0, 10)}` });
+  };
+
+  const handleExportProductsPDF = () => {
+    if (products.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+    exportPDF({ title: "Danh sách sản phẩm", columns: productColumns, rows: getProductExportRows(), filename: `SanPham_${new Date().toISOString().slice(0, 10)}` });
+  };
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -117,13 +156,20 @@ export default function AdminProductTable() {
           </Select>
         </div>
 
-        {/* Add button */}
-        <Button className="rounded-full" asChild>
-          <Link to={ROUTES.ADMIN_PRODUCT_CREATE}>
-            <Plus className="mr-1.5 h-4 w-4" />
-            {"Thêm sản phẩm"}
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <ExportButton
+            onExportExcel={handleExportProductsExcel}
+            onExportPDF={handleExportProductsPDF}
+            loading={isExporting}
+            disabled={isLoading}
+          />
+          <Button className="rounded-full" asChild>
+            <Link to={ROUTES.ADMIN_PRODUCT_CREATE}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              {"Thêm sản phẩm"}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Table */}
