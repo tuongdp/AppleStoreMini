@@ -10,7 +10,10 @@ const LOCALE = "vi-VN";
 
 function formatCellValue(value, format) {
     if (value === null || value === undefined) return "\u2014";
-    if (format === "currency") return Number(value) || 0;
+    if (format === "currency") {
+        if (value === "") return "\u2014";
+        return Number(value) || 0;
+    }
     if (format === "date") {
         if (!value) return "";
         const d = new Date(value);
@@ -113,7 +116,12 @@ export function exportToExcel({ sheets, filename = "export.xlsx" }) {
         XLSX.utils.book_append_sheet(wb, ws, name || "Sheet1");
     }
 
-    XLSX.writeFile(wb, filename);
+    try {
+        XLSX.writeFile(wb, filename);
+    } catch (e) {
+        console.error("Excel export failed:", e);
+        throw e;
+    }
 }
 
 // ── exportToPDF ──────────────────────────────────────────
@@ -204,7 +212,12 @@ export function exportToPDF({
         },
     });
 
-    doc.save(filename);
+    try {
+        doc.save(filename);
+    } catch (e) {
+        console.error("PDF export failed:", e);
+        throw e;
+    }
 }
 
 // ── exportDashboardPDF ───────────────────────────────────
@@ -291,26 +304,30 @@ export function exportDashboardPDF({ sections, filename = "dashboard.pdf" }) {
                     fillColor: STRIPE,
                 },
                 columnStyles,
-                didDrawPage: (data) => {
-                    // Footer
-                    const total = doc.internal.getNumberOfPages();
-                    for (let i = 1; i <= total; i++) {
-                        doc.setPage(i);
-                        doc.setFontSize(8);
-                        doc.setTextColor(150);
-                        doc.text(
-                            `Trang ${i} / ${total}`,
-                            pageW / 2,
-                            pageH - 10,
-                            { align: "center" }
-                        );
-                    }
-                },
             });
 
             y = doc.lastAutoTable.finalY + 6;
         }
     }
 
-    doc.save(filename);
+    // Draw footers on all pages once
+    const total = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(
+            `Trang ${i} / ${total}`,
+            pageW / 2,
+            pageH - 10,
+            { align: "center" }
+        );
+    }
+
+    try {
+        doc.save(filename);
+    } catch (e) {
+        console.error("Dashboard PDF export failed:", e);
+        throw e;
+    }
 }
