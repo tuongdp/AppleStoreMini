@@ -1,83 +1,45 @@
-import { DollarSign, ShoppingBag, Users, Package, Clock, AlertTriangle, Coins, TrendingUp, TrendingDown, TicketPercent } from "lucide-react";
+import { DollarSign, ShoppingBag, Users, Package, Clock, TrendingUp, TrendingDown, TicketPercent, AlertTriangle, Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetRevenueStatsQuery, useGetLowStockQuery, useGetCategoryRevenueQuery, useGetPointsStatsQuery, useGetCouponStatsQuery } from "@/store/api/ordersApi";
+import { useGetRevenueStatsQuery, useGetLowStockQuery, useGetCategoryRevenueQuery, useGetCouponStatsQuery, useGetDashboardStatsQuery } from "@/store/api/ordersApi";
 import { useGetAllUsersQuery } from "@/store/api/usersApi";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import RevenueChart from "@/features/admin/components/dashboard/RevenueChart";
 import RecentOrders from "@/features/admin/components/dashboard/RecentOrders";
 import TopProducts from "@/features/admin/components/dashboard/TopProducts";
+import OrderStats from "@/features/admin/components/dashboard/OrderStats";
+import OrderStatusChart from "@/features/admin/components/dashboard/OrderStatusChart";
+import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
+import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
+import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
-const DONUT_COLORS = [
-    "hsl(217,91%,60%)", "hsl(38,92%,50%)", "hsl(160,84%,39%)",
-    "hsl(330,81%,60%)", "hsl(262,83%,58%)", "hsl(0,84%,60%)",
-    "hsl(189,94%,43%)", "hsl(80,70%,50%)"
-];
-
-function CategoryDonut({ data }) {
-    const total = data.reduce((s, d) => s + d.value, 0);
-    if (total === 0) return <p className="text-sm text-muted-foreground text-center py-8">Chưa có dữ liệu</p>;
-
-    let cumulative = 0;
-    const segments = data.map((d, i) => {
-        const pct = (d.value / total) * 100;
-        const start = cumulative;
-        cumulative += pct;
-        return { ...d, pct, start, end: cumulative, color: DONUT_COLORS[i % DONUT_COLORS.length] };
-    });
-
-    const cx = 100, cy = 100, r = 70, strokeW = 20;
-
-    return (
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
-            <svg viewBox="0 0 200 200" className="h-44 w-44 shrink-0 -rotate-90">
-                <circle cx={cx} cy={cy} r={r} fill="none" className="stroke-muted" strokeWidth={strokeW} />
-                {segments.map((s) => {
-                    const startAngle = (s.start / 100) * 2 * Math.PI;
-                    const endAngle = (s.end / 100) * 2 * Math.PI;
-                    const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
-                    const x2 = cx + r * Math.cos(endAngle), y2 = cy + r * Math.sin(endAngle);
-                    const large = s.pct > 50 ? 1 : 0;
-                    return <path key={s.label} d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`} fill={s.color} />;
-                })}
-                <circle cx={cx} cy={cy} r={r - strokeW} className="fill-card" />
-                <text x={cx} y={cy - 8} textAnchor="middle" className="fill-foreground text-base font-bold" transform={`rotate(90 ${cx} ${cy})`}>{formatPrice(total)}</text>
-                <text x={cx} y={cy + 12} textAnchor="middle" className="fill-muted-foreground text-[10px]" transform={`rotate(90 ${cx} ${cy})`}>Tổng</text>
-            </svg>
-            <div className="space-y-2">
-                {segments.map((s) => (
-                    <div key={s.label} className="flex items-center gap-2 text-sm">
-                        <span className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
-                        <span className="text-muted-foreground">{s.label}</span>
-                        <span className="font-medium ml-auto tabular-nums">{s.pct.toFixed(1)}%</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
 export default function AdminDashboard() {
-    const { data: stats, isLoading: isStatsLoading } = useGetRevenueStatsQuery({ period: "month" });
+    const { data: revenueData } = useGetRevenueStatsQuery({ period: "month" });
+    const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
     const { data: lowStock = [] } = useGetLowStockQuery();
     const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
-    const { data: points } = useGetPointsStatsQuery();
     const { data: couponStats } = useGetCouponStatsQuery();
     const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
     const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
 
+    const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
+    const revenueChange = revenueData?.revenueChange ?? 0;
+    const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
+
     const STAT_CARDS = [
-        { title: "Tổng doanh thu", value: formatPrice(stats?.totalRevenue ?? 0), icon: DollarSign, color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30" },
+        { title: "Tổng doanh thu", value: formatPrice(stats?.totalRevenue ?? 0), icon: DollarSign, color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30",
+            change: revenueChange !== 0 ? `${revenueChange >= 0 ? "+" : ""}${revenueChange}%` : null, changeUp: revenueChange >= 0 },
         { title: "Doanh thu hôm nay", value: formatPrice(stats?.todayRevenue ?? 0), icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
-        { title: "Đơn chờ xử lý", value: formatNumber(stats?.pendingOrders ?? 0), icon: Clock, color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30", badge: (stats?.pendingOrders ?? 0) > 0 },
-        { title: "Tổng sản phẩm", value: formatNumber(productsData?.pagination?.total ?? 0), icon: Package, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/30" },
+        { title: "Giá trị đơn TB", value: formatPrice(aov), icon: Receipt, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/30" },
+        { title: "Đơn chờ xử lý", value: formatNumber(stats?.pendingOrders ?? 0), icon: Clock, color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30", badge: (stats?.pendingOrders ?? 0) > 0,
+            sub: `Tỉ lệ hoàn: ${returnRate}%` },
         { title: "Tổng đơn hàng", value: formatNumber(stats?.totalOrders ?? 0), icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
+        { title: "Tổng sản phẩm", value: formatNumber(productsData?.pagination?.total ?? 0), icon: Package, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/30" },
         { title: "Tổng người dùng", value: formatNumber(usersData?.pagination?.total ?? 0), icon: Users, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/30" },
-        { title: "Điểm loyalty", value: formatNumber(points?.totalPoints ?? 0), icon: Coins, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
         { title: "Voucher đã dùng", value: formatNumber(couponStats?.totalCouponOrders ?? 0), icon: TicketPercent, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-950/30" },
         { title: "Tiền giảm từ voucher", value: formatPrice(couponStats?.totalDiscountAmount ?? 0), icon: TicketPercent, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-950/30" },
     ];
@@ -102,9 +64,20 @@ export default function AdminDashboard() {
                             {isStatsLoading ? (
                                 <Skeleton className="h-8 w-32" />
                             ) : (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-2xl font-bold text-foreground">{card.value}</span>
-                                    {card.badge && <Badge className="bg-red-500 text-white text-xs">!</Badge>}
+                                <div className="space-y-0.5">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-2xl font-bold text-foreground">{card.value}</span>
+                                        {card.badge && <Badge className="bg-red-500 text-white text-xs">!</Badge>}
+                                    </div>
+                                    {card.change && (
+                                        <div className="flex items-center gap-1">
+                                            {card.changeUp ? <TrendingUp className="h-3 w-3 text-green-600" /> : <TrendingDown className="h-3 w-3 text-red-500" />}
+                                            <span className={cn("text-xs font-medium", card.changeUp ? "text-green-600" : "text-red-500")}>{card.change}</span>
+                                        </div>
+                                    )}
+                                    {card.sub && (
+                                        <p className="text-xs text-muted-foreground">{card.sub}</p>
+                                    )}
                                 </div>
                             )}
                         </CardContent>
@@ -119,7 +92,34 @@ export default function AdminDashboard() {
                 </Card>
                 <Card className="lg:col-span-3">
                     <CardHeader><CardTitle className="text-sm font-medium">Doanh thu theo danh mục</CardTitle></CardHeader>
-                    <CardContent><CategoryDonut data={catRevenue} /></CardContent>
+                    <CardContent><CategoryPieChart data={catRevenue} /></CardContent>
+                </Card>
+            </div>
+
+            <Card>
+                <CardHeader><CardTitle className="text-sm font-medium">Thống kê đơn hàng</CardTitle></CardHeader>
+                <CardContent><OrderStats /></CardContent>
+            </Card>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+                <Card>
+                    <CardHeader><CardTitle className="text-sm font-medium">Sản phẩm bán chạy</CardTitle></CardHeader>
+                    <CardContent><TopProducts /></CardContent>
+                </Card>
+                <Card>
+                    <CardHeader><CardTitle className="text-sm font-medium">Phân bố trạng thái đơn hàng</CardTitle></CardHeader>
+                    <CardContent><OrderStatusChart /></CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+                <Card>
+                    <CardHeader><CardTitle className="text-sm font-medium">Sản phẩm bán chậm (30 ngày)</CardTitle></CardHeader>
+                    <CardContent><SlowProducts /></CardContent>
+                </Card>
+                <Card>
+                    <CardHeader><CardTitle className="text-sm font-medium">Khách hàng chi tiêu cao</CardTitle></CardHeader>
+                    <CardContent><TopCustomers /></CardContent>
                 </Card>
             </div>
 
@@ -164,11 +164,6 @@ export default function AdminDashboard() {
                     </CardContent>
                 </Card>
             </div>
-
-            <Card>
-                <CardHeader><CardTitle className="text-sm font-medium">Sản phẩm bán chạy</CardTitle></CardHeader>
-                <CardContent><TopProducts /></CardContent>
-            </Card>
         </div>
     );
 }
