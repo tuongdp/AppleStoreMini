@@ -12,7 +12,7 @@ const DEFAULT_SELLER = {
   email: "",
 };
 
-function getSellerInfo() {
+export function getSellerInfo() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SHOP);
     if (raw) return { ...DEFAULT_SELLER, ...JSON.parse(raw) };
@@ -20,24 +20,26 @@ function getSellerInfo() {
   return { ...DEFAULT_SELLER };
 }
 
-function getNextInvoiceNumber() {
+export function getNextInvoiceNumber() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_COUNTER);
     const num = raw ? parseInt(raw, 10) : 1;
     const formatted = String(num).padStart(7, "0");
-    localStorage.setItem(STORAGE_KEY_COUNTER, String(num + 1));
+    try {
+      localStorage.setItem(STORAGE_KEY_COUNTER, String(num + 1));
+    } catch { /* silently accept write failure */ }
     return formatted;
   } catch {
     return "0000001";
   }
 }
 
-function generateInvoiceSymbol() {
+export function generateInvoiceSymbol() {
   const year = new Date().getFullYear();
   return `ASM/${year}E`;
 }
 
-const UNITS = ["", "nghìn", "triệu", "tỷ"];
+const UNITS = ["", "nghìn", "triệu", "tỷ", "nghìn tỷ"];
 
 function readTriple(n) {
   const a = Math.floor(n / 100);
@@ -68,9 +70,9 @@ function readTriple(n) {
   return words.join(" ");
 }
 
-function numberToWords(n) {
+export function numberToWords(n) {
   if (n === 0) return "không đồng";
-  if (n < 0) return "âm " + numberToWords(Math.abs(n));
+  if (n < 0) return numberToWords(0);
   const intPart = Math.floor(n);
   if (intPart === 0) return "không đồng";
   const groups = [];
@@ -80,10 +82,17 @@ function numberToWords(n) {
     remaining = Math.floor(remaining / 1000);
   }
   const parts = [];
+  let hasContent = false;
   for (let i = groups.length - 1; i >= 0; i--) {
-    if (groups[i] === 0) continue;
-    parts.push(readTriple(groups[i]));
-    if (i > 0) parts.push(UNITS[i]);
+    if (groups[i] === 0 && hasContent) {
+      parts.push("không trăm");
+    } else if (groups[i] > 0) {
+      parts.push(readTriple(groups[i]));
+      hasContent = true;
+    }
+    if (i > 0 && (groups[i] > 0 || hasContent)) {
+      parts.push(UNITS[i]);
+    }
   }
   const text = parts.join(" ").replace(/\s+/g, " ").trim();
   return text.charAt(0).toUpperCase() + text.slice(1) + " đồng";
@@ -95,7 +104,7 @@ const PAYMENT_LABELS = {
 };
 
 export function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
-  if (!order || !buyerInfo) return;
+  if (!order || !buyerInfo) throw new Error("Thiếu dữ liệu đơn hàng hoặc thông tin người mua");
 
   const seller = getSellerInfo();
   const invoiceNumber = getNextInvoiceNumber();
@@ -117,6 +126,7 @@ export function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
   if (seller.taxCode) { doc.text(`MST: ${seller.taxCode}`, m, y); y += 4; }
   if (seller.address) { doc.text(`${seller.address}`, m, y); y += 4; }
   if (seller.phone) { doc.text(`SĐT: ${seller.phone}`, m, y); y += 4; }
+  if (seller.email) { doc.text(`Email: ${seller.email}`, m, y); y += 4; }
 
   // Header: Invoice symbol/number (right)
   doc.setFontSize(8);
@@ -160,7 +170,9 @@ export function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
 
   // Order reference
   doc.setFontSize(9);
-  doc.text(`Đơn hàng: #${order.code}  |  Ngày tạo: ${new Date(order.createdAt).toLocaleDateString("vi-VN")}`, m, y);
+  const orderCode = order.code || "unknown";
+  const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString("vi-VN") : "—";
+  doc.text(`Đơn hàng: #${orderCode}  |  Ngày tạo: ${orderDate}`, m, y);
   y += 8;
 
   // Items table
@@ -254,6 +266,6 @@ export function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
   doc.text("NGƯỜI BÁN", pw - m, y, { align: "center", maxWidth: 60 });
   doc.text("(Ký, ghi rõ họ tên)", pw - m, y + 4, { align: "center", maxWidth: 60 });
 
-  const safeCode = String(order.code || "unknown").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const safeCode = String(orderCode).replace(/[^a-zA-Z0-9_-]/g, "_");
   doc.save(`HoaDonGTGT_${safeCode}.pdf`);
 }

@@ -42,6 +42,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
     setVatRate("10");
     setCustomRate("");
     setIsCustom(false);
+    setIsLoading(false);
     setErrors({});
     onClose();
   };
@@ -64,6 +65,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
     if (!validate()) return;
     setIsLoading(true);
     try {
+      await new Promise((resolve) => setTimeout(resolve, 50));
       const finalRate = isCustom ? Number(customRate) : Number(vatRate);
       exportVATInvoicePDF({
         order,
@@ -103,10 +105,13 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
               id="companyName"
               placeholder="Nhập tên công ty"
               value={companyName}
+              aria-required="true"
+              aria-invalid={!!errors.companyName}
+              aria-describedby={errors.companyName ? "companyName-error" : undefined}
               onChange={(e) => { setCompanyName(e.target.value); setErrors((p) => ({ ...p, companyName: undefined })); }}
             />
             {errors.companyName && (
-              <p className="text-xs text-destructive">{errors.companyName}</p>
+              <p id="companyName-error" className="text-xs text-destructive" role="alert">{errors.companyName}</p>
             )}
           </div>
 
@@ -118,10 +123,13 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
               id="taxCode"
               placeholder="Nhập mã số thuế"
               value={taxCode}
+              aria-required="true"
+              aria-invalid={!!errors.taxCode}
+              aria-describedby={errors.taxCode ? "taxCode-error" : undefined}
               onChange={(e) => { setTaxCode(e.target.value); setErrors((p) => ({ ...p, taxCode: undefined })); }}
             />
             {errors.taxCode && (
-              <p className="text-xs text-destructive">{errors.taxCode}</p>
+              <p id="taxCode-error" className="text-xs text-destructive" role="alert">{errors.taxCode}</p>
             )}
           </div>
 
@@ -136,7 +144,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
           </div>
 
           <div className="space-y-2">
-            <Label>Thuế suất GTGT</Label>
+            <Label htmlFor="vat-rate-select">Thuế suất GTGT</Label>
             <div className="flex items-center gap-3">
               <Select
                 value={isCustom ? "custom" : vatRate}
@@ -150,7 +158,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
                   }
                 }}
               >
-                <SelectTrigger className="w-24">
+                <SelectTrigger id="vat-rate-select" className="w-24">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -168,6 +176,8 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
                     className="w-20"
                     placeholder="0"
                     value={customRate}
+                    aria-invalid={!!errors.vatRate}
+                    aria-describedby={errors.vatRate ? "vatRate-error" : undefined}
                     onChange={(e) => { setCustomRate(e.target.value); setErrors((p) => ({ ...p, vatRate: undefined })); }}
                   />
                   <span className="text-sm text-muted-foreground">%</span>
@@ -175,7 +185,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
               )}
             </div>
             {errors.vatRate && (
-              <p className="text-xs text-destructive">{errors.vatRate}</p>
+              <p id="vatRate-error" className="text-xs text-destructive" role="alert">{errors.vatRate}</p>
             )}
           </div>
         </div>
