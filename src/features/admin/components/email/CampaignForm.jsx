@@ -7,13 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SearchableSelect from "@/components/shared/SearchableSelect";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants";
 import { useGetProductsQuery } from "@/store/api/productsApi";
@@ -23,22 +16,6 @@ import {
     useGetCampaignByIdQuery,
 } from "@/store/api/emailMarketingApi";
 import AIEmailGenerator from "./AIEmailGenerator";
-
-const AUDIENCE_OPTIONS = [
-    { label: "Tất cả", value: "all" },
-    { label: "Sinh viên", value: "student" },
-    { label: "Chuyên nghiệp", value: "professional" },
-    { label: "Doanh nhân", value: "business" },
-    { label: "Cao cấp", value: "luxury" },
-];
-
-const TONE_OPTIONS = [
-    { label: "Chuyên nghiệp", value: "professional" },
-    { label: "Thân thiện", value: "friendly" },
-    { label: "Cao cấp", value: "luxury" },
-    { label: "Trẻ trung", value: "young" },
-    { label: "Khẩn cấp", value: "urgent" },
-];
 
 export default function CampaignForm() {
     const navigate = useNavigate();
@@ -55,9 +32,7 @@ export default function CampaignForm() {
     const [form, setForm] = useState({
         subject: "",
         content: "",
-        targetAudience: "all",
         productId: "__none__",
-        tone: "professional",
     });
 
     const [showAI, setShowAI] = useState(false);
@@ -67,9 +42,7 @@ export default function CampaignForm() {
             setForm({
                 subject: existing.subject || "",
                 content: existing.content || "",
-                targetAudience: existing.targetAudience || "all",
                 productId: existing.productId || "__none__",
-                tone: existing.tone || "professional",
             });
         }
     }, [existing]);
@@ -164,8 +137,6 @@ export default function CampaignForm() {
                     <AIEmailGenerator
                         productName={selectedProduct?.name}
                         productPrice={selectedProduct?.price}
-                        audience={form.targetAudience}
-                        tone={form.tone}
                         onGenerated={handleAIGenerated}
                     />
                 )}
@@ -185,45 +156,17 @@ export default function CampaignForm() {
                             />
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-3">
-                            <div className="space-y-2">
-                                <Label>Đối tượng</Label>
-                                <Select value={form.targetAudience} onValueChange={(v) => handleChange("targetAudience", v)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {AUDIENCE_OPTIONS.map((opt) => (
-                                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Giọng điệu</Label>
-                                <Select value={form.tone} onValueChange={(v) => handleChange("tone", v)}>
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {TONE_OPTIONS.map((opt) => (
-                                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Sản phẩm liên quan</Label>
-                                <SearchableSelect
-                                    options={[
-                                        { value: "__none__", label: "-- Không chọn --" },
-                                        ...products.map((p) => ({ value: p.id, label: p.name })),
-                                    ]}
-                                    value={form.productId}
-                                    onChange={(v) => handleChange("productId", v)}
-                                    placeholder="Tìm kiếm sản phẩm..."
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <Label>Sản phẩm liên quan</Label>
+                            <SearchableSelect
+                                options={[
+                                    { value: "__none__", label: "-- Không chọn --" },
+                                    ...products.map((p) => ({ value: p.id, label: p.name })),
+                                ]}
+                                value={form.productId}
+                                onChange={(v) => handleChange("productId", v)}
+                                placeholder="Tìm kiếm sản phẩm..."
+                            />
                         </div>
 
                         <div className="space-y-2">
