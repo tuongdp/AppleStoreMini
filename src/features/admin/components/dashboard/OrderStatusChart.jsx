@@ -27,7 +27,7 @@ export default function OrderStatusChart() {
     const total = data.reduce((s, d) => s + d.count, 0) || 1;
 
     const counts = STATUS_LIST.reduce((acc, status) => {
-        const found = data.find((d) => d.status === status);
+        const found = data.find((d) => d.status.toLowerCase() === status);
         acc[status] = found ? found.count : 0;
         return acc;
     }, {});
@@ -68,23 +68,13 @@ export default function OrderStatusChart() {
                             <div
                                 className={cn(
                                     "h-full rounded-full transition-all duration-500",
-                                    ORDER_STATUS_COLOR[status]?.includes(
-                                        "green",
-                                    )
-                                        ? "bg-green-500"
-                                        : ORDER_STATUS_COLOR[status]?.includes(
-                                                "blue",
-                                            )
-                                          ? "bg-blue-500"
-                                          : ORDER_STATUS_COLOR[
-                                                  status
-                                              ]?.includes("orange")
-                                            ? "bg-orange-500"
-                                            : ORDER_STATUS_COLOR[
-                                                    status
-                                                ]?.includes("red")
-                                              ? "bg-red-500"
-                                              : "bg-muted-foreground",
+                                    ORDER_STATUS_COLOR[status]?.includes("green") ? "bg-green-500"
+                                    : ORDER_STATUS_COLOR[status]?.includes("blue") ? "bg-blue-500"
+                                    : ORDER_STATUS_COLOR[status]?.includes("orange") ? "bg-orange-500"
+                                    : ORDER_STATUS_COLOR[status]?.includes("red") ? "bg-red-500"
+                                    : ORDER_STATUS_COLOR[status]?.includes("yellow") ? "bg-yellow-500"
+                                    : ORDER_STATUS_COLOR[status]?.includes("purple") ? "bg-purple-500"
+                                    : "bg-muted-foreground",
                                 )}
                                 style={{ width: `${pct}%` }}
                             />
