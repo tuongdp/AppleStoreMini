@@ -35,6 +35,9 @@ export const ROUTES = {
     ADMIN_ORDER_DETAIL: (id) => `/admin/orders/${id}`,
     ADMIN_USERS: "/admin/users",
     ADMIN_USER_DETAIL: (id) => `/admin/users/${id}`,
+    ADMIN_EMAIL_MARKETING: "/admin/email-marketing",
+    ADMIN_EMAIL_CAMPAIGN_CREATE: "/admin/email-marketing/create",
+    ADMIN_EMAIL_CAMPAIGN_EDIT: (id) => `/admin/email-marketing/${id}/edit`,
 };
 
 // ── Categories ────────────────────────────────────────

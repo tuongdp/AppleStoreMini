@@ -20,6 +20,7 @@ import {
     Zap,
     ListFilter,
     RotateCcw,
+    Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +38,7 @@ const SIDEBAR_MAP = {
   "coupons": "Khuyến mãi",
   "dashboard": "Tổng quan",
   "flashSales": "Giảm sốc",
+  "emailMarketing": "Email Marketing",
   "logout": "Đăng xuất",
   "news": "Tin tức",
   "options": "Tùy chọn",
@@ -79,6 +81,7 @@ const NAV_ITEMS = [
     { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
     { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false, adminOnly: true },
     { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false, adminOnly: true },
+    { key: "emailMarketing", href: "/admin/email-marketing", icon: Mail, permission: null, end: false, adminOnly: true },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 

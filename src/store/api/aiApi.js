@@ -22,6 +22,10 @@ export const aiApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/chat/generate-description", method: "POST", body }),
       transformResponse: (response) => response.data,
     }),
+    aiGenerateMarketingEmail: builder.mutation({
+      query: (body) => ({ url: "/chat/generate-marketing-email", method: "POST", body }),
+      transformResponse: (response) => response.data,
+    }),
   }),
 });
 
@@ -31,4 +35,5 @@ export const {
   useAiSearchMutation,
   useAiReviewSummaryMutation,
   useAiGenerateDescriptionMutation,
+  useAiGenerateMarketingEmailMutation,
 } = aiApi;

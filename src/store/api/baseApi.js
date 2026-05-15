@@ -103,6 +103,10 @@ export const baseApi = createApi({
     "GlobalOption",
     "Points",
     "Returns",
+    "Subscribers",
+    "Campaigns",
+    "Campaign",
+    "EmailLogs",
   ],
   endpoints: () => ({}),
 });

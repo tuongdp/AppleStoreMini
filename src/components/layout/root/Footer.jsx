@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
 import { ROUTES } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const FOOTER_LINKS = [
   {
@@ -64,12 +68,39 @@ const SOCIAL_LINKS = [
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setSubscribing(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      if (res.ok) {
+        toast.success("Đăng ký nhận tin thành công!");
+        setEmail("");
+      } else {
+        const data = await res.json();
+        toast.error(data.message || "Đăng ký thất bại");
+      }
+    } catch {
+      toast.error("Không thể kết nối, vui lòng thử lại");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
   return (
     <footer className="border-t border-border bg-muted/20">
       {/* ── Main footer ── */}
       <div className="section-padding py-12 md:py-16">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-12">
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-5 lg:gap-12">
             {/* Brand column */}
             <div className="col-span-2 md:col-span-1">
               <svg
@@ -94,9 +125,32 @@ export default function Footer() {
                   >
                     {social.icon}
                   </a>
-                ))}
-              </div>
+              ))}
             </div>
+
+            {/* Subscribe column */}
+            <div>
+              <h3 className="mb-4 text-sm font-semibold text-foreground">
+                Đăng ký nhận tin
+              </h3>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Nhận khuyến mãi và thông tin sản phẩm mới nhất
+              </p>
+              <form onSubmit={handleSubscribe} className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-9 text-sm"
+                  required
+                />
+                <Button type="submit" size="sm" className="h-9 shrink-0" disabled={subscribing}>
+                  {subscribing ? "..." : "Đăng ký"}
+                </Button>
+              </form>
+            </div>
+          </div>
 
             {/* Link columns */}
             {FOOTER_LINKS.map((col) => (

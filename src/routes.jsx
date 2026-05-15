@@ -88,6 +88,8 @@ const AdminGlobalOptionsPage = lazyPage(() => import("@/pages/admin/AdminGlobalO
 const AdminShopSettingsPage = lazyPage(() => import("@/pages/admin/AdminShopSettings"));
 const AdminReturnList = lazyPage(() => import("@/pages/admin/AdminReturnList"));
 const AdminReturnDetail = lazyPage(() => import("@/pages/admin/AdminReturnDetail"));
+const AdminEmailMarketing = lazyPage(() => import("@/pages/admin/AdminEmailMarketing"));
+const AdminEmailCampaignCreate = lazyPage(() => import("@/pages/admin/AdminEmailCampaignCreate"));
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter([
@@ -204,6 +206,9 @@ export const router = createBrowserRouter([
             { path: "flash-sales", element: <AdminFlashSalePage /> },
             { path: "options", element: <AdminGlobalOptionsPage /> },
             { path: "settings/shop", element: <AdminShopSettingsPage /> },
+            { path: "email-marketing", element: <AdminEmailMarketing /> },
+            { path: "email-marketing/create", element: <AdminEmailCampaignCreate /> },
+            { path: "email-marketing/:id/edit", element: <AdminEmailCampaignCreate /> },
         ],
     },
 
