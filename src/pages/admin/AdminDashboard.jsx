@@ -1,9 +1,9 @@
-import { DollarSign, ShoppingBag, Users, Package, Clock, TrendingUp, TrendingDown, TicketPercent, AlertTriangle, Receipt } from "lucide-react";
+import { ShoppingBag, Users, Package, Clock, TrendingUp, TicketPercent, AlertTriangle, Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetRevenueStatsQuery, useGetLowStockQuery, useGetCategoryRevenueQuery, useGetCouponStatsQuery, useGetDashboardStatsQuery } from "@/store/api/ordersApi";
+import { useGetLowStockQuery, useGetCategoryRevenueQuery, useGetCouponStatsQuery, useGetDashboardStatsQuery } from "@/store/api/ordersApi";
 import { useGetAllUsersQuery } from "@/store/api/usersApi";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import RevenueChart from "@/features/admin/components/dashboard/RevenueChart";
@@ -18,7 +18,6 @@ import { formatPrice, formatNumber, cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 export default function AdminDashboard() {
-    const { data: revenueData } = useGetRevenueStatsQuery({ period: "month" });
     const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
     const { data: lowStock = [] } = useGetLowStockQuery();
     const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
@@ -27,12 +26,9 @@ export default function AdminDashboard() {
     const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
 
     const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
-    const revenueChange = revenueData?.revenueChange ?? 0;
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
 
     const STAT_CARDS = [
-        { title: "Tổng doanh thu", value: formatPrice(stats?.totalRevenue ?? 0), icon: DollarSign, color: "text-green-600", bg: "bg-green-50 dark:bg-green-950/30",
-            change: revenueChange !== 0 ? `${revenueChange >= 0 ? "+" : ""}${revenueChange}%` : null, changeUp: revenueChange >= 0 },
         { title: "Doanh thu hôm nay", value: formatPrice(stats?.todayRevenue ?? 0), icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
         { title: "Giá trị đơn TB", value: formatPrice(aov), icon: Receipt, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/30" },
         { title: "Đơn chờ xử lý", value: formatNumber(stats?.pendingOrders ?? 0), icon: Clock, color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30", badge: (stats?.pendingOrders ?? 0) > 0,
@@ -69,12 +65,6 @@ export default function AdminDashboard() {
                                         <span className="text-2xl font-bold text-foreground">{card.value}</span>
                                         {card.badge && <Badge className="bg-red-500 text-white text-xs">!</Badge>}
                                     </div>
-                                    {card.change && (
-                                        <div className="flex items-center gap-1">
-                                            {card.changeUp ? <TrendingUp className="h-3 w-3 text-green-600" /> : <TrendingDown className="h-3 w-3 text-red-500" />}
-                                            <span className={cn("text-xs font-medium", card.changeUp ? "text-green-600" : "text-red-500")}>{card.change}</span>
-                                        </div>
-                                    )}
                                     {card.sub && (
                                         <p className="text-xs text-muted-foreground">{card.sub}</p>
                                     )}
