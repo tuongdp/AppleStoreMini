@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Package, MapPin, CreditCard, FileText, RotateCcw } from "lucide-react";
+import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,6 +48,7 @@ const PAYMENT_MAP = {
 export default function OrderDetail({ order }) {
     const [cancelOpen, setCancelOpen] = useState(false);
     const [returnOpen, setReturnOpen] = useState(false);
+    const [vatDialogOpen, setVatDialogOpen] = useState(false);
 
     const returnForm = useForm({
         resolver: zodResolver(returnRequestSchema),
@@ -186,6 +188,14 @@ export default function OrderDetail({ order }) {
                                 Yêu cầu trả hàng
                             </Button>
                         )}
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setVatDialogOpen(true)}
+                        >
+                            Xuất hóa đơn GTGT
+                        </Button>
                     </div>
                 </div>
                 {!canReturn && returnRequest && returnRequest.status !== "REJECTED" && returnRequest.status !== undefined && (
@@ -512,6 +522,11 @@ export default function OrderDetail({ order }) {
                     }
                 })}
                 isLoading={isReturning}
+            />
+            <VATInvoiceDialog
+                open={vatDialogOpen}
+                onClose={() => setVatDialogOpen(false)}
+                order={order}
             />
         </div>
     );
