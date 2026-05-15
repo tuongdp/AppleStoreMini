@@ -9,7 +9,7 @@ const LOCALE = "vi-VN";
 // ── Helpers ──────────────────────────────────────────────
 
 function formatCellValue(value, format) {
-    if (value === null || value === undefined) return "";
+    if (value === null || value === undefined) return "\u2014";
     if (format === "currency") return Number(value) || 0;
     if (format === "date") {
         if (!value) return "";
