@@ -21,6 +21,14 @@ export default function ChatWidget() {
     const messagesEndRef = useRef(null);
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef(null);
+    const [aiOnline, setAiOnline] = useState(null);
+
+    useEffect(() => {
+        fetch(`${BASE_URL}/chat/health`)
+            .then((r) => r.json())
+            .then((d) => setAiOnline(d.aiEnabled))
+            .catch(() => setAiOnline(false));
+    }, []);
 
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -63,6 +71,7 @@ export default function ChatWidget() {
             const data = await res.json();
             const reply = data?.data?.reply || "Xin lỗi, tôi chưa hiểu ý bạn. Bạn có thể hỏi lại được không?";
             const products = data?.data?.products || [];
+            if (data?.data?.aiOnline !== undefined) setAiOnline(data.data.aiOnline);
 
             setMessages((prev) => [...prev, { role: "bot", text: reply, products }]);
         } catch {
@@ -112,7 +121,15 @@ export default function ChatWidget() {
                             <Bot className="h-4 w-4" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-foreground">Trợ lý AI</p>
+                            <p className="text-sm font-medium text-foreground">
+                            Trợ lý AI
+                            {aiOnline !== null && (
+                                <span className={cn(
+                                    "ml-2 inline-block h-2 w-2 rounded-full",
+                                    aiOnline ? "bg-green-500" : "bg-gray-400",
+                                )} title={aiOnline ? "AI đang hoạt động" : "AI không khả dụng - fallback"} />
+                            )}
+                        </p>
                             <p className="text-xs text-muted-foreground">Apple Store Mini</p>
                         </div>
                     </div>
