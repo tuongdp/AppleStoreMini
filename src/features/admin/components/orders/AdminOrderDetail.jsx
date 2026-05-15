@@ -27,6 +27,7 @@ import { ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import ExportButton from "@/components/ui/export-button";
+import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -180,6 +181,7 @@ export default function AdminOrderDetail({ order }) {
 
     const [cancelOpen, setCancelOpen] = useState(false);
     const [isExportingPDF, setIsExportingPDF] = useState(false);
+    const [vatDialogOpen, setVatDialogOpen] = useState(false);
 
     const cancelForm = useForm({
         resolver: zodResolver(cancelOrderSchema),
@@ -240,6 +242,14 @@ export default function AdminOrderDetail({ order }) {
                         onExportPDF={handleExportOrderPDF}
                         loading={isExportingPDF}
                     />
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={() => setVatDialogOpen(true)}
+                    >
+                        Xuất hóa đơn GTGT
+                    </Button>
                 </div>
 
                 {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.PENDING && (
@@ -492,6 +502,11 @@ export default function AdminOrderDetail({ order }) {
                 confirmLabel={"Xác nhận huỷ"}
                 onConfirm={cancelForm.handleSubmit(handleCancel)}
                 isLoading={isCancelling}
+            />
+            <VATInvoiceDialog
+                open={vatDialogOpen}
+                onClose={() => setVatDialogOpen(false)}
+                order={order}
             />
         </div>
     );
