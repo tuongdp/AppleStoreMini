@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,17 +16,15 @@ const DEFAULTS = {
 };
 
 export default function AdminShopSettings() {
-  const [fields, setFields] = useState(DEFAULTS);
-  const [errors, setErrors] = useState({});
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
+  const [fields, setFields] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setFields((prev) => ({ ...prev, ...JSON.parse(raw) }));
+      if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
     } catch { /* ignore */ }
-    setIsLoaded(true);
-  }, []);
+    return { ...DEFAULTS };
+  });
+
+  const [errors, setErrors] = useState({});
 
   const handleChange = (key) => (e) => {
     setFields((prev) => ({ ...prev, [key]: e.target.value }));
@@ -47,8 +45,6 @@ export default function AdminShopSettings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fields));
     toast.success("Đã lưu thông tin cửa hàng");
   };
-
-  if (!isLoaded) return null;
 
   return (
     <div className="max-w-2xl space-y-6">
