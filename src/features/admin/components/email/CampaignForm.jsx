@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import SearchableSelect from "@/components/shared/SearchableSelect";
 import {
     Select,
     SelectContent,
@@ -213,17 +214,15 @@ export default function CampaignForm() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Sản phẩm liên quan</Label>
-                                <Select value={form.productId} onValueChange={(v) => handleChange("productId", v)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Chọn sản phẩm (tùy chọn)" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="__none__">-- Không chọn --</SelectItem>
-                                        {products.map((p) => (
-                                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    options={[
+                                        { value: "__none__", label: "-- Không chọn --" },
+                                        ...products.map((p) => ({ value: p.id, label: p.name })),
+                                    ]}
+                                    value={form.productId}
+                                    onChange={(v) => handleChange("productId", v)}
+                                    placeholder="Tìm kiếm sản phẩm..."
+                                />
                             </div>
                         </div>
 
