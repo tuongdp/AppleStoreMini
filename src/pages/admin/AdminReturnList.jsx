@@ -23,6 +23,8 @@ import { useGetAllReturnsQuery, useApproveReturnMutation, useRejectReturnMutatio
 import { RETURN_REQUEST_STATUS_MAP, RETURN_REQUEST_STATUS_COLOR, RETURN_REASON_MAP } from "@/lib/constants";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { toast } from "sonner";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 import { Check, X, Eye, Search, MoreHorizontal } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,6 +73,38 @@ export default function AdminReturnList() {
     }
   };
 
+  const { exportExcel, exportPDF, isExporting } = useExport();
+
+  const returnColumns = [
+    { key: "orderCode", label: "Mã ĐH" },
+    { key: "customerName", label: "Khách hàng" },
+    { key: "reason", label: "Lý do" },
+    { key: "refundAmount", label: "Số tiền hoàn", format: "currency" },
+    { key: "status", label: "Trạng thái" },
+    { key: "adminNote", label: "Ghi chú" },
+    { key: "createdAt", label: "Ngày yêu cầu", format: "date" },
+  ];
+
+  const getReturnExportRows = () => returns.map((ret) => ({
+    orderCode: `#${ret.order?.code || "—"}`,
+    customerName: ret.user?.fullName || "—",
+    reason: RETURN_REASON_MAP[ret.reason] || ret.reason,
+    refundAmount: ret.refundAmount || 0,
+    status: RETURN_REQUEST_STATUS_MAP[ret.status] || ret.status,
+    adminNote: ret.adminNote || "—",
+    createdAt: ret.createdAt,
+  }));
+
+  const handleExportReturnsExcel = () => {
+    if (returns.length === 0) { toast("Không có dữ liệu để xuất"); return; }
+    exportExcel({ sheets: [{ name: "TraHang", columns: returnColumns, rows: getReturnExportRows() }], filename: `TraHang_${new Date().toISOString().slice(0, 10)}` });
+  };
+
+  const handleExportReturnsPDF = () => {
+    if (returns.length === 0) { toast("Không có dữ liệu để xuất"); return; }
+    exportPDF({ title: "Danh sách yêu cầu trả hàng", columns: returnColumns, rows: getReturnExportRows(), filename: `TraHang_${new Date().toISOString().slice(0, 10)}` });
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -101,6 +135,13 @@ export default function AdminReturnList() {
             ))}
           </SelectContent>
         </Select>
+        <div className="flex-1" />
+        <ExportButton
+          onExportExcel={handleExportReturnsExcel}
+          onExportPDF={handleExportReturnsPDF}
+          loading={isExporting}
+          disabled={isLoading}
+        />
       </div>
 
       {/* Table */}
