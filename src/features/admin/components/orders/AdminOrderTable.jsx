@@ -28,6 +28,8 @@ import { toast } from "sonner";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS, PAGINATION, RETURN_REQUEST_STATUS } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -82,6 +84,7 @@ export default function AdminOrderTable() {
 
   const { data, isLoading } = useGetAllOrdersQuery(filters);
   const [updateStatus] = useUpdateOrderStatusMutation();
+  const { exportExcel, exportPDF, isExporting } = useExport();
 
   const orders = data?.orders || [];
   const pagination = data?.pagination || {};
@@ -108,6 +111,52 @@ export default function AdminOrderTable() {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const STATUS_LABELS = {
+    pending: "Chờ xác nhận", confirmed: "Đã xác nhận", processing: "Đang xử lý",
+    shipping: "Đang giao hàng", delivered: "Đã giao hàng", cancelled: "Đã huỷ",
+    refunding: "Đang hoàn tiền", refunded: "Đã hoàn tiền",
+  };
+  const PAYMENT_LABELS = {
+    cod: "COD", momo: "MoMo", vnpay: "VNPay", zalopay: "ZaloPay",
+    bank_transfer: "Chuyển khoản",
+  };
+
+  const orderColumns = [
+    { key: "code", label: "Mã ĐH" },
+    { key: "customerName", label: "Khách hàng" },
+    { key: "phone", label: "SĐT" },
+    { key: "createdAt", label: "Ngày tạo", format: "date" },
+    { key: "status", label: "Trạng thái" },
+    { key: "paymentMethod", label: "Thanh toán" },
+    { key: "isPaid", label: "TT" },
+    { key: "totalAmount", label: "Tổng tiền", format: "currency" },
+    { key: "discountAmount", label: "Giảm giá", format: "currency" },
+    { key: "shippingFee", label: "Phí ship", format: "currency" },
+  ];
+
+  const getOrderExportRows = () => orders.map((o) => ({
+    code: `#${o.code}`,
+    customerName: o.user?.fullName || "—",
+    phone: o.user?.phone || "—",
+    createdAt: o.createdAt,
+    status: STATUS_LABELS[o.status?.toLowerCase()] || o.status,
+    paymentMethod: PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod || "—",
+    isPaid: o.isPaid ? "Đã TT" : "Chưa TT",
+    totalAmount: o.totalAmount || 0,
+    discountAmount: o.discountAmount || 0,
+    shippingFee: o.shippingFee || 0,
+  }));
+
+  const handleExportOrdersExcel = () => {
+    if (orders.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+    exportExcel({ sheets: [{ name: "DonHang", columns: orderColumns, rows: getOrderExportRows() }], filename: `DonHang_${new Date().toISOString().slice(0, 10)}` });
+  };
+
+  const handleExportOrdersPDF = () => {
+    if (orders.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+    exportPDF({ title: "Danh sách đơn hàng", columns: orderColumns, rows: getOrderExportRows(), filename: `DonHang_${new Date().toISOString().slice(0, 10)}` });
   };
 
   return (
@@ -138,6 +187,13 @@ export default function AdminOrderTable() {
             ))}
           </SelectContent>
         </Select>
+        <div className="flex-1" />
+        <ExportButton
+          onExportExcel={handleExportOrdersExcel}
+          onExportPDF={handleExportOrdersPDF}
+          loading={isExporting}
+          disabled={isLoading}
+        />
       </div>
 
       {/* Table */}
