@@ -171,6 +171,12 @@ export const ordersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        // GET /admin/dashboard/stats (consolidated stats)
+        getDashboardStats: builder.query({
+            query: () => "/admin/dashboard/stats",
+            transformResponse: (response) => response.data,
+        }),
+
         // GET /admin/dashboard/low-stock
         getLowStock: builder.query({
             query: () => "/admin/dashboard/low-stock",
@@ -194,6 +200,36 @@ export const ordersApi = baseApi.injectEndpoints({
             query: () => "/admin/dashboard/coupon-stats",
             transformResponse: (response) => response.data,
         }),
+
+        // GET /admin/dashboard/order-stats?period=month|year
+        getOrderStats: builder.query({
+            query: (params) => ({ url: "/admin/dashboard/order-stats", params }),
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/top-products?period=week|month|year&limit=5
+        getTopProducts: builder.query({
+            query: (params) => ({ url: "/admin/dashboard/top-products", params }),
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/slow-products?days=30&limit=5
+        getSlowProducts: builder.query({
+            query: (params) => ({ url: "/admin/dashboard/slow-products", params }),
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/order-status-distribution
+        getOrderStatusDistribution: builder.query({
+            query: () => "/admin/dashboard/order-status-distribution",
+            transformResponse: (response) => response.data,
+        }),
+
+        // GET /admin/dashboard/top-customers?limit=5
+        getTopCustomers: builder.query({
+            query: (params) => ({ url: "/admin/dashboard/top-customers", params }),
+            transformResponse: (response) => response.data,
+        }),
     }),
 });
 
@@ -213,6 +249,12 @@ export const {
     useGetCategoryRevenueQuery,
     useGetPointsStatsQuery,
     useGetCouponStatsQuery,
+    useGetDashboardStatsQuery,
+    useGetOrderStatsQuery,
+    useGetTopProductsQuery,
+    useGetSlowProductsQuery,
+    useGetOrderStatusDistributionQuery,
+    useGetTopCustomersQuery,
     useCreateReturnRequestMutation,
     useGetOrderReturnRequestQuery,
     useGetMyReturnsQuery,
