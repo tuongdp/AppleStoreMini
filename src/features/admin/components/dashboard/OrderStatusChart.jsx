@@ -1,4 +1,4 @@
-import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
+import { useGetOrderStatusDistributionQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ORDER_STATUS, ORDER_STATUS_COLOR } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -23,16 +23,12 @@ const STATUS_LIST = [
 
 export default function OrderStatusChart() {
 
-    const { data, isLoading } = useGetAllOrdersQuery({
-        page: 1,
-        limit: 100,
-    });
-
-    const orders = data?.orders || [];
-    const total = orders.length || 1;
+    const { data = [], isLoading } = useGetOrderStatusDistributionQuery();
+    const total = data.reduce((s, d) => s + d.count, 0) || 1;
 
     const counts = STATUS_LIST.reduce((acc, status) => {
-        acc[status] = orders.filter((o) => o.status === status).length;
+        const found = data.find((d) => d.status === status);
+        acc[status] = found ? found.count : 0;
         return acc;
     }, {});
 
