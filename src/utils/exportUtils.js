@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const BLUE = "#1e40af";
 const STRIPE = "#f3f4f6";
@@ -117,7 +117,7 @@ export function exportToExcel({ sheets, filename = "export.xlsx" }) {
     }
 
     try {
-        XLSX.writeFile(wb, filename);
+        XLSX.writeFile(wb, filename.endsWith(".xlsx") ? filename : `${filename}.xlsx`);
     } catch (e) {
         console.error("Excel export failed:", e);
         throw e;
@@ -175,7 +175,7 @@ export function exportToPDF({
         }
     });
 
-    doc.autoTable({
+    autoTable(doc, {
         head: [columns.map((c) => c.label)],
         body: bodyRows,
         startY,
@@ -283,7 +283,7 @@ export function exportDashboardPDF({ sections, filename = "dashboard.pdf" }) {
 
             checkPageBreak(10); // at least header
 
-            doc.autoTable({
+            autoTable(doc, {
                 head: [headRow],
                 body: bodyRows,
                 startY: y,

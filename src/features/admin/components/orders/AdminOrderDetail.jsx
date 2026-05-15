@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
 import { ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import ExportButton from "@/components/ui/export-button";
 
 const PAYMENT_MAP = {
@@ -124,7 +124,7 @@ export default function AdminOrderDetail({ order }) {
                 y += 8;
             }
 
-            doc.autoTable({
+            autoTable(doc, {
                 startY: y, margin: { left: m, right: m },
                 head: [itemColumns.map((c) => c.label)],
                 body: itemRows.map((r) => itemColumns.map((c) => {
