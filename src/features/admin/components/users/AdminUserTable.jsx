@@ -49,6 +49,8 @@ import { toast } from "sonner";
 import { formatDate, formatNumber, formatPhone } from "@/lib/utils";
 import { ROUTES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 
 // ✅ BE auth.service.js getUserResponse() → role.toLowerCase() → "admin" | "user"
 // Dùng lowercase để so sánh nhất quán
@@ -139,6 +141,42 @@ export default function AdminUserTable() {
         }
     };
 
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const userColumns = [
+        { key: "fullName", label: "Họ tên" },
+        { key: "email", label: "Email" },
+        { key: "phone", label: "SĐT" },
+        { key: "role", label: "Vai trò" },
+        { key: "isBlocked", label: "Trạng thái" },
+        { key: "totalSpent", label: "Tổng chi tiêu", format: "currency" },
+        { key: "orderCount", label: "Số đơn" },
+        { key: "points", label: "Điểm" },
+        { key: "createdAt", label: "Ngày tạo", format: "date" },
+    ];
+
+    const getUsersExportRows = () => users.map((u) => ({
+        fullName: u.fullName || "—",
+        email: u.email || "—",
+        phone: u.phone || "—",
+        role: ROLE_LABEL[u.role] || u.role,
+        isBlocked: u.isBlocked ? "Đã khoá" : "Đang hoạt động",
+        totalSpent: u.totalSpent || 0,
+        orderCount: u.orderCount ?? 0,
+        points: u.points ?? 0,
+        createdAt: u.createdAt,
+    }));
+
+    const handleExportUsersExcel = () => {
+        if (users.length === 0) { toast("Không có dữ liệu để xuất"); return; }
+        exportExcel({ sheets: [{ name: "NguoiDung", columns: userColumns, rows: getUsersExportRows() }], filename: `NguoiDung_${new Date().toISOString().slice(0, 10)}` });
+    };
+
+    const handleExportUsersPDF = () => {
+        if (users.length === 0) { toast("Không có dữ liệu để xuất"); return; }
+        exportPDF({ title: "Danh sách người dùng", columns: userColumns, rows: getUsersExportRows(), filename: `NguoiDung_${new Date().toISOString().slice(0, 10)}` });
+    };
+
     return (
         <div className="space-y-4">
             {/* Filters */}
@@ -167,6 +205,13 @@ export default function AdminUserTable() {
                         ))}
                     </SelectContent>
                 </Select>
+                <div className="flex-1" />
+                <ExportButton
+                    onExportExcel={handleExportUsersExcel}
+                    onExportPDF={handleExportUsersPDF}
+                    loading={isExporting}
+                    disabled={isLoading}
+                />
             </div>
 
             {/* Table */}
