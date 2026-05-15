@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { ROUTES, PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import AISearchToggle from "@/features/ai/AISearchToggle";
+import { useAiSearchMutation } from "@/store/api/aiApi";
+import { toast } from "sonner";
 
 export default function SearchPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -25,16 +28,31 @@ export default function SearchPage() {
         { skip: !keyword },
     );
 
-    const products = data?.products || [];
+    const [aiMode, setAiMode] = useState(false);
+    const [aiSearch, { isLoading: isAiLoading }] = useAiSearchMutation();
+    const [aiProducts, setAiProducts] = useState(null);
+
+    const products = aiMode && aiProducts ? aiProducts : (data?.products || []);
     const pagination = data?.pagination || {};
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault();
-        const params = new URLSearchParams();
-        if (inputValue.trim()) {
-            params.set("q", inputValue.trim());
+        if (aiMode && inputValue.trim()) {
+            try {
+                const res = await aiSearch({ query: inputValue.trim() }).unwrap();
+                setAiProducts(res.products || []);
+                const params = new URLSearchParams();
+                params.set("q", inputValue.trim());
+                setSearchParams(params);
+            } catch {
+                toast.error("Không thể kết nối AI, vui lòng thử lại");
+            }
+        } else {
+            setAiProducts(null);
+            const params = new URLSearchParams();
+            if (inputValue.trim()) params.set("q", inputValue.trim());
+            setSearchParams(params);
         }
-        setSearchParams(params);
         setPage(1);
     };
 
@@ -57,7 +75,7 @@ export default function SearchPage() {
                     <Input
                         value={inputValue}
                         onChange={handleInputChange}
-                        placeholder={"Tìm kiếm sản phẩm..."}
+                        placeholder={aiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm..."}
                         className="h-12 rounded-full pl-12 pr-32 text-base"
                         autoFocus
                     />
@@ -69,6 +87,7 @@ export default function SearchPage() {
                     </Button>
                 </div>
             </form>
+            <AISearchToggle enabled={aiMode} onToggle={setAiMode} disabled={isAiLoading} />
 
             {/* Results header */}
             {keyword && (
@@ -78,6 +97,11 @@ export default function SearchPage() {
                         <span className="text-apple-blue">
                             &ldquo;{keyword}&rdquo;
                         </span>
+                        {aiMode && aiProducts && (
+                            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-apple-blue/10 px-2 py-0.5 text-xs font-normal text-apple-blue">
+                                AI
+                            </span>
+                        )}
                     </h1>
                     {!isLoading && pagination.total > 0 && (
                         <p className="mt-1 text-sm text-muted-foreground">

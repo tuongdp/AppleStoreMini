@@ -35,6 +35,7 @@ import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput,
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
+import AIDescriptionButton from "./AIDescriptionButton";
 
 const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
 
@@ -367,7 +368,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 )} />
                                 <FormField control={form.control} name="description" render={() => (
                                     <FormItem>
-                                        <FormLabel>{"Mô tả sản phẩm"}</FormLabel>
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel>{"Mô tả sản phẩm"}</FormLabel>
+                                            <AIDescriptionButton
+                                                productName={form.watch("name")}
+                                                specs={JSON.stringify(form.watch("specifications"))}
+                                                onDescriptionGenerated={(text) => form.setValue("description", text)}
+                                            />
+                                        </div>
                                         <FormControl>
                                             <Controller
                                                 name="description"

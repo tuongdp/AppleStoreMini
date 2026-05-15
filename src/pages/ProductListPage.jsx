@@ -17,6 +17,7 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { ROUTES, SORT_OPTIONS, PRICE_RANGES, PAGINATION } from "@/lib/constants";
 import { cn, formatPrice } from "@/lib/utils";
+import AIRecommendation from "@/features/ai/AIRecommendation";
 
 export default function ProductListPage() {
     const { categories } = useCategories();
@@ -270,6 +271,8 @@ export default function ProductListPage() {
                         className="mt-2"
                     />
                 </div>
+
+                <AIRecommendation />
 
                 {/* Product grid */}
                 {products.length === 0 && !isLoading ? (

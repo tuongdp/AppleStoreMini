@@ -7,7 +7,7 @@ import {
     Zap,
     Clock,
 } from "lucide-react";
-import { useGetProductBySlugQuery } from "@/store/api/productsApi";
+import { useGetProductBySlugQuery, useGetProductsQuery } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
 import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
@@ -29,6 +29,8 @@ import ProductComments from "@/features/products/components/ProductComments";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn, formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import AIComparePanel from "@/features/ai/AIComparePanel";
+import AIReviewSummary from "@/features/ai/AIReviewSummary";
 
 import CountdownTimer from "@/components/shared/CountdownTimer";
 
@@ -40,6 +42,9 @@ export default function ProductDetailPage() {
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
 
     const product = data;
+
+    const { data: allProductsData } = useGetProductsQuery({ limit: 100, sort: "featured" });
+    const allProducts = allProductsData?.products || [];
 
     const variants = useMemo(() => product?.variants || [], [product]);
 
@@ -592,6 +597,9 @@ export default function ProductDetailPage() {
             </div>
             <Separator className="my-12" />
             <ProductComments product={product} />
+            <Separator className="my-12" />
+            <AIComparePanel currentProduct={product} products={allProducts} />
+            <AIReviewSummary productSlug={slug} reviews={product.comments || product.reviews || []} />
 
             {/* Related */}
             <Separator className="my-12" />
