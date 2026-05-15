@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
 
 const PERIODS = [
     { value: "week", label: "Tuần" },
@@ -13,12 +14,12 @@ const PERIODS = [
 ];
 
 const getFirstImage = (images) => {
-    if (!images) return "";
-    if (Array.isArray(images)) return images[0] || "";
+    if (!images) return placeholderImg;
+    if (Array.isArray(images)) return images[0] || placeholderImg;
     try {
-        return JSON.parse(images)[0] || "";
+        return JSON.parse(images)[0] || placeholderImg;
     } catch {
-        return "";
+        return placeholderImg;
     }
 };
 

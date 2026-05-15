@@ -3,11 +3,12 @@ import { useGetSlowProductsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
 
 const getFirstImage = (images) => {
-    if (!images) return "";
-    if (Array.isArray(images)) return images[0] || "";
-    try { return JSON.parse(images)[0] || ""; } catch { return ""; }
+    if (!images) return placeholderImg;
+    if (Array.isArray(images)) return images[0] || placeholderImg;
+    try { return JSON.parse(images)[0] || placeholderImg; } catch { return placeholderImg; }
 };
 
 export default function SlowProducts() {
