@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
 
 const PERIODS = [
+    { value: "week", label: "Tuần" },
     { value: "month", label: "Tháng" },
     { value: "year", label: "Năm" },
 ];
