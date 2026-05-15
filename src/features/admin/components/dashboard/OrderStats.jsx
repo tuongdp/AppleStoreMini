@@ -5,6 +5,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
+import { toast } from "sonner";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 
 const PERIODS = [
     { value: "week", label: "Tuần" },
@@ -15,6 +18,25 @@ const PERIODS = [
 export default function OrderStats() {
     const [period, setPeriod] = useState("month");
     const { data = [], isLoading } = useGetOrderStatsQuery({ period });
+
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const orderStatsColumns = [
+        { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
+        { key: "orders", label: "Đơn hàng" },
+        { key: "revenue", label: "Doanh thu", format: "currency" },
+        { key: "avgPerDay", label: "TB/ngày", format: "currency" },
+    ];
+
+    const handleExportOrderStatsExcel = () => {
+        if (data.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportExcel({ sheets: [{ name: "ThongKeDH", columns: orderStatsColumns, rows: data }], filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}` });
+    };
+
+    const handleExportOrderStatsPDF = () => {
+        if (data.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportPDF({ title: "Thống kê đơn hàng", columns: orderStatsColumns, rows: data, filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}` });
+    };
 
     if (isLoading) {
         return (
@@ -33,7 +55,8 @@ export default function OrderStats() {
 
     return (
         <div className="space-y-4">
-            <div className="flex gap-1.5">
+            <div className="flex items-center justify-between gap-1.5">
+                <div className="flex gap-1.5">
                 {PERIODS.map((p) => (
                     <Button
                         key={p.value}
@@ -45,6 +68,8 @@ export default function OrderStats() {
                         {p.label}
                     </Button>
                 ))}
+                </div>
+                <ExportButton onExportExcel={handleExportOrderStatsExcel} onExportPDF={handleExportOrderStatsPDF} loading={isExporting} />
             </div>
             <div className="grid gap-4 lg:grid-cols-5">
                 <div className="lg:col-span-2">

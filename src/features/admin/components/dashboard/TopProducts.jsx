@@ -4,6 +4,9 @@ import { useGetTopProductsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
+import { toast } from "sonner";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 import { ROUTES } from "@/lib/constants";
 import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
 
@@ -26,6 +29,36 @@ const getFirstImage = (images) => {
 export default function TopProducts() {
     const [period, setPeriod] = useState("month");
     const { data = [], isLoading } = useGetTopProductsQuery({ period, limit: 5 });
+
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const topProdColumns = [
+        { key: "index", label: "#" },
+        { key: "name", label: "Tên sản phẩm" },
+        { key: "price", label: "Giá", format: "currency" },
+        { key: "soldCount", label: "Đã bán" },
+        { key: "inStock", label: "Còn hàng" },
+    ];
+
+    const getTopProdExportRows = () => data.map((p, i) => ({
+        index: i + 1,
+        name: p.name,
+        price: p.price || 0,
+        soldCount: p.soldCount || 0,
+        inStock: p.inStock ? "Có" : "Hết",
+    }));
+
+    const handleExportTopProdExcel = () => {
+        const rows = getTopProdExportRows();
+        if (rows.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportExcel({ sheets: [{ name: "TopSP", columns: topProdColumns, rows }], filename: `TopSP_${new Date().toISOString().slice(0, 10)}` });
+    };
+
+    const handleExportTopProdPDF = () => {
+        const rows = getTopProdExportRows();
+        if (rows.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportPDF({ title: "Sản phẩm bán chạy", columns: topProdColumns, rows, filename: `TopSP_${new Date().toISOString().slice(0, 10)}` });
+    };
 
     if (isLoading) {
         return (
@@ -51,7 +84,8 @@ export default function TopProducts() {
 
     return (
         <div className="space-y-3">
-            <div className="flex gap-1.5">
+            <div className="flex items-center justify-between gap-1.5">
+                <div className="flex gap-1.5">
                 {PERIODS.map((p) => (
                     <Button key={p.value} variant="ghost" size="sm" onClick={() => setPeriod(p.value)}
                         className={cn("rounded-full text-xs h-7", period === p.value ? "bg-foreground text-background hover:bg-foreground/90" : "text-muted-foreground")}>
@@ -105,8 +139,10 @@ export default function TopProducts() {
                                 <span className="text-sm font-medium text-foreground">{formatPrice(product.price)}</span>
                             </div>
                         </Link>
-                    ))}
+                ))}
                 </div>
+                <ExportButton onExportExcel={handleExportTopProdExcel} onExportPDF={handleExportTopProdPDF} loading={isExporting} />
+            </div>
             )}
         </div>
     );

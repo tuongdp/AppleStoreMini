@@ -2,9 +2,42 @@ import { useGetTopCustomersQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 
 export default function TopCustomers() {
     const { data = [], isLoading } = useGetTopCustomersQuery({ limit: 5 });
+
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const custColumns = [
+        { key: "index", label: "#" },
+        { key: "fullName", label: "Họ tên" },
+        { key: "email", label: "Email" },
+        { key: "totalSpent", label: "Tổng chi tiêu", format: "currency" },
+        { key: "orderCount", label: "Số đơn" },
+    ];
+
+    const getCustExportRows = () => data.map((c, i) => ({
+        index: i + 1,
+        fullName: c.fullName || "—",
+        email: c.email || "—",
+        totalSpent: c.totalSpent || 0,
+        orderCount: c.orderCount || 0,
+    }));
+
+    const handleExportCustExcel = () => {
+        const rows = getCustExportRows();
+        if (rows.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportExcel({ sheets: [{ name: "TopKH", columns: custColumns, rows }], filename: `TopKH_${new Date().toISOString().slice(0, 10)}` });
+    };
+
+    const handleExportCustPDF = () => {
+        const rows = getCustExportRows();
+        if (rows.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportPDF({ title: "Khách hàng chi tiêu cao", columns: custColumns, rows, filename: `TopKH_${new Date().toISOString().slice(0, 10)}` });
+    };
 
     if (isLoading) {
         return (
@@ -30,6 +63,11 @@ export default function TopCustomers() {
 
     return (
         <div className="space-y-3">
+            <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{data.length} khách hàng</span>
+                <ExportButton onExportExcel={handleExportCustExcel} onExportPDF={handleExportCustPDF} loading={isExporting} />
+            </div>
+            <div className="space-y-3">
             {data.map((cust, index) => {
                 const initials = (cust.fullName || "U")
                     .split(" ")
@@ -62,6 +100,7 @@ export default function TopCustomers() {
                     </div>
                 );
             })}
+            </div>
         </div>
     );
 }

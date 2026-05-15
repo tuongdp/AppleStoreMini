@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { useGetSlowProductsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, cn } from "@/lib/utils";
+import { toast } from "sonner";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 import { ROUTES } from "@/lib/constants";
 import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
 
@@ -13,6 +16,36 @@ const getFirstImage = (images) => {
 
 export default function SlowProducts() {
     const { data = [], isLoading } = useGetSlowProductsQuery({ days: 30, limit: 5 });
+
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const slowProdColumns = [
+        { key: "index", label: "#" },
+        { key: "name", label: "Tên sản phẩm" },
+        { key: "price", label: "Giá", format: "currency" },
+        { key: "totalStock", label: "Tồn kho" },
+        { key: "soldCount", label: "Đã bán 30 ngày" },
+    ];
+
+    const getSlowProdExportRows = () => data.map((p, i) => ({
+        index: i + 1,
+        name: p.name,
+        price: p.price || 0,
+        totalStock: p.totalStock ?? 0,
+        soldCount: p.soldCount ?? 0,
+    }));
+
+    const handleExportSlowProdExcel = () => {
+        const rows = getSlowProdExportRows();
+        if (rows.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportExcel({ sheets: [{ name: "SPCham", columns: slowProdColumns, rows }], filename: `SPCham_${new Date().toISOString().slice(0, 10)}` });
+    };
+
+    const handleExportSlowProdPDF = () => {
+        const rows = getSlowProdExportRows();
+        if (rows.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportPDF({ title: "Sản phẩm bán chậm (30 ngày)", columns: slowProdColumns, rows, filename: `SPCham_${new Date().toISOString().slice(0, 10)}` });
+    };
 
     if (isLoading) {
         return (
@@ -37,7 +70,12 @@ export default function SlowProducts() {
     }
 
     return (
-        <div className="space-y-1">
+        <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{data.length} sản phẩm</span>
+                <ExportButton onExportExcel={handleExportSlowProdExcel} onExportPDF={handleExportSlowProdPDF} loading={isExporting} />
+            </div>
+            <div className="space-y-1">
             {data.map((product, index) => (
                 <Link key={product.id} to={ROUTES.ADMIN_PRODUCT_EDIT(product.id)}
                     className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-muted/50">
@@ -59,6 +97,7 @@ export default function SlowProducts() {
                     </div>
                 </Link>
             ))}
+            </div>
         </div>
     );
 }

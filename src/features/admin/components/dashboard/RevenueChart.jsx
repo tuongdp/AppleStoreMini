@@ -13,6 +13,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import ExportButton from "@/components/ui/export-button";
+import { useExport } from "@/hooks/useExport";
 
 const PERIODS = [
     { value: "week", label: "Tuần" },
@@ -68,6 +71,24 @@ export default function RevenueChart() {
     // shape: { chart, totalRevenue, totalOrders, revenueChange }
     const chartData = data?.chart ?? [];
 
+    const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const revenueColumns = [
+        { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
+        { key: "revenue", label: "Doanh thu", format: "currency" },
+        { key: "orders", label: "Đơn hàng" },
+    ];
+
+    const handleExportRevenueExcel = () => {
+        if (chartData.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportExcel({ sheets: [{ name: "DoanhThu", columns: revenueColumns, rows: chartData }], filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}` });
+    };
+
+    const handleExportRevenuePDF = () => {
+        if (chartData.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
+        exportPDF({ title: "Báo cáo doanh thu", columns: revenueColumns, rows: chartData, filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}` });
+    };
+
     if (isLoading) {
         return (
             <div className="space-y-3">
@@ -83,7 +104,8 @@ export default function RevenueChart() {
 
     return (
         <div className="space-y-4">
-            <div className="flex gap-1.5">
+            <div className="flex items-center justify-between gap-1.5">
+                <div className="flex gap-1.5">
                 {PERIODS.map((p) => (
                     <Button
                         key={p.value}
@@ -100,6 +122,8 @@ export default function RevenueChart() {
                         {p.label}
                     </Button>
                 ))}
+                </div>
+                <ExportButton onExportExcel={handleExportRevenueExcel} onExportPDF={handleExportRevenuePDF} loading={isExporting} />
             </div>
 
             {chartData.length === 0 ? (
