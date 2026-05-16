@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 
 const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/api$/, "");
 
 export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
+    const token = useSelector((state) => state.auth?.accessToken);
     const callbacks = useRef({ onNewNotification, onNewOrder, onChatEvent });
     callbacks.current = { onNewNotification, onNewOrder, onChatEvent };
 
@@ -16,6 +18,7 @@ export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
                     transports: ["websocket", "polling"],
                     reconnection: true,
                     reconnectionDelay: 5000,
+                    auth: token ? { token } : undefined,
                 });
 
                 socket.on("notification:new", (data) => { callbacks.current.onNewNotification?.(data); });
@@ -26,7 +29,7 @@ export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
         };
         initSocket();
         return () => { if (socket) socket.disconnect(); };
-    }, []);
+    }, [token]);
 
     return null;
 }
