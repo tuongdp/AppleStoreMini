@@ -32,7 +32,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["Orders", "Cart", "FlashSales"],
+            invalidatesTags: ["Orders", "Cart", "FlashSales", "Points"],
             transformResponse: (response) => response.data,
         }),
 

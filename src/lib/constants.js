@@ -22,7 +22,6 @@ export const ROUTES = {
     ADDRESSES: "/profile/addresses",
     CHANGE_PASSWORD: "/profile/change-password",
     POINTS: "/profile/points",
-    MY_COUPONS: "/profile/my-coupons",
 
     // Admin
     ADMIN: "/admin",

@@ -37,9 +37,10 @@ const couponSchema = z.object({
     maxDiscountAmount: z.number().optional(),
     minOrderAmount: z.number().optional(),
     maxUsage: z.number().optional(),
-    pointsCost: z.number().optional(),
     expiresAt: z.string().optional(),
 });
+
+const emptyToNumber = (value) => (value === "" ? undefined : Number(value));
 
 const buildDefaultValues = (coupon) => {
     if (!coupon) {
@@ -51,10 +52,10 @@ const buildDefaultValues = (coupon) => {
             maxDiscountAmount: undefined,
             minOrderAmount: undefined,
             maxUsage: undefined,
-            pointsCost: undefined,
             expiresAt: "",
         };
     }
+
     return {
         code: coupon.code || "",
         description: coupon.description || "",
@@ -63,7 +64,6 @@ const buildDefaultValues = (coupon) => {
         maxDiscountAmount: coupon.maxDiscountAmount || undefined,
         minOrderAmount: coupon.minOrderAmount || undefined,
         maxUsage: coupon.maxUsage || undefined,
-        pointsCost: coupon.pointsCost || undefined,
         expiresAt: coupon.expiresAt
             ? new Date(coupon.expiresAt).toISOString().split("T")[0]
             : "",
@@ -91,7 +91,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
             ...(values.maxDiscountAmount ? { maxDiscountAmount: Number(values.maxDiscountAmount) } : {}),
             ...(values.minOrderAmount ? { minOrderAmount: Number(values.minOrderAmount) } : {}),
             ...(values.maxUsage ? { maxUsage: Number(values.maxUsage) } : {}),
-            ...(values.pointsCost ? { pointsCost: Number(values.pointsCost) } : {}),
             ...(values.expiresAt ? { expiresAt: values.expiresAt } : {}),
         };
 
@@ -116,7 +115,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {/* Code */}
                     <FormField
                         control={form.control}
                         name="code"
@@ -129,11 +127,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                         disabled={isLoading || isEditing}
                                         className="uppercase"
                                         {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                e.target.value.toUpperCase(),
-                                            )
-                                        }
+                                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -141,7 +135,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         )}
                     />
 
-                    {/* Description */}
                     <FormField
                         control={form.control}
                         name="description"
@@ -162,7 +155,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {/* Discount type */}
                     <FormField
                         control={form.control}
                         name="discountType"
@@ -180,12 +172,8 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="percent">
-                                            Phần trăm (%)
-                                        </SelectItem>
-                                        <SelectItem value="fixed">
-                                            Số tiền cố định (₫)
-                                        </SelectItem>
+                                        <SelectItem value="percent">Phần trăm (%)</SelectItem>
+                                        <SelectItem value="fixed">Số tiền cố định (đ)</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -193,39 +181,23 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         )}
                     />
 
-                    {/* Discount value */}
                     <FormField
                         control={form.control}
                         name="discountValue"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Giá trị giảm{" "}
-                                    {watchDiscountType === "percent"
-                                        ? "(%)"
-                                        : "(₫)"}
+                                    Giá trị giảm {watchDiscountType === "percent" ? "(%)" : "(đ)"}
                                 </FormLabel>
                                 <FormControl>
                                     <Input
                                         type="number"
                                         min={1}
-                                        max={
-                                            watchDiscountType === "percent"
-                                                ? 100
-                                                : undefined
-                                        }
-                                        placeholder={
-                                            watchDiscountType === "percent"
-                                                ? "20"
-                                                : "50000"
-                                        }
+                                        max={watchDiscountType === "percent" ? 100 : undefined}
+                                        placeholder={watchDiscountType === "percent" ? "20" : "50000"}
                                         disabled={isLoading}
                                         {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                Number(e.target.value),
-                                            )
-                                        }
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -237,7 +209,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
                 <Separator />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {/* Max discount — chỉ hiện khi type = percent */}
                     {watchDiscountType === "percent" && (
                         <FormField
                             control={form.control}
@@ -245,10 +216,8 @@ export default function AdminCouponForm({ coupon, onClose }) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        Giảm tối đa (₫){" "}
-                                        <span className="text-muted-foreground">
-                                            (tùy chọn)
-                                        </span>
+                                        Giảm tối đa (đ){" "}
+                                        <span className="text-muted-foreground">(tùy chọn)</span>
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -257,15 +226,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                             placeholder="VD: 200000"
                                             disabled={isLoading}
                                             value={field.value ?? ""}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    e.target.value === ""
-                                                        ? undefined
-                                                        : Number(
-                                                              e.target.value,
-                                                          ),
-                                                )
-                                            }
+                                            onChange={(e) => field.onChange(emptyToNumber(e.target.value))}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -274,17 +235,14 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         />
                     )}
 
-                    {/* Min order amount */}
                     <FormField
                         control={form.control}
                         name="minOrderAmount"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Đơn tối thiểu (₫){" "}
-                                    <span className="text-muted-foreground">
-                                        (tùy chọn)
-                                    </span>
+                                    Đơn tối thiểu (đ){" "}
+                                    <span className="text-muted-foreground">(tùy chọn)</span>
                                 </FormLabel>
                                 <FormControl>
                                     <Input
@@ -293,13 +251,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                         placeholder="VD: 1000000"
                                         disabled={isLoading}
                                         value={field.value ?? ""}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                e.target.value === ""
-                                                    ? undefined
-                                                    : Number(e.target.value),
-                                            )
-                                        }
+                                        onChange={(e) => field.onChange(emptyToNumber(e.target.value))}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -307,7 +259,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         )}
                     />
 
-                    {/* Max usage */}
                     <FormField
                         control={form.control}
                         name="maxUsage"
@@ -326,13 +277,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                         placeholder="VD: 100"
                                         disabled={isLoading}
                                         value={field.value ?? ""}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                e.target.value === ""
-                                                    ? undefined
-                                                    : Number(e.target.value),
-                                            )
-                                        }
+                                        onChange={(e) => field.onChange(emptyToNumber(e.target.value))}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -340,40 +285,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         )}
                     />
 
-                    {/* Points cost */}
-                    <FormField
-                        control={form.control}
-                        name="pointsCost"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    Điểm quy đổi{" "}
-                                    <span className="text-muted-foreground">
-                                        (để 0 hoặc trống = không đổi bằng điểm)
-                                    </span>
-                                </FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        min={0}
-                                        placeholder="VD: 500"
-                                        disabled={isLoading}
-                                        value={field.value ?? ""}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                e.target.value === ""
-                                                    ? undefined
-                                                    : Number(e.target.value),
-                                            )
-                                        }
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    {/* Expires at */}
                     <FormField
                         control={form.control}
                         name="expiresAt"
@@ -389,11 +300,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                     <Input
                                         type="date"
                                         disabled={isLoading}
-                                        min={
-                                            new Date()
-                                                .toISOString()
-                                                .split("T")[0]
-                                        }
+                                        min={new Date().toISOString().split("T")[0]}
                                         {...field}
                                     />
                                 </FormControl>
@@ -403,7 +310,6 @@ export default function AdminCouponForm({ coupon, onClose }) {
                     />
                 </div>
 
-                {/* Actions */}
                 <div className="flex justify-end gap-2 pt-2">
                     <Button
                         type="button"
@@ -421,11 +327,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         className="rounded-full"
                         disabled={isLoading}
                     >
-                        {isLoading
-                            ? "Đang lưu..."
-                            : isEditing
-                              ? "Cập nhật"
-                              : "Tạo mã"}
+                        {isLoading ? "Đang lưu..." : isEditing ? "Cập nhật" : "Tạo mã"}
                     </Button>
                 </div>
             </form>

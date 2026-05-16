@@ -11,7 +11,12 @@ export const productReviewApi = baseApi.injectEndpoints({
 
     createReview: builder.mutation({
       query: ({ productId, ...data }) => ({ url: `/reviews/${productId}`, method: "POST", body: data }),
-      invalidatesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }, "Products", "Orders"],
+      invalidatesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }, "Products", "Orders", "Points"],
+      transformResponse: (response) => response.data,
+    }),
+
+    uploadReviewMedia: builder.mutation({
+      query: (formData) => ({ url: "/reviews/media/upload", method: "POST", body: formData }),
       transformResponse: (response) => response.data,
     }),
 
@@ -58,7 +63,7 @@ export const productReviewApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetReviewsQuery, useCreateReviewMutation, useUpdateReviewMutation, useDeleteReviewMutation,
+  useGetReviewsQuery, useCreateReviewMutation, useUploadReviewMediaMutation, useUpdateReviewMutation, useDeleteReviewMutation,
   useLikeReviewMutation, useCheckPurchasedQuery, useGetAllReviewsQuery,
   useToggleReviewVisibilityMutation, useAdminDeleteReviewMutation,
 } = productReviewApi;

@@ -17,34 +17,10 @@ export const pointsApi = baseApi.injectEndpoints({
             }),
         }),
 
-        getRedeemPackages: builder.query({
-            query: () => "/coupons/redeemable",
-            providesTags: ["Points", "Coupons"],
-            transformResponse: (response) => response.data,
-        }),
-
-        redeemPoints: builder.mutation({
-            query: (data) => ({
-                url: "/points/redeem",
-                method: "POST",
-                body: data,
-            }),
-            invalidatesTags: ["Points"],
-            transformResponse: (response) => response.data,
-        }),
-
-        getMyCoupons: builder.query({
-            query: () => "/points/my-coupons",
-            providesTags: ["Points"],
-            transformResponse: (response) => response.data,
-        }),
     }),
 });
 
 export const {
     useGetMyPointsQuery,
     useGetPointsHistoryQuery,
-    useGetRedeemPackagesQuery,
-    useRedeemPointsMutation,
-    useGetMyCouponsQuery,
 } = pointsApi;

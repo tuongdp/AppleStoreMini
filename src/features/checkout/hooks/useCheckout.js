@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
+import { useGetMyPointsQuery } from "@/store/api/pointsApi";
 import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";
 import { PAYMENT_METHODS } from "@/lib/constants";
 
@@ -23,15 +24,19 @@ export function useCheckout() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [usePoints, setUsePoints] = useState(false);
 
     const [createOrder, { isLoading }] = useCreateOrderMutation();
     const [createPayment, { isLoading: isPaying }] = useCreatePaymentMutation();
+    const { data: pointsData } = useGetMyPointsQuery();
 
     const shippingFee = 0;
 
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
+    const availablePoints = pointsData?.points ?? 0;
+    const pointsDiscount = usePoints ? Math.min(availablePoints, Math.max(0, total - discountAmount)) : 0;
 
-    const grandTotal = Math.max(0, total - discountAmount);
+    const grandTotal = Math.max(0, total - discountAmount - pointsDiscount);
 
     const canProceed = items.length > 0;
 
@@ -89,6 +94,7 @@ export function useCheckout() {
                 paymentMethod: checkoutData.paymentMethod,
                 note: checkoutData.note || "",
                 couponCode: appliedCoupon?.code || undefined,
+                usePoints,
                 items: items.map((item) => ({
                     variantId: item.variantId || item.product.variantId,
                     quantity: item.quantity,
@@ -119,6 +125,7 @@ export function useCheckout() {
         setIsSuccess(false);
         setCreatedOrder(null);
         setAppliedCoupon(null);
+        setUsePoints(false);
         setCheckoutData({
             fullName: "",
             phone: "",
@@ -137,6 +144,9 @@ export function useCheckout() {
         total,
         shippingFee,
         discountAmount,
+        availablePoints,
+        pointsDiscount,
+        usePoints,
         grandTotal,
         canProceed,
         isLoading,
@@ -148,6 +158,7 @@ export function useCheckout() {
         handleMoMoPayment,
         handleApplyCoupon,
         handleRemoveCoupon,
+        setUsePoints,
         goBack,
         reset,
     };

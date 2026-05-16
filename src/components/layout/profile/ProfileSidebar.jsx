@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Heart, Lock, Coins, Ticket, LogOut } from "lucide-react";
+import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import ProfileSidebarItem from "./ProfileSidebarItem";
@@ -26,7 +26,6 @@ const SIDEBAR_MAP = {
   wishlist: "Yêu thích",
   changePassword: "Đổi mật khẩu",
   points: "Điểm thưởng",
-  myCoupons: "Mã giảm giá của tôi",
 };
 
 const NAV_ITEMS = [
@@ -58,12 +57,6 @@ const NAV_ITEMS = [
     key: "points",
     href: ROUTES.POINTS,
     icon: Coins,
-    end: true,
-  },
-  {
-    key: "myCoupons",
-    href: "/profile/my-coupons",
-    icon: Ticket,
     end: true,
   },
 ];

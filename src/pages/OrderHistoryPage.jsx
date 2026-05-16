@@ -6,26 +6,33 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ORDER_STATUS } from "@/lib/constants";
 
 const STATUS_TABS = [
-    { value: "", label: "Tất cả" },
-    { value: ORDER_STATUS.PENDING, label: "Chờ xác nhận" },
-    { value: ORDER_STATUS.CONFIRMED, label: "Đã xác nhận" },
-    { value: ORDER_STATUS.SHIPPING, label: "Đang giao hàng" },
-    { value: ORDER_STATUS.DELIVERED, label: "Đã giao hàng" },
-    { value: ORDER_STATUS.CANCELLED, label: "Đã huỷ" },
+    { value: "all", label: "Lịch sử mua hàng" },
+    { value: ORDER_STATUS.PENDING, label: "Chờ xác nhận", status: ORDER_STATUS.PENDING },
+    {
+        value: "pickup",
+        label: "Chờ lấy hàng",
+        status: `${ORDER_STATUS.CONFIRMED},${ORDER_STATUS.PROCESSING}`,
+    },
+    { value: ORDER_STATUS.SHIPPING, label: "Chờ giao hàng", status: ORDER_STATUS.SHIPPING },
+    { value: "review", label: "Đánh giá", status: ORDER_STATUS.DELIVERED },
 ];
 
+const hasReviewableItem = (order) =>
+    (order.items || []).some((item) => !item.isReviewed);
+
 export default function OrderHistoryPage() {
-    const [activeTab, setActiveTab] = useState("");
+    const [activeTab, setActiveTab] = useState("all");
     const [page, setPage] = useState(1);
 
+    const currentTab = STATUS_TABS.find((tab) => tab.value === activeTab) || STATUS_TABS[0];
     const { data, isLoading } = useGetOrdersQuery({
         page,
         limit: 10,
-        status: activeTab || undefined,
+        status: currentTab.status,
     });
 
-    // ✅ ordersApi transformResponse → { orders, pagination }
-    const orders = data?.orders ?? [];
+    const rawOrders = data?.orders ?? [];
+    const orders = activeTab === "review" ? rawOrders.filter(hasReviewableItem) : rawOrders;
     const pagination = data?.pagination ?? {};
 
     const handleTabChange = (value) => {
@@ -34,35 +41,37 @@ export default function OrderHistoryPage() {
     };
 
     return (
-        <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold text-foreground">
-                    {"Đơn hàng của tôi"}
-                </h2>
-            </div>
+        <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-card">
+                <div className="border-b px-4 py-4">
+                    <h2 className="text-lg font-semibold text-foreground">
+                        Đơn mua
+                    </h2>
+                </div>
 
-            <Tabs
-                value={activeTab}
-                onValueChange={handleTabChange}
-                className="mb-6"
-            >
-                <TabsList className="flex h-auto flex-wrap gap-1 bg-transparent p-0">
-                    {STATUS_TABS.map((tab) => (
-                        <TabsTrigger
-                            key={tab.value}
-                            value={tab.value}
-                            className="rounded-full border border-border data-[state=active]:border-foreground data-[state=active]:bg-foreground data-[state=active]:text-background"
-                        >
-                            {tab.label}
-                        </TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
+                <Tabs
+                    value={activeTab}
+                    onValueChange={handleTabChange}
+                    className="px-4 py-3"
+                >
+                    <TabsList className="grid h-auto w-full grid-cols-2 gap-1 bg-muted/40 p-1 sm:grid-cols-5">
+                        {STATUS_TABS.map((tab) => (
+                            <TabsTrigger
+                                key={tab.value}
+                                value={tab.value}
+                                className="rounded-md px-2 py-2 text-xs sm:text-sm"
+                            >
+                                {tab.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                </Tabs>
+            </div>
 
             <OrderList orders={orders} isLoading={isLoading} />
 
-            {!isLoading && pagination.totalPages > 1 && (
-                <div className="mt-8 flex items-center justify-center gap-2">
+            {!isLoading && pagination.totalPages > 1 && activeTab !== "review" && (
+                <div className="mt-6 flex items-center justify-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"
@@ -70,12 +79,10 @@ export default function OrderHistoryPage() {
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
                     >
-                        {"Trước"}
+                        Trước
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                        {"Trang"} {page}{" "}
-                        {"trong"}{" "}
-                        {pagination.totalPages}
+                        Trang {page} trong {pagination.totalPages}
                     </span>
                     <Button
                         variant="outline"
@@ -84,7 +91,7 @@ export default function OrderHistoryPage() {
                         disabled={page >= pagination.totalPages}
                         onClick={() => setPage((p) => p + 1)}
                     >
-                        {"Sau"}
+                        Sau
                     </Button>
                 </div>
             )}

@@ -9,7 +9,6 @@ const BREADCRUMB_MAP = {
     "/profile/change-password": "Đổi mật khẩu",
     "/profile/wishlist": "Yêu thích",
     "/profile/points": "Điểm thưởng",
-    "/profile/my-coupons": "Mã giảm giá của tôi",
 };
 
 export default function ProfileLayout() {
