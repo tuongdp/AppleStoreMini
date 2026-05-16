@@ -74,6 +74,7 @@ export default function Footer() {
   const handleSubscribe = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
+
     setSubscribing(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/subscribe`, {
@@ -81,6 +82,7 @@ export default function Footer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
+
       if (res.ok) {
         toast.success("Đăng ký nhận tin thành công!");
         setEmail("");
@@ -97,11 +99,9 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-border bg-muted/20">
-      {/* ── Main footer ── */}
       <div className="section-padding py-12 md:py-16">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-5 lg:gap-12">
-            {/* Brand column */}
             <div className="col-span-2 md:col-span-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +111,7 @@ export default function Footer() {
                 <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-43.4-150.3-109.2c-52.1-73.6-96.2-187.8-96.2-296.7 0-166.7 108.7-254.8 215.7-254.8 56.6 0 103.7 37.5 139 37.5 33.8 0 86.5-39.5 151.8-39.5 24.4 0 108.2 2.6 168.6 80.6zm-159.5-197.7c30.3-35.7 51.5-85.4 51.5-135.1 0-6.5-.6-13-1.9-18.2-48.7 1.9-106.4 32.5-140.8 73.6-26.8 30.3-52 80-52 130.4 0 7.1 1.3 14.3 1.9 16.5 3.2.6 8.4 1.3 13.6 1.3 43.4 0 98.4-29 127.7-68.5z" />
               </svg>
               <p className="mb-4 text-sm text-muted-foreground">
-                Apple Store — Chính hãng, uy tín, bảo hành toàn quốc.
+                Apple Store - Chính hãng, uy tín, bảo hành toàn quốc.
               </p>
               <div className="flex items-center gap-2">
                 {SOCIAL_LINKS.map((social) => (
@@ -125,42 +125,18 @@ export default function Footer() {
                   >
                     {social.icon}
                   </a>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* Subscribe column */}
-            <div>
-              <h3 className="mb-4 text-sm font-semibold text-foreground">
-                Đăng ký nhận tin
-              </h3>
-              <p className="mb-3 text-xs text-muted-foreground">
-                Nhận khuyến mãi và thông tin sản phẩm mới nhất
-              </p>
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <Input
-                  type="email"
-                  placeholder="email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-9 text-sm"
-                  required
-                />
-                <Button type="submit" size="sm" className="h-9 shrink-0" disabled={subscribing}>
-                  {subscribing ? "..." : "Đăng ký"}
-                </Button>
-              </form>
-            </div>
-          </div>
-
-            {/* Link columns */}
             {FOOTER_LINKS.map((col) => (
               <div key={col.title}>
                 <h3 className="mb-4 text-sm font-semibold text-foreground">
                   {col.title}
                 </h3>
                 <ul className="space-y-2.5">
-                  {col.links.map((link, index) => (
-                    <li key={index}>
+                  {col.links.map((link) => (
+                    <li key={link.href}>
                       <Link
                         to={link.href}
                         className="text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -172,11 +148,37 @@ export default function Footer() {
                 </ul>
               </div>
             ))}
+
+            <div className="col-span-2 md:col-span-1">
+              <h3 className="mb-4 text-sm font-semibold text-foreground">
+                Đăng ký nhận tin
+              </h3>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Nhận khuyến mãi và thông tin sản phẩm mới nhất
+              </p>
+              <form onSubmit={handleSubscribe} className="flex gap-2 md:flex-col xl:flex-row">
+                <Input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-9 min-w-0 text-sm"
+                  required
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="h-9 shrink-0"
+                  disabled={subscribing}
+                >
+                  {subscribing ? "..." : "Đăng ký"}
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Bottom bar ── */}
       <div className="border-t border-border">
         <div className="section-padding py-5">
           <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 md:flex-row">
