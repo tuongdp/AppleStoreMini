@@ -2,6 +2,7 @@ import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminNotificationBell from "@/features/admin/components/AdminNotificationBell";
+import AdminChatPanel from "@/features/admin/components/AdminChatPanel";
 import {
     LayoutDashboard,
     Package,
@@ -230,6 +231,7 @@ export default function AdminLayout() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-1">
+                        <AdminChatPanel />
                         <AdminNotificationBell />
                         <ThemeToggle />
                     </div>

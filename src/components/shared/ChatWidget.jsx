@@ -1,240 +1,127 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { MessageCircle, X, Send, Loader2, Bot, User, Mic, MicOff } from "lucide-react";
+import { useSelector } from "react-redux";
+import { MessageCircle, X, Send, Sparkles, Bot, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { cn, formatPrice } from "@/lib/utils";
-import { toast } from "sonner";
-
-const BASE_URL = import.meta.env.VITE_API_URL;
+import { Input } from "@/components/ui/input";
+import { useSendMessageMutation } from "@/store/api/chatApi";
+import { useNavigate } from "react-router-dom";
 
 export default function ChatWidget() {
     const [open, setOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        {
-            role: "bot",
-            text: "Xin chào! Tôi là trợ lý AI của Apple Store Mini. Tôi có thể tư vấn sản phẩm, so sánh cấu hình, gợi ý sản phẩm phù hợp với nhu cầu của bạn. Bạn cần giúp gì ạ?",
-        },
-    ]);
-    const [input, setInput] = useState("");
+    const [message, setMessage] = useState("");
+    const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
-    const messagesEndRef = useRef(null);
-    const [isListening, setIsListening] = useState(false);
-    const recognitionRef = useRef(null);
-    const [aiOnline, setAiOnline] = useState(null);
+    const scrollRef = useRef(null);
+    const navigate = useNavigate();
+    const user = useSelector((s) => s.auth.user);
+    const [sendMsg] = useSendMessageMutation();
 
     useEffect(() => {
-        fetch(`${BASE_URL}/chat/health`)
-            .then((r) => r.json())
-            .then((d) => setAiOnline(d.aiEnabled))
-            .catch(() => setAiOnline(false));
-    }, []);
-
-    useEffect(() => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const rec = new SpeechRecognition();
-            rec.lang = "vi-VN";
-            rec.interimResults = false;
-            rec.maxAlternatives = 1;
-            rec.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                setInput(transcript);
-                setIsListening(false);
-            };
-            rec.onerror = () => setIsListening(false);
-            rec.onend = () => setIsListening(false);
-            recognitionRef.current = rec;
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, []);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
     const handleSend = async () => {
-        const text = input.trim();
-        if (!text || loading) return;
-
-        const userMsg = { role: "user", text };
-        setMessages((prev) => [...prev, userMsg]);
-        setInput("");
+        if (!message.trim() || loading) return;
+        const text = message.trim();
+        setMessage("");
+        setMessages((prev) => [...prev, { senderType: "USER", content: text, createdAt: new Date().toISOString() }]);
         setLoading(true);
-
         try {
-            const res = await fetch(`${BASE_URL}/chat`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text }),
-            });
-
-            const data = await res.json();
-            const reply = data?.data?.reply || "Xin lỗi, tôi chưa hiểu ý bạn. Bạn có thể hỏi lại được không?";
-            const products = data?.data?.products || [];
-            if (data?.data?.aiOnline !== undefined) setAiOnline(data.data.aiOnline);
-
-            setMessages((prev) => [...prev, { role: "bot", text: reply, products }]);
+            const result = await sendMsg({ message: text }).unwrap();
+            if (result.reply) {
+                setMessages((prev) => [...prev, { senderType: "AI", content: result.reply, createdAt: new Date().toISOString() }]);
+            }
+            if (result.products?.length > 0) {
+                setMessages((prev) => [...prev, { senderType: "AI", content: null, products: result.products, createdAt: new Date().toISOString() }]);
+            }
         } catch {
-            toast.error("Không thể kết nối AI, vui lòng thử lại");
-        } finally {
-            setLoading(false);
+            setMessages((prev) => [...prev, { senderType: "AI", content: "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.", createdAt: new Date().toISOString() }]);
         }
+        setLoading(false);
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
-
-    const toggleVoice = () => {
-        const rec = recognitionRef.current;
-        if (!rec) return;
-        if (isListening) {
-            rec.stop();
-            setIsListening(false);
-        } else {
-            rec.start();
-            setIsListening(true);
-        }
-    };
+    if (!user) return null;
 
     return (
         <>
             <button
                 onClick={() => setOpen(!open)}
-                className={cn(
-                    "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110",
-                    open
-                        ? "bg-destructive text-destructive-foreground"
-                        : "bg-foreground text-background",
-                )}
+                className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors"
             >
                 {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
             </button>
 
             {open && (
-                <div className="fixed bottom-24 right-6 z-50 flex h-[500px] w-[380px] max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-border bg-card shadow-2xl">
-                    <div className="flex shrink-0 items-center gap-3 rounded-t-2xl border-b border-border bg-muted/50 px-4 py-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            <Bot className="h-4 w-4" />
-                        </div>
+                <div className="fixed bottom-24 right-6 z-50 flex h-[480px] w-[360px] flex-col rounded-2xl border border-border bg-card shadow-2xl">
+                    <div className="flex items-center gap-3 rounded-t-2xl bg-blue-600 px-4 py-3 text-white">
+                        <Sparkles className="h-5 w-5" />
                         <div>
-                            <p className="text-sm font-medium text-foreground">
-                            Trợ lý AI
-                            {aiOnline !== null && (
-                                <span className={cn(
-                                    "ml-2 inline-block h-2 w-2 rounded-full",
-                                    aiOnline ? "bg-green-500" : "bg-gray-400",
-                                )} title={aiOnline ? "AI đang hoạt động" : "AI không khả dụng - fallback"} />
-                            )}
-                        </p>
-                            <p className="text-xs text-muted-foreground">Apple Store Mini</p>
+                            <p className="text-sm font-semibold">Apple Store Assistant</p>
+                            <p className="text-xs text-blue-100">AI hỗ trợ 24/7 · Gõ "hỗ trợ" để gặp người thật</p>
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+                    <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+                        {messages.length === 0 && (
+                            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                                <Bot className="h-10 w-10 mb-2 text-blue-500" />
+                                <p className="text-sm font-medium">Xin chào! Mình có thể giúp gì cho bạn?</p>
+                                <p className="text-xs mt-1">Hỏi về sản phẩm, giá, đặt hàng...</p>
+                            </div>
+                        )}
                         {messages.map((msg, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "flex gap-2",
-                                    msg.role === "user" && "flex-row-reverse",
-                                )}
-                            >
-                                <div
-                                    className={cn(
-                                        "flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
-                                        msg.role === "bot"
-                                            ? "bg-primary/10 text-primary"
-                                            : "bg-muted text-foreground",
-                                    )}
-                                >
-                                    {msg.role === "bot" ? (
-                                        <Bot className="h-3.5 w-3.5" />
-                                    ) : (
-                                        <User className="h-3.5 w-3.5" />
-                                    )}
-                                </div>
-                                <div
-                                    className={cn(
-                                        "max-w-[80%] rounded-2xl px-3 py-2 text-sm",
-                                        msg.role === "bot"
-                                            ? "bg-muted text-foreground"
-                                            : "bg-primary text-primary-foreground",
-                                    )}
-                                >
-                                    <p className="whitespace-pre-wrap">{msg.text}</p>
-                                    {msg.products?.length > 0 && (
-                                        <div className="mt-2 space-y-1.5 border-t border-border pt-2">
-                                            {msg.products.map((p) => (
-                                                <Link
-                                                    key={p.slug}
-                                                    to={`/products/${p.slug}`}
-                                                    target="_blank"
-                                                    onClick={() => setOpen(false)}
-                                                    className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors hover:bg-accent"
-                                                >
-                                                    <span className="line-clamp-1 font-medium text-foreground">{p.name}</span>
-                                                    <span className="shrink-0 text-muted-foreground">
-                                                        {p.price ? formatPrice(p.price) : "Liên hệ"}
-                                                    </span>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                            <div key={i} className={`flex ${msg.senderType === "USER" ? "justify-end" : "justify-start"}`}>
+                                {msg.content ? (
+                                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${msg.senderType === "USER"
+                                        ? "bg-blue-600 text-white rounded-br-md"
+                                        : "bg-muted text-foreground rounded-bl-md"
+                                        }`}>
+                                        {msg.content}
+                                    </div>
+                                ) : msg.products ? (
+                                    <div className="w-full space-y-2">
+                                        {msg.products.map((p) => (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => navigate(`/product/${p.slug}`)}
+                                                className="flex w-full items-center gap-3 rounded-xl border border-border bg-muted/50 p-2 text-left hover:bg-muted transition-colors"
+                                            >
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium truncate">{p.name}</p>
+                                                    <p className="text-xs text-blue-600 font-semibold">{p.price?.toLocaleString("vi-VN")}đ</p>
+                                                </div>
+                                                <span className="text-xs text-blue-600 font-medium">Xem →</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : null}
                             </div>
                         ))}
                         {loading && (
-                            <div className="flex gap-2">
-                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                    <Bot className="h-3.5 w-3.5" />
-                                </div>
-                                <div className="rounded-2xl bg-muted px-4 py-2">
-                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            <div className="flex justify-start">
+                                <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-2.5">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
                                 </div>
                             </div>
                         )}
-                        <div ref={messagesEndRef} />
                     </div>
 
-                    <div className="shrink-0 border-t border-border p-3">
-                        <div className="flex gap-2">
-                            <Textarea
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="Nhập câu hỏi..."
-                                rows={1}
-                                className="min-h-0 resize-none rounded-xl text-sm"
-                                disabled={loading}
-                            />
-                            {recognitionRef.current && (
-                                <button
-                                    type="button"
-                                    onClick={toggleVoice}
-                                    className={cn(
-                                        "shrink-0 rounded-full p-2 transition-colors",
-                                        isListening
-                                            ? "bg-red-500 text-white animate-pulse"
-                                            : "text-muted-foreground hover:text-foreground",
-                                    )}
-                                >
-                                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                                </button>
-                            )}
-                            <Button
-                                size="icon"
-                                className="h-9 w-9 shrink-0 rounded-full"
-                                onClick={handleSend}
-                                disabled={loading || !input.trim()}
-                            >
-                                <Send className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </div>
+                    <form
+                        onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+                        className="flex items-center gap-2 border-t border-border p-3"
+                    >
+                        <Input
+                            placeholder="Nhập tin nhắn..."
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="flex-1 rounded-full border-border text-sm"
+                        />
+                        <Button type="submit" size="icon" className="h-9 w-9 rounded-full" disabled={!message.trim() || loading}>
+                            <Send className="h-4 w-4" />
+                        </Button>
+                    </form>
                 </div>
             )}
         </>
