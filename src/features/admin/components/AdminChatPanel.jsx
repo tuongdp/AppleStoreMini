@@ -15,7 +15,6 @@ export default function AdminChatPanel() {
     const [open, setOpen] = useState(false);
     const [activeConv, setActiveConv] = useState(null);
     const [message, setMessage] = useState("");
-    const [localMsgs, setLocalMsgs] = useState({});
     const scrollRef = useRef(null);
 
     const { data, isLoading, refetch } = useGetConversationsQuery({ status: "active" });
@@ -24,29 +23,21 @@ export default function AdminChatPanel() {
     const [closeConv] = useCloseConversationMutation();
 
     const handleChatEvent = useCallback((type, data) => {
-        if (type === "newRequest") refetch();
-        if (type === "message" && activeConv === data.conversationId) {
-            setLocalMsgs((prev) => ({ ...prev, [data.conversationId]: [...(prev[data.conversationId] || []), data] }));
-        }
         refetch();
-    }, [activeConv, refetch]);
+        if (type === "message" && activeConv === data.conversationId) {
+            refetchMsgs();
+        }
+    }, [activeConv, refetch, refetchMsgs]);
     useSocket(() => {}, () => {}, handleChatEvent);
 
     const conversations = data?.conversations || [];
     const unreadCount = data?.unreadCount || 0;
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    }, [messages, localMsgs]);
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }, [messages]);
 
-    const allMessages = activeConv ? [
-        ...(messages || []),
-        ...(localMsgs[activeConv] || []).filter(
-            (m) => !(messages || []).some((ex) => ex.content === m.content && ex.senderType === m.senderType && Math.abs(new Date(ex.createdAt) - new Date(m.createdAt)) < 2000)
-        ),
-    ] : [];
+    const allMessages = messages || [];
 
     const handleSend = async () => {
         if (!message.trim() || !activeConv || sending) return;
@@ -149,7 +140,7 @@ export default function AdminChatPanel() {
                                     conversations.map((conv) => (
                                         <button
                                             key={conv.id}
-                                            onClick={() => { setActiveConv(conv.id); setLocalMsgs((prev) => ({ ...prev, [conv.id]: [] })); }}
+                                            onClick={() => setActiveConv(conv.id)}
                                             className="flex w-full items-start gap-3 border-b border-border px-4 py-3 text-left hover:bg-muted/50 transition-colors"
                                         >
                                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
