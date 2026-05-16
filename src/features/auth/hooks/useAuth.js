@@ -62,7 +62,7 @@ export function useAuth() {
         } catch (error) {
             return {
                 success: false,
-                message: error?.data?.message || "Đăng nhập thất bại",
+                message: error?.data?.message || "Email hoặc mật khẩu không chính xác",
             };
         }
     };

@@ -46,7 +46,7 @@ export const loginSchema = z.object({
         .email({ message: v("email.invalid") }),
     password: z
         .string()
-        .min(8, { message: v("password.minLength") }),
+        .min(1, { message: v("password.currentRequired") }),
     rememberMe: z.boolean().optional().default(false),
 });
 
