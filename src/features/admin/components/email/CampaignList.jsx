@@ -168,7 +168,7 @@ export default function CampaignList() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    {c.status === "DRAFT" && (
+                                                    {(c.status === "DRAFT" || c.status === "SENT" || c.status === "FAILED") && (
                                                         <>
                                                             <Button
                                                                 variant="ghost"
@@ -176,7 +176,7 @@ export default function CampaignList() {
                                                                 className="h-8 w-8 text-muted-foreground hover:text-green-500"
                                                                 onClick={() => handleSend(c.id)}
                                                                 disabled={sending}
-                                                                title="Gửi ngay"
+                                                                title={c.status === "SENT" ? "Gửi lại" : "Gửi ngay"}
                                                             >
                                                                 <Send className="h-4 w-4" />
                                                             </Button>
@@ -190,6 +190,37 @@ export default function CampaignList() {
                                                                 <Edit className="h-4 w-4" />
                                                             </Button>
                                                         </>
+                                                    )}
+                                                    {(c.status === "SENT" || c.status === "SENDING") && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-blue-500"
+                                                            onClick={() => handleViewStats(c.id)}
+                                                            title="Thống kê"
+                                                        >
+                                                            <BarChart3 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-amber-500"
+                                                        onClick={() => { setTestDialog({ open: true, campaignId: c.id }); setTestEmail(""); }}
+                                                        title="Gửi test"
+                                                    >
+                                                        <Beaker className="h-4 w-4" />
+                                                    )}
+                                                    {(c.status === "DRAFT" || c.status === "SENT" || c.status === "FAILED") && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-muted-foreground hover:text-blue-500"
+                                                            onClick={() => navigate(ROUTES.ADMIN_EMAIL_CAMPAIGN_EDIT(c.id))}
+                                                            title="Chỉnh sửa"
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </Button>
                                                     )}
                                                     {(c.status === "SENT" || c.status === "SENDING") && (
                                                         <Button
