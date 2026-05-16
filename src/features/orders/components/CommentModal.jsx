@@ -21,6 +21,7 @@ export default function CommentModal({
     open,
     onOpenChange,
     product,
+    productId,
     orderId,
     existingComment,
     onSuccess,
@@ -61,7 +62,7 @@ export default function CommentModal({
 
                 <CommentForm
                     // ✅ MySQL integer id — không có _id
-                    productId={product?.id || product?._id}
+                    productId={productId || product?.id || product?._id}
                     orderId={orderId}
                     comment={existingComment}
                     onSuccess={handleSuccess}

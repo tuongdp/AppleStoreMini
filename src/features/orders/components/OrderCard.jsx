@@ -65,6 +65,7 @@ export default function OrderCard({ order }) {
         const existing = commentedMap[pid];
         setCommentItem({
             ...item,
+            _productId: pid,
             existingComment: typeof existing === "object" ? existing : null,
         });
     };
@@ -251,6 +252,7 @@ export default function OrderCard({ order }) {
                     open={!!commentItem}
                     onOpenChange={(open) => !open && setCommentItem(null)}
                     product={commentItem.product}
+                    productId={commentItem._productId}
                     orderId={order._id || order.id}
                     existingComment={commentItem.existingComment}
                     onSuccess={(commentData) =>
