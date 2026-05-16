@@ -49,7 +49,7 @@ export default function CartDrawerItem({ item }) {
 
   const effectivePrice = getEffectivePrice(product, variant);
 
-  const firstImage = getFirstImage(product?.images);
+  const firstImage = getFirstImage(product?.images || variant?.images);
 
   return (
     <div className="flex gap-4">

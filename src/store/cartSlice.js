@@ -75,7 +75,10 @@ const cartSlice = createSlice({
             state.items = (serverCart?.items || []).map((item) => ({
                 variant: item.variant,
                 variantId: item.variant?.id || item.variantId,
-                product: item.variant?.product || item.product,
+                product: {
+                    ...(item.variant?.product || item.product || {}),
+                    images: item.variant?.images || item.product?.images || item.variant?.product?.images,
+                },
                 quantity: item.quantity,
             }));
         },
