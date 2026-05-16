@@ -91,7 +91,7 @@ export default function AIComparePanel({ currentProduct, products }) {
   }, [result]);
 
   return (
-    <Card className="my-8">
+    <Card className="my-8 overflow-visible">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-apple-blue" />
