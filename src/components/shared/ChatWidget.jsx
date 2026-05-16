@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { MessageCircle, X, Send, Sparkles, Bot, Loader2, UserRound, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSendMessageMutation, useSendGuestMessageMutation } from "@/store/api/chatApi";
+import { useSendMessageMutation, useSendGuestMessageMutation, useCloseMyConversationMutation } from "@/store/api/chatApi";
 import { useChatSocket } from "@/hooks/useSocket";
 import { useNavigate } from "react-router-dom";
 
@@ -20,6 +20,7 @@ export default function ChatWidget() {
     const user = useSelector((s) => s.auth.user);
     const [sendMsg] = useSendMessageMutation();
     const [sendGuest] = useSendGuestMessageMutation();
+    const [closeChat] = useCloseMyConversationMutation();
 
     useChatSocket(convId, (data) => {
         if (data.senderType === "ADMIN") {
@@ -86,10 +87,21 @@ export default function ChatWidget() {
                             <p className="text-xs text-blue-100">{user ? "AI hỗ trợ 24/7" : "Để lại thông tin để được hỗ trợ"}</p>
                         </div>
                         {step === "chat" && (
-                            <Button variant="secondary" size="sm" className="h-7 text-xs bg-white/20 hover:bg-white/30 text-white border-0"
-                                onClick={() => handleSend("Mình cần hỗ trợ từ nhân viên")}>
-                                <UserRound className="h-3 w-3 mr-1" />Nhân viên
-                            </Button>
+                            <>
+                                <Button variant="secondary" size="sm" className="h-7 text-xs bg-white/20 hover:bg-white/30 text-white border-0"
+                                    onClick={() => handleSend("Mình cần hỗ trợ từ nhân viên")}>
+                                    <UserRound className="h-3 w-3 mr-1" />Nhân viên
+                                </Button>
+                                <Button variant="secondary" size="sm" className="h-7 text-xs bg-white/20 hover:bg-white/30 text-white border-0"
+                                    onClick={async () => {
+                                        if (user) await closeChat();
+                                        setMessages([]);
+                                        setConvId(null);
+                                        setStep("chat");
+                                    }}>
+                                    <X className="h-3 w-3 mr-1" />Mới
+                                </Button>
+                            </>
                         )}
                         <button onClick={() => setOpen(false)} className="sm:hidden"><X className="h-5 w-5" /></button>
                     </div>

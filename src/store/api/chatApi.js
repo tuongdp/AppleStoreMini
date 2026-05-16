@@ -40,7 +40,10 @@ export const chatApi = createApi({
             query: (id) => ({ url: `/admin/chat/conversations/${id}/close`, method: "PATCH" }),
             invalidatesTags: ["Conversations"],
         }),
+        closeMyConversation: builder.mutation({
+            query: () => ({ url: "/chat/realtime/close", method: "PATCH" }),
+        }),
     }),
 });
 
-export const { useSendMessageMutation, useSendGuestMessageMutation, useGetConversationsQuery, useGetChatMessagesQuery, useAdminReplyMutation, useCloseConversationMutation } = chatApi;
+export const { useSendMessageMutation, useSendGuestMessageMutation, useGetConversationsQuery, useGetChatMessagesQuery, useAdminReplyMutation, useCloseConversationMutation, useCloseMyConversationMutation } = chatApi;
