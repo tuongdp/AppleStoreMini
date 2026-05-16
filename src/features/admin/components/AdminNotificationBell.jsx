@@ -39,7 +39,12 @@ export default function AdminNotificationBell() {
     const [runAnalysis, { isLoading: analyzing }] = useRunAnalysisMutation();
 
     const handleNew = useCallback(() => { }, []);
-    useSocket(handleNew);
+    const handleNewOrder = useCallback((order) => {
+        toast.success(`🛒 Đơn hàng mới #${order.orderCode} — ${order.totalAmount?.toLocaleString("vi-VN")}đ`, {
+            action: { label: "Xem", onClick: () => navigate(`/admin/orders/${order.orderId}`) },
+        });
+    }, [navigate]);
+    useSocket(handleNew, handleNewOrder);
 
     const notifications = data?.notifications ?? [];
     const unreadCount = data?.unreadCount ?? 0;

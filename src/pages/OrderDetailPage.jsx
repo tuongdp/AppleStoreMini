@@ -5,13 +5,19 @@ import OrderDetail from "@/features/orders/components/OrderDetail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
+import { useOrderSocket } from "@/hooks/useSocket";
+import { toast } from "sonner";
 
 export default function OrderDetailPage() {
     const { id } = useParams();
 
-    const { data, isLoading, isError } = useGetOrderByIdQuery(id);
+    const { data, isLoading, isError, refetch } = useGetOrderByIdQuery(id);
 
-    // ✅ ordersApi transformResponse → response.data trực tiếp (không wrap thêm .data)
+    useOrderSocket(id, (update) => {
+        refetch();
+        toast.success(`Đơn hàng #${update.orderCode} đã chuyển sang: ${update.statusLabel}`);
+    });
+
     const order = data;
 
     if (isLoading) return <OrderDetailSkeleton />;
