@@ -79,6 +79,7 @@ export default function ChatWidget() {
             if (conv?.id) setConvId(conv.id);
             const status = result?.status || result?.data?.status;
             if (status === "PENDING_ADMIN") setChatStatus("PENDING_ADMIN");
+            if (status === "AI_CHATTING") setChatStatus(null);
             const reply = result?.reply || result?.data?.reply;
             if (reply) setMessages((prev) => [...prev, { senderType: "AI", content: reply, createdAt: new Date().toISOString() }]);
             const products = result?.products || result?.data?.products;
@@ -86,6 +87,8 @@ export default function ChatWidget() {
         } catch (err) {
             console.error("[Chat] Error:", err?.data || err?.message || err);
             setMessages((prev) => [...prev, { senderType: "AI", content: "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.", createdAt: new Date().toISOString() }]);
+        } finally {
+            setLoading(false);
         }
         setLoading(false);
     };
