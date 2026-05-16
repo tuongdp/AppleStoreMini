@@ -40,6 +40,7 @@ export const notificationApi = createApi({
         runAnalysis: builder.mutation({
             query: () => ({ url: "/admin/notifications/analyze", method: "POST" }),
             invalidatesTags: ["Notifications"],
+            transformResponse: (response) => response.data,
         }),
     }),
 });
