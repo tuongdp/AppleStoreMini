@@ -32,6 +32,24 @@ const getItemName = (item) => getItemProduct(item)?.name || item.name || "Sản 
 const getShortItemName = (item) =>
     getItemName(item).split(" ").slice(0, 3).join(" ");
 
+const getFirstImage = (...sources) => {
+    for (const source of sources) {
+        const images = parseJsonField(source);
+        if (Array.isArray(images) && images[0]) return images[0];
+        if (typeof source === "string" && source.trim()) return source;
+    }
+    return "";
+};
+
+const getItemImage = (item) =>
+    getFirstImage(
+        item.variant?.images,
+        item.images,
+        item.image,
+        getItemProduct(item)?.images,
+        getItemProduct(item)?.image,
+    );
+
 function ReturnStatusBadge({ returnRequest }) {
     if (!returnRequest) return null;
     if (returnRequest.status === RETURN_REQUEST_STATUS.PENDING) {
@@ -135,12 +153,7 @@ export default function OrderCard({ order }) {
                                 className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1.5"
                             >
                                 <img
-                                    src={
-                                        parseJsonField(getItemProduct(item)?.images)?.[0] ||
-                                        parseJsonField(item.images)?.[0] ||
-                                        getItemProduct(item)?.image ||
-                                        item.image
-                                    }
+                                    src={getItemImage(item)}
                                     alt={getItemName(item)}
                                     className="h-full w-full object-contain"
                                 />
