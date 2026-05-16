@@ -39,17 +39,13 @@ export default function AIComparePanel({ currentProduct, products }) {
   const currentCategory = (currentProduct?.category?.slug || currentProduct?.category || "").toLowerCase();
 
   const compareOptions = useMemo(() => {
-    const filtered = allProducts.filter((p) => p.slug !== currentProduct?.slug);
+    const filtered = allProducts.filter(
+      (p) =>
+        p.slug !== currentProduct?.slug &&
+        ((p.category?.slug || p.category || "").toLowerCase() === currentCategory),
+    );
 
-    filtered.sort((a, b) => {
-      const aCat = (a.category?.slug || a.category || "").toLowerCase();
-      const bCat = (b.category?.slug || b.category || "").toLowerCase();
-      const aSameCat = aCat === currentCategory;
-      const bSameCat = bCat === currentCategory;
-      if (aSameCat && !bSameCat) return -1;
-      if (!aSameCat && bSameCat) return 1;
-      return (a.name || "").localeCompare(b.name || "");
-    });
+    filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
 
     return filtered.map((p) => ({
       value: p.slug,
