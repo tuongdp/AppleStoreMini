@@ -53,7 +53,7 @@ export default function ProductSlider({
     }
 
     return (
-        <div className="group/slider relative">
+        <div className="group/slider relative overflow-hidden">
             {/* Prev */}
             <Button
                 id={prevId}
