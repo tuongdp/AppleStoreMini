@@ -19,6 +19,9 @@ export const chatApi = createApi({
         sendMessage: builder.mutation({
             query: (body) => ({ url: "/chat/realtime/message", method: "POST", body }),
         }),
+        sendGuestMessage: builder.mutation({
+            query: (body) => ({ url: "/chat/realtime/guest", method: "POST", body }),
+        }),
         getConversations: builder.query({
             query: (params) => ({ url: "/admin/chat/conversations", params }),
             providesTags: ["Conversations"],
@@ -40,4 +43,4 @@ export const chatApi = createApi({
     }),
 });
 
-export const { useSendMessageMutation, useGetConversationsQuery, useGetChatMessagesQuery, useAdminReplyMutation, useCloseConversationMutation } = chatApi;
+export const { useSendMessageMutation, useSendGuestMessageMutation, useGetConversationsQuery, useGetChatMessagesQuery, useAdminReplyMutation, useCloseConversationMutation } = chatApi;
