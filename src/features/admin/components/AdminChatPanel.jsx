@@ -43,10 +43,6 @@ export default function AdminChatPanel() {
         if (!message.trim() || !activeConv || sending) return;
         const text = message.trim();
         setMessage("");
-        setLocalMsgs((prev) => ({
-            ...prev,
-            [activeConv]: [...(prev[activeConv] || []), { senderType: "ADMIN", content: text, createdAt: new Date().toISOString() }],
-        }));
         try {
             await sendReply({ id: activeConv, message: text }).unwrap();
         } catch { }
