@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { MessageCircle, X, Send, Sparkles, Bot, Loader2, UserRound, Mail, Phone, Check } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, Bot, Loader2, UserRound, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation, useSendGuestMessageMutation, useCloseMyConversationMutation } from "@/store/api/chatApi";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function ChatWidget() {
     const [open, setOpen] = useState(false);
     const [step, setStep] = useState("info");
-    const [guest, setGuest] = useState({ email: "", phone: "", name: "" });
+    const [guest, setGuest] = useState({ email: "" });
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -62,9 +62,9 @@ export default function ChatWidget() {
 
     const handleStartChat = (e) => {
         e?.preventDefault();
-        if (!guest.email.trim() || !guest.phone.trim()) return;
+        if (!guest.email.trim()) return;
         setStep("chat");
-        setMessages([{ senderType: "AI", content: `Chào ${guest.name || "bạn"}! Mình có thể giúp gì cho bạn?`, createdAt: new Date().toISOString() }]);
+        setMessages([{ senderType: "AI", content: "Chào bạn! Mình có thể giúp gì cho bạn?", createdAt: new Date().toISOString() }]);
     };
 
     const handleSend = async (text, displayText = text) => {
@@ -77,7 +77,7 @@ export default function ChatWidget() {
         try {
             const body = user
                 ? { message: text.trim() }
-                : { message: text.trim(), guestEmail: guest.email, guestPhone: guest.phone, guestName: guest.name };
+                : { message: text.trim(), guestEmail: guest.email };
             const mutation = user ? sendMsg : sendGuest;
             const result = await mutation(body).unwrap();
             const conv = result?.conversation || result?.data?.conversation;
@@ -145,20 +145,12 @@ export default function ChatWidget() {
 
                     {step === "info" && !user ? (
                         <form onSubmit={handleStartChat} className="flex-1 flex flex-col p-6 gap-4">
-                            <p className="text-sm text-muted-foreground text-center">Vui lòng để lại thông tin để được hỗ trợ</p>
-                            <div className="relative">
-                                <Input placeholder="Họ tên (không bắt buộc)" value={guest.name} onChange={(e) => setGuest({ ...guest, name: e.target.value })} className="rounded-xl pl-9 text-sm" />
-                                <UserRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            </div>
+                            <p className="text-sm text-muted-foreground text-center">Vui lòng nhập email để bắt đầu chat</p>
                             <div className="relative">
                                 <Input placeholder="Email *" type="email" required value={guest.email} onChange={(e) => setGuest({ ...guest, email: e.target.value })} className="rounded-xl pl-9 text-sm" />
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             </div>
-                            <div className="relative">
-                                <Input placeholder="Số điện thoại *" type="tel" required value={guest.phone} onChange={(e) => setGuest({ ...guest, phone: e.target.value })} className="rounded-xl pl-9 text-sm" />
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            </div>
-                            <Button type="submit" className="rounded-xl" disabled={!guest.email.trim() || !guest.phone.trim()}>Bắt đầu chat</Button>
+                            <Button type="submit" className="rounded-xl" disabled={!guest.email.trim()}>Bắt đầu chat</Button>
                         </form>
                     ) : (
                         <>
