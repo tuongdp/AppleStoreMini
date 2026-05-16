@@ -6,13 +6,20 @@ import CartDrawer from "@/features/cart/components/CartDrawer";
 import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import ChatWidget from "@/components/shared/ChatWidget";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { closeAll } from "@/store/uiSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
+import { useGetServerCartQuery } from "@/store/api/cartApi";
 
 export default function RootLayout() {
     const location = useLocation();
     const dispatch = useDispatch();
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+    useGetServerCartQuery(undefined, {
+        skip: !isAuthenticated,
+        refetchOnMountOrArgChange: true,
+    });
 
     useEffect(() => {
         dispatch(closeAll());

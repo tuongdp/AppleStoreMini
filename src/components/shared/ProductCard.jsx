@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/store/cartSlice";
+import { useAddToCartMutation } from "@/store/api/cartApi";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleAuthModal, toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
@@ -23,6 +24,7 @@ function isNewProduct(createdAt) {
 
 export default function ProductCard({ product }) {
     const dispatch = useDispatch();
+    const [addToCartApi] = useAddToCartMutation();
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const isInWishlist = useSelector(
@@ -48,7 +50,7 @@ export default function ProductCard({ product }) {
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
 
-    const handleAddToCart = (e) => {
+    const handleAddToCart = async (e) => {
         e.preventDefault();
         if (isOutOfStock) return;
         dispatch(
@@ -59,6 +61,16 @@ export default function ProductCard({ product }) {
             }),
         );
         dispatch(toggleCartDrawer(true));
+        if (isAuthenticated && product.variantId) {
+            try {
+                await addToCartApi({
+                    variantId: product.variantId,
+                    quantity: 1,
+                }).unwrap();
+            } catch {
+                // Local cart is already updated; server cart sync can retry later.
+            }
+        }
     };
 
     const handleToggleWishlist = (e) => {

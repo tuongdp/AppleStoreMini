@@ -162,13 +162,15 @@ export default function ProductDetailPage() {
         );
         dispatch(toggleCartDrawer(true));
 
-        try {
-            await addToCartApi({
-                variantId: selectedVariant.id,
-                quantity,
-            }).unwrap();
-        } catch {
-            // Server sync failed — UI already updated locally
+        if (isAuthenticated) {
+            try {
+                await addToCartApi({
+                    variantId: selectedVariant.id,
+                    quantity,
+                }).unwrap();
+            } catch {
+                // Local cart is already updated; server cart sync can retry later.
+            }
         }
     };
 
@@ -181,7 +183,9 @@ export default function ProductDetailPage() {
                 quantity,
             }),
         );
-        try { await addToCartApi({ variantId: selectedVariant.id, quantity }).unwrap(); } catch {}
+        if (isAuthenticated) {
+            try { await addToCartApi({ variantId: selectedVariant.id, quantity }).unwrap(); } catch {}
+        }
         navigate(ROUTES.CHECKOUT);
     };
 

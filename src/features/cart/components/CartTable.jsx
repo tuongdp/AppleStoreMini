@@ -5,10 +5,23 @@ import { Separator } from "@/components/ui/separator";
 import CartTableItem from "./CartTableItem";
 import CartEmpty from "./CartEmpty";
 import { selectCartItems, clearCart } from "@/store/cartSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
+import { useClearServerCartMutation } from "@/store/api/cartApi";
 
 export default function CartTable() {
   const dispatch = useDispatch();
   const items = useSelector(selectCartItems);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [clearServerCart] = useClearServerCartMutation();
+
+  const handleClearCart = async () => {
+    dispatch(clearCart());
+    if (isAuthenticated) {
+      try {
+        await clearServerCart().unwrap();
+      } catch { /* noop */ }
+    }
+  };
 
   if (items.length === 0) return <CartEmpty />;
 
@@ -19,7 +32,7 @@ export default function CartTable() {
           variant="ghost"
           size="sm"
           className="text-muted-foreground hover:text-destructive"
-          onClick={() => dispatch(clearCart())}
+          onClick={handleClearCart}
         >
           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
           {"Xóa giỏ hàng"}

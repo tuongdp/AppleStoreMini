@@ -1,5 +1,10 @@
 import { baseApi } from "./baseApi";
-import { setCartFromServer } from "@/store/cartSlice";
+import { clearCart, setCartFromServer } from "@/store/cartSlice";
+
+const applyCartFromResponse = async (queryFulfilled, dispatch) => {
+    const { data } = await queryFulfilled;
+    dispatch(setCartFromServer(data.data));
+};
 
 export const cartApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -21,6 +26,11 @@ export const cartApi = baseApi.injectEndpoints({
                 body: { items },
             }),
             invalidatesTags: ["Cart"],
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await applyCartFromResponse(queryFulfilled, dispatch);
+                } catch { /* noop */ }
+            },
         }),
 
         addToCart: builder.mutation({
@@ -30,6 +40,11 @@ export const cartApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Cart"],
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await applyCartFromResponse(queryFulfilled, dispatch);
+                } catch { /* noop */ }
+            },
         }),
 
         updateCartItem: builder.mutation({
@@ -39,6 +54,11 @@ export const cartApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Cart"],
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await applyCartFromResponse(queryFulfilled, dispatch);
+                } catch { /* noop */ }
+            },
         }),
 
         removeFromCart: builder.mutation({
@@ -48,6 +68,11 @@ export const cartApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Cart"],
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await applyCartFromResponse(queryFulfilled, dispatch);
+                } catch { /* noop */ }
+            },
         }),
 
         clearServerCart: builder.mutation({
@@ -56,6 +81,12 @@ export const cartApi = baseApi.injectEndpoints({
                 method: "DELETE",
             }),
             invalidatesTags: ["Cart"],
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    dispatch(clearCart());
+                } catch { /* noop */ }
+            },
         }),
     }),
 });

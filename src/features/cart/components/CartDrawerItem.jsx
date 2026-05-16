@@ -1,9 +1,11 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import QuantityInput from "@/components/shared/QuantityInput";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { removeFromCart, updateQuantity, getEffectivePrice } from "@/store/cartSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
+import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
 import { Link } from "react-router-dom";
 
@@ -15,6 +17,9 @@ const getFirstImage = (images) => {
 
 export default function CartDrawerItem({ item }) {
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const [removeFromServerCart] = useRemoveFromCartMutation();
+  const [updateServerCartItem] = useUpdateCartItemMutation();
   const variantId = item.variantId || item.product?.variantId;
 
   const product = item.product || item.variant?.product;
@@ -24,12 +29,22 @@ export default function CartDrawerItem({ item }) {
   const ram = variant?.ram || product?.ram || "";
   const edition = variant?.edition || product?.edition || "";
 
-  const handleRemove = () => {
+  const handleRemove = async () => {
     dispatch(removeFromCart({ variantId }));
+    if (isAuthenticated && variantId) {
+      try {
+        await removeFromServerCart({ variantId }).unwrap();
+      } catch { /* noop */ }
+    }
   };
 
-  const handleUpdateQty = (quantity) => {
+  const handleUpdateQty = async (quantity) => {
     dispatch(updateQuantity({ variantId, quantity }));
+    if (isAuthenticated && variantId) {
+      try {
+        await updateServerCartItem({ variantId, quantity }).unwrap();
+      } catch { /* noop */ }
+    }
   };
 
   const effectivePrice = getEffectivePrice(product, variant);
