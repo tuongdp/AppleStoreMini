@@ -36,14 +36,16 @@ export default function AIComparePanel({ currentProduct, products }) {
   const [compare, { isLoading }] = useAiCompareMutation();
   const allProducts = useMemo(() => products || [], [products]);
 
-  const currentCategory = currentProduct?.category?.toLowerCase();
+  const currentCategory = (currentProduct?.category?.slug || currentProduct?.category || "").toLowerCase();
 
   const compareOptions = useMemo(() => {
     const filtered = allProducts.filter((p) => p.slug !== currentProduct?.slug);
 
     filtered.sort((a, b) => {
-      const aSameCat = (a.category || "").toLowerCase() === currentCategory;
-      const bSameCat = (b.category || "").toLowerCase() === currentCategory;
+      const aCat = (a.category?.slug || a.category || "").toLowerCase();
+      const bCat = (b.category?.slug || b.category || "").toLowerCase();
+      const aSameCat = aCat === currentCategory;
+      const bSameCat = bCat === currentCategory;
       if (aSameCat && !bSameCat) return -1;
       if (!aSameCat && bSameCat) return 1;
       return (a.name || "").localeCompare(b.name || "");
@@ -54,7 +56,7 @@ export default function AIComparePanel({ currentProduct, products }) {
       label: p.name,
       prefix: (
         <span className="mr-1.5 shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-          {p.category || "Khác"}
+          {p.category?.name || p.category || "Khác"}
         </span>
       ),
     }));
