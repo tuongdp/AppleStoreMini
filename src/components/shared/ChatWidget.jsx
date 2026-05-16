@@ -51,6 +51,10 @@ export default function ChatWidget() {
     }, [open, user]);
 
     const handleTyping = () => {
+        if (chatStatus !== "HUMAN_ASSIGNED") {
+            setTyping(false);
+            return;
+        }
         setTyping(true);
         clearTimeout(typingTimer.current);
         typingTimer.current = setTimeout(() => setTyping(false), 2000);
@@ -63,11 +67,12 @@ export default function ChatWidget() {
         setMessages([{ senderType: "AI", content: `Chào ${guest.name || "bạn"}! Mình có thể giúp gì cho bạn?`, createdAt: new Date().toISOString() }]);
     };
 
-    const handleSend = async (text) => {
+    const handleSend = async (text, displayText = text) => {
         if (!text?.trim() || loading) return;
         if (chatStatus === "CLOSED") { setChatStatus(null); setMessages([]); }
         setMessage("");
-        setMessages((prev) => [...prev, { senderType: "USER", content: text.trim(), createdAt: new Date().toISOString() }]);
+        setTyping(false);
+        setMessages((prev) => [...prev, { senderType: "USER", content: displayText.trim(), createdAt: new Date().toISOString() }]);
         setLoading(true);
         try {
             const body = user
@@ -191,7 +196,7 @@ export default function ChatWidget() {
                                 {loading && (
                                     <div className="flex justify-start"><div className="rounded-2xl rounded-bl-md bg-muted px-4 py-2.5"><Loader2 className="h-4 w-4 animate-spin" /></div></div>
                                 )}
-                                {typing && (
+                                {typing && chatStatus === "HUMAN_ASSIGNED" && (
                                     <div className="flex justify-start"><div className="rounded-2xl rounded-bl-md bg-muted px-4 py-2.5 text-xs text-muted-foreground italic">Nhân viên đang nhập...</div></div>
                                 )}
                             </div>
