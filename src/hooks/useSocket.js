@@ -17,7 +17,13 @@ export function useSocket(onNewNotification, onNewOrder) {
                     reconnectionDelay: 5000,
                 });
 
-                socket.on("connect", () => {});
+                socket.on("connect", () => {
+                    console.log("[Socket] Connected:", socket.id);
+                });
+
+                socket.on("connect_error", (err) => {
+                    console.warn("[Socket] Error:", err.message);
+                });
 
                 socket.on("notification:new", (notifications) => {
                     if (onNewNotification) onNewNotification(notifications);
