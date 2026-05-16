@@ -3,7 +3,8 @@ import { useEffect, useRef } from "react";
 const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/api$/, "");
 
 export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
-    const socketRef = useRef(null);
+    const callbacks = useRef({ onNewNotification, onNewOrder, onChatEvent });
+    callbacks.current = { onNewNotification, onNewOrder, onChatEvent };
 
     useEffect(() => {
         let socket;
@@ -17,25 +18,17 @@ export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
                     reconnectionDelay: 5000,
                 });
 
-                socket.on("notification:new", (data) => { if (onNewNotification) onNewNotification(data); });
-                socket.on("newOrder", (data) => { if (onNewOrder) onNewOrder(data); });
-
-                if (onChatEvent) {
-                    socket.on("chat:newRequest", (data) => onChatEvent("newRequest", data));
-                    socket.on("chat:message", (data) => { 
-                    console.log("[Socket] chat:message received:", data.conversationId);
-                    if (onChatEvent) onChatEvent("message", data); 
-                });
-                }
-
-                socketRef.current = socket;
+                socket.on("notification:new", (data) => { callbacks.current.onNewNotification?.(data); });
+                socket.on("newOrder", (data) => { callbacks.current.onNewOrder?.(data); });
+                socket.on("chat:newRequest", (data) => { callbacks.current.onChatEvent?.("newRequest", data); });
+                socket.on("chat:message", (data) => { callbacks.current.onChatEvent?.("message", data); });
             } catch (e) {}
         };
         initSocket();
         return () => { if (socket) socket.disconnect(); };
     }, []);
 
-    return socketRef;
+    return null;
 }
 
 export function useOrderSocket(orderId, onStatusUpdate) {
@@ -58,6 +51,8 @@ export function useOrderSocket(orderId, onStatusUpdate) {
 }
 
 export function useChatSocket(conversationId, onMessage) {
+    const onMessageRef = useRef(onMessage);
+    onMessageRef.current = onMessage;
     const socketRef = useRef(null);
     useEffect(() => {
         if (!conversationId) return;
@@ -66,7 +61,7 @@ export function useChatSocket(conversationId, onMessage) {
             try {
                 const { io } = await import("socket.io-client");
                 socket = io(SOCKET_URL, { path: "/socket.io", transports: ["websocket", "polling"] });
-                socket.on(`chat:message:${conversationId}`, (data) => { if (onMessage) onMessage(data); });
+                socket.on(`chat:message:${conversationId}`, (data) => { onMessageRef.current?.(data); });
                 socketRef.current = socket;
             } catch (e) {}
         };
