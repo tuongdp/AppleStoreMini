@@ -49,9 +49,21 @@ export const productReviewApi = baseApi.injectEndpoints({
       transformResponse: (response) => ({ reviews: response.data, pagination: response.pagination }),
     }),
 
+    getAdminReview: builder.query({
+      query: (reviewId) => `/admin/reviews/${reviewId}`,
+      providesTags: (_, __, reviewId) => [{ type: "Reviews", id: reviewId }],
+      transformResponse: (response) => response.data,
+    }),
+
     toggleReviewVisibility: builder.mutation({
       query: (reviewId) => ({ url: `/admin/reviews/${reviewId}/visibility`, method: "PATCH" }),
       invalidatesTags: ["Reviews"],
+      transformResponse: (response) => response.data,
+    }),
+
+    replyReview: builder.mutation({
+      query: ({ reviewId, content }) => ({ url: `/admin/reviews/${reviewId}/reply`, method: "POST", body: { content } }),
+      invalidatesTags: (_, __, { reviewId }) => ["Reviews", { type: "Reviews", id: reviewId }],
       transformResponse: (response) => response.data,
     }),
 
@@ -65,5 +77,5 @@ export const productReviewApi = baseApi.injectEndpoints({
 export const {
   useGetReviewsQuery, useCreateReviewMutation, useUploadReviewMediaMutation, useUpdateReviewMutation, useDeleteReviewMutation,
   useLikeReviewMutation, useCheckPurchasedQuery, useGetAllReviewsQuery,
-  useToggleReviewVisibilityMutation, useAdminDeleteReviewMutation,
+  useGetAdminReviewQuery, useToggleReviewVisibilityMutation, useReplyReviewMutation, useAdminDeleteReviewMutation,
 } = productReviewApi;

@@ -74,8 +74,24 @@ export default function ProductCommentItem({ comment, onEdit, onDelete }) {
 
             {/* Comment */}
             <p className="text-sm leading-relaxed text-foreground">
-                {comment.comment}
+                {comment.comment || comment.content}
             </p>
+
+            {comment.adminReply && (
+                <div className="rounded-lg border bg-muted/40 p-3">
+                    <div className="mb-1 flex items-center gap-2">
+                        <Badge variant="secondary">Cửa hàng phản hồi</Badge>
+                        {comment.repliedAt && (
+                            <span className="text-xs text-muted-foreground">
+                                {timeAgo(comment.repliedAt)}
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-sm leading-relaxed text-foreground">
+                        {comment.adminReply}
+                    </p>
+                </div>
+            )}
 
             {/* Comment images */}
             {comment.images?.length > 0 && (
