@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, MailCheck } from "lucide-react";
+import { CheckCircle2, Circle, Eye, EyeOff, MailCheck } from "lucide-react";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useLazyCheckEmailQuery } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,6 +28,8 @@ export default function RegisterForm() {
     const [serverError, setServerError] = useState("");
     const [resending, setResending] = useState(false);
     const [registeredEmail, setRegisteredEmail] = useState("");
+    const [emailCheck, setEmailCheck] = useState(null);
+    const [checkEmail, { isFetching: isCheckingEmail }] = useLazyCheckEmailQuery();
 
     const form = useForm({
         resolver: zodResolver(registerSchema),
@@ -40,13 +43,63 @@ export default function RegisterForm() {
         },
     });
 
+    const getEmailAvailability = async (email) => {
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail) return null;
+
+        setEmailCheck("checking");
+        const response = await checkEmail(normalizedEmail).unwrap();
+        if (response?.data?.exists) {
+            setEmailCheck("exists");
+            form.setError("email", {
+                type: "manual",
+                message: "Email này đã được sử dụng",
+            });
+            return false;
+        }
+
+        setEmailCheck("available");
+        form.clearErrors("email");
+        return true;
+    };
+
     const onSubmit = async (values) => {
         setServerError("");
+        if (emailCheck !== "available") {
+            try {
+                const isEmailAvailable = await getEmailAvailability(values.email);
+                if (!isEmailAvailable) return;
+            } catch {
+                setEmailCheck(null);
+                setServerError("Không thể kiểm tra email. Vui lòng thử lại.");
+                return;
+            }
+        }
+
         const result = await register(values);
         if (result.success) {
             setRegisteredEmail(values.email);
         } else {
             setServerError(result.message);
+        }
+    };
+
+    const password = form.watch("password") || "";
+    const passwordRules = [
+        { label: "Tối thiểu 8 ký tự", active: password.length >= 8 },
+        { label: "Có ít nhất 1 chữ hoa", active: /[A-Z]/.test(password) },
+        { label: "Có ít nhất 1 ký tự đặc biệt", active: /[^A-Za-z0-9]/.test(password) },
+    ];
+
+    const handleEmailBlur = async (email) => {
+        const normalizedEmail = email.trim().toLowerCase();
+        const isValid = await form.trigger("email");
+        if (!normalizedEmail || !isValid) return;
+
+        try {
+            await getEmailAvailability(normalizedEmail);
+        } catch {
+            setEmailCheck(null);
         }
     };
 
@@ -142,14 +195,26 @@ export default function RegisterForm() {
                                         type="email"
                                         placeholder={"Nhập địa chỉ email"}
                                         autoComplete="email"
-                                        disabled={isRegisterLoading}
+                                        disabled={isRegisterLoading || isCheckingEmail}
                                         {...field}
+                                        onChange={(e) => {
+                                            field.onChange(e);
+                                            setEmailCheck(null);
+                                        }}
+                                        onBlur={(e) => {
+                                            field.onBlur();
+                                            handleEmailBlur(e.target.value);
+                                        }}
                                     />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
+
+                    {emailCheck === "available" && !form.formState.errors.email && (
+                        <p className="-mt-3 text-xs text-emerald-600">Email có thể sử dụng</p>
+                    )}
 
                     {/* Phone */}
                     <FormField
@@ -209,6 +274,20 @@ export default function RegisterForm() {
                                         </button>
                                     </div>
                                 </FormControl>
+                                <div className="mt-2 space-y-1.5">
+                                    {passwordRules.map((rule) => {
+                                        const Icon = rule.active ? CheckCircle2 : Circle;
+                                        return (
+                                            <div
+                                                key={rule.label}
+                                                className={`flex items-center gap-2 text-xs ${rule.active ? "text-emerald-600" : "text-muted-foreground"}`}
+                                            >
+                                                <Icon className="h-3.5 w-3.5" />
+                                                <span>{rule.label}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -302,7 +381,7 @@ export default function RegisterForm() {
                     <Button
                         type="submit"
                         className="w-full rounded-full"
-                        disabled={isRegisterLoading}
+                        disabled={isRegisterLoading || isCheckingEmail}
                     >
                         {isRegisterLoading
                             ? "Đang tạo tài khoản..."

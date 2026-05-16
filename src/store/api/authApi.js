@@ -25,6 +25,13 @@ export const authApi = baseApi.injectEndpoints({
             }),
         }),
 
+        checkEmail: builder.query({
+            query: (email) => ({
+                url: "/auth/check-email",
+                params: { email },
+            }),
+        }),
+
         logout: builder.mutation({
             query: () => ({
                 url: "/auth/logout",
@@ -117,6 +124,7 @@ export const authApi = baseApi.injectEndpoints({
 export const {
     useLoginMutation,
     useRegisterMutation,
+    useLazyCheckEmailQuery,
     useLogoutMutation,
     useGetMeQuery,
     useForgotPasswordMutation,
