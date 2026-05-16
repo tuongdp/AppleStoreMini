@@ -27,9 +27,12 @@ export default function AdminChatPanel() {
     const handleChatEvent = useCallback((type, data) => {
         refetch();
         if (type === "message" && activeConv === data.conversationId) refetchMsgs();
-        if (type === "conversationClosed" && activeConv === data.conversationId) {
-            refetchMsgs();
-            toast.info("Khách hàng đã kết thúc trò chuyện");
+        if (type === "conversationClosed") {
+            refetch();
+            if (activeConv === data.conversationId) {
+                setActiveConv(null);
+                toast.info("Khách hàng đã kết thúc trò chuyện");
+            }
         }
     }, [activeConv, refetch, refetchMsgs]);
     useSocket(() => {}, () => {}, handleChatEvent);
