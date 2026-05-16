@@ -195,6 +195,24 @@ export const ordersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        // GET /admin/dashboard/review-reward
+        getReviewRewardSetting: builder.query({
+            query: () => "/admin/dashboard/review-reward",
+            providesTags: ["Points"],
+            transformResponse: (response) => response.data,
+        }),
+
+        // PATCH /admin/dashboard/review-reward
+        updateReviewRewardSetting: builder.mutation({
+            query: (body) => ({
+                url: "/admin/dashboard/review-reward",
+                method: "PATCH",
+                body,
+            }),
+            invalidatesTags: ["Points"],
+            transformResponse: (response) => response.data,
+        }),
+
         // GET /admin/dashboard/coupon-stats
         getCouponStats: builder.query({
             query: () => "/admin/dashboard/coupon-stats",
@@ -248,6 +266,8 @@ export const {
     useGetLowStockQuery,
     useGetCategoryRevenueQuery,
     useGetPointsStatsQuery,
+    useGetReviewRewardSettingQuery,
+    useUpdateReviewRewardSettingMutation,
     useGetCouponStatsQuery,
     useGetDashboardStatsQuery,
     useGetOrderStatsQuery,

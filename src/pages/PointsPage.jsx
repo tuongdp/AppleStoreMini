@@ -47,7 +47,7 @@ export default function PointsPage() {
                     </div>
                     <div className="mt-4 rounded-xl bg-white/10 px-4 py-2.5 text-xs text-white/80">
                         <Sparkles className="mr-1 inline h-3.5 w-3.5" />
-                        Nhận 200 điểm cho mỗi đánh giá sản phẩm hợp lệ.
+                        Nhận điểm thưởng cho mỗi đánh giá sản phẩm hợp lệ.
                     </div>
                 </div>
             </div>

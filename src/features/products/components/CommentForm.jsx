@@ -103,7 +103,7 @@ export default function CommentForm({
                 }).unwrap();
             }
 
-            toast.success(isEditing ? "Đã cập nhật đánh giá" : "Đánh giá thành công, bạn nhận được 200 điểm");
+            toast.success(isEditing ? "Đã cập nhật đánh giá" : "Đánh giá thành công, bạn đã nhận điểm thưởng");
             form.reset();
             onSuccess?.(values);
         } catch (error) {
@@ -183,7 +183,7 @@ export default function CommentForm({
                                 ) : (
                                     <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
                                         <ImagePlus className="h-4 w-4" />
-                                        <span>Thêm media để nhận 200 điểm sau khi đánh giá</span>
+                                        <span>Thêm media để nhận điểm thưởng sau khi đánh giá</span>
                                     </div>
                                 )}
                             </div>

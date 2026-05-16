@@ -1,9 +1,12 @@
-import { ShoppingBag, Users, Package, Clock, TrendingUp, TicketPercent, AlertTriangle, Receipt } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ShoppingBag, Users, Package, Clock, TrendingUp, TicketPercent, AlertTriangle, Receipt, Coins, Save, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetLowStockQuery, useGetCategoryRevenueQuery, useGetCouponStatsQuery, useGetDashboardStatsQuery } from "@/store/api/ordersApi";
+import { useGetLowStockQuery, useGetCategoryRevenueQuery, useGetCouponStatsQuery, useGetDashboardStatsQuery, useGetReviewRewardSettingQuery, useUpdateReviewRewardSettingMutation } from "@/store/api/ordersApi";
 import { useGetAllUsersQuery } from "@/store/api/usersApi";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import RevenueChart from "@/features/admin/components/dashboard/RevenueChart";
@@ -16,17 +19,42 @@ import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function AdminDashboard() {
     const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
     const { data: lowStock = [] } = useGetLowStockQuery();
     const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
     const { data: couponStats } = useGetCouponStatsQuery();
+    const { data: reviewRewardSetting, isLoading: isRewardLoading } = useGetReviewRewardSettingQuery();
+    const [updateReviewReward, { isLoading: isUpdatingReward }] = useUpdateReviewRewardSettingMutation();
     const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
     const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
+    const [rewardPoints, setRewardPoints] = useState("");
+
+    useEffect(() => {
+        if (reviewRewardSetting?.points != null) {
+            setRewardPoints(String(reviewRewardSetting.points));
+        }
+    }, [reviewRewardSetting?.points]);
 
     const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
+
+    const handleUpdateReviewReward = async () => {
+        const points = Number(rewardPoints);
+        if (!Number.isInteger(points) || points < 0) {
+            toast.error("Điểm thưởng phải là số nguyên không âm");
+            return;
+        }
+
+        try {
+            await updateReviewReward({ points }).unwrap();
+            toast.success("Đã cập nhật điểm thưởng đánh giá");
+        } catch (error) {
+            toast.error(error?.data?.message || "Cập nhật điểm thưởng thất bại");
+        }
+    };
 
     const STAT_CARDS = [
         { title: "Doanh thu hôm nay", value: formatPrice(stats?.todayRevenue ?? 0), icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
@@ -74,6 +102,36 @@ export default function AdminDashboard() {
                     </Card>
                 ))}
             </div>
+
+            <Card className="border-border">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                        <Coins className="h-4 w-4 text-amber-500" />
+                        Điểm thưởng mỗi đánh giá
+                    </CardTitle>
+                    <Badge variant="secondary">{formatNumber(Number(reviewRewardSetting?.points ?? 100000))} điểm</Badge>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                        <Input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={rewardPoints}
+                            onChange={(event) => setRewardPoints(event.target.value)}
+                            disabled={isRewardLoading || isUpdatingReward}
+                            className="sm:max-w-xs"
+                        />
+                        <Button type="button" onClick={handleUpdateReviewReward} disabled={isRewardLoading || isUpdatingReward}>
+                            {isUpdatingReward ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            Lưu điểm
+                        </Button>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                        Giá trị này được cộng vào tài khoản khách hàng sau khi đánh giá sản phẩm hợp lệ.
+                    </p>
+                </CardContent>
+            </Card>
 
             <div className="grid gap-4 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
