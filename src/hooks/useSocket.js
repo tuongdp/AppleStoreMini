@@ -22,7 +22,10 @@ export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
 
                 if (onChatEvent) {
                     socket.on("chat:newRequest", (data) => onChatEvent("newRequest", data));
-                    socket.on("chat:message", (data) => onChatEvent("message", data));
+                    socket.on("chat:message", (data) => { 
+                    console.log("[Socket] chat:message received:", data.conversationId);
+                    if (onChatEvent) onChatEvent("message", data); 
+                });
                 }
 
                 socketRef.current = socket;
