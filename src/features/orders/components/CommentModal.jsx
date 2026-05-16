@@ -6,21 +6,27 @@ import {
 } from "@/components/ui/dialog";
 import CommentForm from "@/features/products/components/CommentForm";
 
-// ✅ images có thể là JSON string (MySQL) hoặc array đã parse
-const getFirstImage = (images) => {
-    if (!images) return "";
-    if (Array.isArray(images)) return images[0] || "";
-    try {
-        return JSON.parse(images)[0] || "";
-    } catch {
-        return "";
+const getFirstImage = (...sources) => {
+    for (const source of sources) {
+        if (!source) continue;
+        if (Array.isArray(source) && source[0]) return source[0];
+        if (typeof source === "string") {
+            try {
+                const parsed = JSON.parse(source);
+                if (Array.isArray(parsed) && parsed[0]) return parsed[0];
+            } catch {
+                if (source.trim()) return source;
+            }
+        }
     }
+    return "";
 };
 
 export default function CommentModal({
     open,
     onOpenChange,
     product,
+    image,
     productId,
     orderId,
     existingComment,
@@ -32,6 +38,8 @@ export default function CommentModal({
     };
 
     const isEditing = !!existingComment;
+    const imageSrc = getFirstImage(image, product?.images, product?.image);
+    const productName = product?.name || "Sản phẩm";
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,24 +52,24 @@ export default function CommentModal({
                     </DialogTitle>
                 </DialogHeader>
 
-                {product && (
+                {(product || imageSrc) && (
                     <div className="flex items-center gap-3 rounded-xl bg-muted/30 p-3">
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted p-1">
-                            <img
-                                // ✅ parse JSON string nếu cần
-                                src={getFirstImage(product.images)}
-                                alt={product.name}
-                                className="h-full w-full object-contain"
-                            />
+                            {imageSrc && (
+                                <img
+                                    src={imageSrc}
+                                    alt={productName}
+                                    className="h-full w-full object-contain"
+                                />
+                            )}
                         </div>
                         <p className="line-clamp-2 text-sm font-medium text-foreground">
-                            {product.name}
+                            {productName}
                         </p>
                     </div>
                 )}
 
                 <CommentForm
-                    // ✅ MySQL integer id — không có _id
                     productId={productId || product?.id || product?._id}
                     orderId={orderId}
                     comment={existingComment}

@@ -113,6 +113,7 @@ export default function OrderCard({ order }) {
             ...item,
             _product: getItemProduct(item),
             _productId: pid,
+            _image: getItemImage(item),
             existingComment: typeof existing === "object" ? existing : null,
         });
     };
@@ -285,6 +286,7 @@ export default function OrderCard({ order }) {
                     open={!!commentItem}
                     onOpenChange={(open) => !open && setCommentItem(null)}
                     product={commentItem._product}
+                    image={commentItem._image}
                     productId={commentItem._productId}
                     orderId={order._id || order.id}
                     existingComment={commentItem.existingComment}
