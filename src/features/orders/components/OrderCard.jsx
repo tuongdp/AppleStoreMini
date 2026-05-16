@@ -8,6 +8,30 @@ import CommentModal from "./CommentModal";
 import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
 
+const isValidId = (value) =>
+    value !== undefined &&
+    value !== null &&
+    value !== "" &&
+    value !== "undefined" &&
+    value !== "null";
+
+const getItemProduct = (item) => item.product || item.variant?.product || null;
+
+const getItemProductId = (item) => {
+    const product = getItemProduct(item);
+    return [
+        product?._id,
+        product?.id,
+        item.productId,
+        item.variant?.productId,
+    ].find(isValidId);
+};
+
+const getItemName = (item) => getItemProduct(item)?.name || item.name || "Sản phẩm";
+
+const getShortItemName = (item) =>
+    getItemName(item).split(" ").slice(0, 3).join(" ");
+
 function ReturnStatusBadge({ returnRequest }) {
     if (!returnRequest) return null;
     if (returnRequest.status === RETURN_REQUEST_STATUS.PENDING) {
@@ -34,24 +58,26 @@ export default function OrderCard({ order }) {
 
     // Chưa bình luận = chưa có isReviewed từ server VÀ chưa bình luận trong session
     const unreviewedItems = deliveredItems.filter((item) => {
-        const pid = item.product?._id || item.product?.id || item.productId;
-        return !item.isReviewed && !commentedMap[pid];
+        const pid = getItemProductId(item);
+        return pid && !item.isReviewed && !commentedMap[pid];
     });
 
     // Đã bình luận trong session hiện tại
     const reviewedInSession = deliveredItems.filter((item) => {
-        const pid = item.product?._id || item.product?.id || item.productId;
+        const pid = getItemProductId(item);
         return !!commentedMap[pid];
     });
 
     // Đã bình luận từ server (isReviewed = true), chưa bình luận lại trong session
     const reviewedFromServer = deliveredItems.filter((item) => {
-        const pid = item.product?._id || item.product?.id || item.productId;
+        const pid = getItemProductId(item);
         return item.isReviewed && !commentedMap[pid];
     });
 
     const handleCommentSuccess = (item, commentData) => {
-        const pid = item.product?._id || item.product?.id || item.productId;
+        const pid = getItemProductId(item);
+        if (!pid) return;
+
         setCommentedMap((prev) => ({
             ...prev,
             [pid]: commentData || true,
@@ -61,10 +87,13 @@ export default function OrderCard({ order }) {
 
     // Mở modal — nếu đã bình luận trong session thì truyền existing comment vào
     const handleOpenComment = (item) => {
-        const pid = item.product?._id || item.product?.id || item.productId;
+        const pid = getItemProductId(item);
+        if (!pid) return;
+
         const existing = commentedMap[pid];
         setCommentItem({
             ...item,
+            _product: getItemProduct(item),
             _productId: pid,
             existingComment: typeof existing === "object" ? existing : null,
         });
@@ -107,12 +136,12 @@ export default function OrderCard({ order }) {
                             >
                                 <img
                                     src={
-                                        parseJsonField(item.product?.images)?.[0] ||
+                                        parseJsonField(getItemProduct(item)?.images)?.[0] ||
                                         parseJsonField(item.images)?.[0] ||
-                                        item.product?.image ||
+                                        getItemProduct(item)?.image ||
                                         item.image
                                     }
-                                    alt={item.product?.name || item.name}
+                                    alt={getItemName(item)}
                                     className="h-full w-full object-contain"
                                 />
                             </div>
@@ -130,7 +159,7 @@ export default function OrderCard({ order }) {
                                 key={index}
                                 className="truncate text-sm text-foreground"
                             >
-                                {item.product?.name}
+                                {getItemName(item)}
                                 {(() => {
                                     const parts = [
                                         item.color || item.selectedColor || "",
@@ -177,10 +206,7 @@ export default function OrderCard({ order }) {
                                             }
                                         >
                                             <Star className="mr-1 h-3 w-3" />
-                                            {item.product?.name
-                                                ?.split(" ")
-                                                .slice(0, 3)
-                                                .join(" ")}
+                                            {getShortItemName(item)}
                                         </Button>
                                     ))}
                                 </>
@@ -196,10 +222,7 @@ export default function OrderCard({ order }) {
                                     onClick={() => handleOpenComment(item)}
                                 >
                                     <CheckCircle2 className="mr-1 h-3 w-3" />
-                                    {item.product?.name
-                                        ?.split(" ")
-                                        .slice(0, 3)
-                                        .join(" ")}
+                                    {getShortItemName(item)}
                                 </Button>
                             ))}
 
@@ -210,10 +233,7 @@ export default function OrderCard({ order }) {
                                     className="flex items-center gap-1 text-xs text-muted-foreground"
                                 >
                                     <CheckCircle2 className="h-3 w-3 text-green-500" />
-                                    {item.product?.name
-                                        ?.split(" ")
-                                        .slice(0, 3)
-                                        .join(" ")}
+                                    {getShortItemName(item)}
                                 </span>
                             ))}
                         </div>
@@ -251,7 +271,7 @@ export default function OrderCard({ order }) {
                 <CommentModal
                     open={!!commentItem}
                     onOpenChange={(open) => !open && setCommentItem(null)}
-                    product={commentItem.product}
+                    product={commentItem._product}
                     productId={commentItem._productId}
                     orderId={order._id || order.id}
                     existingComment={commentItem.existingComment}

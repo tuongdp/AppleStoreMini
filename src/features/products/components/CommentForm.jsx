@@ -16,6 +16,13 @@ import {
 import StarRating from "@/components/shared/StarRating";
 import { toast } from "sonner";
 
+const isValidProductId = (value) =>
+    value !== undefined &&
+    value !== null &&
+    value !== "" &&
+    value !== "undefined" &&
+    value !== "null";
+
 export default function CommentForm({
     productId,
     orderId,
@@ -46,6 +53,10 @@ export default function CommentForm({
     }, [comment, form]);
 
     const onSubmit = async (values) => {
+        if (!isValidProductId(productId)) {
+            toast.error("Không xác định được sản phẩm, vui lòng thử lại");
+            return;
+        }
         try {
             if (isEditing) {
                 await updateReview({
