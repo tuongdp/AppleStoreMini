@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Loader2, ChevronLeft, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, ChevronLeft, Bot, User, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
     useGetConversationsQuery,
     useGetChatMessagesQuery,
@@ -15,6 +16,7 @@ export default function AdminChatPanel() {
     const [open, setOpen] = useState(false);
     const [activeConv, setActiveConv] = useState(null);
     const [message, setMessage] = useState("");
+    const [showCloseConfirm, setShowCloseConfirm] = useState(false);
     const scrollRef = useRef(null);
 
     const { data, isLoading, refetch } = useGetConversationsQuery({ status: "active" });
@@ -24,14 +26,22 @@ export default function AdminChatPanel() {
 
     const handleChatEvent = useCallback((type, data) => {
         refetch();
-        if (type === "message" && activeConv === data.conversationId) {
+        if (type === "message" && activeConv === data.conversationId) refetchMsgs();
+        if (type === "conversationClosed" && activeConv === data.conversationId) {
             refetchMsgs();
+            toast.info("Khách hàng đã kết thúc trò chuyện");
         }
     }, [activeConv, refetch, refetchMsgs]);
     useSocket(() => {}, () => {}, handleChatEvent);
 
     const conversations = data?.conversations || [];
     const unreadCount = data?.unreadCount || 0;
+
+    const handleCloseWithConfirm = async () => {
+        await closeConv(activeConv);
+        setActiveConv(null);
+        setShowCloseConfirm(false);
+    };
 
     useEffect(() => {
         if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -87,7 +97,7 @@ export default function AdminChatPanel() {
                                     <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setActiveConv(null)}>
                                         <ChevronLeft className="h-3 w-3 mr-1" /> Danh sách
                                     </Button>
-                                    <Button variant="ghost" size="sm" className="h-7 text-xs text-red-500" onClick={() => handleClose(activeConv)}>
+                                    <Button variant="ghost" size="sm" className="h-7 text-xs text-red-500" onClick={() => setShowCloseConfirm(true)}>
                                         Đóng
                                     </Button>
                                 </div>
@@ -161,6 +171,19 @@ export default function AdminChatPanel() {
                         )}
                     </div>
                 </>
+            )}
+
+            {showCloseConfirm && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80">
+                    <div className="bg-card rounded-2xl border border-border p-6 mx-4 text-center shadow-xl">
+                        <p className="text-sm font-medium mb-2">Đóng hội thoại?</p>
+                        <p className="text-xs text-muted-foreground mb-4">Khách hàng sẽ thấy thông báo kết thúc.</p>
+                        <div className="flex gap-2 justify-center">
+                            <Button variant="outline" size="sm" onClick={() => setShowCloseConfirm(false)}>Hủy</Button>
+                            <Button variant="destructive" size="sm" onClick={handleCloseWithConfirm}>Đóng</Button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
