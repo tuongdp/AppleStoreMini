@@ -91,7 +91,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
             ...(values.maxDiscountAmount ? { maxDiscountAmount: Number(values.maxDiscountAmount) } : {}),
             ...(values.minOrderAmount ? { minOrderAmount: Number(values.minOrderAmount) } : {}),
             ...(values.maxUsage ? { maxUsage: Number(values.maxUsage) } : {}),
-            ...(values.expiresAt ? { expiresAt: values.expiresAt } : {}),
+            expiresAt: values.expiresAt || null,
         };
 
         try {

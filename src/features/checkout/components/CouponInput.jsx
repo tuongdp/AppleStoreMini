@@ -5,15 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatPrice } from "@/lib/utils";
 
-/**
- * CouponInput — nhập và áp dụng mã giảm giá ở CheckoutPage
- *
- * Props:
- *   orderTotal   — tổng tiền đơn hàng (để validate minOrderAmount)
- *   onApply      — (couponData) => void — trả về { code, discountAmount, finalTotal }
- *   onRemove     — () => void
- *   appliedCoupon — coupon đang được áp dụng
- */
+const getCouponErrorMessage = (err) => {
+    const message = err?.data?.message || err?.error;
+    if (message) return message;
+    if (err?.status === 404) return "Mã giảm giá không tồn tại";
+    return "Mã giảm giá không hợp lệ";
+};
+
 export default function CouponInput({
     orderTotal,
     onApply,
@@ -25,19 +23,23 @@ export default function CouponInput({
     const [applyCoupon, { isLoading }] = useApplyCouponMutation();
 
     const handleApply = async () => {
-        if (!code.trim()) return;
-        setError("");
+        const normalizedCode = code.trim().toUpperCase();
+        if (!normalizedCode) {
+            setError("Vui lòng nhập mã giảm giá");
+            return;
+        }
 
+        setError("");
         try {
             const response = await applyCoupon({
-                code: code.trim().toUpperCase(),
+                code: normalizedCode,
                 orderTotal,
             }).unwrap();
 
             onApply?.(response);
             setCode("");
         } catch (err) {
-            setError(err?.data?.message || "Mã giảm giá không hợp lệ");
+            setError(getCouponErrorMessage(err));
         }
     };
 
@@ -54,21 +56,18 @@ export default function CouponInput({
         }
     };
 
-    // Đã áp dụng coupon
     if (appliedCoupon) {
         return (
             <div className="flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-950/20">
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
-                    <div>
+                    <div className="min-w-0">
                         <p className="text-sm font-medium text-green-700 dark:text-green-400">
-                            <code className="font-bold">
-                                {appliedCoupon.code}
-                            </code>                            {" "}
-                            — Giảm {formatPrice(appliedCoupon.discountAmount)}
+                            <code className="font-bold">{appliedCoupon.code}</code>{" "}
+                            - Giảm {formatPrice(appliedCoupon.discountAmount)}
                         </p>
                         {appliedCoupon.description && (
-                            <p className="text-xs text-green-600/70 dark:text-green-400/70">
+                            <p className="truncate text-xs text-green-600/70 dark:text-green-400/70">
                                 {appliedCoupon.description}
                             </p>
                         )}
@@ -78,7 +77,7 @@ export default function CouponInput({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-green-600 hover:text-green-700 dark:text-green-400"
+                    className="h-7 w-7 shrink-0 text-green-600 hover:text-green-700 dark:text-green-400"
                     onClick={handleRemove}
                 >
                     <X className="h-4 w-4" />
@@ -99,9 +98,10 @@ export default function CouponInput({
                             setError("");
                         }}
                         onKeyDown={handleKeyDown}
-                        placeholder={"Nhập mã giảm giá"}
+                        placeholder="Nhập mã giảm giá"
                         className="pl-9 uppercase"
                         disabled={isLoading}
+                        aria-invalid={!!error}
                     />
                 </div>
                 <Button
@@ -109,7 +109,7 @@ export default function CouponInput({
                     variant="outline"
                     className="shrink-0 rounded-full px-5"
                     onClick={handleApply}
-                    disabled={isLoading || !code.trim()}
+                    disabled={isLoading}
                 >
                     {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -118,7 +118,7 @@ export default function CouponInput({
                     )}
                 </Button>
             </div>
-            {error && <p className="text-xs text-red-500">{error}</p>}
+            {error && <p className="text-xs font-medium text-red-500">{error}</p>}
         </div>
     );
 }
