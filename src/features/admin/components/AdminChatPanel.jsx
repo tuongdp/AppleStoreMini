@@ -23,14 +23,14 @@ export default function AdminChatPanel() {
     const [sendReply, { isLoading: sending }] = useAdminReplyMutation();
     const [closeConv] = useCloseConversationMutation();
 
-    const handleNewChatRequest = useCallback(() => { refetch(); }, [refetch]);
-    const handleChatMessage = useCallback((msg) => {
-        if (activeConv === msg.conversationId) {
-            setLocalMsgs((prev) => ({ ...prev, [msg.conversationId]: [...(prev[msg.conversationId] || []), msg] }));
+    const handleChatEvent = useCallback((type, data) => {
+        if (type === "newRequest") refetch();
+        if (type === "message" && activeConv === data.conversationId) {
+            setLocalMsgs((prev) => ({ ...prev, [data.conversationId]: [...(prev[data.conversationId] || []), data] }));
         }
         refetch();
     }, [activeConv, refetch]);
-    useSocket(handleNewChatRequest, handleChatMessage);
+    useSocket(() => {}, () => {}, handleChatEvent);
 
     const conversations = data?.conversations || [];
     const unreadCount = data?.unreadCount || 0;

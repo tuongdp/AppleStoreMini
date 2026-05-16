@@ -4,6 +4,7 @@ import { MessageCircle, X, Send, Sparkles, Bot, Loader2, UserRound } from "lucid
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
+import { useChatSocket } from "@/hooks/useSocket";
 import { useNavigate } from "react-router-dom";
 
 export default function ChatWidget() {
@@ -11,10 +12,17 @@ export default function ChatWidget() {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [convId, setConvId] = useState(null);
     const scrollRef = useRef(null);
     const navigate = useNavigate();
     const user = useSelector((s) => s.auth.user);
     const [sendMsg] = useSendMessageMutation();
+
+    useChatSocket(convId, (data) => {
+        if (data.senderType === "ADMIN") {
+            setMessages((prev) => [...prev, { senderType: "ADMIN", content: data.content, createdAt: data.createdAt }]);
+        }
+    });
 
     useEffect(() => {
         if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -27,6 +35,7 @@ export default function ChatWidget() {
         setLoading(true);
         try {
             const result = await sendMsg({ message: text.trim() }).unwrap();
+            if (result.conversation?.id) setConvId(result.conversation.id);
             if (result.reply) setMessages((prev) => [...prev, { senderType: "AI", content: result.reply, createdAt: new Date().toISOString() }]);
             if (result.products?.length) setMessages((prev) => [...prev, { senderType: "AI", content: null, products: result.products, createdAt: new Date().toISOString() }]);
         } catch {
