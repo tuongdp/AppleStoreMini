@@ -35,9 +35,12 @@ export default function ChatWidget() {
         setLoading(true);
         try {
             const result = await sendMsg({ message: text.trim() }).unwrap();
-            if (result.conversation?.id) setConvId(result.conversation.id);
-            if (result.reply) setMessages((prev) => [...prev, { senderType: "AI", content: result.reply, createdAt: new Date().toISOString() }]);
-            if (result.products?.length) setMessages((prev) => [...prev, { senderType: "AI", content: null, products: result.products, createdAt: new Date().toISOString() }]);
+            const conv = result?.conversation || result?.data?.conversation;
+            if (conv?.id) setConvId(conv.id);
+            const reply = result?.reply || result?.data?.reply;
+            if (reply) setMessages((prev) => [...prev, { senderType: "AI", content: reply, createdAt: new Date().toISOString() }]);
+            const products = result?.products || result?.data?.products;
+            if (products?.length) setMessages((prev) => [...prev, { senderType: "AI", content: null, products, createdAt: new Date().toISOString() }]);
         } catch {
             setMessages((prev) => [...prev, { senderType: "AI", content: "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.", createdAt: new Date().toISOString() }]);
         }
