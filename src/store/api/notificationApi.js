@@ -2,12 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const getToken = () => localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
-
 const baseQuery = fetchBaseQuery({
     baseUrl: API_URL,
-    prepareHeaders: (headers) => {
-        const token = getToken();
+    prepareHeaders: (headers, { getState }) => {
+        const token = getState().auth?.accessToken;
         if (token) headers.set("Authorization", `Bearer ${token}`);
         return headers;
     },

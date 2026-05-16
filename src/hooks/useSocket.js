@@ -12,7 +12,7 @@ export function useSocket(onNewNotification, onNewOrder) {
                 const { io } = await import("socket.io-client");
                 socket = io(SOCKET_URL, {
                     path: "/socket.io",
-                    transports: ["websocket", "polling"],
+                    transports: ["polling"],
                     reconnection: true,
                     reconnectionDelay: 5000,
                 });
@@ -52,7 +52,7 @@ export function useOrderSocket(orderId, onStatusUpdate) {
                 const { io } = await import("socket.io-client");
                 socket = io(SOCKET_URL, {
                     path: "/socket.io",
-                    transports: ["websocket", "polling"],
+                    transports: ["polling"],
                 });
 
                 socket.on("orderStatusUpdate", (data) => {
