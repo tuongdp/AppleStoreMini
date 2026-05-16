@@ -34,24 +34,24 @@ export default function OrderCard({ order }) {
 
     // Chưa bình luận = chưa có isReviewed từ server VÀ chưa bình luận trong session
     const unreviewedItems = deliveredItems.filter((item) => {
-        const pid = item.product?._id || item.product?.id;
+        const pid = item.product?._id || item.product?.id || item.productId;
         return !item.isReviewed && !commentedMap[pid];
     });
 
     // Đã bình luận trong session hiện tại
     const reviewedInSession = deliveredItems.filter((item) => {
-        const pid = item.product?._id || item.product?.id;
+        const pid = item.product?._id || item.product?.id || item.productId;
         return !!commentedMap[pid];
     });
 
     // Đã bình luận từ server (isReviewed = true), chưa bình luận lại trong session
     const reviewedFromServer = deliveredItems.filter((item) => {
-        const pid = item.product?._id || item.product?.id;
+        const pid = item.product?._id || item.product?.id || item.productId;
         return item.isReviewed && !commentedMap[pid];
     });
 
     const handleCommentSuccess = (item, commentData) => {
-        const pid = item.product?._id || item.product?.id;
+        const pid = item.product?._id || item.product?.id || item.productId;
         setCommentedMap((prev) => ({
             ...prev,
             [pid]: commentData || true,
@@ -61,7 +61,7 @@ export default function OrderCard({ order }) {
 
     // Mở modal — nếu đã bình luận trong session thì truyền existing comment vào
     const handleOpenComment = (item) => {
-        const pid = item.product?._id || item.product?.id;
+        const pid = item.product?._id || item.product?.id || item.productId;
         const existing = commentedMap[pid];
         setCommentItem({
             ...item,
