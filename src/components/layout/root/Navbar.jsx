@@ -56,11 +56,12 @@ export default function Navbar() {
                         {/* Logo */}
                         <Link
                             to={ROUTES.HOME}
+                            aria-label="Trang chủ Apple Store"
                             className="flex shrink-0 items-center transition-opacity hover:opacity-70"
                         >
                             <img
                                 src={appleLogo}
-                                alt="Apple"
+                                alt=""
                                 className="h-6 w-6 dark:invert"
                             />
                         </Link>
