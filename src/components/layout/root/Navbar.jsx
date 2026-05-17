@@ -61,7 +61,7 @@ export default function Navbar() {
                         >
                             <img
                                 src={appleLogo}
-                                alt=""
+                                alt="Apple"
                                 className="h-6 w-6 dark:invert"
                             />
                         </Link>
