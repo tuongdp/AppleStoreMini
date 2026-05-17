@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
     Plus,
     Pencil,
@@ -12,6 +12,9 @@ import {
     ChevronDown,
     ChevronUp,
     PackageOpen,
+    BarChart3,
+    AlertTriangle,
+    TrendingUp,
 } from "lucide-react";
 import {
     useGetAllFlashSalesQuery,
@@ -29,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     Dialog,
     DialogContent,
@@ -94,6 +98,47 @@ function FlashSaleStatusBadge({ status }) {
     return <Badge className={cn("text-[11px]", c.className)}>{c.label}</Badge>;
 }
 
+function getItemStats(items = []) {
+    return items.reduce(
+        (stats, item) => {
+            const limit = Number(item.quantityLimit) || 0;
+            const sold = Math.max(0, Number(item.quantitySold) || 0);
+            const salePrice = Number(item.salePrice) || 0;
+            return {
+                totalLimit: stats.totalLimit + limit,
+                totalSold: stats.totalSold + sold,
+                revenue: stats.revenue + (sold * salePrice),
+                soldOut: stats.soldOut + (limit > 0 && sold >= limit ? 1 : 0),
+            };
+        },
+        { totalLimit: 0, totalSold: 0, revenue: 0, soldOut: 0 },
+    );
+}
+
+function FlashSaleSummaryCard({ icon: Icon, label, value, note, tone = "default" }) {
+    const toneClass = {
+        default: "bg-muted text-muted-foreground",
+        active: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400",
+        warning: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+        danger: "bg-destructive/10 text-destructive",
+    }[tone];
+
+    return (
+        <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+                <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", toneClass)}>
+                    <Icon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                    <p className="mt-0.5 text-lg font-semibold text-foreground">{value}</p>
+                    {note && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{note}</p>}
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 // ── FlashSale Form (create / edit) ─────────────────────
 function FlashSaleForm({ flashSale, onClose }) {
     const isEditing = !!flashSale;
@@ -105,7 +150,9 @@ function FlashSaleForm({ flashSale, onClose }) {
         title: z.string().min(1, "Tiêu đề không được để trống"),
         startTime: z.string().min(1, "Chọn thời gian bắt đầu"),
         endTime: z.string().min(1, "Chọn thời gian kết thúc"),
-        description: z.string().optional().default(""),
+    }).refine((values) => new Date(values.endTime) > new Date(values.startTime), {
+        path: ["endTime"],
+        message: "Thời gian kết thúc phải sau thời gian bắt đầu",
     });
 
     const form = useForm({
@@ -118,7 +165,6 @@ function FlashSaleForm({ flashSale, onClose }) {
             endTime: flashSale?.endTime
                 ? new Date(flashSale.endTime).toISOString().slice(0, 16)
                 : "",
-            description: flashSale?.description || "",
         },
     });
 
@@ -129,9 +175,6 @@ function FlashSaleForm({ flashSale, onClose }) {
                 startTime: new Date(values.startTime).toISOString(),
                 endTime: new Date(values.endTime).toISOString(),
             };
-            if (values.description) {
-                payload.description = values.description;
-            }
             if (isEditing) {
                 await updateFlashSale({ id: flashSale.id, ...payload }).unwrap();
                 toast.success("Đã cập nhật flash sale");
@@ -156,22 +199,6 @@ function FlashSaleForm({ flashSale, onClose }) {
                             <FormLabel>{"Tiêu đề"}</FormLabel>
                             <FormControl>
                                 <Input placeholder={"VD: FLASH SALE"} {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Ghi chú / Mô tả</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Mô tả ngắn cho đợt flash sale (tuỳ chọn)"
-                                    {...field}
-                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -285,6 +312,26 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
 
     const onSubmit = async (values) => {
         try {
+            if (!selectedVariant) {
+                toast.error("Vui lòng chọn biến thể sản phẩm");
+                return;
+            }
+            if (!selectedVariant.inStock || Number(selectedVariant.stock) <= 0) {
+                toast.error("Chỉ thêm sản phẩm đang bán và còn hàng vào flash sale");
+                return;
+            }
+            if (Number(values.salePrice) >= Number(selectedVariant.price)) {
+                toast.error("Giá flash sale phải thấp hơn giá gốc");
+                return;
+            }
+            if (Number(values.quantityLimit) > 0 && Number(values.quantityLimit) > Number(selectedVariant.stock || 0)) {
+                toast.error("Giới hạn flash sale không được vượt quá tồn kho");
+                return;
+            }
+            if (Number(values.quantityLimit) > 0 && Number(values.maxPerUser) > Number(values.quantityLimit)) {
+                toast.error("Tối đa mỗi khách không được vượt quá giới hạn bán");
+                return;
+            }
             await addItem({
                 flashSaleId,
                 variantId: values.variantId,
@@ -564,6 +611,9 @@ function FlashSaleItemRow({ item, onRemove, isRemoving }) {
     const imgSrc = (Array.isArray(variant?.images) ? variant.images[0] : null)
         || parseJsonField(product?.images)?.[0]
         || "";
+    const sold = Math.max(0, Number(item.quantitySold) || 0);
+    const limit = Number(item.quantityLimit) || 0;
+    const remaining = limit > 0 ? Math.max(0, limit - sold) : null;
 
     return (
         <div className="flex items-center gap-3 rounded-lg border border-border p-3">
@@ -585,8 +635,8 @@ function FlashSaleItemRow({ item, onRemove, isRemoving }) {
                     <Badge variant="destructive" className="text-[10px]">-{item.discountPercent}%</Badge>
                 </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                    Đã bán {item.quantitySold || 0}
-                    {item.quantityLimit > 0 && ` / ${item.quantityLimit}`}
+                    Đã bán {sold}
+                    {limit > 0 && ` / ${limit} · Còn ${remaining}`}
                     {item.maxPerUser > 1 && ` · Tối đa ${item.maxPerUser}/người`}
                 </p>
             </div>
@@ -608,6 +658,8 @@ function FlashSaleCard({ flashSale, onToggle, onEdit, onDelete, onAddItem, onRem
     const [expanded, setExpanded] = useState(false);
     const status = getFlashSaleStatus(flashSale);
     const items = flashSale.items || [];
+    const stats = getItemStats(items);
+    const progress = stats.totalLimit > 0 ? Math.min(100, Math.round((stats.totalSold / stats.totalLimit) * 100)) : 0;
 
     return (
         <Card className="overflow-hidden">
@@ -671,6 +723,26 @@ function FlashSaleCard({ flashSale, onToggle, onEdit, onDelete, onAddItem, onRem
                     <p className="mb-3 text-xs text-muted-foreground">{flashSale.description}</p>
                 )}
 
+                <div className="mb-3 grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-2 text-xs">
+                    <div>
+                        <p className="text-muted-foreground">Đã bán</p>
+                        <p className="font-semibold text-foreground">{stats.totalSold}{stats.totalLimit > 0 ? ` / ${stats.totalLimit}` : ""}</p>
+                    </div>
+                    <div>
+                        <p className="text-muted-foreground">Doanh thu</p>
+                        <p className="font-semibold text-foreground">{formatPrice(stats.revenue)}</p>
+                    </div>
+                    <div>
+                        <p className="text-muted-foreground">Hết suất</p>
+                        <p className="font-semibold text-foreground">{stats.soldOut}</p>
+                    </div>
+                    {stats.totalLimit > 0 && (
+                        <div className="col-span-3 h-1.5 overflow-hidden rounded-full bg-background">
+                            <div className="h-full rounded-full bg-destructive transition-all" style={{ width: `${progress}%` }} />
+                        </div>
+                    )}
+                </div>
+
                 <Button
                     variant="ghost"
                     size="sm"
@@ -720,6 +792,8 @@ export default function AdminFlashSalePage() {
     const [editingFlashSale, setEditingFlashSale] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [addItemTo, setAddItemTo] = useState(null);
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
 
     const { data, isLoading } = useGetAllFlashSalesQuery();
     const [deleteFlashSale, { isLoading: isDeleting }] = useDeleteFlashSaleMutation();
@@ -727,13 +801,41 @@ export default function AdminFlashSalePage() {
     const [removeItem, { isLoading: isRemoving }] = useRemoveFlashSaleItemMutation();
 
     const flashSales = data || [];
+    const summary = useMemo(() => {
+        return flashSales.reduce(
+            (acc, flashSale) => {
+                const status = getFlashSaleStatus(flashSale);
+                const stats = getItemStats(flashSale.items || []);
+                return {
+                    total: acc.total + 1,
+                    active: acc.active + (status === "active" ? 1 : 0),
+                    upcoming: acc.upcoming + (status === "upcoming" ? 1 : 0),
+                    ended: acc.ended + (status === "ended" ? 1 : 0),
+                    totalSold: acc.totalSold + stats.totalSold,
+                    revenue: acc.revenue + stats.revenue,
+                    soldOut: acc.soldOut + stats.soldOut,
+                };
+            },
+            { total: 0, active: 0, upcoming: 0, ended: 0, totalSold: 0, revenue: 0, soldOut: 0 },
+        );
+    }, [flashSales]);
+
+    const filteredFlashSales = useMemo(() => {
+        const keyword = search.trim().toLowerCase();
+        return flashSales.filter((flashSale) => {
+            const status = getFlashSaleStatus(flashSale);
+            const matchesStatus = statusFilter === "all" || status === statusFilter;
+            const matchesSearch = !keyword || flashSale.title?.toLowerCase().includes(keyword);
+            return matchesStatus && matchesSearch;
+        });
+    }, [flashSales, search, statusFilter]);
 
     const handleDelete = async () => {
         try {
             await deleteFlashSale(deleteId).unwrap();
             toast.success("Đã xóa flash sale");
-        } catch {
-            toast.error("Có lỗi xảy ra");
+        } catch (error) {
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
         }
@@ -743,8 +845,8 @@ export default function AdminFlashSalePage() {
         try {
             await toggleStatus(id).unwrap();
             toast.success("Đã cập nhật trạng thái");
-        } catch {
-            toast.error("Có lỗi xảy ra");
+        } catch (error) {
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         }
     };
 
@@ -752,8 +854,8 @@ export default function AdminFlashSalePage() {
         try {
             await removeItem(itemId).unwrap();
             toast.success("Đã xóa sản phẩm");
-        } catch {
-            toast.error("Có lỗi xảy ra");
+        } catch (error) {
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         }
     };
 
@@ -770,6 +872,41 @@ export default function AdminFlashSalePage() {
                     {"Tạo đợt flash sale"}
                 </Button>
             </div>
+
+            {!isLoading && flashSales.length > 0 && (
+                <>
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        <FlashSaleSummaryCard icon={Zap} label="Đang chạy" value={summary.active} note={`${summary.upcoming} sắp diễn ra`} tone="active" />
+                        <FlashSaleSummaryCard icon={BarChart3} label="Đã bán" value={summary.totalSold} note={`${summary.soldOut} sản phẩm hết suất`} />
+                        <FlashSaleSummaryCard icon={TrendingUp} label="Doanh thu flash sale" value={formatPrice(summary.revenue)} note="Tính theo số đã bán" tone="warning" />
+                        <FlashSaleSummaryCard icon={AlertTriangle} label="Đã kết thúc" value={summary.ended} note={`${summary.total} chương trình`} tone="danger" />
+                    </div>
+
+                    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3 md:flex-row md:items-center md:justify-between">
+                        <div className="relative md:w-80">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                className="pl-9"
+                                placeholder="Tìm theo tên flash sale..."
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                            />
+                        </div>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-full rounded-full md:w-48">
+                                <SelectValue placeholder="Trạng thái" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                <SelectItem value="active">Đang diễn ra</SelectItem>
+                                <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
+                                <SelectItem value="ended">Đã kết thúc</SelectItem>
+                                <SelectItem value="disabled">Đã tắt</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </>
+            )}
 
             {/* Form */}
             {showForm && (
@@ -815,10 +952,17 @@ export default function AdminFlashSalePage() {
                 </div>
             )}
 
+            {!isLoading && flashSales.length > 0 && filteredFlashSales.length === 0 && (
+                <div className="rounded-xl border border-dashed border-border py-10 text-center">
+                    <p className="text-sm font-medium text-foreground">Không tìm thấy flash sale phù hợp</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Thử đổi từ khóa hoặc bộ lọc trạng thái.</p>
+                </div>
+            )}
+
             {/* Card grid */}
-            {!isLoading && flashSales.length > 0 && (
+            {!isLoading && filteredFlashSales.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {flashSales.map((fs) => (
+                    {filteredFlashSales.map((fs) => (
                         <FlashSaleCard
                             key={fs.id}
                             flashSale={fs}

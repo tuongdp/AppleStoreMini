@@ -90,30 +90,29 @@ function FlashSaleSection({ flashSale }) {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
-                {products.map((product, idx) => (
-                    <div key={idx} className="group relative">
+                {products.map((product) => (
+                    <div key={`${flashSale.id}-${product.variantId || product.id}`} className="group relative">
                         <ProductCard product={product} />
-                        {product._flashSaleItem?.quantityLimit > 0 && (
+                        {product._flashSaleItem?.quantityLimit > 0 && (() => {
+                            const limit = Number(product._flashSaleItem.quantityLimit) || 0;
+                            const sold = Math.max(0, Number(product._flashSaleItem.quantitySold) || 0);
+                            const remaining = Math.max(0, limit - sold);
+                            const progress = limit > 0 ? Math.min(100, Math.round((sold / limit) * 100)) : 0;
+                            return (
                             <div className="px-3 pb-1">
                                 <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                    <span>Đã bán {product._flashSaleItem.quantitySold}</span>
-                                    <span>Còn {product._flashSaleItem.quantityLimit - product._flashSaleItem.quantitySold}</span>
+                                    <span>Đã bán {sold}</span>
+                                    <span>{remaining > 0 ? `Còn ${remaining}` : "Hết suất"}</span>
                                 </div>
                                 <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                                     <div
                                         className="h-full rounded-full bg-destructive transition-all"
-                                        style={{
-                                            width: `${Math.min(
-                                                product._flashSaleItem.quantityLimit > 0
-                                                    ? Math.round((product._flashSaleItem.quantitySold / product._flashSaleItem.quantityLimit) * 100)
-                                                    : 0,
-                                                100,
-                                            )}%`,
-                                        }}
+                                        style={{ width: `${progress}%` }}
                                     />
                                 </div>
                             </div>
-                        )}
+                            );
+                        })()}
                     </div>
                 ))}
             </div>

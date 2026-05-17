@@ -122,6 +122,11 @@ export default function ProductDetailPage() {
 
     const displayOriginalPrice = (hasActiveFlashSale && flashSaleData) ? flashSaleData.originalPrice : selectedVariant?.price;
     const displaySalePrice = (hasActiveFlashSale && flashSaleData) ? null : selectedVariant?.salePrice;
+    const flashSaleLimit = Number(flashSaleData?.quantityLimit) || 0;
+    const flashSaleSold = Math.max(0, Number(flashSaleData?.quantitySold) || 0);
+    const flashSaleRemaining = flashSaleLimit > 0 ? Math.max(0, flashSaleLimit - flashSaleSold) : null;
+    const isFlashSaleSoldOut = hasActiveFlashSale && flashSaleLimit > 0 && flashSaleRemaining <= 0;
+    const maxQuantity = isFlashSaleSoldOut ? 0 : Math.max(1, Math.min(stock || 99, flashSaleRemaining || stock || 99));
 
     const productImages = useMemo(() => {
         const variantImages = selectedVariant?.images || [];
@@ -145,8 +150,15 @@ export default function ProductDetailPage() {
         setQuantity(1);
     }, [slug]);
 
+    useEffect(() => {
+        if (quantity > maxQuantity && maxQuantity > 0) {
+            setQuantity(maxQuantity);
+        }
+    }, [maxQuantity, quantity]);
+
     const handleAddToCart = async () => {
         if (!product || !selectedVariant?.id) return;
+        if (isFlashSaleSoldOut) return;
 
         dispatch(
             addToCart({
@@ -176,6 +188,7 @@ export default function ProductDetailPage() {
 
     const handleBuyNow = async () => {
         if (!product || !selectedVariant?.id) return;
+        if (isFlashSaleSoldOut) return;
         dispatch(
             addToCart({
                 product: { ...product, ...selectedVariant, variantId: selectedVariant.id, images: productImages },
@@ -534,9 +547,9 @@ export default function ProductDetailPage() {
                         <QuantityInput
                             value={quantity}
                             min={1}
-                            max={stock || 99}
+                            max={maxQuantity || 1}
                             onChange={setQuantity}
-                            disabled={!inStock}
+                            disabled={!inStock || isFlashSaleSoldOut}
                         />
                     </div>
 
@@ -546,7 +559,7 @@ export default function ProductDetailPage() {
                             <Button size="lg" className="flex-1 rounded-full text-base" disabled>
                                 {"Vui lòng chọn đầy đủ tuỳ chọn"}
                             </Button>
-                        ) : inStock ? (
+                        ) : inStock && !isFlashSaleSoldOut ? (
                             <Button
                                 size="lg"
                                 className="flex-1 rounded-full text-base"
@@ -561,7 +574,7 @@ export default function ProductDetailPage() {
                                 className="flex-1 rounded-full text-base"
                                 disabled
                             >
-                                {"Hết hàng"}
+                                {isFlashSaleSoldOut ? "Hết suất flash sale" : "Hết hàng"}
                             </Button>
                         )}
                         <Button
@@ -569,7 +582,7 @@ export default function ProductDetailPage() {
                             variant="outline"
                             className="flex-1 gap-2 rounded-full text-base"
                             onClick={handleAddToCart}
-                            disabled={!selectedVariant || !inStock || isAddingToCart}
+                            disabled={!selectedVariant || !inStock || isFlashSaleSoldOut || isAddingToCart}
                         >
                             <ShoppingCart className="h-5 w-5" />
                             {"Thêm vào giỏ hàng"}
