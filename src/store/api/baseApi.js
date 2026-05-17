@@ -107,6 +107,7 @@ export const baseApi = createApi({
     "Campaigns",
     "Campaign",
     "EmailLogs",
+    "EmailAutomation",
   ],
   endpoints: () => ({}),
 });

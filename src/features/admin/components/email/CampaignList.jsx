@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Send, Edit, Trash2, BarChart3, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Send, Edit, Trash2, BarChart3, Sparkles, Loader2, Clock, Save, PlayCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import {
     Table,
@@ -24,6 +26,9 @@ import {
     useDeleteCampaignMutation,
     useSendCampaignMutation,
     useAutoGenerateCampaignMutation,
+    useGetEmailAutomationSettingsQuery,
+    useUpdateEmailAutomationSettingsMutation,
+    useRunEmailAutomationNowMutation,
 } from "@/store/api/emailMarketingApi";
 
 const STATUS_MAP = {
@@ -41,16 +46,29 @@ export default function CampaignList() {
     const [statsData, setStatsData] = useState(null);
     const [showAutoDialog, setShowAutoDialog] = useState(false);
     const [strategy, setStrategy] = useState("both");
+    const [automationForm, setAutomationForm] = useState({ enabled: false, strategy: "both", hour: 9 });
     const limit = 10;
 
     const { data, isLoading } = useGetCampaignsQuery({ page, limit });
+    const { data: automationSettings, isLoading: loadingAutomation } = useGetEmailAutomationSettingsQuery();
     const [deleteCampaign, { isLoading: deleting }] = useDeleteCampaignMutation();
     const [sendCampaign, { isLoading: sending }] = useSendCampaignMutation();
     const [autoGenerate, { isLoading: generating }] = useAutoGenerateCampaignMutation();
+    const [updateAutomation, { isLoading: savingAutomation }] = useUpdateEmailAutomationSettingsMutation();
+    const [runAutomationNow, { isLoading: runningAutomation }] = useRunEmailAutomationNowMutation();
 
     const campaigns = data?.campaigns ?? [];
     const pagination = data?.pagination;
     const totalPages = pagination ? Math.ceil(pagination.total / limit) : 0;
+
+    useEffect(() => {
+        if (!automationSettings) return;
+        setAutomationForm({
+            enabled: Boolean(automationSettings.enabled),
+            strategy: automationSettings.strategy || "both",
+            hour: automationSettings.hour ?? 9,
+        });
+    }, [automationSettings]);
 
     const handleDelete = async () => {
         if (!deleteId) return;
@@ -97,6 +115,29 @@ export default function CampaignList() {
         }
     };
 
+    const handleSaveAutomation = async () => {
+        try {
+            const hour = Number(automationForm.hour);
+            if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+                toast.error("Giờ gửi phải từ 0 đến 23");
+                return;
+            }
+            await updateAutomation({ ...automationForm, hour }).unwrap();
+            toast.success("Đã lưu cấu hình gửi email tự động");
+        } catch {
+            toast.error("Không thể lưu cấu hình tự động");
+        }
+    };
+
+    const handleRunAutomationNow = async () => {
+        try {
+            const result = await runAutomationNow().unwrap();
+            toast.success(`Đã tạo và gửi ${result.sent?.sent ?? 0}/${result.sent?.total ?? 0} email`);
+        } catch {
+            toast.error("Không thể chạy gửi email tự động ngay lúc này");
+        }
+    };
+
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -114,6 +155,71 @@ export default function CampaignList() {
                     </Button>
                 </div>
             </div>
+
+            <Card className="border-border">
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                        <Clock className="h-4 w-4 text-blue-600" />
+                        Tự động tạo và gửi email mỗi ngày
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 lg:grid-cols-[1.2fr_1fr_auto] lg:items-end">
+                    <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3">
+                        <div>
+                            <p className="text-sm font-medium">Bật lịch gửi tự động</p>
+                            <p className="text-xs text-muted-foreground">
+                                Hệ thống tạo chiến dịch bằng AI và gửi 1 lần/ngày theo giờ Việt Nam.
+                            </p>
+                        </div>
+                        <Switch
+                            checked={automationForm.enabled}
+                            disabled={loadingAutomation || savingAutomation}
+                            onCheckedChange={(checked) => setAutomationForm((prev) => ({ ...prev, enabled: checked }))}
+                        />
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs">Chiến lược</Label>
+                            <select
+                                className="h-8 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                                value={automationForm.strategy}
+                                disabled={loadingAutomation || savingAutomation}
+                                onChange={(e) => setAutomationForm((prev) => ({ ...prev, strategy: e.target.value }))}
+                            >
+                                <option value="both">Kết hợp tồn kho và bán chạy</option>
+                                <option value="push_inventory">Đẩy hàng tồn</option>
+                                <option value="hot_products">Sản phẩm hot</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-xs">Giờ gửi</Label>
+                            <Input
+                                type="number"
+                                min="0"
+                                max="23"
+                                value={automationForm.hour}
+                                disabled={loadingAutomation || savingAutomation}
+                                onChange={(e) => setAutomationForm((prev) => ({ ...prev, hour: e.target.value }))}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                        <Button variant="outline" onClick={handleSaveAutomation} disabled={savingAutomation || loadingAutomation}>
+                            {savingAutomation ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                            Lưu
+                        </Button>
+                        <Button onClick={handleRunAutomationNow} disabled={runningAutomation}>
+                            {runningAutomation ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlayCircle className="mr-2 h-4 w-4" />}
+                            Chạy thử ngay
+                        </Button>
+                        <p className="basis-full text-xs text-muted-foreground lg:text-right">
+                            Lần gửi gần nhất: {automationSettings?.lastSentDate || "Chưa có"}
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
 
             <Card className="border-border">
                 <CardContent className="p-0">

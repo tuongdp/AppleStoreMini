@@ -114,6 +114,32 @@ export const emailMarketingApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        getEmailAutomationSettings: builder.query({
+            query: () => "/admin/email-campaigns/automation/settings",
+            providesTags: ["EmailAutomation"],
+            transformResponse: (response) => response.data,
+        }),
+
+        updateEmailAutomationSettings: builder.mutation({
+            query: (body) => ({
+                url: "/admin/email-campaigns/automation/settings",
+                method: "PUT",
+                body,
+            }),
+            invalidatesTags: ["EmailAutomation"],
+            transformResponse: (response) => response.data,
+        }),
+
+        runEmailAutomationNow: builder.mutation({
+            query: () => ({
+                url: "/admin/email-campaigns/automation/run",
+                method: "POST",
+                body: { force: true },
+            }),
+            invalidatesTags: ["Campaigns", "Campaign", "EmailLogs", "EmailAutomation"],
+            transformResponse: (response) => response.data,
+        }),
+
         // ── Admin: Email Logs ──
         getEmailLogs: builder.query({
             query: (params) => ({ url: "/admin/email-logs", params }),
@@ -141,4 +167,7 @@ export const {
     useGetCampaignStatsQuery,
     useGetEmailLogsQuery,
     useAutoGenerateCampaignMutation,
+    useGetEmailAutomationSettingsQuery,
+    useUpdateEmailAutomationSettingsMutation,
+    useRunEmailAutomationNowMutation,
 } = emailMarketingApi;
