@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
     Mail,
     Phone,
     Calendar,
     ShoppingBag,
+    Shield,
     ShieldCheck,
+    ShieldOff,
     Loader2,
     MapPin,
     User,
@@ -19,7 +21,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
-import { useUpdateUserPermissionsMutation } from "@/store/api/usersApi";
+import {
+    useToggleUserStatusMutation,
+    useUpdateUserPermissionsMutation,
+    useUpdateUserRoleMutation,
+} from "@/store/api/usersApi";
 import { selectIsAdmin } from "@/store/authSlice";
 import {
     formatPrice,
@@ -53,6 +59,17 @@ const ALL_PERMISSIONS = [
     { key: "categories", label: "Danh mục" },
 ];
 
+const EXTRA_PERMISSIONS = [
+    { key: "returns", label: "Trả hàng" },
+    { key: "newsComments", label: "Bình luận tin tức" },
+    { key: "banners", label: "Banner" },
+    { key: "flashSales", label: "Flash sale" },
+    { key: "coupons", label: "Khuyến mãi" },
+    { key: "points", label: "Điểm thưởng" },
+];
+
+const STAFF_PERMISSIONS = [...ALL_PERMISSIONS, ...EXTRA_PERMISSIONS];
+
 const StatCard = ({ icon: Icon, label, value, iconClassName }) => (
     <div className="flex items-start gap-3">
         <div
@@ -72,8 +89,14 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const [perms, setPerms] = useState(user.permissions || []);
     const [updatePerms, { isLoading: isUpdatingPerms }] =
         useUpdateUserPermissionsMutation();
+    const [updateRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
+    const [toggleStatus, { isLoading: isTogglingStatus }] = useToggleUserStatusMutation();
 
     const roleConfig = ROLE_CONFIG[user.role] || ROLE_CONFIG.user;
+
+    useEffect(() => {
+        setPerms(user.permissions || []);
+    }, [user.id, user.permissions]);
 
     const togglePerm = (key) => {
         setPerms((prev) => {
@@ -87,6 +110,25 @@ export default function AdminUserDetail({ user, orders = [] }) {
         try {
             await updatePerms({ id: user.id, permissions: perms }).unwrap();
             toast.success("Đã cập nhật quyền");
+        } catch {
+            toast.error("Có lỗi xảy ra");
+        }
+    };
+
+    const handleSetRole = async (role) => {
+        if (role === user.role) return;
+        try {
+            await updateRole({ id: user.id, role }).unwrap();
+            toast.success("Đã cập nhật vai trò");
+        } catch {
+            toast.error("Có lỗi xảy ra");
+        }
+    };
+
+    const handleToggleStatus = async () => {
+        try {
+            await toggleStatus(user.id).unwrap();
+            toast.success(user.isBlocked ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản");
         } catch {
             toast.error("Có lỗi xảy ra");
         }
@@ -223,6 +265,60 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         </div>
                     )}
 
+                    {isAdmin && (
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <div className="mb-4 flex items-center gap-2">
+                                <Shield className="h-4 w-4 text-muted-foreground" />
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Quản trị tài khoản
+                                </h3>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="justify-start rounded-lg"
+                                    disabled={isUpdatingRole || user.role === "admin"}
+                                    onClick={() => handleSetRole("admin")}
+                                >
+                                    <ShieldCheck className="mr-2 h-4 w-4" />
+                                    Đặt làm quản trị viên
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="justify-start rounded-lg"
+                                    disabled={isUpdatingRole || user.role === "staff"}
+                                    onClick={() => handleSetRole("staff")}
+                                >
+                                    <Shield className="mr-2 h-4 w-4" />
+                                    Đặt làm nhân viên
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="justify-start rounded-lg"
+                                    disabled={isUpdatingRole || user.role === "user"}
+                                    onClick={() => handleSetRole("user")}
+                                >
+                                    <User className="mr-2 h-4 w-4" />
+                                    Đặt làm người dùng
+                                </Button>
+                                <Separator className="my-1" />
+                                <Button
+                                    variant={user.isBlocked ? "outline" : "destructive"}
+                                    size="sm"
+                                    className="justify-start rounded-lg"
+                                    disabled={isTogglingStatus}
+                                    onClick={handleToggleStatus}
+                                >
+                                    <ShieldOff className="mr-2 h-4 w-4" />
+                                    {user.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Permissions */}
                     {isAdmin && user.role === "staff" && (
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
@@ -233,7 +329,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 </h3>
                             </div>
                             <div className="space-y-0.5">
-                                {ALL_PERMISSIONS.map((p) => {
+                                {STAFF_PERMISSIONS.map((p) => {
                                     const checked =
                                         Array.isArray(perms) && perms.includes(p.key);
                                     return (

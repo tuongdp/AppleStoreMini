@@ -14,13 +14,17 @@ export default function VerifyEmailPage() {
 
     useEffect(() => {
         if (!token) return;
+        let redirectTimer;
+        let cancelled = false;
         verifyEmail({ token })
             .unwrap()
             .then(() => {
+                if (cancelled) return;
                 setStatus("success");
-                setTimeout(() => navigate(ROUTES.HOME, { replace: true }), 1500);
+                redirectTimer = setTimeout(() => navigate(ROUTES.HOME, { replace: true }), 1500);
             })
             .catch((err) => {
+                if (cancelled) return;
                 const msg = err?.data?.message;
                 if (msg?.includes("đã được xác thực")) {
                     setStatus("already");
@@ -28,6 +32,10 @@ export default function VerifyEmailPage() {
                     setStatus("invalid");
                 }
             });
+        return () => {
+            cancelled = true;
+            if (redirectTimer) clearTimeout(redirectTimer);
+        };
     }, [token, verifyEmail, navigate]);
 
     return (

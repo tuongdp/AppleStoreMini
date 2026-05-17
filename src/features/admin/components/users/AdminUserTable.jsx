@@ -9,9 +9,14 @@ import {
     Shield,
     MoreHorizontal,
     Trash2,
+    Users,
+    UserCheck,
+    UserX,
+    UserCog,
 } from "lucide-react";
 import {
     useGetAllUsersQuery,
+    useGetUserStatsQuery,
     useUpdateUserRoleMutation,
     useToggleUserStatusMutation,
     useDeleteUserMutation,
@@ -73,6 +78,28 @@ const ROLE_LABEL = {
     [ROLE.USER]: "Người dùng",
 };
 
+const STATUS_OPTIONS = [
+    { value: "all", label: "Tất cả trạng thái" },
+    { value: "active", label: "Đang hoạt động" },
+    { value: "blocked", label: "Đã khóa" },
+];
+
+const SummaryCard = ({ icon: Icon, label, value, className }) => (
+    <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${className}`}>
+                <Icon className="h-5 w-5" />
+            </div>
+            <div>
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="text-xl font-semibold text-foreground">
+                    {formatNumber(value || 0)}
+                </p>
+            </div>
+        </div>
+    </div>
+);
+
 export default function AdminUserTable() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(
@@ -87,10 +114,12 @@ export default function AdminUserTable() {
         page: Number(searchParams.get("page")) || 1,
         limit: PAGINATION.DEFAULT_LIMIT,
         role: searchParams.get("role") || undefined,
+        status: searchParams.get("status") || undefined,
         search: debouncedSearch || undefined,
     };
 
     const { data, isLoading } = useGetAllUsersQuery(filters);
+    const { data: stats } = useGetUserStatsQuery();
     const [updateRole, { isLoading: isUpdating }] = useUpdateUserRoleMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleUserStatusMutation();
@@ -121,10 +150,10 @@ export default function AdminUserTable() {
         }
     };
 
-    const handleToggleStatus = async (userId) => {
+    const handleToggleStatus = async (user) => {
         try {
-            await toggleStatus(userId).unwrap();
-            toast.success("Đã khoá tài khoản");
+            await toggleStatus(user.id).unwrap();
+            toast.success(user.isBlocked ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản");
         } catch {
             toast.error("Có lỗi xảy ra");
         }
@@ -179,6 +208,33 @@ export default function AdminUserTable() {
 
     return (
         <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <SummaryCard
+                    icon={Users}
+                    label="Tổng người dùng"
+                    value={stats?.total}
+                    className="bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300"
+                />
+                <SummaryCard
+                    icon={UserCheck}
+                    label="Đang hoạt động"
+                    value={stats?.active}
+                    className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
+                />
+                <SummaryCard
+                    icon={UserCog}
+                    label="Nhân viên/Admin"
+                    value={(stats?.staff || 0) + (stats?.admins || 0)}
+                    className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                />
+                <SummaryCard
+                    icon={UserX}
+                    label="Đã khóa"
+                    value={stats?.blocked}
+                    className="bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                />
+            </div>
+
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">
                 <div className="relative max-w-xs min-w-[200px] flex-1">
@@ -199,6 +255,21 @@ export default function AdminUserTable() {
                     </SelectTrigger>
                     <SelectContent>
                         {ROLE_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select
+                    value={searchParams.get("status") || "all"}
+                    onValueChange={(val) => updateParam("status", val)}
+                >
+                    <SelectTrigger className="w-44 rounded-full">
+                        <SelectValue placeholder={"Lọc trạng thái"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {STATUS_OPTIONS.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
                                 {opt.label}
                             </SelectItem>
@@ -386,7 +457,7 @@ export default function AdminUserTable() {
                                                         <DropdownMenuItem
                                                             className="gap-2"
                                                             disabled={isToggling}
-                                                            onClick={() => handleToggleStatus(user.id)}
+                                                            onClick={() => handleToggleStatus(user)}
                                                         >
                                                             <ShieldOff className="h-4 w-4" />
                                                             {user.isBlocked ? "Bỏ chặn" : "Chặn"}

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Loader2, ChevronLeft, Bot, User, Check } from "lucide-react";
+import { MessageCircle, Send, Loader2, ChevronLeft, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,11 @@ import {
     useCloseConversationMutation,
 } from "@/store/api/chatApi";
 import { useSocket } from "@/hooks/useSocket";
+
+const TIME_FORMATTER = new Intl.DateTimeFormat("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+});
 
 export default function AdminChatPanel() {
     const [open, setOpen] = useState(false);
@@ -61,10 +66,10 @@ export default function AdminChatPanel() {
         } catch { }
     };
 
-    const handleClose = async (id) => {
-        await closeConv(id);
-        setActiveConv(null);
-    };
+    const formatMessageTime = (value) =>
+        value
+            ? TIME_FORMATTER.format(new Date(value))
+            : "";
 
     return (
         <div className="relative">
@@ -107,8 +112,8 @@ export default function AdminChatPanel() {
 
                                 {/* Messages */}
                                 <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
-                                    {allMessages.map((msg, i) => (
-                                        <div key={i} className={`flex ${msg.senderType === "ADMIN" ? "justify-end" : "justify-start"}`}>
+                                    {allMessages.map((msg) => (
+                                        <div key={msg.id || msg._id || `${msg.senderType}-${msg.createdAt}`} className={`flex ${msg.senderType === "ADMIN" ? "justify-end" : "justify-start"}`}>
                                             <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-xs ${msg.senderType === "ADMIN"
                                                 ? "bg-green-600 text-white rounded-br-md"
                                                 : msg.senderType === "AI" ? "bg-blue-100 text-blue-900 rounded-bl-md" : "bg-muted text-foreground rounded-bl-md"
@@ -159,7 +164,7 @@ export default function AdminChatPanel() {
                                                 <div className="flex items-center justify-between">
                                                     <p className="text-sm font-medium truncate">{conv.user?.fullName || conv.user?.email || "Khách"}</p>
                                                     <span className="text-[10px] text-muted-foreground">
-                                                        {new Date(conv.updatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                                                        {formatMessageTime(conv.updatedAt)}
                                                     </span>
                                                 </div>
                                                 <p className="text-xs text-muted-foreground truncate">{conv.lastMessage}</p>

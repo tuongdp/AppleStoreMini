@@ -10,9 +10,11 @@ export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
 
     useEffect(() => {
         let socket;
+        let cancelled = false;
         const initSocket = async () => {
             try {
                 const { io } = await import("socket.io-client");
+                if (cancelled) return;
                 socket = io(SOCKET_URL, {
                     path: "/socket.io",
                     transports: ["websocket", "polling"],
@@ -28,7 +30,16 @@ export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
             } catch (e) {}
         };
         initSocket();
-        return () => { if (socket) socket.disconnect(); };
+        return () => {
+            cancelled = true;
+            if (socket) {
+                socket.off("notification:new");
+                socket.off("newOrder");
+                socket.off("chat:newRequest");
+                socket.off("chat:message");
+                socket.disconnect();
+            }
+        };
     }, [token]);
 
     return null;
@@ -39,16 +50,24 @@ export function useOrderSocket(orderId, onStatusUpdate) {
     useEffect(() => {
         if (!orderId) return;
         let socket;
+        let cancelled = false;
         const initSocket = async () => {
             try {
                 const { io } = await import("socket.io-client");
+                if (cancelled) return;
                 socket = io(SOCKET_URL, { path: "/socket.io", transports: ["websocket", "polling"] });
                 socket.on("orderStatusUpdate", (data) => { if (data.orderId === orderId && onStatusUpdate) onStatusUpdate(data); });
                 socketRef.current = socket;
             } catch (e) {}
         };
         initSocket();
-        return () => { if (socket) socket.disconnect(); };
+        return () => {
+            cancelled = true;
+            if (socket) {
+                socket.off("orderStatusUpdate");
+                socket.disconnect();
+            }
+        };
     }, [orderId]);
     return socketRef;
 }
@@ -60,16 +79,25 @@ export function useChatSocket(conversationId, onMessage) {
     useEffect(() => {
         if (!conversationId) return;
         let socket;
+        let cancelled = false;
+        const eventName = `chat:message:${conversationId}`;
         const initSocket = async () => {
             try {
                 const { io } = await import("socket.io-client");
+                if (cancelled) return;
                 socket = io(SOCKET_URL, { path: "/socket.io", transports: ["websocket", "polling"] });
-                socket.on(`chat:message:${conversationId}`, (data) => { onMessageRef.current?.(data); });
+                socket.on(eventName, (data) => { onMessageRef.current?.(data); });
                 socketRef.current = socket;
             } catch (e) {}
         };
         initSocket();
-        return () => { if (socket) socket.disconnect(); };
+        return () => {
+            cancelled = true;
+            if (socket) {
+                socket.off(eventName);
+                socket.disconnect();
+            }
+        };
     }, [conversationId]);
     return socketRef;
 }

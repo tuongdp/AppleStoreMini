@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -7,14 +7,18 @@ export default function ProductSpecification({ specifications = {} }) {
     const [needsTruncation, setNeedsTruncation] = useState(false);
     const contentRef = useRef(null);
 
-    const entries = Object.entries(specifications).filter(([, v]) => v);
-    if (!entries.length) return null;
+    const entries = useMemo(
+        () => Object.entries(specifications).filter(([, v]) => v),
+        [specifications],
+    );
 
     useEffect(() => {
         if (contentRef.current) {
             setNeedsTruncation(contentRef.current.scrollHeight > 200);
         }
     }, [specifications]);
+
+    if (!entries.length) return null;
 
     return (
         <div>

@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
-export default function Breadcrumb({ items = [], className }) {
+
+const EMPTY_ITEMS = [];
+
+export default function Breadcrumb({ items = EMPTY_ITEMS, className }) {
     // items = [{ label: "iPhone", href: "/products?category=iphone" }, { label: "iPhone 15 Pro" }]
     // Item cuối cùng không có href — đó là trang hiện tại
 
@@ -23,7 +26,7 @@ export default function Breadcrumb({ items = [], className }) {
                 const isLast = index === items.length - 1;
 
                 return (
-                    <span key={index} className="flex min-w-0 items-center gap-1">
+                    <span key={`${item.href || "current"}-${item.label}`} className="flex min-w-0 items-center gap-1">
                         {/* Separator */}
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
 

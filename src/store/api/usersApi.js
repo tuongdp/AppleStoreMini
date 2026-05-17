@@ -60,6 +60,12 @@ export const usersApi = baseApi.injectEndpoints({
             }),
         }),
 
+        getUserStats: builder.query({
+            query: () => "/admin/users/stats",
+            providesTags: ["Users"],
+            transformResponse: (response) => response.data,
+        }),
+
         // GET /admin/users/:id
         getUserById: builder.query({
             query: (id) => `/admin/users/${id}`,
@@ -75,7 +81,7 @@ export const usersApi = baseApi.injectEndpoints({
                 // ✅ BE enum uppercase — đảm bảo gửi đúng
                 body: { role: role.toUpperCase() },
             }),
-            invalidatesTags: ["Users"],
+            invalidatesTags: (_, __, { id }) => ["Users", { type: "User", id }],
             transformResponse: (response) => response.data,
         }),
 
@@ -86,7 +92,7 @@ export const usersApi = baseApi.injectEndpoints({
                 method: "PATCH",
                 body: { permissions },
             }),
-            invalidatesTags: ["Users"],
+            invalidatesTags: (_, __, { id }) => ["Users", { type: "User", id }],
             transformResponse: (response) => response.data,
         }),
 
@@ -96,7 +102,7 @@ export const usersApi = baseApi.injectEndpoints({
                 url: `/admin/users/${id}/toggle`,
                 method: "PATCH",
             }),
-            invalidatesTags: ["Users"],
+            invalidatesTags: (_, __, id) => ["Users", { type: "User", id }],
             transformResponse: (response) => response.data,
         }),
 
@@ -116,6 +122,7 @@ export const {
     useUpdateProfileMutation,
     useUploadAvatarMutation,
     useGetAllUsersQuery,
+    useGetUserStatsQuery,
     useGetUserByIdQuery,
     useUpdateUserRoleMutation,
     useUpdateUserPermissionsMutation,

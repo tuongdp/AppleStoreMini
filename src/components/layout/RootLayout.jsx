@@ -13,7 +13,7 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { useGetServerCartQuery } from "@/store/api/cartApi";
 
 export default function RootLayout() {
-    const location = useLocation();
+    const { pathname } = useLocation();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     useGetServerCartQuery(undefined, {
@@ -23,7 +23,7 @@ export default function RootLayout() {
 
     useEffect(() => {
         dispatch(closeAll());
-    }, [location.pathname, dispatch]);
+    }, [pathname, dispatch]);
     return (
         <div className="relative flex min-h-screen flex-col">
             <ScrollToTop />
