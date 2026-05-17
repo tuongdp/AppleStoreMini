@@ -5,14 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Map,
-  MapControls,
-  MapMarker,
-  MarkerContent,
-  MarkerPopup,
-  MarkerTooltip,
-} from "@/components/ui/map";
-import {
   Form,
   FormControl,
   FormField,
@@ -32,6 +24,7 @@ const STORE_COORDINATES = {
   latitude: 13.083505,
 };
 const STORE_MAP_DIRECTIONS_URL = "https://maps.app.goo.gl/6VVwQJVK67oNaxuD8";
+const STORE_MAP_EMBED_URL = `https://www.google.com/maps?q=${STORE_COORDINATES.latitude},${STORE_COORDINATES.longitude}&z=17&output=embed`;
 
 const CONTACT_INFO = [
   {
@@ -221,34 +214,14 @@ export default function ContactPage() {
             </Button>
           </div>
           <div className="h-[320px] bg-muted sm:h-[420px]">
-            <Map
-              center={[STORE_COORDINATES.longitude, STORE_COORDINATES.latitude]}
-              className="h-full min-h-[320px] sm:min-h-[420px]"
-              zoom={15}
-            >
-              <MapControls showFullscreen />
-              <MapMarker
-                longitude={STORE_COORDINATES.longitude}
-                latitude={STORE_COORDINATES.latitude}
-              >
-                <MarkerContent>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background shadow-lg ring-4 ring-background">
-                    <MapPin className="h-5 w-5" />
-                  </div>
-                </MarkerContent>
-                <MarkerTooltip>Apple Store Mini</MarkerTooltip>
-                <MarkerPopup>
-                  <div className="max-w-56 space-y-1">
-                    <p className="text-sm font-semibold text-foreground">
-                      Apple Store Mini
-                    </p>
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      {STORE_ADDRESS}
-                    </p>
-                  </div>
-                </MarkerPopup>
-              </MapMarker>
-            </Map>
+            <iframe
+              title="Bản đồ cửa hàng Apple Store Mini"
+              src={STORE_MAP_EMBED_URL}
+              className="h-full w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
           </div>
         </section>
       </div>
