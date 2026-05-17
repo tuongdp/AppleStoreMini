@@ -10,6 +10,9 @@ import {
     Star,
     Send,
     Trash2,
+    Share2,
+    Eye,
+    MessageCircle,
 } from "lucide-react";
 import {
     useGetNewsQuery,
@@ -68,13 +71,23 @@ function SidebarNewsCard({ news, index }) {
     return (
         <Link
             to={`/news/${news.slug}`}
+            reloadDocument
             className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-muted/50"
         >
-            {index && (
+            {news.thumbnail ? (
+                <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+                    <img
+                        src={news.thumbnail}
+                        alt={news.title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                    />
+                </div>
+            ) : index ? (
                 <span className="mt-0.5 w-5 shrink-0 text-2xl font-bold leading-none text-muted-foreground/30 tabular-nums">
                     {index}
                 </span>
-            )}
+            ) : null}
             <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-sm font-medium text-foreground transition-colors group-hover:text-apple-blue">
                     {news.title}
@@ -216,6 +229,20 @@ export default function NewsDetailPage() {
         }
     };
 
+    const handleShare = async () => {
+        const shareUrl = window.location.href;
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: news.title, url: shareUrl });
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success("Đã sao chép liên kết bài viết");
+            }
+        } catch {
+            toast.error("Không thể chia sẻ bài viết");
+        }
+    };
+
     if (isLoading)
         return (
             <div className="section-padding py-8 md:py-12">
@@ -302,6 +329,24 @@ export default function NewsDetailPage() {
                                     {news.rating.toFixed(1)} ({news.ratingCount || 0} đánh giá)
                                 </span>
                             )}
+                            <span className="flex items-center gap-1.5">
+                                <Eye className="h-4 w-4" />
+                                {news.viewCount || 0} lượt xem
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                                <MessageCircle className="h-4 w-4" />
+                                {news.commentCount || 0} bình luận
+                            </span>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="ml-auto rounded-full"
+                                onClick={handleShare}
+                            >
+                                <Share2 className="mr-1.5 h-3.5 w-3.5" />
+                                Chia sẻ
+                            </Button>
                         </div>
 
                         {/* Thumbnail */}

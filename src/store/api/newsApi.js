@@ -48,6 +48,12 @@ export const newsApi = baseApi.injectEndpoints({
             }),
         }),
 
+        getNewsStats: builder.query({
+            query: () => "/admin/news/stats",
+            providesTags: ["News"],
+            transformResponse: (response) => response.data,
+        }),
+
         // POST /admin/news
         createNews: builder.mutation({
             query: (data) => ({
@@ -142,6 +148,7 @@ export const {
     useGetAdminNewsBySlugQuery,
     useRateNewsMutation,
     useGetAllNewsQuery,
+    useGetNewsStatsQuery,
     useCreateNewsMutation,
     useUpdateNewsMutation,
     useDeleteNewsMutation,

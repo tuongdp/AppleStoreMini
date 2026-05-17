@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useGetNewsQuery } from "@/store/api/newsApi";
 import NewsCard from "@/features/news/components/NewsCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Calendar, Clock, Search, TrendingUp } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -21,6 +29,12 @@ const ALL_CATEGORIES = [
     { value: "Dịch vụ", label: "Dịch vụ" },
 ];
 
+const SORT_OPTIONS = [
+    { value: "newest", label: "Mới nhất" },
+    { value: "popular", label: "Xem nhiều" },
+    { value: "rating", label: "Đánh giá cao" },
+];
+
 export default function NewsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(searchParams.get("q") || "");
@@ -28,20 +42,25 @@ export default function NewsPage() {
 
     const page = Number(searchParams.get("page")) || 1;
     const activeCategory = searchParams.get("category") || "";
+    const activeSort = searchParams.get("sort") || "newest";
 
     const { data, isLoading } = useGetNewsQuery({
         page,
         limit: PAGINATION.DEFAULT_LIMIT,
         search: debouncedSearch || undefined,
         category: activeCategory || undefined,
+        sort: activeSort === "newest" ? undefined : activeSort,
     });
 
     const news = data?.news || [];
     const pagination = data?.pagination || {};
+    const hasFocusedFilters = !!activeCategory || !!debouncedSearch || page > 1;
+    const featuredNews = !hasFocusedFilters ? news[0] : null;
+    const gridNews = featuredNews ? news.slice(1) : news;
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
-        if (value) params.set(key, value);
+        if (value && value !== "all") params.set(key, value);
         else params.delete(key);
         if (key !== "page") params.set("page", "1");
         setSearchParams(params);
@@ -70,6 +89,21 @@ export default function NewsPage() {
                             className="rounded-full pl-9"
                         />
                     </div>
+                    <Select
+                        value={activeSort}
+                        onValueChange={(val) => updateParam("sort", val === "newest" ? "" : val)}
+                    >
+                        <SelectTrigger className="w-full rounded-full sm:w-40">
+                            <SelectValue placeholder="Sắp xếp" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {SORT_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 {/* Category tabs */}
@@ -120,11 +154,60 @@ export default function NewsPage() {
                         </p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        {news.map((item) => (
-                            <NewsCard key={item._id || item.id} news={item} />
-                        ))}
-                    </div>
+                    <>
+                        {featuredNews && (
+                            <Link
+                                to={`/news/${featuredNews.slug}`}
+                                reloadDocument
+                                className="group mb-6 grid overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-border/80 md:grid-cols-[1.25fr_1fr]"
+                            >
+                                <div className="aspect-video overflow-hidden bg-muted md:aspect-auto">
+                                    {featuredNews.thumbnail && (
+                                        <img
+                                            src={featuredNews.thumbnail}
+                                            alt={featuredNews.title}
+                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            loading="lazy"
+                                        />
+                                    )}
+                                </div>
+                                <div className="flex flex-col justify-center p-5 md:p-7">
+                                    <Badge variant="secondary" className="mb-3 w-fit">
+                                        {featuredNews.category || "Tin nổi bật"}
+                                    </Badge>
+                                    <h2 className="line-clamp-3 text-2xl font-semibold tracking-tight text-foreground transition-colors group-hover:text-apple-blue">
+                                        {featuredNews.title}
+                                    </h2>
+                                    {featuredNews.excerpt && (
+                                        <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
+                                            {featuredNews.excerpt}
+                                        </p>
+                                    )}
+                                    <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                                        <span className="inline-flex items-center gap-1">
+                                            <Calendar className="h-3.5 w-3.5" />
+                                            {new Date(featuredNews.publishedAt || featuredNews.createdAt).toLocaleDateString("vi-VN")}
+                                        </span>
+                                        {featuredNews.readTime && (
+                                            <span className="inline-flex items-center gap-1">
+                                                <Clock className="h-3.5 w-3.5" />
+                                                {featuredNews.readTime} phút
+                                            </span>
+                                        )}
+                                        <span className="inline-flex items-center gap-1">
+                                            <TrendingUp className="h-3.5 w-3.5" />
+                                            {featuredNews.viewCount || 0} lượt xem
+                                        </span>
+                                    </div>
+                                </div>
+                            </Link>
+                        )}
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            {gridNews.map((item) => (
+                                <NewsCard key={item._id || item.id} news={item} />
+                            ))}
+                        </div>
+                    </>
                 )}
 
                 {/* Pagination */}

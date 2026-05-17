@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Edit, Trash2, Eye, EyeOff, Search, Star } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, Star, FileText, MessageCircle, TrendingUp } from "lucide-react";
 import {
     useGetAllNewsQuery,
+    useGetNewsStatsQuery,
     useDeleteNewsMutation,
     useToggleNewsStatusMutation,
 } from "@/store/api/newsApi";
@@ -18,11 +19,55 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION, ROUTES } from "@/lib/constants";
+
+const STATUS_OPTIONS = [
+    { value: "all", label: "Tất cả trạng thái" },
+    { value: "published", label: "Đã xuất bản" },
+    { value: "draft", label: "Bản nháp" },
+];
+
+const SORT_OPTIONS = [
+    { value: "newest", label: "Mới nhất" },
+    { value: "popular", label: "Xem nhiều" },
+    { value: "rating", label: "Đánh giá cao" },
+];
+
+const NEWS_CATEGORIES = [
+    { value: "all", label: "Tất cả danh mục" },
+    { value: "iPhone", label: "iPhone" },
+    { value: "Mac", label: "Mac" },
+    { value: "iPad", label: "iPad" },
+    { value: "Watch", label: "Watch" },
+    { value: "Âm thanh", label: "Âm thanh" },
+    { value: "Phụ kiện", label: "Phụ kiện" },
+    { value: "Dịch vụ", label: "Dịch vụ" },
+];
+
+const SummaryCard = ({ icon: Icon, label, value, className }) => (
+    <div className="rounded-xl border border-border bg-card p-4">
+        <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${className}`}>
+                <Icon className="h-5 w-5" />
+            </div>
+            <div>
+                <p className="text-xs text-muted-foreground">{label}</p>
+                <p className="text-xl font-semibold text-foreground">{value || 0}</p>
+            </div>
+        </div>
+    </div>
+);
 
 export default function AdminNewsList() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -36,9 +81,13 @@ export default function AdminNewsList() {
         page: Number(searchParams.get("page")) || 1,
         limit: PAGINATION.DEFAULT_LIMIT,
         search: debouncedSearch || undefined,
+        status: searchParams.get("status") || undefined,
+        category: searchParams.get("category") || undefined,
+        sort: searchParams.get("sort") || undefined,
     };
 
     const { data, isLoading } = useGetAllNewsQuery(filters);
+    const { data: stats } = useGetNewsStatsQuery();
     const [deleteNews, { isLoading: isDeleting }] = useDeleteNewsMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleNewsStatusMutation();
@@ -80,6 +129,33 @@ export default function AdminNewsList() {
 
     return (
         <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <SummaryCard
+                    icon={FileText}
+                    label="Tổng bài viết"
+                    value={stats?.total}
+                    className="bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300"
+                />
+                <SummaryCard
+                    icon={Eye}
+                    label="Đã xuất bản"
+                    value={stats?.published}
+                    className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
+                />
+                <SummaryCard
+                    icon={TrendingUp}
+                    label="Lượt xem"
+                    value={stats?.views}
+                    className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                />
+                <SummaryCard
+                    icon={MessageCircle}
+                    label="Bình luận"
+                    value={stats?.comments}
+                    className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
+                />
+            </div>
+
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="relative max-w-xs min-w-[200px] flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -90,6 +166,51 @@ export default function AdminNewsList() {
                         className="rounded-full pl-9"
                     />
                 </div>
+                <Select
+                    value={searchParams.get("status") || "all"}
+                    onValueChange={(val) => updateParam("status", val === "all" ? "" : val)}
+                >
+                    <SelectTrigger className="w-40 rounded-full">
+                        <SelectValue placeholder="Trạng thái" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {STATUS_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select
+                    value={searchParams.get("category") || "all"}
+                    onValueChange={(val) => updateParam("category", val === "all" ? "" : val)}
+                >
+                    <SelectTrigger className="w-44 rounded-full">
+                        <SelectValue placeholder="Danh mục" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {NEWS_CATEGORIES.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select
+                    value={searchParams.get("sort") || "newest"}
+                    onValueChange={(val) => updateParam("sort", val === "newest" ? "" : val)}
+                >
+                    <SelectTrigger className="w-40 rounded-full">
+                        <SelectValue placeholder="Sắp xếp" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {SORT_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Button className="rounded-full" asChild>
                     <Link to={ROUTES.ADMIN_NEWS_CREATE ?? "/admin/news/create"}>
                         <Plus className="mr-1.5 h-4 w-4" />
