@@ -61,6 +61,7 @@ export default function AdminProductTable() {
 
   const products = data?.products || [];
   const pagination = data?.pagination || {};
+  const getSafeSoldCount = (value) => Math.max(0, Number(value) || 0);
 
   const updateParam = (key, value) => {
     const params = new URLSearchParams(searchParams);
@@ -103,7 +104,7 @@ export default function AdminProductTable() {
     price: p.price || 0,
     salePrice: p.salePrice && p.salePrice < p.price ? p.salePrice : null,
     stock: p.stock ?? 0,
-    soldCount: p.soldCount || 0,
+    soldCount: getSafeSoldCount(p.soldCount),
     status: p.inStock ? "Đang bán" : "Ngừng bán",
     variants: (p.variants || []).map((v) => {
       const parts = [v.color, v.storage, v.ram].filter(Boolean);
@@ -283,7 +284,7 @@ export default function AdminProductTable() {
                     </TableCell>
                     <TableCell>
                       <span className="text-sm text-muted-foreground">
-                        {formatNumber(product.soldCount || 0)}
+                        {formatNumber(getSafeSoldCount(product.soldCount))}
                       </span>
                     </TableCell>
                     <TableCell>

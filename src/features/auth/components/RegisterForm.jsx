@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Circle, Eye, EyeOff, MailCheck } from "lucide-react";
+import { CheckCircle2, Circle, Eye, EyeOff, Info, MailCheck } from "lucide-react";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useLazyCheckEmailQuery } from "@/store/api/authApi";
@@ -121,6 +121,9 @@ export default function RegisterForm() {
                 <p className="mb-6 text-sm text-muted-foreground">
                     {"Email xác thực đã được gửi đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư và nhấp vào link xác thực."}
                 </p>
+                <p className="-mt-3 mb-5 text-xs text-muted-foreground">
+                    Link xác thực hết hạn sau 24 giờ.
+                </p>
                 <Button
                     variant="outline"
                     className="rounded-full"
@@ -215,6 +218,13 @@ export default function RegisterForm() {
                     {emailCheck === "available" && !form.formState.errors.email && (
                         <p className="-mt-3 text-xs text-emerald-600">Email có thể sử dụng</p>
                     )}
+
+                    <div className="-mt-2 flex gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs leading-relaxed text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300">
+                        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <p>
+                            Vui lòng sử dụng email thật để nhận link kích hoạt tài khoản, thông báo đơn hàng và ưu đãi từ cửa hàng. Tài khoản chưa xác thực email trong 24 giờ sẽ được tự động xóa.
+                        </p>
+                    </div>
 
                     {/* Phone */}
                     <FormField

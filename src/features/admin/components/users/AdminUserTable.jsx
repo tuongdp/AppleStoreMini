@@ -13,6 +13,7 @@ import {
     UserCheck,
     UserX,
     UserCog,
+    MailWarning,
 } from "lucide-react";
 import {
     useGetAllUsersQuery,
@@ -82,6 +83,7 @@ const STATUS_OPTIONS = [
     { value: "all", label: "Tất cả trạng thái" },
     { value: "active", label: "Đang hoạt động" },
     { value: "blocked", label: "Đã khóa" },
+    { value: "unverified", label: "Chưa xác thực" },
 ];
 
 const SummaryCard = ({ icon: Icon, label, value, className }) => (
@@ -208,7 +210,7 @@ export default function AdminUserTable() {
 
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <SummaryCard
                     icon={Users}
                     label="Tổng người dùng"
@@ -232,6 +234,12 @@ export default function AdminUserTable() {
                     label="Đã khóa"
                     value={stats?.blocked}
                     className="bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                />
+                <SummaryCard
+                    icon={MailWarning}
+                    label="Chưa xác thực"
+                    value={stats?.unverified}
+                    className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
                 />
             </div>
 
@@ -346,6 +354,11 @@ export default function AdminUserTable() {
                                                 <p className="truncate text-xs text-muted-foreground">
                                                     {user.email}
                                                 </p>
+                                                {!user.isVerified && (
+                                                    <Badge className="mt-1 bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
+                                                        Chưa xác thực
+                                                    </Badge>
+                                                )}
                                             </div>
                                         </div>
                                     </TableCell>

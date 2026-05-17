@@ -561,7 +561,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 <Separator />
                                 <div className="flex justify-between">
                                     <span>{"Đã bán"}</span>
-                                    <span className="text-foreground">{product.soldCount ?? 0}</span>
+                                    <span className="text-foreground">{Math.max(0, Number(product.soldCount) || 0)}</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between">

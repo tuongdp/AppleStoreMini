@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ListOrdered, Palette, Plus, Search, Trash2, X } from "lucide-react";
+import { Check, Filter, Palette, Plus, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +14,10 @@ import {
 } from "@/store/api/globalOptionsApi";
 
 const OPTION_TYPES = [
-    { value: "COLOR", label: "Mau sac" },
-    { value: "STORAGE", label: "Dung luong" },
+    { value: "COLOR", label: "Màu sắc" },
+    { value: "STORAGE", label: "Dung lượng" },
     { value: "RAM", label: "RAM" },
-    { value: "EDITION", label: "Phien ban" },
+    { value: "EDITION", label: "Phiên bản" },
 ];
 
 const HEX_PRESETS = [
@@ -47,11 +47,9 @@ export default function AdminGlobalOptionsPage() {
     const [activeTab, setActiveTab] = useState("COLOR");
     const [newValue, setNewValue] = useState("");
     const [newHex, setNewHex] = useState("#000000");
-    const [newSortOrder, setNewSortOrder] = useState("");
     const [search, setSearch] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [editingValue, setEditingValue] = useState("");
-    const [editingSortOrder, setEditingSortOrder] = useState("");
 
     const { data: options = [], isLoading } = useGetGlobalOptionsQuery(activeTab);
     const { data: allOptions = [] } = useGetGlobalOptionsQuery();
@@ -63,10 +61,13 @@ export default function AdminGlobalOptionsPage() {
         o.value.toLowerCase().includes(search.toLowerCase()),
     );
 
-    const totalOptions = allOptions.length;
-    const colorOptions = allOptions.filter((o) => o.type === "COLOR").length;
-    const configuredColors = allOptions.filter((o) => o.type === "COLOR" && o.hex).length;
     const activeType = OPTION_TYPES.find((item) => item.value === activeTab);
+    const activeOptions = allOptions.filter((o) => o.type === activeTab);
+    const activeTotal = activeOptions.length;
+    const configuredColors = activeOptions.filter((o) => o.hex).length;
+    const activeSummaryLabel = activeTab === "COLOR" ? "Màu sắc" : activeType?.label || "Tùy chọn";
+    const configuredLabel = activeTab === "COLOR" ? "Màu đã có mã" : "Tổng toàn cục";
+    const configuredValue = activeTab === "COLOR" ? configuredColors : allOptions.length;
 
     const handleAdd = async () => {
         if (!newValue.trim()) return;
@@ -75,61 +76,56 @@ export default function AdminGlobalOptionsPage() {
                 type: activeTab,
                 value: newValue.trim(),
                 hex: activeTab === "COLOR" ? newHex : null,
-                sortOrder: newSortOrder === "" ? 0 : Number(newSortOrder),
             }).unwrap();
             setNewValue("");
-            setNewSortOrder("");
-            toast.success("Da them tuy chon");
+            toast.success("Đã thêm tùy chọn");
         } catch (err) {
-            toast.error(err?.data?.message || "Khong the them tuy chon");
+            toast.error(err?.data?.message || "Không thể thêm tùy chọn");
         }
     };
 
     const handleDelete = async (id) => {
         try {
             await deleteOption(id).unwrap();
-            toast.success("Xoa thanh cong");
+            toast.success("Xóa thành công");
         } catch (err) {
-            toast.error(err?.data?.message || "Khong the xoa");
+            toast.error(err?.data?.message || "Không thể xóa");
         }
     };
 
     const handleHexChange = async (option, hex) => {
         try {
             await updateOption({ id: option.id, hex }).unwrap();
-            toast.success("Da cap nhat mau");
+            toast.success("Đã cập nhật màu");
         } catch {
-            toast.error("Khong the cap nhat mau");
+            toast.error("Không thể cập nhật màu");
         }
     };
 
     const startEdit = (option) => {
         setEditingId(option.id);
         setEditingValue(option.value);
-        setEditingSortOrder(String(option.sortOrder ?? 0));
     };
 
     const cancelEdit = () => {
         setEditingId(null);
         setEditingValue("");
-        setEditingSortOrder("");
     };
 
     const saveEdit = async (option) => {
         if (!editingValue.trim()) {
-            toast.error("Gia tri khong duoc de trong");
+            toast.error("Giá trị không được để trống");
             return;
         }
         try {
             await updateOption({
                 id: option.id,
                 value: editingValue.trim(),
-                sortOrder: editingSortOrder === "" ? 0 : Number(editingSortOrder),
             }).unwrap();
-            toast.success("Da cap nhat tuy chon");
+            toast.success("Đã cập nhật tùy chọn");
             cancelEdit();
         } catch (err) {
-            toast.error(err?.data?.message || "Khong the cap nhat");
+            toast.error(err?.data?.message || "Không thể cập nhật");
         }
     };
 
@@ -137,30 +133,30 @@ export default function AdminGlobalOptionsPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    Tuy chon toan cuc
+                    Tùy chọn toàn cục
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                    Quan ly cac gia tri dung chung cho bien the san pham: mau sac, dung luong, RAM va phien ban.
+                    Quản lý các giá trị dùng chung cho biến thể sản phẩm: màu sắc, dung lượng, RAM và phiên bản.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <SummaryCard
-                    icon={ListOrdered}
-                    label="Tong tuy chon"
-                    value={totalOptions}
+                    icon={SlidersHorizontal}
+                    label={`Tổng ${activeSummaryLabel.toLowerCase()}`}
+                    value={activeTotal}
                     className="bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300"
                 />
                 <SummaryCard
-                    icon={Palette}
-                    label="Mau sac"
-                    value={colorOptions}
+                    icon={activeTab === "COLOR" ? Palette : Filter}
+                    label="Đang hiển thị"
+                    value={filtered.length}
                     className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
                 />
                 <SummaryCard
                     icon={Check}
-                    label="Mau da co ma"
-                    value={configuredColors}
+                    label={configuredLabel}
+                    value={configuredValue}
                     className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
                 />
             </div>
@@ -189,10 +185,7 @@ export default function AdminGlobalOptionsPage() {
                 <div className="mb-3 flex items-center justify-between gap-3">
                     <div>
                         <p className="text-sm font-medium text-foreground">
-                            Them {activeType?.label?.toLowerCase()}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                            Thu tu nho hon se hien thi truoc trong form san pham.
+                            Thêm {activeType?.label?.toLowerCase()}
                         </p>
                     </div>
                     <Badge variant="outline">{getOptionTypeLabel(activeTab)}</Badge>
@@ -200,7 +193,7 @@ export default function AdminGlobalOptionsPage() {
 
                 <div className="flex flex-wrap items-center gap-2">
                     <Input
-                        placeholder="Them gia tri..."
+                        placeholder="Thêm giá trị..."
                         value={newValue}
                         onChange={(e) => setNewValue(e.target.value)}
                         className="h-9 max-w-[220px] text-xs"
@@ -210,14 +203,6 @@ export default function AdminGlobalOptionsPage() {
                                 handleAdd();
                             }
                         }}
-                    />
-                    <Input
-                        type="number"
-                        min={0}
-                        placeholder="Thu tu"
-                        value={newSortOrder}
-                        onChange={(e) => setNewSortOrder(e.target.value)}
-                        className="h-9 w-24 text-xs"
                     />
                     {activeTab === "COLOR" && (
                         <div className="flex items-center gap-1">
@@ -248,13 +233,13 @@ export default function AdminGlobalOptionsPage() {
                         disabled={!newValue.trim() || isCreating}
                     >
                         <Plus className="mr-1.5 h-4 w-4" />
-                        Them
+                        Thêm
                     </Button>
 
                     <div className="relative ml-auto">
                         <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                            placeholder="Tim kiem..."
+                            placeholder="Tìm kiếm..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="h-8 w-[180px] pl-8 text-xs"
@@ -281,17 +266,16 @@ export default function AdminGlobalOptionsPage() {
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="p-8 text-center text-sm text-muted-foreground">
-                        Chua co gia tri nao. Them gia tri dau tien o tren.
+                        Chưa có giá trị nào. Thêm giá trị đầu tiên ở trên.
                     </div>
                 ) : (
                     <div className="max-h-[60vh] overflow-y-auto">
                         <table className="w-full">
                             <thead className="sticky top-0 bg-muted/50">
                                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                                    <th className="px-4 py-3 font-medium">{activeTab === "COLOR" ? "Preview" : "Loai"}</th>
-                                    <th className="px-4 py-3 font-medium">Gia tri</th>
-                                    <th className="px-4 py-3 font-medium">Thu tu</th>
-                                    <th className="px-4 py-3 text-right font-medium">Hanh dong</th>
+                                    <th className="px-4 py-3 font-medium">{activeTab === "COLOR" ? "Xem trước" : "Loại"}</th>
+                                    <th className="px-4 py-3 font-medium">Giá trị</th>
+                                    <th className="px-4 py-3 text-right font-medium">Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -309,7 +293,7 @@ export default function AdminGlobalOptionsPage() {
                                                             className="h-7 w-7 cursor-pointer rounded border-0 p-0"
                                                         />
                                                         <span className="text-xs text-muted-foreground">
-                                                            {option.hex || "Chua co ma"}
+                                                            {option.hex || "Chưa có mã"}
                                                         </span>
                                                     </div>
                                                 ) : (
@@ -327,19 +311,6 @@ export default function AdminGlobalOptionsPage() {
                                                     option.value
                                                 )}
                                             </td>
-                                            <td className="px-4 py-2 text-sm text-muted-foreground">
-                                                {isEditing ? (
-                                                    <Input
-                                                        type="number"
-                                                        min={0}
-                                                        value={editingSortOrder}
-                                                        onChange={(e) => setEditingSortOrder(e.target.value)}
-                                                        className="h-8 w-24 text-xs"
-                                                    />
-                                                ) : (
-                                                    option.sortOrder ?? 0
-                                                )}
-                                            </td>
                                             <td className="px-4 py-2 text-right">
                                                 <div className="flex justify-end gap-1">
                                                     {isEditing ? (
@@ -351,7 +322,7 @@ export default function AdminGlobalOptionsPage() {
                                                                 disabled={isUpdating}
                                                                 onClick={() => saveEdit(option)}
                                                             >
-                                                                Luu
+                                                                Lưu
                                                             </Button>
                                                             <Button
                                                                 variant="ghost"
@@ -359,7 +330,7 @@ export default function AdminGlobalOptionsPage() {
                                                                 className="h-7 rounded-full px-2 text-xs"
                                                                 onClick={cancelEdit}
                                                             >
-                                                                Huy
+                                                                Hủy
                                                             </Button>
                                                         </>
                                                     ) : (
@@ -369,7 +340,7 @@ export default function AdminGlobalOptionsPage() {
                                                             className="h-7 rounded-full px-2 text-xs"
                                                             onClick={() => startEdit(option)}
                                                         >
-                                                            Sua
+                                                            Sửa
                                                         </Button>
                                                     )}
                                                     <Button
