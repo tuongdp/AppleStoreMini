@@ -6,7 +6,11 @@ export default function NetworkStatusNotifier() {
     useEffect(() => {
         const goOfflinePage = () => {
             if (window.location.pathname === OFFLINE_PAGE) return;
-            window.location.assign(OFFLINE_PAGE);
+            const currentUrl =
+                window.location.pathname + window.location.search + window.location.hash;
+            window.location.assign(
+                `${OFFLINE_PAGE}?from=${encodeURIComponent(currentUrl)}`,
+            );
         };
 
         window.addEventListener("offline", goOfflinePage);
