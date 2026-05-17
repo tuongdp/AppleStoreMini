@@ -24,7 +24,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 </ErrorBoundary>
                 <Toaster />
                 <NetworkStatusNotifier />
-                <VisitorPresenceTracker />
             </AppProviders>
         </PersistGate>
     </Provider>,
