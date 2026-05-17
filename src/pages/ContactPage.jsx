@@ -28,11 +28,10 @@ import { formatPhone } from "@/lib/utils";
 const STORE_ADDRESS =
   "41/1, Nguyễn Tất Thành, Quốc lộ 1, Phường Tuy Hòa, Đắk Lắk";
 const STORE_COORDINATES = {
-  longitude: 109.3029,
-  latitude: 13.0957,
+  longitude: 109.295876,
+  latitude: 13.083505,
 };
-const STORE_MAP_QUERY = encodeURIComponent(STORE_ADDRESS);
-const STORE_MAP_DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${STORE_MAP_QUERY}`;
+const STORE_MAP_DIRECTIONS_URL = "https://maps.app.goo.gl/6VVwQJVK67oNaxuD8";
 
 const CONTACT_INFO = [
   {
