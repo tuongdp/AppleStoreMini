@@ -31,14 +31,25 @@
                         "source": "document",
                         "where": {
                             "and": [
-                                {
-                                    "or": [
-                                        { "href_matches": "/products" },
-                                        { "href_matches": "/products/*" },
-                                        { "href_matches": "/news" },
-                                        { "href_matches": "/news/*" }
-                                    ]
-                                },
+                                { "selector_matches": ["a[href^='/products']", "a[href^='/news']"] },
+                                { "not": { "href_matches": "/admin/*" } },
+                                { "not": { "href_matches": "/checkout" } },
+                                { "not": { "href_matches": "/payment/*" } },
+                                { "not": { "href_matches": "/login" } },
+                                { "not": { "href_matches": "/register" } },
+                                { "not": { "href_matches": "/profile/*" } },
+                                { "not": { "href_matches": "/cart" } }
+                            ]
+                        },
+                        "eagerness": "eager"
+                    }
+                ],
+                "prerender": [
+                    {
+                        "source": "document",
+                        "where": {
+                            "and": [
+                                { "selector_matches": ["a[href^='/products/']", "a[href^='/news/']"] },
                                 { "not": { "href_matches": "/admin/*" } },
                                 { "not": { "href_matches": "/checkout" } },
                                 { "not": { "href_matches": "/payment/*" } },
@@ -49,29 +60,6 @@
                             ]
                         },
                         "eagerness": "moderate"
-                    }
-                ],
-                "prerender": [
-                    {
-                        "source": "document",
-                        "where": {
-                            "and": [
-                                {
-                                    "or": [
-                                        { "href_matches": "/products/*" },
-                                        { "href_matches": "/news/*" }
-                                    ]
-                                },
-                                { "not": { "href_matches": "/admin/*" } },
-                                { "not": { "href_matches": "/checkout" } },
-                                { "not": { "href_matches": "/payment/*" } },
-                                { "not": { "href_matches": "/login" } },
-                                { "not": { "href_matches": "/register" } },
-                                { "not": { "href_matches": "/profile/*" } },
-                                { "not": { "href_matches": "/cart" } }
-                            ]
-                        },
-                        "eagerness": "conservative"
                     }
                 ]
             }
