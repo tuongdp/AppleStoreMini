@@ -188,9 +188,10 @@
     <script>
       var statusText = document.getElementById("statusText");
       var reloadButton = document.getElementById("reloadButton");
+      var checkTimer = null;
 
-      function syncStatus() {
-        if (navigator.onLine) {
+      function setOnlineStatus(isOnline) {
+        if (isOnline) {
           document.body.classList.add("is-online");
           statusText.textContent = "Đã có kết nối trở lại";
         } else {
@@ -199,13 +200,34 @@
         }
       }
 
+      function checkConnection() {
+        fetch("/favicon.svg?online-check=" + Date.now(), {
+          method: "HEAD",
+          cache: "no-store",
+        })
+          .then(function (response) {
+            setOnlineStatus(response.ok);
+          })
+          .catch(function () {
+            setOnlineStatus(false);
+          });
+      }
+
       reloadButton.addEventListener("click", function () {
         window.location.reload();
       });
 
-      window.addEventListener("online", syncStatus);
-      window.addEventListener("offline", syncStatus);
-      syncStatus();
+      window.addEventListener("online", checkConnection);
+      window.addEventListener("offline", function () {
+        setOnlineStatus(false);
+      });
+
+      setOnlineStatus(false);
+      checkConnection();
+      checkTimer = window.setInterval(checkConnection, 3000);
+      window.addEventListener("pagehide", function () {
+        if (checkTimer) window.clearInterval(checkTimer);
+      });
     </script>
   </body>
 </html>
