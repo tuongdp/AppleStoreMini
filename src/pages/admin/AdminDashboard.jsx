@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
+    Activity,
     AlertTriangle,
     ArrowUpRight,
     CheckCircle2,
@@ -127,7 +128,9 @@ function AlertItem({ alert }) {
 
 export default function AdminDashboard() {
     const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
-    const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery();
+    const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery(undefined, {
+        pollingInterval: 30000,
+    });
     const { data: lowStock = [] } = useGetLowStockQuery();
     const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
     const { data: couponStats } = useGetCouponStatsQuery();
@@ -160,6 +163,13 @@ export default function AdminDashboard() {
             note: `${formatNumber(operations?.orders?.today || 0)} đơn mới hôm nay`,
             icon: Clock,
             tone: ((operations?.orders?.pending || 0) > 0 ? "danger" : "order"),
+        },
+        {
+            title: "Đang truy cập",
+            value: formatNumber(operations?.online?.totalOnline || 0),
+            note: `${formatNumber(operations?.online?.guestVisitors || 0)} khách, ${formatNumber(operations?.online?.authenticatedUsers || 0)} đã đăng nhập`,
+            icon: Activity,
+            tone: "revenue",
         },
         {
             title: "Tỷ lệ giao thành công",

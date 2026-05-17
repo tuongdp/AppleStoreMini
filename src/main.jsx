@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import LoadingScreen from "./components/shared/LoadingScreen";
 import ErrorBoundary from "./components/shared/ErrorBoundary";
 import NetworkStatusNotifier from "./components/shared/NetworkStatusNotifier";
+import VisitorPresenceTracker from "./components/shared/VisitorPresenceTracker";
 import App from "./App.jsx";
 import "./index.css";
 import { injectStore } from "./lib/axios";
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 </ErrorBoundary>
                 <Toaster />
                 <NetworkStatusNotifier />
+                <VisitorPresenceTracker />
             </AppProviders>
         </PersistGate>
     </Provider>,
