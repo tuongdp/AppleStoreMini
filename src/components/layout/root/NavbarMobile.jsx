@@ -74,6 +74,7 @@ export default function NavbarMobile() {
                             <Link
                                 key={cat.value}
                                 to={cat.href}
+                                reloadDocument
                                 onClick={handleClose}
                                 className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                             >
@@ -83,6 +84,7 @@ export default function NavbarMobile() {
                         ))}
                         <Link
                             to={ROUTES.PRODUCTS}
+                            reloadDocument
                             onClick={handleClose}
                             className="flex items-center rounded-xl px-3 py-2.5 text-sm text-apple-blue transition-colors hover:bg-muted"
                         >
@@ -109,6 +111,7 @@ export default function NavbarMobile() {
                         </Link>
                         <Link
                             to="/news"
+                            reloadDocument
                             onClick={handleClose}
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >

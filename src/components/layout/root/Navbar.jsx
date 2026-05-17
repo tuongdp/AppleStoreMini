@@ -26,7 +26,7 @@ export default function Navbar() {
     const SIMPLE_NAV_LINKS = [
         { label: "AppleCare", href: "/apple-care", icon: null },
 
-        { label: "Tin tức", href: "/news", icon: null },
+        { label: "Tin tức", href: "/news", icon: null, reloadDocument: true },
     ];
 
     return (
@@ -66,6 +66,7 @@ export default function Navbar() {
                                 <NavLink
                                     key={link.href}
                                     to={link.href}
+                                    reloadDocument={link.reloadDocument}
                                     className={({ isActive }) =>
                                         cn(
                                             "inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",

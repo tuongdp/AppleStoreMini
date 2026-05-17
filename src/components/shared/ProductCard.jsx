@@ -58,7 +58,7 @@ export default function ProductCard({ product }) {
     return (
         <Card className="group overflow-hidden border-transparent bg-muted/30 transition-all duration-200 hover:border-border hover:shadow-md">
             {/* Image */}
-            <Link to={ROUTES.PRODUCT_DETAIL(product.slug)}>
+            <Link to={ROUTES.PRODUCT_DETAIL(product.slug)} reloadDocument>
                 <div
                     className="relative overflow-hidden bg-white p-4 dark:bg-muted/10"
                     style={{ aspectRatio: "4/3" }}
@@ -136,7 +136,7 @@ export default function ProductCard({ product }) {
                     {product.category}
                 </div>
 
-                <Link to={ROUTES.PRODUCT_DETAIL(product.slug)}>
+                <Link to={ROUTES.PRODUCT_DETAIL(product.slug)} reloadDocument>
                     <h3 className="line-clamp-1 text-sm font-semibold transition-colors hover:text-apple-blue">
                         {product.name}
                     </h3>

@@ -10,6 +10,7 @@ export default function NewsCard({ news, className }) {
     return (
         <Link
             to={`/news/${slug}`}
+            reloadDocument
             className={cn(
                 "group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-border/80 hover:shadow-md",
                 className,

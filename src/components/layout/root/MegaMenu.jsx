@@ -55,6 +55,7 @@ export default function MegaMenu({ category }) {
                             <Link
                                 key={index}
                                 to={link.href}
+                                reloadDocument
                                 onClick={() => setIsOpen(false)}
                                 className={cn(
                                     "block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted",
