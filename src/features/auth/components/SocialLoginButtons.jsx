@@ -3,25 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default function SocialLoginButtons() {
-    const { loginWithGoogle, isGoogleLoginLoading } = useAuth();
+    const { loginWithGoogle, isGoogleLoginLoading, isGoogleReady, hasGoogleClientId } = useAuth();
+    const googleButtonText = isGoogleLoginLoading
+        ? "Đang đăng nhập..."
+        : !hasGoogleClientId ? "Tiếp tục với Google" : isGoogleReady ? "Tiếp tục với Google" : "Đang tải Google...";
 
     return (
         <div className="space-y-3">
-            {/* Divider */}
             <div className="flex items-center gap-3">
                 <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">
-                    {"Hoặc tiếp tục với"}
-                </span>
+                <span className="text-xs text-muted-foreground">Hoặc tiếp tục với</span>
                 <Separator className="flex-1" />
             </div>
 
-            {/* Google */}
             <Button
                 type="button"
                 variant="outline"
                 className="w-full rounded-full"
-                disabled={isGoogleLoginLoading}
+                disabled={isGoogleLoginLoading || (hasGoogleClientId && !isGoogleReady)}
                 onClick={() => loginWithGoogle()}
             >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -42,9 +41,7 @@ export default function SocialLoginButtons() {
                         fill="#EA4335"
                     />
                 </svg>
-                {isGoogleLoginLoading
-                    ? "Đang tải..."
-                    : "Tiếp tục với Google"}
+                {googleButtonText}
             </Button>
         </div>
     );

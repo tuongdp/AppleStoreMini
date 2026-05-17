@@ -4,6 +4,8 @@ import {
     Activity,
     AlertTriangle,
     ArrowUpRight,
+    BarChart3,
+    CalendarDays,
     CheckCircle2,
     Clock,
     Coins,
@@ -148,6 +150,12 @@ export default function AdminDashboard() {
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
+    const trafficCards = [
+        { label: "Hôm nay", value: operations?.traffic?.today?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.today?.uniqueVisitors || 0)} khách riêng` },
+        { label: "7 ngày", value: operations?.traffic?.week?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.week?.uniqueVisitors || 0)} khách riêng` },
+        { label: "Tháng này", value: operations?.traffic?.month?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.month?.uniqueVisitors || 0)} khách riêng` },
+        { label: "Năm nay", value: operations?.traffic?.year?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.year?.uniqueVisitors || 0)} khách riêng` },
+    ];
 
     const metricCards = useMemo(() => [
         {
@@ -260,6 +268,34 @@ export default function AdminDashboard() {
                     <MetricCard key={card.title} {...card} loading={isStatsLoading || isOperationsLoading} />
                 ))}
             </div>
+
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                        <BarChart3 className="h-4 w-4 text-blue-500" />
+                        Thống kê truy cập
+                    </CardTitle>
+                    <Badge variant="secondary" className="gap-1.5">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        Theo tuần, tháng, năm
+                    </Badge>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        {trafficCards.map((item) => (
+                            <div key={item.label} className="rounded-lg border border-border p-3">
+                                <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
+                                {isOperationsLoading ? (
+                                    <Skeleton className="mt-2 h-7 w-20" />
+                                ) : (
+                                    <p className="mt-1 text-2xl font-semibold text-foreground">{formatNumber(item.value)}</p>
+                                )}
+                                <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">

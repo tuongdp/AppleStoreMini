@@ -4,6 +4,20 @@ import { selectAccessToken } from "@/store/authSlice";
 
 const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/api$/, "");
 const PING_INTERVAL_MS = 30000;
+const VISITOR_ID_KEY = "asm_visitor_id";
+
+const getVisitorId = () => {
+    try {
+        const existing = localStorage.getItem(VISITOR_ID_KEY);
+        if (existing) return existing;
+
+        const id = crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        localStorage.setItem(VISITOR_ID_KEY, id);
+        return id;
+    } catch {
+        return null;
+    }
+};
 
 export default function VisitorPresenceTracker() {
     const token = useSelector(selectAccessToken);
@@ -17,6 +31,7 @@ export default function VisitorPresenceTracker() {
             try {
                 const { io } = await import("socket.io-client");
                 if (cancelled) return;
+                const visitorId = getVisitorId();
 
                 socket = io(SOCKET_URL, {
                     path: "/socket.io",
@@ -24,6 +39,10 @@ export default function VisitorPresenceTracker() {
                     reconnection: true,
                     reconnectionDelay: 5000,
                     auth: token ? { token } : undefined,
+                    query: {
+                        presence: "visitor",
+                        ...(visitorId ? { visitorId } : {}),
+                    },
                 });
 
                 pingTimer = setInterval(() => {

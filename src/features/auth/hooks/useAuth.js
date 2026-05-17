@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
     useLoginMutation,
     useRegisterMutation,
@@ -69,6 +70,8 @@ export function useAuth() {
 
     const [registerSuccess, setRegisterSuccess] = useState(false);
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const hasGoogleClientId = Boolean(googleClientId);
+    const [isGoogleReady, setIsGoogleReady] = useState(Boolean(window.google?.accounts?.oauth2));
 
     const handleGoogleResponse = useCallback(
         async (response) => {
@@ -91,7 +94,8 @@ export function useAuth() {
                 }
 
                 navigate(ROUTES.HOME);
-            } catch {
+            } catch (error) {
+                toast.error(error?.data?.message || "Đăng nhập Google thất bại");
                 // Lỗi đã được xử lý trong mutation
             }
         },
@@ -100,12 +104,17 @@ export function useAuth() {
 
     useEffect(() => {
         if (!googleClientId) return;
-        if (window.google?.accounts?.oauth2) return;
+        if (window.google?.accounts?.oauth2) {
+            setIsGoogleReady(true);
+            return;
+        }
 
         const script = document.createElement("script");
         script.src = "https://accounts.google.com/gsi/client";
         script.async = true;
         script.defer = true;
+        script.onload = () => setIsGoogleReady(Boolean(window.google?.accounts?.oauth2));
+        script.onerror = () => toast.error("Không tải được Google Sign-In. Vui lòng kiểm tra kết nối hoặc cấu hình CSP.");
         document.body.appendChild(script);
 
         return () => {
@@ -117,13 +126,24 @@ export function useAuth() {
     }, [googleClientId]);
 
     const loginWithGoogle = useCallback(() => {
-        if (!window.google?.accounts?.oauth2) return;
+        if (!googleClientId) {
+            toast.error("Chưa cấu hình Google Client ID cho website");
+            return;
+        }
+        if (!window.google?.accounts?.oauth2) {
+            toast.error("Google Sign-In chưa sẵn sàng, vui lòng thử lại sau vài giây");
+            return;
+        }
 
         const client = window.google.accounts.oauth2.initCodeClient({
             client_id: googleClientId,
             scope: "email profile openid",
             ux_mode: "popup",
             callback: (response) => {
+                if (response.error) {
+                    toast.error(response.error_description || "Google từ chối yêu cầu đăng nhập");
+                    return;
+                }
                 if (response.code) {
                     handleGoogleResponse({ code: response.code });
                 }
@@ -182,6 +202,8 @@ export function useAuth() {
         isRegisterLoading,
         isLogoutLoading,
         isGoogleLoginLoading,
+        isGoogleReady,
+        hasGoogleClientId,
 
         login,
         register,
