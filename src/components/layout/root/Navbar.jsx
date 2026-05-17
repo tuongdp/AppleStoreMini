@@ -7,6 +7,7 @@ import MegaMenu from "./MegaMenu";
 import NavbarActions from "./NavbarActions";
 import NavbarMobile from "./NavbarMobile";
 import SearchOverlay from "@/components/shared/SearchOverlay";
+import { newsApi } from "@/store/api/newsApi";
 import {
     toggleMobileMenu,
     selectMobileMenuOpen,
@@ -14,7 +15,7 @@ import {
     selectSearchOpen,
 } from "@/store/uiSlice";
 import { useScrolled } from "@/hooks/useScrollToTop";
-import { CATEGORIES, ROUTES } from "@/lib/constants";
+import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { appleLogo } from "@/assets/images";
 
@@ -28,6 +29,16 @@ export default function Navbar() {
 
         { label: "Tin tức", href: "/news", icon: null, reloadDocument: true },
     ];
+
+    const prefetchNewsList = () => {
+        dispatch(
+            newsApi.util.prefetch(
+                "getNews",
+                { page: 1, limit: PAGINATION.DEFAULT_LIMIT },
+                { ifOlderThan: 60 },
+            ),
+        );
+    };
 
     return (
         <header
@@ -67,6 +78,8 @@ export default function Navbar() {
                                     key={link.href}
                                     to={link.href}
                                     reloadDocument={link.reloadDocument}
+                                    onMouseEnter={link.href === "/news" ? prefetchNewsList : undefined}
+                                    onFocus={link.href === "/news" ? prefetchNewsList : undefined}
                                     className={({ isActive }) =>
                                         cn(
                                             "inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",

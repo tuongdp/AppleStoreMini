@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Separator } from "@/components/ui/separator";
 import { selectIsAuthenticated, selectCurrentUser } from "@/store/authSlice";
+import { newsApi } from "@/store/api/newsApi";
+import { productsApi } from "@/store/api/productsApi";
 import { toggleMobileMenu } from "@/store/uiSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CATEGORIES, ROUTES } from "@/lib/constants";
+import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import {
     User,
     ShoppingBag,
@@ -22,6 +24,31 @@ export default function NavbarMobile() {
     const user = useSelector(selectCurrentUser);
 
     const handleClose = () => dispatch(toggleMobileMenu(false));
+
+    const prefetchNewsList = () => {
+        dispatch(
+            newsApi.util.prefetch(
+                "getNews",
+                { page: 1, limit: PAGINATION.DEFAULT_LIMIT },
+                { ifOlderThan: 60 },
+            ),
+        );
+    };
+
+    const prefetchProductList = (href) => {
+        const params = new URLSearchParams(href.split("?")[1] || "");
+        dispatch(
+            productsApi.util.prefetch(
+                "getProducts",
+                {
+                    page: 1,
+                    limit: PAGINATION.DEFAULT_LIMIT,
+                    category: params.get("category") || undefined,
+                },
+                { ifOlderThan: 60 },
+            ),
+        );
+    };
 
     return (
         <div className="flex h-full flex-col">
@@ -75,6 +102,8 @@ export default function NavbarMobile() {
                                 key={cat.value}
                                 to={cat.href}
                                 reloadDocument
+                                onMouseEnter={() => prefetchProductList(cat.href)}
+                                onFocus={() => prefetchProductList(cat.href)}
                                 onClick={handleClose}
                                 className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                             >
@@ -85,6 +114,8 @@ export default function NavbarMobile() {
                         <Link
                             to={ROUTES.PRODUCTS}
                             reloadDocument
+                            onMouseEnter={() => prefetchProductList(ROUTES.PRODUCTS)}
+                            onFocus={() => prefetchProductList(ROUTES.PRODUCTS)}
                             onClick={handleClose}
                             className="flex items-center rounded-xl px-3 py-2.5 text-sm text-apple-blue transition-colors hover:bg-muted"
                         >
@@ -112,6 +143,8 @@ export default function NavbarMobile() {
                         <Link
                             to="/news"
                             reloadDocument
+                            onMouseEnter={prefetchNewsList}
+                            onFocus={prefetchNewsList}
                             onClick={handleClose}
                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >

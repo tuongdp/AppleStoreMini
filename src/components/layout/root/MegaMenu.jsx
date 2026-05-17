@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { ChevronDown } from "lucide-react";
+import { productsApi } from "@/store/api/productsApi";
+import { PAGINATION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const getCategoryLinks = (category) => [
@@ -12,9 +15,26 @@ const getCategoryLinks = (category) => [
 ];
 
 export default function MegaMenu({ category }) {
+    const dispatch = useDispatch();
     const [isOpen, setIsOpen] = useState(false);
 
     const links = getCategoryLinks(category);
+
+    const prefetchProductList = (href) => {
+        const params = new URLSearchParams(href.split("?")[1] || "");
+        dispatch(
+            productsApi.util.prefetch(
+                "getProducts",
+                {
+                    page: 1,
+                    limit: PAGINATION.DEFAULT_LIMIT,
+                    category: params.get("category") || undefined,
+                    sort: params.get("sort") || undefined,
+                },
+                { ifOlderThan: 60 },
+            ),
+        );
+    };
 
     return (
         <div
@@ -56,6 +76,8 @@ export default function MegaMenu({ category }) {
                                 key={index}
                                 to={link.href}
                                 reloadDocument
+                                onMouseEnter={() => prefetchProductList(link.href)}
+                                onFocus={() => prefetchProductList(link.href)}
                                 onClick={() => setIsOpen(false)}
                                 className={cn(
                                     "block rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted",

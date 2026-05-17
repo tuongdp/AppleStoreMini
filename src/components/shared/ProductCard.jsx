@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleAuthModal } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
+import { productsApi } from "@/store/api/productsApi";
 import { formatPrice, cn, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
@@ -55,10 +56,24 @@ export default function ProductCard({ product }) {
         dispatch(toggleWishlist(product));
     };
 
+    const prefetchProductDetail = () => {
+        if (!product.slug) return;
+        dispatch(
+            productsApi.util.prefetch("getProductBySlug", product.slug, {
+                ifOlderThan: 60,
+            }),
+        );
+    };
+
     return (
         <Card className="group overflow-hidden border-transparent bg-muted/30 transition-all duration-200 hover:border-border hover:shadow-md">
             {/* Image */}
-            <Link to={ROUTES.PRODUCT_DETAIL(product.slug)} reloadDocument>
+            <Link
+                to={ROUTES.PRODUCT_DETAIL(product.slug)}
+                reloadDocument
+                onMouseEnter={prefetchProductDetail}
+                onFocus={prefetchProductDetail}
+            >
                 <div
                     className="relative overflow-hidden bg-white p-4 dark:bg-muted/10"
                     style={{ aspectRatio: "4/3" }}
@@ -136,7 +151,12 @@ export default function ProductCard({ product }) {
                     {product.category}
                 </div>
 
-                <Link to={ROUTES.PRODUCT_DETAIL(product.slug)} reloadDocument>
+                <Link
+                    to={ROUTES.PRODUCT_DETAIL(product.slug)}
+                    reloadDocument
+                    onMouseEnter={prefetchProductDetail}
+                    onFocus={prefetchProductDetail}
+                >
                     <h3 className="line-clamp-1 text-sm font-semibold transition-colors hover:text-apple-blue">
                         {product.name}
                     </h3>
