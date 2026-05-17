@@ -18,7 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { cn, formatDateTime, parseJsonField } from "@/lib/utils";
+import { cn, formatDateTime, formatPrice, parseJsonField } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION } from "@/lib/constants";
 import { Link, useSearchParams } from "react-router-dom";
@@ -42,6 +42,29 @@ function StarDisplay({ rating }) {
     );
 }
 
+const firstImage = (...sources) => {
+    for (const source of sources) {
+        const parsed = parseJsonField(source);
+        if (Array.isArray(parsed) && parsed[0]) {
+            return parsed[0];
+        }
+        if (typeof source === "string" && source.trim()) {
+            return source;
+        }
+    }
+    return "";
+};
+
+const variantText = (item) => {
+    const variant = item?.variant || {};
+    return [
+        item?.color || variant.color,
+        item?.storage || variant.storage,
+        item?.ram || variant.ram,
+        variant.edition,
+    ].filter(Boolean).join(" / ");
+};
+
 function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
     const [replyById, setReplyById] = useState({});
     const { data: review, isFetching } = useGetAdminReviewQuery(reviewId, { skip: !reviewId || !open });
@@ -59,6 +82,14 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
 
     const images = parseJsonField(review?.images) || [];
     const productImage = parseJsonField(review?.product?.images)?.[0];
+    const purchasedItem = review?.purchasedItem;
+    const purchasedImage = firstImage(
+        purchasedItem?.image,
+        purchasedItem?.variant?.images,
+        purchasedItem?.variant?.product?.images,
+        review?.product?.images,
+    );
+    const purchasedVariantText = variantText(purchasedItem);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -103,6 +134,40 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                                     <span>{formatDateTime(review.createdAt)}</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="space-y-3 rounded-lg border p-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <p className="text-sm font-medium">Sản phẩm khách mua</p>
+                                {purchasedItem?.order?.code && (
+                                    <Badge variant="outline">#{purchasedItem.order.code}</Badge>
+                                )}
+                            </div>
+                            {purchasedItem ? (
+                                <div className="flex gap-3">
+                                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted p-1">
+                                        {purchasedImage && (
+                                            <img src={purchasedImage} alt={purchasedItem.name} className="h-full w-full object-contain" />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0 flex-1 space-y-1 text-sm">
+                                        <p className="font-medium text-foreground">{purchasedItem.name}</p>
+                                        {purchasedVariantText && (
+                                            <p className="text-muted-foreground">Variant: {purchasedVariantText}</p>
+                                        )}
+                                        <div className="grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+                                            <span>Variant ID: {purchasedItem.variantId}</span>
+                                            <span>Số lượng: {purchasedItem.quantity}</span>
+                                            <span>Giá mua: {formatPrice(purchasedItem.price)}</span>
+                                            {purchasedItem.order?.createdAt && <span>Ngày mua: {formatDateTime(purchasedItem.order.createdAt)}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                                    Chưa xác định được biến thể đã mua cho đánh giá này.
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-2">

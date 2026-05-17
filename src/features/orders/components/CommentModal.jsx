@@ -29,6 +29,7 @@ export default function CommentModal({
     image,
     productId,
     orderId,
+    orderItemId,
     existingComment,
     onSuccess,
 }) {
@@ -72,6 +73,7 @@ export default function CommentModal({
                 <CommentForm
                     productId={productId || product?.id || product?._id}
                     orderId={orderId}
+                    orderItemId={orderItemId}
                     comment={existingComment}
                     onSuccess={handleSuccess}
                     onCancel={() => onOpenChange(false)}

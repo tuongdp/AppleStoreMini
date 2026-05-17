@@ -30,6 +30,7 @@ const isVideoUrl = (url) => /\.(mp4|webm|mov)(\?|$)/i.test(url);
 export default function CommentForm({
     productId,
     orderId,
+    orderItemId,
     comment,
     onSuccess,
     onCancel,
@@ -99,6 +100,7 @@ export default function CommentForm({
                 await createReview({
                     productId,
                     ...(orderId && { orderId }),
+                    ...(orderItemId && { orderItemId }),
                     ...values,
                 }).unwrap();
             }

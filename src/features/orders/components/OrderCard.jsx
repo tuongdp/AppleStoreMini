@@ -289,6 +289,7 @@ export default function OrderCard({ order }) {
                     image={commentItem._image}
                     productId={commentItem._productId}
                     orderId={order._id || order.id}
+                    orderItemId={commentItem.id || commentItem._id}
                     existingComment={commentItem.existingComment}
                     onSuccess={(commentData) =>
                         handleCommentSuccess(commentItem, commentData)
