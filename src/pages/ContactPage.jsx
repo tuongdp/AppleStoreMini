@@ -220,9 +220,10 @@ export default function ContactPage() {
               </a>
             </Button>
           </div>
-          <div className="aspect-[16/9] min-h-[280px] bg-muted sm:aspect-[21/9]">
+          <div className="h-[320px] bg-muted sm:h-[420px]">
             <Map
               center={[STORE_COORDINATES.longitude, STORE_COORDINATES.latitude]}
+              className="h-full min-h-[320px] sm:min-h-[420px]"
               zoom={15}
             >
               <MapControls showFullscreen />

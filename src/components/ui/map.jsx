@@ -166,14 +166,23 @@ const Map = forwardRef(function Map(
       ...viewport,
     });
 
+    const forceRender = () => {
+      map.resize();
+      map.triggerRepaint();
+    };
+
     const styleDataHandler = () => {
       clearStyleTimeout();
       styleTimeoutRef.current = setTimeout(() => {
         setIsStyleLoaded(true);
         if (projection) map.setProjection(projection);
+        forceRender();
       }, 100);
     };
-    const loadHandler = () => setIsLoaded(true);
+    const loadHandler = () => {
+      setIsLoaded(true);
+      forceRender();
+    };
     const handleMove = () => onViewportChangeRef.current?.(getViewport(map));
 
     map.on("load", loadHandler);
@@ -181,21 +190,26 @@ const Map = forwardRef(function Map(
     map.on("move", handleMove);
     setMapInstance(map);
 
-    const resizeMap = () => map.resize();
-    const resizeFrame = requestAnimationFrame(resizeMap);
-    const resizeTimer = window.setTimeout(resizeMap, 250);
-    const resizeObserver = new ResizeObserver(resizeMap);
+    const resizeFrame = requestAnimationFrame(() => {
+      forceRender();
+      requestAnimationFrame(forceRender);
+    });
+    const resizeTimers = [120, 350, 800, 1500].map((delay) =>
+      window.setTimeout(forceRender, delay),
+    );
+    const resizeObserver = new ResizeObserver(forceRender);
     resizeObserver.observe(containerRef.current);
-    map.once("load", resizeMap);
+    map.on("idle", forceRender);
 
     return () => {
       cancelAnimationFrame(resizeFrame);
-      window.clearTimeout(resizeTimer);
+      resizeTimers.forEach((timer) => window.clearTimeout(timer));
       resizeObserver.disconnect();
       clearStyleTimeout();
       map.off("load", loadHandler);
       map.off("styledata", styleDataHandler);
       map.off("move", handleMove);
+      map.off("idle", forceRender);
       map.remove();
       setIsLoaded(false);
       setIsStyleLoaded(false);
