@@ -5,6 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Map,
+  MapControls,
+  MapMarker,
+  MarkerContent,
+  MarkerPopup,
+  MarkerTooltip,
+} from "@/components/ui/map";
+import {
   Form,
   FormControl,
   FormField,
@@ -19,8 +27,11 @@ import { formatPhone } from "@/lib/utils";
 
 const STORE_ADDRESS =
   "41/1, Nguyễn Tất Thành, Quốc lộ 1, Phường Tuy Hòa, Đắk Lắk";
+const STORE_COORDINATES = {
+  longitude: 109.3029,
+  latitude: 13.0957,
+};
 const STORE_MAP_QUERY = encodeURIComponent(STORE_ADDRESS);
-const STORE_MAP_EMBED_URL = `https://maps.google.com/maps?q=${STORE_MAP_QUERY}&output=embed`;
 const STORE_MAP_DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${STORE_MAP_QUERY}`;
 
 const CONTACT_INFO = [
@@ -60,7 +71,7 @@ export default function ContactPage() {
     defaultValues: { name: "", email: "", phone: "", message: "" },
   });
 
-  const onSubmit = (values) => {
+  const onSubmit = () => {
     toast.success("Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
     form.reset();
   };
@@ -211,14 +222,33 @@ export default function ContactPage() {
             </Button>
           </div>
           <div className="aspect-[16/9] min-h-[280px] bg-muted sm:aspect-[21/9]">
-            <iframe
-              title="Bản đồ cửa hàng Apple Store Mini"
-              src={STORE_MAP_EMBED_URL}
-              className="h-full w-full border-0"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
+            <Map
+              center={[STORE_COORDINATES.longitude, STORE_COORDINATES.latitude]}
+              zoom={15}
+            >
+              <MapControls showFullscreen />
+              <MapMarker
+                longitude={STORE_COORDINATES.longitude}
+                latitude={STORE_COORDINATES.latitude}
+              >
+                <MarkerContent>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background shadow-lg ring-4 ring-background">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                </MarkerContent>
+                <MarkerTooltip>Apple Store Mini</MarkerTooltip>
+                <MarkerPopup>
+                  <div className="max-w-56 space-y-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      Apple Store Mini
+                    </p>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {STORE_ADDRESS}
+                    </p>
+                  </div>
+                </MarkerPopup>
+              </MapMarker>
+            </Map>
           </div>
         </section>
       </div>
