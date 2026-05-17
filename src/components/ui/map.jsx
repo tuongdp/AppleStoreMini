@@ -170,18 +170,33 @@ const Map = forwardRef(function Map(
       map.resize();
       map.triggerRepaint();
     };
+    const nudgeRender = () => {
+      forceRender();
+      const currentZoom = map.getZoom();
+      const currentCenter = map.getCenter();
+
+      map.jumpTo({
+        center: currentCenter,
+        zoom: currentZoom + 0.0001,
+      });
+      map.jumpTo({
+        center: currentCenter,
+        zoom: currentZoom,
+      });
+      map.triggerRepaint();
+    };
 
     const styleDataHandler = () => {
       clearStyleTimeout();
       styleTimeoutRef.current = setTimeout(() => {
         setIsStyleLoaded(true);
         if (projection) map.setProjection(projection);
-        forceRender();
+        nudgeRender();
       }, 100);
     };
     const loadHandler = () => {
       setIsLoaded(true);
-      forceRender();
+      nudgeRender();
     };
     const handleMove = () => onViewportChangeRef.current?.(getViewport(map));
 
@@ -191,15 +206,15 @@ const Map = forwardRef(function Map(
     setMapInstance(map);
 
     const resizeFrame = requestAnimationFrame(() => {
-      forceRender();
-      requestAnimationFrame(forceRender);
+      nudgeRender();
+      requestAnimationFrame(nudgeRender);
     });
     const resizeTimers = [120, 350, 800, 1500].map((delay) =>
-      window.setTimeout(forceRender, delay),
+      window.setTimeout(nudgeRender, delay),
     );
     const resizeObserver = new ResizeObserver(forceRender);
     resizeObserver.observe(containerRef.current);
-    map.on("idle", forceRender);
+    map.once("idle", nudgeRender);
 
     return () => {
       cancelAnimationFrame(resizeFrame);
@@ -209,7 +224,7 @@ const Map = forwardRef(function Map(
       map.off("load", loadHandler);
       map.off("styledata", styleDataHandler);
       map.off("move", handleMove);
-      map.off("idle", forceRender);
+      map.off("idle", nudgeRender);
       map.remove();
       setIsLoaded(false);
       setIsStyleLoaded(false);
