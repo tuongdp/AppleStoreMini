@@ -181,7 +181,17 @@ const Map = forwardRef(function Map(
     map.on("move", handleMove);
     setMapInstance(map);
 
+    const resizeMap = () => map.resize();
+    const resizeFrame = requestAnimationFrame(resizeMap);
+    const resizeTimer = window.setTimeout(resizeMap, 250);
+    const resizeObserver = new ResizeObserver(resizeMap);
+    resizeObserver.observe(containerRef.current);
+    map.once("load", resizeMap);
+
     return () => {
+      cancelAnimationFrame(resizeFrame);
+      window.clearTimeout(resizeTimer);
+      resizeObserver.disconnect();
       clearStyleTimeout();
       map.off("load", loadHandler);
       map.off("styledata", styleDataHandler);
