@@ -1,14 +1,41 @@
-import { useEffect, useState } from "react";
-import { ShoppingBag, Users, Package, Clock, TrendingUp, TicketPercent, AlertTriangle, Receipt, Coins, Save, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+    AlertTriangle,
+    ArrowUpRight,
+    CheckCircle2,
+    Clock,
+    Coins,
+    Flame,
+    Loader2,
+    Mail,
+    MessageSquareReply,
+    Package,
+    Receipt,
+    RotateCcw,
+    Save,
+    ShoppingBag,
+    TicketPercent,
+    TrendingDown,
+    TrendingUp,
+    Users,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetLowStockQuery, useGetCategoryRevenueQuery, useGetCouponStatsQuery, useGetDashboardStatsQuery, useGetReviewRewardSettingQuery, useUpdateReviewRewardSettingMutation } from "@/store/api/ordersApi";
-import { useGetAllUsersQuery } from "@/store/api/usersApi";
-import { useGetProductsQuery } from "@/store/api/productsApi";
+import {
+    useGetCategoryRevenueQuery,
+    useGetCouponStatsQuery,
+    useGetDashboardOperationsQuery,
+    useGetDashboardStatsQuery,
+    useGetLowStockQuery,
+    useGetReviewRewardSettingQuery,
+    useUpdateReviewRewardSettingMutation,
+} from "@/store/api/ordersApi";
 import RevenueChart from "@/features/admin/components/dashboard/RevenueChart";
 import RecentOrders from "@/features/admin/components/dashboard/RecentOrders";
 import TopProducts from "@/features/admin/components/dashboard/TopProducts";
@@ -18,18 +45,94 @@ import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
 import { formatPrice, formatNumber, cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
-import { toast } from "sonner";
+
+function MetricCard({ title, value, note, icon: Icon, tone = "default", loading }) {
+    const toneClass = {
+        default: "bg-muted text-muted-foreground",
+        revenue: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400",
+        order: "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+        warning: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+        danger: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400",
+        purple: "bg-violet-100 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400",
+    }[tone];
+
+    return (
+        <Card className="border-border">
+            <CardContent className="flex items-start gap-3 p-4">
+                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", toneClass)}>
+                    <Icon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-muted-foreground">{title}</p>
+                    {loading ? (
+                        <Skeleton className="mt-2 h-7 w-28" />
+                    ) : (
+                        <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+                    )}
+                    {note && <p className="mt-1 truncate text-xs text-muted-foreground">{note}</p>}
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+function WorkItem({ item }) {
+    const toneClass = {
+        danger: "border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-400",
+        warning: "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-400",
+        default: "border-border bg-muted/40 text-foreground",
+    }[item.tone || "default"];
+
+    return (
+        <Link
+            to={item.href}
+            className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 transition-colors hover:bg-muted"
+        >
+            <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-foreground">{item.label}</p>
+                <p className="text-xs text-muted-foreground">Cần xử lý trong ca vận hành</p>
+            </div>
+            <div className="flex items-center gap-2">
+                <Badge className={cn("border", toneClass)}>{formatNumber(item.count)}</Badge>
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+        </Link>
+    );
+}
+
+function AlertItem({ alert }) {
+    const severityClass = {
+        HIGH: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400",
+        MEDIUM: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+        LOW: "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
+    }[alert.severity] || "bg-muted text-muted-foreground";
+
+    return (
+        <Link to={alert.href} className="block rounded-lg border border-border p-3 transition-colors hover:bg-muted">
+            <div className="flex items-start gap-3">
+                <div className={cn("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", severityClass)}>
+                    <AlertTriangle className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground">{alert.title}</p>
+                        <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{alert.message}</p>
+                </div>
+            </div>
+        </Link>
+    );
+}
 
 export default function AdminDashboard() {
     const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
+    const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery();
     const { data: lowStock = [] } = useGetLowStockQuery();
     const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
     const { data: couponStats } = useGetCouponStatsQuery();
     const { data: reviewRewardSetting, isLoading: isRewardLoading } = useGetReviewRewardSettingQuery();
     const [updateReviewReward, { isLoading: isUpdatingReward }] = useUpdateReviewRewardSettingMutation();
-    const { data: usersData } = useGetAllUsersQuery({ page: 1, limit: 1 });
-    const { data: productsData } = useGetProductsQuery({ page: 1, limit: 1 });
     const [rewardPoints, setRewardPoints] = useState("");
 
     useEffect(() => {
@@ -40,6 +143,67 @@ export default function AdminDashboard() {
 
     const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
+    const tasks = operations?.tasks || [];
+    const alerts = operations?.alerts || [];
+
+    const metricCards = useMemo(() => [
+        {
+            title: "Doanh thu hôm nay",
+            value: formatPrice(operations?.revenue?.today ?? stats?.todayRevenue ?? 0),
+            note: `Tháng này ${formatPrice(operations?.revenue?.month ?? 0)}`,
+            icon: TrendingUp,
+            tone: "revenue",
+        },
+        {
+            title: "Đơn cần xử lý",
+            value: formatNumber((operations?.orders?.pending || 0) + (operations?.orders?.confirmed || 0)),
+            note: `${formatNumber(operations?.orders?.today || 0)} đơn mới hôm nay`,
+            icon: Clock,
+            tone: ((operations?.orders?.pending || 0) > 0 ? "danger" : "order"),
+        },
+        {
+            title: "Tỷ lệ giao thành công",
+            value: `${operations?.orders?.deliveryRate ?? 0}%`,
+            note: `Hủy/hoàn ${operations?.orders?.problemRate ?? returnRate}%`,
+            icon: CheckCircle2,
+            tone: "order",
+        },
+        {
+            title: "Giá trị đơn trung bình",
+            value: formatPrice(aov),
+            note: `${formatNumber(stats?.totalOrders ?? 0)} đơn toàn thời gian`,
+            icon: Receipt,
+            tone: "purple",
+        },
+        {
+            title: "Tồn kho cần chú ý",
+            value: formatNumber((operations?.inventory?.lowStockVariants || 0) + (operations?.inventory?.outOfStockVariants || 0)),
+            note: `${formatNumber(operations?.inventory?.outOfStockVariants || 0)} biến thể hết hàng`,
+            icon: Package,
+            tone: "warning",
+        },
+        {
+            title: "Flash Sale đang chạy",
+            value: formatNumber(operations?.flashSale?.active || 0),
+            note: `${formatNumber(operations?.flashSale?.atRiskItems || 0)} sản phẩm sắp hết suất`,
+            icon: Flame,
+            tone: "danger",
+        },
+        {
+            title: "Khách hàng mới",
+            value: formatNumber(operations?.customers?.newToday || 0),
+            note: `${formatNumber(operations?.customers?.unverified || 0)} tài khoản chưa xác thực`,
+            icon: Users,
+            tone: "default",
+        },
+        {
+            title: "Voucher đã dùng",
+            value: formatNumber(couponStats?.totalCouponOrders ?? 0),
+            note: `Đã giảm ${formatPrice(couponStats?.totalDiscountAmount ?? 0)}`,
+            icon: TicketPercent,
+            tone: "purple",
+        },
+    ], [aov, couponStats, operations, returnRate, stats]);
 
     const handleUpdateReviewReward = async () => {
         const points = Number(rewardPoints);
@@ -56,51 +220,119 @@ export default function AdminDashboard() {
         }
     };
 
-    const STAT_CARDS = [
-        { title: "Doanh thu hôm nay", value: formatPrice(stats?.todayRevenue ?? 0), icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
-        { title: "Giá trị đơn TB", value: formatPrice(aov), icon: Receipt, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/30" },
-        { title: "Đơn chờ xử lý", value: formatNumber(stats?.pendingOrders ?? 0), icon: Clock, color: "text-red-600", bg: "bg-red-50 dark:bg-red-950/30", badge: (stats?.pendingOrders ?? 0) > 0,
-            sub: `Tỉ lệ hoàn: ${returnRate}%` },
-        { title: "Tổng đơn hàng", value: formatNumber(stats?.totalOrders ?? 0), icon: ShoppingBag, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
-        { title: "Tổng sản phẩm", value: formatNumber(productsData?.pagination?.total ?? 0), icon: Package, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/30" },
-        { title: "Tổng người dùng", value: formatNumber(usersData?.pagination?.total ?? 0), icon: Users, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/30" },
-        { title: "Voucher đã dùng", value: formatNumber(couponStats?.totalCouponOrders ?? 0), icon: TicketPercent, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-950/30" },
-        { title: "Tiền giảm từ voucher", value: formatPrice(couponStats?.totalDiscountAmount ?? 0), icon: TicketPercent, color: "text-rose-600", bg: "bg-rose-50 dark:bg-rose-950/30" },
-    ];
-
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-semibold text-foreground">Tổng quan</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Xin chào, đây là tóm tắt hôm nay</p>
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold text-foreground">Tổng quan vận hành</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Doanh thu, đơn hàng, tồn kho và các việc cần xử lý trong ngày.
+                    </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary" className="gap-1.5">
+                        <ShoppingBag className="h-3.5 w-3.5" />
+                        {formatNumber(stats?.totalOrders ?? 0)} đơn
+                    </Badge>
+                    <Badge variant="secondary" className="gap-1.5">
+                        <Package className="h-3.5 w-3.5" />
+                        {formatNumber(stats?.totalProducts ?? 0)} sản phẩm
+                    </Badge>
+                    <Badge variant="secondary" className="gap-1.5">
+                        <Users className="h-3.5 w-3.5" />
+                        {formatNumber(stats?.totalUsers ?? 0)} người dùng
+                    </Badge>
+                </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {STAT_CARDS.map((card) => (
-                    <Card key={card.title} className={cn("border-border", card.badge && "border-red-200 dark:border-red-800")}>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
-                            <div className={cn("flex h-9 w-9 items-center justify-center rounded-full", card.bg)}>
-                                <card.icon className={cn("h-4 w-4", card.color)} />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {isStatsLoading ? (
-                                <Skeleton className="h-8 w-32" />
-                            ) : (
-                                <div className="space-y-0.5">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-2xl font-bold text-foreground">{card.value}</span>
-                                        {card.badge && <Badge className="bg-red-500 text-white text-xs">!</Badge>}
-                                    </div>
-                                    {card.sub && (
-                                        <p className="text-xs text-muted-foreground">{card.sub}</p>
-                                    )}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {metricCards.map((card) => (
+                    <MetricCard key={card.title} {...card} loading={isStatsLoading || isOperationsLoading} />
                 ))}
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+                <Card className="lg:col-span-2">
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="text-sm font-medium">Việc cần xử lý hôm nay</CardTitle>
+                        <Badge variant={tasks.length ? "destructive" : "secondary"}>
+                            {tasks.length ? `${tasks.length} nhóm việc` : "Ổn định"}
+                        </Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        {isOperationsLoading ? (
+                            Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-14 rounded-lg" />)
+                        ) : tasks.length === 0 ? (
+                            <div className="rounded-lg border border-dashed border-border py-8 text-center">
+                                <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
+                                <p className="mt-2 text-sm font-medium text-foreground">Không có việc khẩn cần xử lý</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Theo dõi thêm đơn mới, tồn kho và đánh giá trong ngày.</p>
+                            </div>
+                        ) : (
+                            tasks.map((item) => <WorkItem key={item.key} item={item} />)
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            Cảnh báo vận hành
+                        </CardTitle>
+                        <Badge variant="secondary">{formatNumber(alerts.length)}</Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                        {isOperationsLoading ? (
+                            Array.from({ length: 3 }).map((_, index) => <Skeleton key={index} className="h-20 rounded-lg" />)
+                        ) : alerts.length === 0 ? (
+                            <p className="rounded-lg border border-dashed border-border py-8 text-center text-sm text-muted-foreground">
+                                Chưa có cảnh báo mới.
+                            </p>
+                        ) : (
+                            alerts.slice(0, 4).map((alert) => <AlertItem key={alert.key} alert={alert} />)
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-4">
+                <Card>
+                    <CardContent className="flex items-center gap-3 p-4">
+                        <RotateCcw className="h-5 w-5 text-red-500" />
+                        <div>
+                            <p className="text-xs text-muted-foreground">Yêu cầu trả hàng</p>
+                            <p className="text-lg font-semibold">{formatNumber(tasks.find((item) => item.key === "returnRequests")?.count || 0)}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="flex items-center gap-3 p-4">
+                        <MessageSquareReply className="h-5 w-5 text-amber-500" />
+                        <div>
+                            <p className="text-xs text-muted-foreground">Đánh giá chưa phản hồi</p>
+                            <p className="text-lg font-semibold">{formatNumber(tasks.find((item) => item.key === "reviews")?.count || 0)}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="flex items-center gap-3 p-4">
+                        <Mail className="h-5 w-5 text-blue-500" />
+                        <div>
+                            <p className="text-xs text-muted-foreground">Email subscriber active</p>
+                            <p className="text-lg font-semibold">{formatNumber(operations?.customers?.activeSubscribers || 0)}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="flex items-center gap-3 p-4">
+                        <TrendingDown className="h-5 w-5 text-violet-500" />
+                        <div>
+                            <p className="text-xs text-muted-foreground">Doanh thu Flash Sale</p>
+                            <p className="text-lg font-semibold">{formatPrice(operations?.revenue?.flashSale || 0)}</p>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
             <Card className="border-border">
@@ -128,7 +360,7 @@ export default function AdminDashboard() {
                         </Button>
                     </div>
                     <p className="mt-2 text-xs text-muted-foreground">
-                        Giá trị này được cộng vào tài khoản khách hàng sau khi đánh giá sản phẩm hợp lệ.
+                        Điểm này được cộng vào tài khoản khách hàng sau khi đánh giá sản phẩm hợp lệ.
                     </p>
                 </CardContent>
             </Card>
@@ -155,14 +387,14 @@ export default function AdminDashboard() {
                     <CardContent><TopProducts /></CardContent>
                 </Card>
                 <Card>
-                    <CardHeader><CardTitle className="text-sm font-medium">Phân bố trạng thái đơn hàng</CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-sm font-medium">Phân bổ trạng thái đơn hàng</CardTitle></CardHeader>
                     <CardContent><OrderStatusChart /></CardContent>
                 </Card>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
                 <Card>
-                    <CardHeader><CardTitle className="text-sm font-medium">Sản phẩm bán chậm (30 ngày)</CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-sm font-medium">Sản phẩm bán chậm trong 30 ngày</CardTitle></CardHeader>
                     <CardContent><SlowProducts /></CardContent>
                 </Card>
                 <Card>
@@ -173,36 +405,41 @@ export default function AdminDashboard() {
 
             <div className="grid gap-4 lg:grid-cols-2">
                 <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-sm font-medium">Đơn hàng mới nhất</CardTitle>
-                    </CardHeader>
+                    <CardHeader><CardTitle className="text-sm font-medium">Đơn hàng mới nhất</CardTitle></CardHeader>
                     <CardContent><RecentOrders /></CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2 text-sm font-medium">
                             <AlertTriangle className="h-4 w-4 text-amber-500" />
                             Cảnh báo tồn kho thấp
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         {lowStock.length === 0 ? (
-                            <p className="text-sm text-muted-foreground text-center py-4">Tất cả sản phẩm đều đủ hàng</p>
+                            <p className="py-4 text-center text-sm text-muted-foreground">Tất cả sản phẩm đều đủ hàng</p>
                         ) : (
                             <Table>
                                 <TableHeader>
-                                    <TableRow><TableHead>Sản phẩm</TableHead><TableHead>Màu</TableHead><TableHead>Dung lượng</TableHead><TableHead className="text-right">Tồn kho</TableHead></TableRow>
+                                    <TableRow>
+                                        <TableHead>Sản phẩm</TableHead>
+                                        <TableHead>Màu</TableHead>
+                                        <TableHead>Dung lượng</TableHead>
+                                        <TableHead className="text-right">Tồn kho</TableHead>
+                                    </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {lowStock.map((v) => (
-                                        <TableRow key={v.id}>
+                                    {lowStock.map((variant) => (
+                                        <TableRow key={variant.id}>
                                             <TableCell>
-                                                <Link to={`/admin/products/${v.productId}/edit`} className="text-sm text-blue-600 hover:underline line-clamp-1 max-w-[140px]">{v.product?.name}</Link>
+                                                <Link to={`/admin/products/${variant.productId}/edit`} className="line-clamp-1 max-w-[180px] text-sm text-blue-600 hover:underline">
+                                                    {variant.product?.name}
+                                                </Link>
                                             </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{v.color || "—"}</TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{v.storage || "—"}</TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">{variant.color || "-"}</TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">{variant.storage || "-"}</TableCell>
                                             <TableCell className="text-right">
-                                                <Badge className={v.stock === 0 ? "bg-red-500 text-white" : "bg-amber-500 text-white"}>{v.stock}</Badge>
+                                                <Badge className={variant.stock === 0 ? "bg-red-500 text-white" : "bg-amber-500 text-white"}>{variant.stock}</Badge>
                                             </TableCell>
                                         </TableRow>
                                     ))}

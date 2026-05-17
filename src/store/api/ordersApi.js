@@ -177,6 +177,11 @@ export const ordersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        getDashboardOperations: builder.query({
+            query: () => "/admin/dashboard/operations",
+            transformResponse: (response) => response.data,
+        }),
+
         // GET /admin/dashboard/low-stock
         getLowStock: builder.query({
             query: () => "/admin/dashboard/low-stock",
@@ -270,6 +275,7 @@ export const {
     useUpdateReviewRewardSettingMutation,
     useGetCouponStatsQuery,
     useGetDashboardStatsQuery,
+    useGetDashboardOperationsQuery,
     useGetOrderStatsQuery,
     useGetTopProductsQuery,
     useGetSlowProductsQuery,
