@@ -13,15 +13,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import { Clock, ExternalLink, Mail, MapPin, Phone, Send } from "lucide-react";
 import { contactSchema } from "@/lib/validations";
 import { formatPhone } from "@/lib/utils";
+
+const STORE_ADDRESS =
+  "41/1, Nguyễn Tất Thành, Quốc lộ 1, Phường Tuy Hòa, Đắk Lắk";
+const STORE_MAP_QUERY = encodeURIComponent(STORE_ADDRESS);
+const STORE_MAP_EMBED_URL = `https://maps.google.com/maps?q=${STORE_MAP_QUERY}&output=embed`;
+const STORE_MAP_DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${STORE_MAP_QUERY}`;
 
 const CONTACT_INFO = [
   {
     icon: MapPin,
     label: "Địa chỉ",
-    value: "41/1, Nguyễn Tất Thành, Quốc lộ 1, Phường Tuy Hòa, Đắk Lắk",
+    value: STORE_ADDRESS,
     color: "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
   },
   {
@@ -182,6 +188,39 @@ export default function ContactPage() {
             </form>
           </Form>
         </div>
+
+        <section className="mt-8 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Bản đồ cửa hàng
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {STORE_ADDRESS}
+              </p>
+            </div>
+            <Button asChild variant="outline" className="rounded-full">
+              <a
+                href={STORE_MAP_DIRECTIONS_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Chỉ đường
+              </a>
+            </Button>
+          </div>
+          <div className="aspect-[16/9] min-h-[280px] bg-muted sm:aspect-[21/9]">
+            <iframe
+              title="Bản đồ cửa hàng Apple Store Mini"
+              src={STORE_MAP_EMBED_URL}
+              className="h-full w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
+        </section>
       </div>
     </div>
   );
