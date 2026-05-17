@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mất kết nối Internet | Apple Store</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f8fafc;
+        --fg: #0f172a;
+        --muted: #64748b;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --primary: #111827;
+        --primary-fg: #ffffff;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #020617;
+          --fg: #f8fafc;
+          --muted: #94a3b8;
+          --card: #0f172a;
+          --border: #1e293b;
+          --primary: #f8fafc;
+          --primary-fg: #020617;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          Geist,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      main {
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .panel {
+        width: min(100%, 520px);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--card);
+        padding: 32px;
+        box-shadow: 0 24px 70px rgb(15 23 42 / 0.12);
+      }
+
+      .icon {
+        display: grid;
+        width: 56px;
+        height: 56px;
+        place-items: center;
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--primary) 10%, transparent);
+        color: var(--fg);
+      }
+
+      h1 {
+        margin: 24px 0 10px;
+        font-size: clamp(28px, 5vw, 40px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: #ef4444;
+      }
+
+      .is-online .dot {
+        background: #22c55e;
+      }
+
+      .actions {
+        display: none;
+        gap: 12px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+      }
+
+      .is-online .actions {
+        display: flex;
+      }
+
+      button,
+      a {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 0 18px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button {
+        border: 0;
+        background: var(--primary);
+        color: var(--primary-fg);
+      }
+
+      a {
+        border: 1px solid var(--border);
+        color: var(--fg);
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="panel" aria-labelledby="offline-title">
+        <div class="icon" aria-hidden="true">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M2 8.82a15 15 0 0 1 20 0" />
+            <path d="M5 12.86a10 10 0 0 1 14 0" />
+            <path d="M8.5 16.43a5 5 0 0 1 7 0" />
+            <path d="m2 2 20 20" />
+          </svg>
+        </div>
+        <h1 id="offline-title">Bạn đang mất kết nối Internet</h1>
+        <p>
+          Trang này đã được lưu sẵn để bạn vẫn thấy được trạng thái kết nối.
+          Kiểm tra Wi-Fi hoặc dữ liệu di động, sau đó tải lại trang khi kết nối
+          trở lại.
+        </p>
+
+        <div class="status" id="status">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="statusText">Đang ngoại tuyến</span>
+        </div>
+
+        <div class="actions" id="actions">
+          <button type="button" id="reloadButton">Tải lại</button>
+          <a href="/">Về trang chủ</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      var statusText = document.getElementById("statusText");
+      var reloadButton = document.getElementById("reloadButton");
+
+      function syncStatus() {
+        if (navigator.onLine) {
+          document.body.classList.add("is-online");
+          statusText.textContent = "Đã có kết nối trở lại";
+        } else {
+          document.body.classList.remove("is-online");
+          statusText.textContent = "Đang ngoại tuyến";
+        }
+      }
+
+      reloadButton.addEventListener("click", function () {
+        window.location.reload();
+      });
+
+      window.addEventListener("online", syncStatus);
+      window.addEventListener("offline", syncStatus);
+      syncStatus();
+    </script>
+  </body>
+</html>
