@@ -36,7 +36,7 @@ export default function BannerSlider({ slides = [] }) {
                             >
                                 <img
                                     src={slide.image}
-                                    alt={slide.ctaLink ? `Banner ${i + 1}: ${slide.ctaLink}` : ""}
+                                    alt={slide.ctaLink ? `Banner ${i + 1}` : ""}
                                     width={1440}
                                     height={375}
                                     loading={i === 0 ? "eager" : "lazy"}
