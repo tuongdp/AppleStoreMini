@@ -24,6 +24,15 @@ import {
     Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+    Area,
+    AreaChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -128,6 +137,31 @@ function AlertItem({ alert }) {
     );
 }
 
+function TrafficTooltip({ active, payload, label }) {
+    if (!active || !payload?.length) return null;
+    return (
+        <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-md">
+            <p className="mb-1 text-xs text-muted-foreground">{label}</p>
+            <p className="text-sm font-semibold text-foreground">
+                {formatNumber(payload[0]?.value || 0)} lượt truy cập
+            </p>
+            {payload[1] && (
+                <p className="text-xs text-muted-foreground">
+                    {formatNumber(payload[1]?.value || 0)} khách riêng
+                </p>
+            )}
+        </div>
+    );
+}
+
+function TrafficAxisTick({ x, y, payload }) {
+    return (
+        <text x={x} y={y} dy={8} textAnchor="middle" fontSize={11} className="fill-muted-foreground">
+            {payload.value}
+        </text>
+    );
+}
+
 export default function AdminDashboard() {
     const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
     const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery(undefined, {
@@ -150,6 +184,12 @@ export default function AdminDashboard() {
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
+    const trafficChart = (operations?.traffic?.chart || []).map((item) => ({
+        label: new Date(item.date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" }),
+        totalVisits: item.totalVisits || 0,
+        uniqueVisitors: item.uniqueVisitors || 0,
+    }));
+    const topPages = operations?.traffic?.topPages || [];
     const trafficCards = [
         { label: "Hôm nay", value: operations?.traffic?.today?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.today?.uniqueVisitors || 0)} khách riêng` },
         { label: "7 ngày", value: operations?.traffic?.week?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.week?.uniqueVisitors || 0)} khách riêng` },
@@ -293,6 +333,65 @@ export default function AdminDashboard() {
                                 <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>
                             </div>
                         ))}
+                    </div>
+                    <div className="mt-5 grid gap-4 lg:grid-cols-5">
+                        <div className="lg:col-span-3">
+                            <div className="mb-3 flex items-center justify-between">
+                                <p className="text-sm font-medium text-foreground">Xu hướng 30 ngày</p>
+                                <Badge variant="outline">Lượt / khách riêng</Badge>
+                            </div>
+                            {isOperationsLoading ? (
+                                <Skeleton className="h-[240px] rounded-lg" />
+                            ) : trafficChart.length === 0 ? (
+                                <div className="flex h-[240px] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+                                    Chưa có dữ liệu truy cập
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height={240}>
+                                    <AreaChart data={trafficChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                        <defs>
+                                            <linearGradient id="trafficGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.18} />
+                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
+                                        <XAxis dataKey="label" axisLine={false} tickLine={false} tick={<TrafficAxisTick />} interval="preserveStartEnd" />
+                                        <YAxis axisLine={false} tickLine={false} width={36} tick={{ fontSize: 11 }} />
+                                        <Tooltip content={<TrafficTooltip />} />
+                                        <Area type="monotone" dataKey="totalVisits" name="Lượt truy cập" stroke="#2563eb" strokeWidth={2} fill="url(#trafficGradient)" dot={false} activeDot={{ r: 4 }} />
+                                        <Area type="monotone" dataKey="uniqueVisitors" name="Khách riêng" stroke="#10b981" strokeWidth={2} fill="transparent" dot={false} activeDot={{ r: 4 }} />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            )}
+                        </div>
+                        <div className="lg:col-span-2">
+                            <div className="mb-3 flex items-center justify-between">
+                                <p className="text-sm font-medium text-foreground">Top trang trong tháng</p>
+                                <Badge variant="outline">{formatNumber(topPages.length)}</Badge>
+                            </div>
+                            {isOperationsLoading ? (
+                                <div className="space-y-2">
+                                    {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-12 rounded-lg" />)}
+                                </div>
+                            ) : topPages.length === 0 ? (
+                                <div className="flex h-[240px] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
+                                    Chưa có trang nổi bật
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {topPages.map((page) => (
+                                        <div key={page.path} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-medium text-foreground">{page.path}</p>
+                                                <p className="text-xs text-muted-foreground">{formatNumber(page.uniqueVisitors || 0)} khách riêng</p>
+                                            </div>
+                                            <Badge variant="secondary">{formatNumber(page.totalViews || 0)}</Badge>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </CardContent>
             </Card>

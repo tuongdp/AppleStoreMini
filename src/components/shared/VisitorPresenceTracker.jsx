@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectAccessToken } from "@/store/authSlice";
 
@@ -21,6 +22,9 @@ const getVisitorId = () => {
 
 export default function VisitorPresenceTracker() {
     const token = useSelector(selectAccessToken);
+    const location = useLocation();
+    const socketRef = useRef(null);
+    const pathRef = useRef("/");
 
     useEffect(() => {
         let socket;
@@ -44,6 +48,10 @@ export default function VisitorPresenceTracker() {
                         ...(visitorId ? { visitorId } : {}),
                     },
                 });
+                socketRef.current = socket;
+                socket.on("connect", () => {
+                    socket.emit("visitor:page", { path: pathRef.current });
+                });
 
                 pingTimer = setInterval(() => {
                     socket?.emit("visitor:ping");
@@ -58,9 +66,16 @@ export default function VisitorPresenceTracker() {
         return () => {
             cancelled = true;
             if (pingTimer) clearInterval(pingTimer);
+            if (socketRef.current === socket) socketRef.current = null;
             socket?.disconnect();
         };
     }, [token]);
+
+    useEffect(() => {
+        const path = `${location.pathname}${location.search || ""}`;
+        pathRef.current = path;
+        socketRef.current?.emit("visitor:page", { path });
+    }, [location.pathname, location.search]);
 
     return null;
 }
