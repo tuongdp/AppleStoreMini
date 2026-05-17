@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -18,9 +18,18 @@ import BannerSlider from "@/components/shared/BannerSlider";
 import FlashSaleBanner from "@/components/shared/FlashSaleBanner";
 import ProductSlider from "@/components/shared/ProductSlider";
 import SectionTitle from "@/components/shared/SectionTitle";
-import WelcomeModal, { isWelcomeDismissed } from "@/components/shared/WelcomeModal";
-
 import { ROUTES } from "@/lib/constants";
+
+const WelcomeModal = lazy(() => import("@/components/shared/WelcomeModal"));
+const WELCOME_STORAGE_KEY = "app-welcome-dismissed";
+
+function isWelcomeDismissed() {
+  try {
+    return localStorage.getItem(WELCOME_STORAGE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 const CATEGORY_SLIDERS = [
   { slug: "iphone", label: "iPhone", subtitle: "iPhone" },
@@ -92,7 +101,11 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       <h1 className="sr-only">Apple Store - Cửa hàng Apple chính hãng</h1>
-      <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />
+      {showWelcome && (
+        <Suspense fallback={null}>
+          <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />
+        </Suspense>
+      )}
 
       <BannerSlider slides={banners} isLoading={isBannerLoading} />
 

@@ -1,10 +1,21 @@
-import * as XLSX from "xlsx";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-
 const BLUE = "#1e40af";
 const STRIPE = "#f3f4f6";
 const LOCALE = "vi-VN";
+
+async function loadExcelExporter() {
+    return import("xlsx");
+}
+
+async function loadPDFExporter() {
+    const [{ jsPDF }, autoTableModule] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+    ]);
+    return {
+        jsPDF,
+        autoTable: autoTableModule.default,
+    };
+}
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -58,7 +69,8 @@ function autoWidth(rows, cols, max = 40) {
 
 // ── exportToExcel ────────────────────────────────────────
 
-export function exportToExcel({ sheets, filename = "export.xlsx" }) {
+export async function exportToExcel({ sheets, filename = "export.xlsx" }) {
+    const XLSX = await loadExcelExporter();
     const wb = XLSX.utils.book_new();
 
     for (const sheet of sheets) {
@@ -126,7 +138,7 @@ export function exportToExcel({ sheets, filename = "export.xlsx" }) {
 
 // ── exportToPDF ──────────────────────────────────────────
 
-export function exportToPDF({
+export async function exportToPDF({
     title,
     subtitle,
     columns,
@@ -134,6 +146,7 @@ export function exportToPDF({
     filename = "export.pdf",
     orientation = "portrait",
 }) {
+    const { jsPDF, autoTable } = await loadPDFExporter();
     const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
     const pageW = doc.internal.pageSize.getWidth();
 
@@ -222,7 +235,8 @@ export function exportToPDF({
 
 // ── exportDashboardPDF ───────────────────────────────────
 
-export function exportDashboardPDF({ sections, filename = "dashboard.pdf" }) {
+export async function exportDashboardPDF({ sections, filename = "dashboard.pdf" }) {
+    const { jsPDF, autoTable } = await loadPDFExporter();
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();

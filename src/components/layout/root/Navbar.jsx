@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { lazy, Suspense } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, Search, X } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import MegaMenu from "./MegaMenu";
 import NavbarActions from "./NavbarActions";
 import NavbarMobile from "./NavbarMobile";
-import SearchOverlay from "@/components/shared/SearchOverlay";
 import { newsApi } from "@/store/api/newsApi";
 import {
     toggleMobileMenu,
@@ -18,6 +18,8 @@ import { useScrolled } from "@/hooks/useScrollToTop";
 import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { appleLogo } from "@/assets/images";
+
+const SearchOverlay = lazy(() => import("@/components/shared/SearchOverlay"));
 
 export default function Navbar() {
     const dispatch = useDispatch();
@@ -138,10 +140,14 @@ export default function Navbar() {
                 </div>
             </div>
 
-            <SearchOverlay
-                open={searchOpen}
-                onClose={() => dispatch(toggleSearch(false))}
-            />
+            {searchOpen && (
+                <Suspense fallback={null}>
+                    <SearchOverlay
+                        open={searchOpen}
+                        onClose={() => dispatch(toggleSearch(false))}
+                    />
+                </Suspense>
+            )}
         </header>
     );
 }

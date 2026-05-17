@@ -18,7 +18,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { care } from "@/assets/images";
+import { care } from "@/assets/images/care";
 
 export default function AppleCarePage() {
   const PROCESS_STEPS = [
@@ -174,6 +174,8 @@ export default function AppleCarePage() {
                   src={service.image}
                   alt={service.name}
                   className="object-contain transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: 200, height: 200 }}
                 />
               </div>
@@ -247,6 +249,8 @@ export default function AppleCarePage() {
                   src={item.image}
                   alt={item.name}
                   className="object-contain"
+                  loading="lazy"
+                  decoding="async"
                   style={{ width: 150, height: 150 }}
                 />
               </div>
@@ -349,6 +353,8 @@ export default function AppleCarePage() {
                     src={img}
                     alt={`AppleCare ${i + 1}`}
                     className="h-full w-full object-cover"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
                   />
                 </div>
               </SwiperSlide>

@@ -1,6 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
     plugins: [react()],
@@ -28,6 +31,12 @@ export default defineConfig({
                     }
                     if (id.includes("node_modules/@tiptap")) {
                         return "tiptap";
+                    }
+                    if (id.includes("node_modules/xlsx")) {
+                        return "xlsx";
+                    }
+                    if (id.includes("node_modules/jspdf") || id.includes("node_modules/html2canvas")) {
+                        return "pdf";
                     }
                     if (id.includes("node_modules/recharts")) {
                         return "charts";

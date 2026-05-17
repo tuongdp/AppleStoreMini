@@ -1,8 +1,16 @@
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-
 const STORAGE_KEY_SHOP = "shop_settings";
 const STORAGE_KEY_COUNTER = "invoice_counter";
+
+async function loadPDFExporter() {
+  const [{ jsPDF }, autoTableModule] = await Promise.all([
+    import("jspdf"),
+    import("jspdf-autotable"),
+  ]);
+  return {
+    jsPDF,
+    autoTable: autoTableModule.default,
+  };
+}
 
 const DEFAULT_SELLER = {
   name: "AppleStore Mini",
@@ -103,9 +111,10 @@ const PAYMENT_LABELS = {
   zalopay: "ZaloPay", bank_transfer: "Chuyển khoản",
 };
 
-export function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
+export async function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
   if (!order || !buyerInfo) throw new Error("Thiếu dữ liệu đơn hàng hoặc thông tin người mua");
 
+  const { jsPDF, autoTable } = await loadPDFExporter();
   const seller = getSellerInfo();
   const invoiceNumber = getNextInvoiceNumber();
   const invoiceSymbol = generateInvoiceSymbol();

@@ -67,7 +67,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 50));
       const finalRate = isCustom ? Number(customRate) : Number(vatRate);
-      exportVATInvoicePDF({
+      await exportVATInvoicePDF({
         order,
         buyerInfo: {
           companyName: companyName.trim(),

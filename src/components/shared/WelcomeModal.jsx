@@ -5,21 +5,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 const STORAGE_KEY = "app-welcome-dismissed";
 
-export function isWelcomeDismissed() {
-    try {
-        return localStorage.getItem(STORAGE_KEY) === "1";
-    } catch {
-        return false;
-    }
-}
-
 export default function WelcomeModal({ open, onClose }) {
     const [understood, setUnderstood] = useState(false);
 
     const handleClose = () => {
         try {
             localStorage.setItem(STORAGE_KEY, "1");
-        } catch {}
+        } catch {
+            // Ignore private browsing or storage permission failures.
+        }
         onClose();
     };
 
