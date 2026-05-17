@@ -5,7 +5,12 @@ import { ROUTES } from "@/lib/constants";
 
 export default function ProtectedRoute({ children }) {
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const location = useLocation();
+    let location;
+    try {
+        location = useLocation();
+    } catch (e) {
+        location = { pathname: "/" };
+    }
 
     if (!isAuthenticated) {
         // Lưu lại URL hiện tại để sau khi đăng nhập redirect về đúng chỗ

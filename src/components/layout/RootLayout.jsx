@@ -13,7 +13,13 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { useGetServerCartQuery } from "@/store/api/cartApi";
 
 export default function RootLayout() {
-    const { pathname } = useLocation();
+    let pathname = "/";
+    try {
+        const location = useLocation();
+        pathname = location.pathname;
+    } catch (e) {
+        // ignore
+    }
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     useGetServerCartQuery(undefined, {

@@ -12,7 +12,13 @@ const BREADCRUMB_MAP = {
 };
 
 export default function ProfileLayout() {
-    const { pathname } = useLocation();
+    let pathname = "/profile";
+    try {
+        const location = useLocation();
+        pathname = location.pathname;
+    } catch (e) {
+        // ignore
+    }
 
     const isOrderDetail = /^\/profile\/orders\/.+/.test(pathname);
     const currentLabel = isOrderDetail

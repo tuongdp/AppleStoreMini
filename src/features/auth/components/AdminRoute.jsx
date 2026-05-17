@@ -4,7 +4,12 @@ import { selectIsAuthenticated, selectHasAdminAccess } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
 export default function AdminRoute({ children }) {
-    const location = useLocation();
+    let location;
+    try {
+        location = useLocation();
+    } catch (e) {
+        location = { pathname: "/", search: "" };
+    }
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const hasAdminAccess = useSelector(selectHasAdminAccess);
 

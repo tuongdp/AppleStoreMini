@@ -16,7 +16,13 @@ const SEGMENT_MAP = {
 };
 
 export default function AdminBreadcrumb({ className }) {
-    const { pathname } = useLocation();
+    let pathname = "";
+    try {
+        const location = useLocation();
+        pathname = location.pathname;
+    } catch (e) {
+        pathname = "";
+    }
 
     const segments = pathname.split("/").filter(Boolean);
 
