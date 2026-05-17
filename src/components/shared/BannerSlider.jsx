@@ -33,6 +33,7 @@ export default function BannerSlider({ slides = [] }) {
                             <Wrapper
                                 to={slide.ctaLink || "#"}
                                 className="relative block h-full w-full overflow-hidden bg-muted"
+                                aria-label={slide.ctaLink ? `Banner ${i + 1}` : undefined}
                             >
                                 <img
                                     src={slide.image}

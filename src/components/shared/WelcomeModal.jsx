@@ -31,6 +31,10 @@ export default function WelcomeModal({ open, onClose }) {
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                 onClick={handleClose}
+                role="button"
+                aria-label="Đóng thông báo"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleClose(); }}
             />
 
             {/* Content */}

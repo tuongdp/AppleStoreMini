@@ -109,6 +109,7 @@ export default function ChatWidget() {
         <>
             <button
                 onClick={() => setOpen(!open)}
+                aria-label={open ? "Đóng chat" : "Mở chat"}
                 className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors sm:h-14 sm:w-14 sm:bottom-6 sm:right-6"
             >
                 {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
@@ -140,7 +141,7 @@ export default function ChatWidget() {
                                 <Sparkles className="h-3 w-3 mr-1" />Chat mới
                             </Button>
                         )}
-                        <button onClick={() => setOpen(false)} className="sm:hidden"><X className="h-5 w-5" /></button>
+                        <button onClick={() => setOpen(false)} aria-label="Đóng chat" className="sm:hidden"><X className="h-5 w-5" /></button>
                     </div>
 
                     {step === "info" && !user ? (

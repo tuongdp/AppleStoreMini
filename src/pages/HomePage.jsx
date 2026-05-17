@@ -91,6 +91,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
+      <h1 className="sr-only">Apple Store - Cửa hàng Apple chính hãng</h1>
       <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />
 
       <BannerSlider slides={banners} isLoading={isBannerLoading} />

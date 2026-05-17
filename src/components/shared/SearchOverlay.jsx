@@ -75,7 +75,11 @@ export default function SearchOverlay({ open, onClose }) {
                         <form onSubmit={handleSubmit} className="flex-1">
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                                <label htmlFor="search-input" className="sr-only">
+                                    Tìm kiếm sản phẩm
+                                </label>
                                 <Input
+                                    id="search-input"
                                     ref={inputRef}
                                     value={keyword}
                                     onChange={(e) => handleKeywordChange(e.target.value)}
@@ -86,6 +90,7 @@ export default function SearchOverlay({ open, onClose }) {
                                     <button
                                         type="button"
                                         onClick={handleClear}
+                                        aria-label="Xóa tìm kiếm"
                                         className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                     >
                                         {isFetching ? (

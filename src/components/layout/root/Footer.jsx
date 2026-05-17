@@ -157,7 +157,11 @@ export default function Footer() {
                 Nhận khuyến mãi và thông tin sản phẩm mới nhất
               </p>
               <form onSubmit={handleSubscribe} className="flex gap-2 md:flex-col xl:flex-row">
+                <label className="sr-only" htmlFor="footer-subscribe-email">
+                  Email
+                </label>
                 <Input
+                  id="footer-subscribe-email"
                   type="email"
                   placeholder="email@example.com"
                   value={email}
