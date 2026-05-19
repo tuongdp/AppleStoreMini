@@ -69,12 +69,14 @@ export default function QuantityInput({
                 sizes[size].wrapper,
                 className,
             )}
+            data-testid="quantity-input"
         >
             <Button
                 type="button"
                 variant="ghost"
                 onClick={handleDecrease}
                 disabled={disabled || value <= min}
+                data-testid="quantity-decrease"
                 className={cn(
                     "shrink-0 rounded-l-md border-none transition-colors",
                     "hover:bg-muted",
@@ -92,6 +94,7 @@ export default function QuantityInput({
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 disabled={disabled}
+                data-testid="quantity-value"
                 className={cn(
                     "rounded-none border-x border-border bg-transparent text-center font-medium",
                     "[appearance:textfield] focus-visible:ring-0",
@@ -105,6 +108,7 @@ export default function QuantityInput({
                 variant="ghost"
                 onClick={handleIncrease}
                 disabled={disabled || value >= max}
+                data-testid="quantity-increase"
                 className={cn(
                     "shrink-0 rounded-r-md border-none transition-colors",
                     "hover:bg-muted",

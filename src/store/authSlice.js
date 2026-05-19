@@ -7,6 +7,7 @@ const initialState = {
     isAuthenticated: false,
     rememberMe: false,
 };
+const EMPTY_PERMISSIONS = [];
 
 const authSlice = createSlice({
     name: "auth",
@@ -45,7 +46,7 @@ export const selectHasAdminAccess = (state) => {
     if (!user || user.isBlocked) return false;
     return user.role === "admin" || user.role === "staff";
 };
-export const selectUserPermissions = (state) => state.auth.user?.permissions || [];
+export const selectUserPermissions = (state) => state.auth.user?.permissions || EMPTY_PERMISSIONS;
 
 export const selectHasPermission = (permission) => (state) => {
     const user = state.auth.user;

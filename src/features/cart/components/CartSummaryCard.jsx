@@ -14,7 +14,6 @@ export default function CartSummaryCard() {
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-    const shippingFee = 0;
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
     const grandTotal = Math.max(0, total - discountAmount);
 

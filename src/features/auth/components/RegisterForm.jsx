@@ -158,6 +158,7 @@ export default function RegisterForm() {
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-4"
+                    data-testid="register-form"
                 >
                     {/* Server error */}
                     {serverError && (
@@ -178,6 +179,7 @@ export default function RegisterForm() {
                                         placeholder={"Nhập họ và tên"}
                                         autoComplete="name"
                                         disabled={isRegisterLoading}
+                                        data-testid="register-full-name"
                                         {...field}
                                     />
                                 </FormControl>
@@ -199,6 +201,7 @@ export default function RegisterForm() {
                                         placeholder={"Nhập địa chỉ email"}
                                         autoComplete="email"
                                         disabled={isRegisterLoading || isCheckingEmail}
+                                        data-testid="register-email"
                                         {...field}
                                         onChange={(e) => {
                                             field.onChange(e);
@@ -239,6 +242,7 @@ export default function RegisterForm() {
                                         placeholder={"Nhập số điện thoại"}
                                         autoComplete="tel"
                                         disabled={isRegisterLoading}
+                                        data-testid="register-phone"
                                         {...field}
                                     />
                                 </FormControl>
@@ -266,6 +270,7 @@ export default function RegisterForm() {
                                             autoComplete="new-password"
                                             disabled={isRegisterLoading}
                                             className="pr-10"
+                                            data-testid="register-password"
                                             {...field}
                                         />
                                         <button
@@ -324,6 +329,7 @@ export default function RegisterForm() {
                                             autoComplete="new-password"
                                             disabled={isRegisterLoading}
                                             className="pr-10"
+                                            data-testid="register-confirm-password"
                                             {...field}
                                         />
                                         <button
@@ -392,6 +398,7 @@ export default function RegisterForm() {
                         type="submit"
                         className="w-full rounded-full"
                         disabled={isRegisterLoading || isCheckingEmail}
+                        data-testid="register-submit"
                     >
                         {isRegisterLoading
                             ? "Đang tạo tài khoản..."

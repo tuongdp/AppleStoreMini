@@ -41,6 +41,7 @@ export default function ProductSearch({ autoFocus = false, onClose }) {
                         onChange={(e) => handleKeywordChange(e.target.value)}
                         placeholder={"Tìm kiếm sản phẩm..."}
                         className="h-10 rounded-full pl-9 pr-9"
+                        data-testid="product-search-input"
                     />
                     {keyword && (
                         <button
@@ -75,6 +76,7 @@ export default function ProductSearch({ autoFocus = false, onClose }) {
                                         onClose?.();
                                     }}
                                     className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted"
+                                    data-testid="product-search-suggestion"
                                 >
                                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted/50 p-1">
                                         <img

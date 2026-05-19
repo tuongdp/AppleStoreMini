@@ -42,7 +42,6 @@ export default function CampaignList() {
     const navigate = useNavigate();
     const [page, setPage] = useState(1);
     const [deleteId, setDeleteId] = useState(null);
-    const [statsId, setStatsId] = useState(null);
     const [statsData, setStatsData] = useState(null);
     const [showAutoDialog, setShowAutoDialog] = useState(false);
     const [strategy, setStrategy] = useState("both");
@@ -97,7 +96,6 @@ export default function CampaignList() {
             });
             const json = await res.json();
             setStatsData(json.data ?? json);
-            setStatsId(id);
         } catch {
             toast.error("Không thể tải thống kê");
         }
@@ -347,7 +345,7 @@ export default function CampaignList() {
 
             {/* Stats dialog */}
             {statsData && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setStatsData(null); setStatsId(null); }}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setStatsData(null)}>
                     <Card className="w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
                         <CardContent className="p-6 space-y-4">
                             <h3 className="text-lg font-semibold">Thống kê chiến dịch</h3>
@@ -377,7 +375,7 @@ export default function CampaignList() {
                                     <p className="text-2xl font-bold text-green-600">{statsData.clickRate ? `${statsData.clickRate}%` : "—"}</p>
                                 </div>
                             </div>
-                            <Button variant="outline" className="w-full" onClick={() => { setStatsData(null); setStatsId(null); }}>
+                            <Button variant="outline" className="w-full" onClick={() => setStatsData(null)}>
                                 Đóng
                             </Button>
                         </CardContent>

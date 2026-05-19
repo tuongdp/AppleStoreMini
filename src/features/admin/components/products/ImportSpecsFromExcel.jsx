@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function ImportSpecsFromExcel({ onImport, onCancel }) {
-    const [preview, setPreview] = useState([]);
+    const [, setPreview] = useState([]);
     const [fileName, setFileName] = useState("");
     const [error, setError] = useState("");
     const [showPreview, setShowPreview] = useState(false);
@@ -42,7 +42,6 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
 
                 const rows = json.slice(1).filter((row) => {
                     const label = row[labelIdx];
-                    const value = row[valueIdx];
                     return label !== undefined && label !== null && String(label).trim() !== "";
                 });
 

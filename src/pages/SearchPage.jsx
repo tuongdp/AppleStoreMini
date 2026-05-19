@@ -78,6 +78,7 @@ export default function SearchPage() {
                         placeholder={aiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm..."}
                         className="h-12 rounded-full pl-12 pr-32 text-base"
                         autoFocus
+                        data-testid="search-page-input"
                     />
                     <Button
                         type="submit"
@@ -115,7 +116,7 @@ export default function SearchPage() {
             {/* Content */}
             {!keyword ? (
                 <EmptyState
-                    icon="🔍"
+                    icon={Search}
                     title={"Tìm kiếm sản phẩm..."}
                     description={"Thử tìm với từ khoá khác"}
                 />
@@ -123,7 +124,7 @@ export default function SearchPage() {
                 <ProductGridSkeleton count={PAGINATION.DEFAULT_LIMIT} />
             ) : products.length === 0 ? (
                 <EmptyState
-                    icon="🔍"
+                    icon={Search}
                     title={"Không tìm thấy sản phẩm"}
                     description={"Thử tìm với từ khoá khác"}
                     actionLabel={"Xoá bộ lọc"}

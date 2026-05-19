@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const SPECIFICATION_MAP = {};
+
 export default function ProductSpecification({ specifications = {} }) {
     const [expanded, setExpanded] = useState(false);
     const [needsTruncation, setNeedsTruncation] = useState(false);

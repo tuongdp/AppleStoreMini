@@ -1,0 +1,13 @@
+{
+  "playwright.reuseBrowser": true,
+  "testing.automaticallyOpenPeekView": "neverOpen",
+  "mcp.servers": {
+    "TestSprite": {
+      "command": "npx",
+      "args": ["@testsprite/testsprite-mcp@latest"],
+      "env": {
+        "API_KEY": "${env:TESTSPRITE_API_KEY}"
+      }
+    }
+  }
+}

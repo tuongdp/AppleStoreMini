@@ -1,0 +1,109 @@
+name: QA Regression
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+      VITE_API_URL: http://localhost:5000/api
+      TEST_BASE_URL: http://localhost:5173
+      TEST_API_URL: http://localhost:5000/api
+      TEST_BACKEND_URL: http://localhost:5000
+      TEST_BACKEND_DIR: AppleStoreMini_Api
+      TEST_USER_EMAIL: e2e.customer@example.com
+      TEST_USER_PASSWORD: Password@123
+      TEST_ADMIN_EMAIL: e2e.admin@example.com
+      TEST_ADMIN_PASSWORD: Admin@123
+      TESTSPRITE_API_KEY: ${{ secrets.TESTSPRITE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Checkout backend repository
+        if: ${{ vars.BACKEND_REPOSITORY != '' }}
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ vars.BACKEND_REPOSITORY }}
+          path: AppleStoreMini_Api
+          token: ${{ secrets.BACKEND_REPOSITORY_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install backend dependencies
+        if: ${{ vars.BACKEND_REPOSITORY != '' }}
+        run: npm ci
+        working-directory: AppleStoreMini_Api
+
+      - run: npx playwright install --with-deps
+
+      - name: Prepare backend test database
+        if: ${{ vars.BACKEND_REPOSITORY != '' && secrets.TEST_DATABASE_URL != '' }}
+        working-directory: AppleStoreMini_Api
+        run: |
+          npx prisma migrate deploy
+          npm run seed
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+
+      - run: npm run lint
+
+      - run: npm run build
+
+      - name: Run UI regression
+        run: npm run test:ci
+
+      - name: Run fullstack regression
+        if: ${{ vars.BACKEND_REPOSITORY != '' }}
+        run: npm run test:fullstack
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.TEST_JWT_REFRESH_SECRET }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.TEST_CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.TEST_CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.TEST_CLOUDINARY_API_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.TEST_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.TEST_GOOGLE_CLIENT_SECRET }}
+          MOMO_PARTNER_CODE: ${{ secrets.TEST_MOMO_PARTNER_CODE }}
+          MOMO_ACCESS_KEY: ${{ secrets.TEST_MOMO_ACCESS_KEY }}
+          MOMO_SECRET_KEY: ${{ secrets.TEST_MOMO_SECRET_KEY }}
+          TEST_MOMO_ORDER_CODE: ${{ secrets.TEST_MOMO_ORDER_CODE }}
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results
+          retention-days: 14
+
+  testsprite-context:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npx @testsprite/testsprite-mcp@latest --help
+        env:
+          API_KEY: ${{ secrets.TESTSPRITE_API_KEY }}

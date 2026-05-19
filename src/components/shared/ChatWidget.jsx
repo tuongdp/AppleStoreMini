@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { useSendMessageMutation, useSendGuestMessageMutation, useCloseMyConversationMutation } from "@/store/api/chatApi";
 import { useChatSocket } from "@/hooks/useSocket";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 export default function ChatWidget() {
     const [open, setOpen] = useState(false);

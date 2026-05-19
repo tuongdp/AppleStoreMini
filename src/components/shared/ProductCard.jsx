@@ -66,13 +66,19 @@ export default function ProductCard({ product }) {
     };
 
     return (
-        <Card className="group overflow-hidden border-transparent bg-muted/30 transition-all duration-200 hover:border-border hover:shadow-md">
+        <Card
+            className="group overflow-hidden border-transparent bg-muted/30 transition-all duration-200 hover:border-border hover:shadow-md"
+            data-testid="product-card"
+            data-product-id={product._id || product.id}
+            data-product-slug={product.slug}
+        >
             {/* Image */}
             <Link
                 to={ROUTES.PRODUCT_DETAIL(product.slug)}
                 reloadDocument
                 onMouseEnter={prefetchProductDetail}
                 onFocus={prefetchProductDetail}
+                data-testid="product-card-link"
             >
                 <div
                     className="relative overflow-hidden bg-white p-4 dark:bg-muted/10"
@@ -106,6 +112,7 @@ export default function ProductCard({ product }) {
                         onClick={handleToggleWishlist}
                         className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-background/80 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100 hover:scale-110"
                         aria-label="Thêm vào yêu thích"
+                        data-testid="wishlist-toggle"
                     >
                         <Heart
                             className={cn(

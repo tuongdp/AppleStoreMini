@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useCreateNewsMutation } from "@/store/api/newsApi";
 import AdminNewsForm from "@/features/admin/components/news/AdminNewsForm";
@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function AdminNewsCreate() {
-    const navigate = useNavigate();
     const [createNews, { isLoading }] = useCreateNewsMutation();
 
     const handleSubmit = async (values) => {

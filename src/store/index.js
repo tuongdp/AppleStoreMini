@@ -63,8 +63,14 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+const getE2EPreloadedState = () => {
+    if (typeof window === "undefined") return undefined;
+    return window.__E2E_PRELOADED_STATE__;
+};
+
 export const store = configureStore({
     reducer: persistedReducer,
+    preloadedState: getE2EPreloadedState(),
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {

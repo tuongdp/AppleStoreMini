@@ -51,7 +51,7 @@ export default function CampaignForm() {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleAIGenerated = ({ subject, body, cta }) => {
+    const handleAIGenerated = ({ subject, body }) => {
         const htmlContent = body;
         setForm((prev) => ({
             ...prev,

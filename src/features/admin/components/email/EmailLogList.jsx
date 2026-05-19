@@ -34,7 +34,7 @@ const STATUS_MAP = {
 export default function EmailLogList() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
+    const [statusFilter] = useState("all");
     const limit = 10;
 
     const params = { page, limit };

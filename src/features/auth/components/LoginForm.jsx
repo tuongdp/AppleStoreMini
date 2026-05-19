@@ -83,6 +83,7 @@ export default function LoginForm() {
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-4"
+                    data-testid="login-form"
                 >
                     {serverError && (
                         <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -121,6 +122,7 @@ export default function LoginForm() {
                                         placeholder={"Nhập địa chỉ email"}
                                         autoComplete="email"
                                         disabled={isLoginLoading}
+                                        data-testid="login-email"
                                         {...field}
                                     />
                                 </FormControl>
@@ -156,6 +158,7 @@ export default function LoginForm() {
                                             autoComplete="current-password"
                                             disabled={isLoginLoading}
                                             className="pr-10"
+                                            data-testid="login-password"
                                             {...field}
                                         />
                                         <button
@@ -207,6 +210,7 @@ export default function LoginForm() {
                         type="submit"
                         className="w-full rounded-full"
                         disabled={isLoginLoading}
+                        data-testid="login-submit"
                     >
                         {isLoginLoading
                             ? "Đang đăng nhập..."

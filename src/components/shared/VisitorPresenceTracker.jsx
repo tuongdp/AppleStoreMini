@@ -22,12 +22,7 @@ const getVisitorId = () => {
 
 export default function VisitorPresenceTracker() {
     const token = useSelector(selectAccessToken);
-    let location;
-    try {
-        location = useLocation();
-    } catch (e) {
-        return null;
-    }
+    const location = useLocation();
     const socketRef = useRef(null);
     const pathRef = useRef("/");
 

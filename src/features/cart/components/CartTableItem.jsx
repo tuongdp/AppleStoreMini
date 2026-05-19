@@ -52,7 +52,7 @@ export default function CartTableItem({ item, isLast }) {
   const firstImage = getFirstImage(product?.images || variant?.images);
 
   return (
-    <div>
+    <div data-testid="cart-line-item" data-variant-id={variantId}>
       <div className="grid grid-cols-12 gap-4">
         {/* Image + Info */}
         <div className="col-span-12 flex gap-4 md:col-span-6">
@@ -79,6 +79,7 @@ export default function CartTableItem({ item, isLast }) {
             <button
               onClick={handleRemove}
               className="mt-2 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive md:hidden"
+              data-testid="cart-remove-mobile"
             >
               <Trash2 className="h-3 w-3" />
               {"Xoá"}
@@ -112,6 +113,7 @@ export default function CartTableItem({ item, isLast }) {
           <button
             onClick={handleRemove}
             className="hidden text-muted-foreground transition-colors hover:text-destructive md:block"
+            data-testid="cart-remove"
           >
             <Trash2 className="h-4 w-4" />
           </button>

@@ -1,0 +1,56 @@
+export const testUsers = {
+  customer: {
+    id: "user-e2e-1",
+    fullName: "E2E Customer",
+    email: "e2e.customer@example.com",
+    role: "user",
+    isVerified: true,
+  },
+  admin: {
+    id: "admin-e2e-1",
+    fullName: "E2E Admin",
+    email: "e2e.admin@example.com",
+    role: "admin",
+    isVerified: true,
+  },
+};
+
+export const testProducts = [
+  {
+    id: "prod-iphone-15",
+    _id: "prod-iphone-15",
+    name: "iPhone 15 Pro E2E",
+    slug: "iphone-15-pro-e2e",
+    category: "iphone",
+    price: 29990000,
+    salePrice: 27990000,
+    stock: 12,
+    inStock: true,
+    images: JSON.stringify(["/assets/test/iphone.png"]),
+  },
+  {
+    id: "prod-macbook-air",
+    _id: "prod-macbook-air",
+    name: "MacBook Air M3 E2E",
+    slug: "macbook-air-m3-e2e",
+    category: "mac",
+    price: 32990000,
+    stock: 8,
+    inStock: true,
+    images: JSON.stringify(["/assets/test/macbook.png"]),
+  },
+];
+
+export const apiEnvelope = <T>(data: T, message = "ok") => ({ statusCode: 200, data, message, success: true });
+
+export function makeOrder(overrides = {}) {
+  return {
+    id: "order-e2e-1",
+    referenceId: "ORD-E2E-0001",
+    status: "PENDING",
+    paymentStatus: "PAID",
+    total: 27990000,
+    items: [{ product: testProducts[0], quantity: 1 }],
+    ...overrides,
+  };
+}
