@@ -1,17 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-    Activity,
     AlertTriangle,
     ArrowUpRight,
-    BarChart3,
-    CalendarDays,
     CheckCircle2,
     Clock,
     Coins,
     Flame,
     Loader2,
-    Mail,
     MessageSquareReply,
     Package,
     Receipt,
@@ -24,15 +20,6 @@ import {
     Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-    Area,
-    AreaChart,
-    CartesianGrid,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +43,7 @@ import OrderStatusChart from "@/features/admin/components/dashboard/OrderStatusC
 import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
-import { formatPrice, formatNumber, cn } from "@/lib/utils";
+import { formatNumber, formatPrice, cn } from "@/lib/utils";
 
 function MetricCard({ title, value, note, icon: Icon, tone = "default", loading }) {
     const toneClass = {
@@ -76,11 +63,7 @@ function MetricCard({ title, value, note, icon: Icon, tone = "default", loading 
                 </div>
                 <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-muted-foreground">{title}</p>
-                    {loading ? (
-                        <Skeleton className="mt-2 h-7 w-28" />
-                    ) : (
-                        <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{value}</p>
-                    )}
+                    {loading ? <Skeleton className="mt-2 h-7 w-28" /> : <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{value}</p>}
                     {note && <p className="mt-1 truncate text-xs text-muted-foreground">{note}</p>}
                 </div>
             </CardContent>
@@ -96,10 +79,7 @@ function WorkItem({ item }) {
     }[item.tone || "default"];
 
     return (
-        <Link
-            to={item.href}
-            className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 transition-colors hover:bg-muted"
-        >
+        <Link to={item.href} className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 transition-colors hover:bg-muted">
             <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-foreground">{item.label}</p>
                 <p className="text-xs text-muted-foreground">Cần xử lý trong ca vận hành</p>
@@ -137,31 +117,6 @@ function AlertItem({ alert }) {
     );
 }
 
-function TrafficTooltip({ active, payload, label }) {
-    if (!active || !payload?.length) return null;
-    return (
-        <div className="rounded-lg border border-border bg-popover px-3 py-2 shadow-md">
-            <p className="mb-1 text-xs text-muted-foreground">{label}</p>
-            <p className="text-sm font-semibold text-foreground">
-                {formatNumber(payload[0]?.value || 0)} lượt truy cập
-            </p>
-            {payload[1] && (
-                <p className="text-xs text-muted-foreground">
-                    {formatNumber(payload[1]?.value || 0)} khách riêng
-                </p>
-            )}
-        </div>
-    );
-}
-
-function TrafficAxisTick({ x, y, payload }) {
-    return (
-        <text x={x} y={y} dy={8} textAnchor="middle" fontSize={11} className="fill-muted-foreground">
-            {payload.value}
-        </text>
-    );
-}
-
 export default function AdminDashboard() {
     const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
     const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery(undefined, {
@@ -175,27 +130,13 @@ export default function AdminDashboard() {
     const [rewardPoints, setRewardPoints] = useState("");
 
     useEffect(() => {
-        if (reviewRewardSetting?.points != null) {
-            setRewardPoints(String(reviewRewardSetting.points));
-        }
+        if (reviewRewardSetting?.points != null) setRewardPoints(String(reviewRewardSetting.points));
     }, [reviewRewardSetting?.points]);
 
     const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
-    const trafficChart = (operations?.traffic?.chart || []).map((item) => ({
-        label: new Date(item.date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" }),
-        totalVisits: item.totalVisits || 0,
-        uniqueVisitors: item.uniqueVisitors || 0,
-    }));
-    const topPages = operations?.traffic?.topPages || [];
-    const trafficCards = [
-        { label: "Hôm nay", value: operations?.traffic?.today?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.today?.uniqueVisitors || 0)} khách riêng` },
-        { label: "7 ngày", value: operations?.traffic?.week?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.week?.uniqueVisitors || 0)} khách riêng` },
-        { label: "Tháng này", value: operations?.traffic?.month?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.month?.uniqueVisitors || 0)} khách riêng` },
-        { label: "Năm nay", value: operations?.traffic?.year?.totalVisits || 0, note: `${formatNumber(operations?.traffic?.year?.uniqueVisitors || 0)} khách riêng` },
-    ];
 
     const metricCards = useMemo(() => [
         {
@@ -210,14 +151,7 @@ export default function AdminDashboard() {
             value: formatNumber((operations?.orders?.pending || 0) + (operations?.orders?.confirmed || 0)),
             note: `${formatNumber(operations?.orders?.today || 0)} đơn mới hôm nay`,
             icon: Clock,
-            tone: ((operations?.orders?.pending || 0) > 0 ? "danger" : "order"),
-        },
-        {
-            title: "Đang truy cập",
-            value: formatNumber(operations?.online?.totalOnline || 0),
-            note: `${formatNumber(operations?.online?.guestVisitors || 0)} khách, ${formatNumber(operations?.online?.authenticatedUsers || 0)} đã đăng nhập`,
-            icon: Activity,
-            tone: "revenue",
+            tone: (operations?.orders?.pending || 0) > 0 ? "danger" : "order",
         },
         {
             title: "Tỷ lệ giao thành công",
@@ -309,93 +243,6 @@ export default function AdminDashboard() {
                 ))}
             </div>
 
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                        <BarChart3 className="h-4 w-4 text-blue-500" />
-                        Thống kê truy cập
-                    </CardTitle>
-                    <Badge variant="secondary" className="gap-1.5">
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        Theo tuần, tháng, năm
-                    </Badge>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        {trafficCards.map((item) => (
-                            <div key={item.label} className="rounded-lg border border-border p-3">
-                                <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
-                                {isOperationsLoading ? (
-                                    <Skeleton className="mt-2 h-7 w-20" />
-                                ) : (
-                                    <p className="mt-1 text-2xl font-semibold text-foreground">{formatNumber(item.value)}</p>
-                                )}
-                                <p className="mt-1 text-xs text-muted-foreground">{item.note}</p>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="mt-5 grid gap-4 lg:grid-cols-5">
-                        <div className="lg:col-span-3">
-                            <div className="mb-3 flex items-center justify-between">
-                                <p className="text-sm font-medium text-foreground">Xu hướng 30 ngày</p>
-                                <Badge variant="outline">Lượt / khách riêng</Badge>
-                            </div>
-                            {isOperationsLoading ? (
-                                <Skeleton className="h-[240px] rounded-lg" />
-                            ) : trafficChart.length === 0 ? (
-                                <div className="flex h-[240px] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-                                    Chưa có dữ liệu truy cập
-                                </div>
-                            ) : (
-                                <ResponsiveContainer width="100%" height={240}>
-                                    <AreaChart data={trafficChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                                        <defs>
-                                            <linearGradient id="trafficGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.18} />
-                                                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
-                                        <XAxis dataKey="label" axisLine={false} tickLine={false} tick={<TrafficAxisTick />} interval="preserveStartEnd" />
-                                        <YAxis axisLine={false} tickLine={false} width={36} tick={{ fontSize: 11 }} />
-                                        <Tooltip content={<TrafficTooltip />} />
-                                        <Area type="monotone" dataKey="totalVisits" name="Lượt truy cập" stroke="#2563eb" strokeWidth={2} fill="url(#trafficGradient)" dot={false} activeDot={{ r: 4 }} />
-                                        <Area type="monotone" dataKey="uniqueVisitors" name="Khách riêng" stroke="#10b981" strokeWidth={2} fill="transparent" dot={false} activeDot={{ r: 4 }} />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            )}
-                        </div>
-                        <div className="lg:col-span-2">
-                            <div className="mb-3 flex items-center justify-between">
-                                <p className="text-sm font-medium text-foreground">Top trang trong tháng</p>
-                                <Badge variant="outline">{formatNumber(topPages.length)}</Badge>
-                            </div>
-                            {isOperationsLoading ? (
-                                <div className="space-y-2">
-                                    {Array.from({ length: 5 }).map((_, index) => <Skeleton key={index} className="h-12 rounded-lg" />)}
-                                </div>
-                            ) : topPages.length === 0 ? (
-                                <div className="flex h-[240px] items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-                                    Chưa có trang nổi bật
-                                </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    {topPages.map((page) => (
-                                        <div key={page.path} className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-medium text-foreground">{page.path}</p>
-                                                <p className="text-xs text-muted-foreground">{formatNumber(page.uniqueVisitors || 0)} khách riêng</p>
-                                            </div>
-                                            <Badge variant="secondary">{formatNumber(page.totalViews || 0)}</Badge>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
             <div className="grid gap-4 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <CardHeader className="flex flex-row items-center justify-between">
@@ -441,7 +288,7 @@ export default function AdminDashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-4">
+            <div className="grid gap-4 lg:grid-cols-3">
                 <Card>
                     <CardContent className="flex items-center gap-3 p-4">
                         <RotateCcw className="h-5 w-5 text-red-500" />
@@ -457,15 +304,6 @@ export default function AdminDashboard() {
                         <div>
                             <p className="text-xs text-muted-foreground">Đánh giá chưa phản hồi</p>
                             <p className="text-lg font-semibold">{formatNumber(tasks.find((item) => item.key === "reviews")?.count || 0)}</p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-3 p-4">
-                        <Mail className="h-5 w-5 text-blue-500" />
-                        <div>
-                            <p className="text-xs text-muted-foreground">Email subscriber active</p>
-                            <p className="text-lg font-semibold">{formatNumber(operations?.customers?.activeSubscribers || 0)}</p>
                         </div>
                     </CardContent>
                 </Card>

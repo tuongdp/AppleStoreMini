@@ -19,8 +19,6 @@ import cartReducer from "./cartSlice";
 import wishlistReducer from "./wishlistSlice";
 import uiReducer from "./uiSlice";
 import { baseApi } from "./api/baseApi";
-import { notificationApi } from "./api/notificationApi";
-import { chatApi } from "./api/chatApi";
 
 // Thay thế toàn bộ import storage bằng đoạn này
 const storage = {
@@ -50,8 +48,6 @@ const rootReducer = combineReducers({
     wishlist: wishlistReducer,
     ui: uiReducer,
     [baseApi.reducerPath]: baseApi.reducer,
-    [notificationApi.reducerPath]: notificationApi.reducer,
-    [chatApi.reducerPath]: chatApi.reducer,
 });
 
 const persistConfig = {
@@ -83,7 +79,7 @@ export const store = configureStore({
                     REGISTER,
                 ],
             },
-        }).concat(baseApi.middleware, notificationApi.middleware, chatApi.middleware),
+        }).concat(baseApi.middleware),
 });
 
 export const persistor = persistStore(store);

@@ -61,7 +61,6 @@ const ALL_PERMISSIONS = [
 
 const EXTRA_PERMISSIONS = [
     { key: "returns", label: "Trả hàng" },
-    { key: "newsComments", label: "Bình luận tin tức" },
     { key: "banners", label: "Banner" },
     { key: "flashSales", label: "Flash sale" },
     { key: "coupons", label: "Khuyến mãi" },

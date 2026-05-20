@@ -114,8 +114,7 @@ export default function AdminOrderTable() {
   };
 
   const EXPORT_PAYMENT_LABELS = {
-    cod: "COD", momo: "MoMo", vnpay: "VNPay", zalopay: "ZaloPay",
-    bank_transfer: "Chuyển khoản",
+    cod: "COD", COD: "COD", momo: "MoMo", MOMO: "MoMo",
   };
 
   const orderColumns = [

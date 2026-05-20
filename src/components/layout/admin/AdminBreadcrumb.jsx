@@ -10,7 +10,6 @@ const SEGMENT_MAP = {
     orders: "Đơn hàng",
     users: "Người dùng",
     comments: "Bình luận SP",
-    "news-comments": "Bình luận tin",
     create: "Tạo mới",
     edit: "Chỉnh sửa",
 };

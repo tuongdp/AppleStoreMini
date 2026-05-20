@@ -1,8 +1,6 @@
 import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AdminNotificationBell from "@/features/admin/components/AdminNotificationBell";
-import AdminChatPanel from "@/features/admin/components/AdminChatPanel";
 import {
     LayoutDashboard,
     Package,
@@ -14,7 +12,6 @@ import {
     ChevronRight,
     Store,
     MessageSquare,
-    MessageCircle,
     Tag,
     LayoutGrid,
     Newspaper,
@@ -22,7 +19,6 @@ import {
     Zap,
     ListFilter,
     RotateCcw,
-    Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,7 +36,6 @@ const SIDEBAR_MAP = {
   "coupons": "Khuyến mãi",
   "dashboard": "Tổng quan",
   "flashSales": "Giảm sốc",
-  "emailMarketing": "Email Marketing",
   "logout": "Đăng xuất",
   "news": "Tin tức",
   "options": "Tùy chọn",
@@ -48,7 +43,6 @@ const SIDEBAR_MAP = {
   "products": "Sản phẩm",
   "returns": "Yêu cầu trả hàng",
   "comments": "Bình luận sản phẩm",
-  "news-comments": "Bình luận tin tức",
   "settings": "Cài đặt",
   "users": "Người dùng"
 };
@@ -71,7 +65,6 @@ const NAV_ITEMS = [
     { key: "returns", href: "/admin/returns", icon: RotateCcw, permission: "returns", end: false },
     { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, permission: "users", end: false, adminOnly: true },
     { key: "comments", href: "/admin/comments", icon: MessageSquare, permission: "comments", end: false },
-    { key: "news-comments", href: "/admin/news-comments", icon: MessageCircle, permission: "newsComments", end: false },
     { key: "coupons", href: "/admin/coupons", icon: Tag, permission: "coupons", end: false, adminOnly: true },
     {
         key: "categories",
@@ -83,7 +76,6 @@ const NAV_ITEMS = [
     { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
     { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false, adminOnly: true },
     { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false, adminOnly: true },
-    { key: "emailMarketing", href: "/admin/email-marketing", icon: Mail, permission: null, end: false, adminOnly: true },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 
@@ -231,8 +223,6 @@ export default function AdminLayout() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-1">
-                        <AdminChatPanel />
-                        <AdminNotificationBell />
                         <ThemeToggle />
                     </div>
                 </header>

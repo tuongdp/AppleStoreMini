@@ -72,8 +72,7 @@ export default function AdminOrderDetail({ order }) {
                 refunding: "Đang hoàn tiền", refunded: "Đã hoàn tiền",
             };
             const PAYMENT_LABELS = {
-                cod: "COD", momo: "MoMo", vnpay: "VNPay", zalopay: "ZaloPay",
-                bank_transfer: "Chuyển khoản",
+                cod: "COD", COD: "COD", momo: "MoMo", MOMO: "MoMo",
             };
 
             const itemColumns = [

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Edit, Trash2, Eye, EyeOff, Search, Star, FileText, MessageCircle, TrendingUp } from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, Search, FileText, TrendingUp } from "lucide-react";
 import {
     useGetAllNewsQuery,
     useGetNewsStatsQuery,
@@ -41,7 +41,6 @@ const STATUS_OPTIONS = [
 const SORT_OPTIONS = [
     { value: "newest", label: "Mới nhất" },
     { value: "popular", label: "Xem nhiều" },
-    { value: "rating", label: "Đánh giá cao" },
 ];
 
 const NEWS_CATEGORIES = [
@@ -129,7 +128,7 @@ export default function AdminNewsList() {
 
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <SummaryCard
                     icon={FileText}
                     label="Tổng bài viết"
@@ -147,12 +146,6 @@ export default function AdminNewsList() {
                     label="Lượt xem"
                     value={stats?.views}
                     className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                />
-                <SummaryCard
-                    icon={MessageCircle}
-                    label="Bình luận"
-                    value={stats?.comments}
-                    className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
                 />
             </div>
 
@@ -226,7 +219,6 @@ export default function AdminNewsList() {
                             <TableHead>Bài viết</TableHead>
                             <TableHead>Danh mục</TableHead>
                             <TableHead>Tác giả</TableHead>
-                            <TableHead>Đánh giá</TableHead>
                             <TableHead>Ngày tạo</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead className="text-right">Thao tác</TableHead>
@@ -236,7 +228,7 @@ export default function AdminNewsList() {
                         {isLoading ? (
                             [...Array(5)].map((_, i) => (
                                 <TableRow key={i}>
-                                    {[...Array(7)].map((_, j) => (
+                                    {[...Array(6)].map((_, j) => (
                                         <TableCell key={j}>
                                             <Skeleton className="h-5 w-full" />
                                         </TableCell>
@@ -246,7 +238,7 @@ export default function AdminNewsList() {
                         ) : news.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={7}
+                                    colSpan={6}
                                     className="py-12 text-center text-muted-foreground"
                                 >
                                     Chưa có bài viết nào
@@ -286,13 +278,6 @@ export default function AdminNewsList() {
                                         <span className="max-w-[120px] truncate block text-sm text-muted-foreground">
                                             {item.author || "—"}
                                         </span>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-1">
-                                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                                            <span className="text-sm font-medium">{item.rating?.toFixed(1) || "0.0"}</span>
-                                            <span className="text-xs text-muted-foreground">({item.ratingCount || 0})</span>
-                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <span className="text-sm text-muted-foreground">

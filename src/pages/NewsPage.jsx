@@ -32,7 +32,6 @@ const ALL_CATEGORIES = [
 const SORT_OPTIONS = [
     { value: "newest", label: "Mới nhất" },
     { value: "popular", label: "Xem nhiều" },
-    { value: "rating", label: "Đánh giá cao" },
 ];
 
 export default function NewsPage() {

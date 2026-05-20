@@ -2,7 +2,6 @@ import { baseApi } from "./baseApi";
 
 export const newsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        // GET /news?page=&limit=&category=
         getNews: builder.query({
             query: (params) => ({ url: "/news", params }),
             providesTags: ["News"],
@@ -12,7 +11,6 @@ export const newsApi = baseApi.injectEndpoints({
             }),
         }),
 
-        // GET /news/:slug
         getNewsBySlug: builder.query({
             query: (slug) => `/news/${slug}`,
             providesTags: (_, __, slug) => [{ type: "NewsItem", id: slug }],
@@ -25,20 +23,6 @@ export const newsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // POST /news/:newsId/rate
-        rateNews: builder.mutation({
-            query: ({ newsId, rating }) => ({
-                url: `/news/${newsId}/rate`,
-                method: "POST",
-                body: { rating },
-            }),
-            invalidatesTags: (_, __, { slug }) => [
-                { type: "NewsItem", id: slug },
-            ],
-            transformResponse: (response) => response.data,
-        }),
-
-        // GET /admin/news?page=&limit=
         getAllNews: builder.query({
             query: (params) => ({ url: "/admin/news", params }),
             providesTags: ["News"],
@@ -54,7 +38,6 @@ export const newsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // POST /admin/news
         createNews: builder.mutation({
             query: (data) => ({
                 url: "/admin/news",
@@ -65,7 +48,6 @@ export const newsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // PUT /admin/news/:id
         updateNews: builder.mutation({
             query: ({ id, ...data }) => ({
                 url: `/admin/news/${id}`,
@@ -76,67 +58,17 @@ export const newsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // DELETE /admin/news/:id
         deleteNews: builder.mutation({
             query: (id) => ({ url: `/admin/news/${id}`, method: "DELETE" }),
             invalidatesTags: ["News"],
         }),
 
-        // PATCH /admin/news/:id/toggle
         toggleNewsStatus: builder.mutation({
             query: (id) => ({
                 url: `/admin/news/${id}/toggle`,
                 method: "PATCH",
             }),
             invalidatesTags: ["News"],
-            transformResponse: (response) => response.data,
-        }),
-
-        // ── News Comments ──────────────────────────────
-        getNewsComments: builder.query({
-            query: ({ newsId, params }) => ({ url: `/news/${newsId}/comments`, params }),
-            providesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
-            transformResponse: (response) => ({
-                comments: response.data,
-                pagination: response.pagination,
-            }),
-        }),
-
-        createNewsComment: builder.mutation({
-            query: ({ newsId, ...data }) => ({ url: `/news/${newsId}/comments`, method: "POST", body: data }),
-            invalidatesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
-            transformResponse: (response) => response.data,
-        }),
-
-        deleteNewsComment: builder.mutation({
-            query: ({ newsId, commentId }) => ({ url: `/news/${newsId}/comments/${commentId}`, method: "DELETE" }),
-            invalidatesTags: (_, __, { newsId }) => [{ type: "NewsComments", id: newsId }],
-        }),
-
-        adminDeleteNewsComment: builder.mutation({
-            query: (commentId) => ({ url: `/admin/news/comments/${commentId}`, method: "DELETE" }),
-            invalidatesTags: ["NewsComments"],
-        }),
-
-        getAllNewsComments: builder.query({
-            query: (params) => ({ url: "/admin/news/comments", params }),
-            providesTags: ["NewsComments"],
-            transformResponse: (response) => ({ comments: response.data, pagination: response.pagination }),
-        }),
-
-        getAdminNewsComment: builder.query({
-            query: (commentId) => `/admin/news/comments/${commentId}`,
-            providesTags: (_, __, commentId) => [{ type: "NewsComments", id: commentId }],
-            transformResponse: (response) => response.data,
-        }),
-
-        replyNewsComment: builder.mutation({
-            query: ({ commentId, content }) => ({
-                url: `/admin/news/comments/${commentId}/reply`,
-                method: "POST",
-                body: { content },
-            }),
-            invalidatesTags: (_, __, { commentId }) => ["NewsComments", { type: "NewsComments", id: commentId }],
             transformResponse: (response) => response.data,
         }),
     }),
@@ -146,18 +78,10 @@ export const {
     useGetNewsQuery,
     useGetNewsBySlugQuery,
     useGetAdminNewsBySlugQuery,
-    useRateNewsMutation,
     useGetAllNewsQuery,
     useGetNewsStatsQuery,
     useCreateNewsMutation,
     useUpdateNewsMutation,
     useDeleteNewsMutation,
     useToggleNewsStatusMutation,
-    useGetNewsCommentsQuery,
-    useCreateNewsCommentMutation,
-    useDeleteNewsCommentMutation,
-    useAdminDeleteNewsCommentMutation,
-    useGetAllNewsCommentsQuery,
-    useGetAdminNewsCommentQuery,
-    useReplyNewsCommentMutation,
 } = newsApi;

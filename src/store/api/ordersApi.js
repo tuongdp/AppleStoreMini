@@ -25,7 +25,7 @@ export const ordersApi = baseApi.injectEndpoints({
         // POST /orders
         // BE nhận: { items, addressId?, address?, paymentMethod, note?, couponCode? }
         // items: [{ productId, quantity, selectedColor?, selectedStorage? }]
-        // paymentMethod: BE sẽ .toUpperCase() → "COD" | "BANK_TRANSFER" | "MOMO"
+        // paymentMethod: BE sẽ .toUpperCase() -> "COD" | "MOMO"
         createOrder: builder.mutation({
             query: (data) => ({
                 url: "/orders",

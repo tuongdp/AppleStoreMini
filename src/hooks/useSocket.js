@@ -1,66 +1,32 @@
 import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
 
 const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/api$/, "");
 
-export function useSocket(onNewNotification, onNewOrder, onChatEvent) {
-    const token = useSelector((state) => state.auth?.accessToken);
-    const callbacks = useRef({ onNewNotification, onNewOrder, onChatEvent });
-    callbacks.current = { onNewNotification, onNewOrder, onChatEvent };
-
-    useEffect(() => {
-        let socket;
-        let cancelled = false;
-        const initSocket = async () => {
-            try {
-                const { io } = await import("socket.io-client");
-                if (cancelled) return;
-                socket = io(SOCKET_URL, {
-                    path: "/socket.io",
-                    transports: ["websocket", "polling"],
-                    reconnection: true,
-                    reconnectionDelay: 5000,
-                    auth: token ? { token } : undefined,
-                });
-
-                socket.on("notification:new", (data) => { callbacks.current.onNewNotification?.(data); });
-                socket.on("newOrder", (data) => { callbacks.current.onNewOrder?.(data); });
-                socket.on("chat:newRequest", (data) => { callbacks.current.onChatEvent?.("newRequest", data); });
-                socket.on("chat:message", (data) => { callbacks.current.onChatEvent?.("message", data); });
-            } catch (e) {}
-        };
-        initSocket();
-        return () => {
-            cancelled = true;
-            if (socket) {
-                socket.off("notification:new");
-                socket.off("newOrder");
-                socket.off("chat:newRequest");
-                socket.off("chat:message");
-                socket.disconnect();
-            }
-        };
-    }, [token]);
-
-    return null;
-}
-
 export function useOrderSocket(orderId, onStatusUpdate) {
     const socketRef = useRef(null);
+
     useEffect(() => {
         if (!orderId) return;
+
         let socket;
         let cancelled = false;
+
         const initSocket = async () => {
             try {
                 const { io } = await import("socket.io-client");
                 if (cancelled) return;
                 socket = io(SOCKET_URL, { path: "/socket.io", transports: ["websocket", "polling"] });
-                socket.on("orderStatusUpdate", (data) => { if (data.orderId === orderId && onStatusUpdate) onStatusUpdate(data); });
+                socket.on("orderStatusUpdate", (data) => {
+                    if (data.orderId === orderId) onStatusUpdate?.(data);
+                });
                 socketRef.current = socket;
-            } catch (e) {}
+            } catch {
+                // Socket is optional for order detail; polling/API data remains the source of truth.
+            }
         };
+
         initSocket();
+
         return () => {
             cancelled = true;
             if (socket) {
@@ -68,36 +34,7 @@ export function useOrderSocket(orderId, onStatusUpdate) {
                 socket.disconnect();
             }
         };
-    }, [orderId]);
-    return socketRef;
-}
+    }, [orderId, onStatusUpdate]);
 
-export function useChatSocket(conversationId, onMessage) {
-    const onMessageRef = useRef(onMessage);
-    onMessageRef.current = onMessage;
-    const socketRef = useRef(null);
-    useEffect(() => {
-        if (!conversationId) return;
-        let socket;
-        let cancelled = false;
-        const eventName = `chat:message:${conversationId}`;
-        const initSocket = async () => {
-            try {
-                const { io } = await import("socket.io-client");
-                if (cancelled) return;
-                socket = io(SOCKET_URL, { path: "/socket.io", transports: ["websocket", "polling"] });
-                socket.on(eventName, (data) => { onMessageRef.current?.(data); });
-                socketRef.current = socket;
-            } catch (e) {}
-        };
-        initSocket();
-        return () => {
-            cancelled = true;
-            if (socket) {
-                socket.off(eventName);
-                socket.disconnect();
-            }
-        };
-    }, [conversationId]);
     return socketRef;
 }

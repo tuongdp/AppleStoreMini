@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Calendar, Clock, Star, MessageCircle } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { newsApi } from "@/store/api/newsApi";
 import { formatDate } from "@/lib/utils";
@@ -77,20 +77,6 @@ export default function NewsCard({ news, className }) {
                             <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {news.readTime} {"phút"}
-                            </span>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {news.rating > 0 && (
-                            <span className="flex items-center gap-0.5">
-                                <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                                {news.rating.toFixed(1)}
-                            </span>
-                        )}
-                        {news.commentCount > 0 && (
-                            <span className="flex items-center gap-1">
-                                <MessageCircle className="h-3 w-3" />
-                                {news.commentCount}
                             </span>
                         )}
                     </div>

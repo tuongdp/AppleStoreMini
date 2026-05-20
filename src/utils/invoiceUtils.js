@@ -107,8 +107,7 @@ export function numberToWords(n) {
 }
 
 const PAYMENT_LABELS = {
-  cod: "COD", momo: "MoMo", vnpay: "VNPay",
-  zalopay: "ZaloPay", bank_transfer: "Chuyển khoản",
+  cod: "COD", COD: "COD", momo: "MoMo", MOMO: "MoMo",
 };
 
 export async function exportVATInvoicePDF({ order, buyerInfo, vatRate }) {
