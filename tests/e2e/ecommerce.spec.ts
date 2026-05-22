@@ -9,6 +9,15 @@ test.describe("ecommerce flows", () => {
     await expect(page.getByTestId("product-card")).toHaveCount(2);
   });
 
+  test("highlights the active category in the desktop navbar", async ({ mockedPage: page }, testInfo) => {
+    test.skip(testInfo.project.name.includes("mobile"), "Desktop navbar is hidden on mobile viewports");
+
+    await page.goto("/products?category=iphone");
+    const iphoneNavItem = page.getByRole("button", { name: "iPhone", exact: true });
+
+    await expect(iphoneNavItem).toHaveClass(/bg-muted/);
+  });
+
   test("opens product detail from a stable card selector", async ({ mockedPage: page }) => {
     await page.goto("/products");
     await page.getByTestId("product-card-link").first().click();

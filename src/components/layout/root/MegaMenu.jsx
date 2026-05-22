@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ChevronDown } from "lucide-react";
 import { productsApi } from "@/store/api/productsApi";
@@ -16,9 +16,12 @@ const getCategoryLinks = (category) => [
 
 export default function MegaMenu({ category }) {
     const dispatch = useDispatch();
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
 
     const links = getCategoryLinks(category);
+    const currentCategory = new URLSearchParams(location.search).get("category");
+    const isActive = location.pathname === "/products" && currentCategory === category.value;
 
     const prefetchProductList = (href) => {
         const params = new URLSearchParams(href.split("?")[1] || "");
@@ -44,9 +47,10 @@ export default function MegaMenu({ category }) {
         >
             {/* Trigger */}
             <button
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
                     "flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                    isOpen
+                    isOpen || isActive
                         ? "bg-muted text-foreground"
                         : "text-muted-foreground hover:text-foreground",
                 )}
