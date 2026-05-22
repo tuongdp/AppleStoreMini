@@ -143,37 +143,6 @@ export default function ProductListPage() {
                     className="mb-6"
                 />
 
-                {/* Category tabs - horizontal scroll */}
-                <div className="mb-4 overflow-x-auto scrollbar-hide">
-                    <div className="flex gap-1.5 min-w-max pb-1">
-                        <button
-                            onClick={() => updateFilter("category", "")}
-                            className={cn(
-                                "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                                !filters.category
-                                    ? "bg-foreground text-background"
-                                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
-                            )}
-                        >
-                            {"Tất cả danh mục"}
-                        </button>
-                        {categories.map((cat) => (
-                            <button
-                                key={cat.slug}
-                                onClick={() => updateFilter("category", cat.slug)}
-                                className={cn(
-                                    "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                                    filters.category === cat.slug
-                                        ? "bg-foreground text-background"
-                                        : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
-                                )}
-                            >
-                                {cat.name}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
                 {/* Slug filters + active filter badge */}
                 {slugGroups.length > 0 && (
                     <div className="mb-4 flex flex-wrap items-center gap-1.5">

@@ -18,6 +18,14 @@ test.describe("ecommerce flows", () => {
     await expect(iphoneNavItem).toHaveClass(/bg-muted/);
   });
 
+  test("does not show duplicate category tabs on product listing pages", async ({ mockedPage: page }, testInfo) => {
+    test.skip(testInfo.project.name.includes("mobile"), "Desktop navbar is hidden on mobile viewports");
+
+    await page.goto("/products?category=iphone");
+
+    await expect(page.getByRole("button", { name: /danh/i })).toHaveCount(0);
+  });
+
   test("opens product detail from a stable card selector", async ({ mockedPage: page }) => {
     await page.goto("/products");
     await page.getByTestId("product-card-link").first().click();
