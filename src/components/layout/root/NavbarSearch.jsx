@@ -83,8 +83,8 @@ export default function NavbarSearch({ onClose }) {
                                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted/50 p-1">
                                         <img
                                             src={
-                                                parseJsonField(product.images)?.[0] ||
-                                                product.image
+                                                product.image ||
+                                                parseJsonField(product.images)?.[0]
                                             }
                                             alt={product.name}
                                             className="h-full w-full object-contain"

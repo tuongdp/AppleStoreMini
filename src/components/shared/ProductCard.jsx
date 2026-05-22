@@ -132,8 +132,8 @@ export default function ProductCard({ product }) {
                     {/* Product image */}
                     <img
                         src={
-                            parseJsonField(product.images)?.[0] ||
                             product.image ||
+                            parseJsonField(product.images)?.[0] ||
                             productPlaceholder
                         }
                         alt={product.name}

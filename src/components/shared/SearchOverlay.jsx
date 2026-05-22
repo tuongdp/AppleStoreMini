@@ -138,7 +138,7 @@ export default function SearchOverlay({ open, onClose }) {
                                         >
                                             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted/50 p-1.5">
                                                 <img
-                                                    src={parseJsonField(product.images)?.[0] || product.image}
+                                                    src={product.image || parseJsonField(product.images)?.[0]}
                                                     alt={product.name}
                                                     className="h-full w-full object-contain"
                                                 />

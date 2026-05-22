@@ -53,6 +53,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [autoCreatedId, setAutoCreatedId] = useState(null);
     const [isCreatingProduct, setIsCreatingProduct] = useState(false);
     const [showImportSpecs, setShowImportSpecs] = useState(false);
+    const [isUploadingProductImage, setIsUploadingProductImage] = useState(false);
+    const productImageFileRef = useRef(null);
 
     const [deleteVariant] = useDeleteVariantMutation();
     const [checkOrders] = useLazyCheckVariantOrdersQuery();
@@ -146,6 +148,31 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             toast.info("importSpecsDupSkipped");
         }
         toast.success("importSpecsSuccess");
+    };
+
+    const handleProductImageUpload = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!IMAGE.VALID_TYPES.includes(file.type) || file.size > IMAGE.MAX_SIZE) {
+            toast.error("Ảnh không hợp lệ hoặc vượt quá dung lượng cho phép");
+            if (productImageFileRef.current) productImageFileRef.current.value = "";
+            return;
+        }
+
+        setIsUploadingProductImage(true);
+        try {
+            const fd = new FormData();
+            fd.append("image", file);
+            const result = await uploadImage(fd).unwrap();
+            const imageUrl = result.url || result;
+            form.setValue("image", imageUrl, { shouldDirty: true, shouldValidate: true });
+        } catch {
+            toast.error("Lỗi upload ảnh đại diện, có thể thử lại sau");
+        } finally {
+            setIsUploadingProductImage(false);
+            if (productImageFileRef.current) productImageFileRef.current.value = "";
+        }
     };
 
     // ── Option management ──
@@ -399,9 +426,51 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 <FormField control={form.control} name="image" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{"Ảnh đại diện webshop"}</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder={"https://..."} disabled={isLoading} {...field} />
-                                        </FormControl>
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/30">
+                                                {field.value ? (
+                                                    <img src={field.value} alt="" className="h-full w-full object-contain p-1.5" />
+                                                ) : (
+                                                    <PackageOpen className="h-7 w-7 text-muted-foreground" />
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1 space-y-2">
+                                                <FormControl>
+                                                    <Input placeholder={"https://..."} disabled={isLoading || isUploadingProductImage} {...field} />
+                                                </FormControl>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="rounded-full"
+                                                        disabled={isLoading || isUploadingProductImage}
+                                                        onClick={() => productImageFileRef.current?.click()}
+                                                    >
+                                                        {isUploadingProductImage ? (
+                                                            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                                        ) : (
+                                                            <Upload className="mr-1.5 h-3.5 w-3.5" />
+                                                        )}
+                                                        {"Upload ảnh"}
+                                                    </Button>
+                                                    {field.value && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="rounded-full text-muted-foreground hover:text-destructive"
+                                                            disabled={isLoading || isUploadingProductImage}
+                                                            onClick={() => form.setValue("image", "", { shouldDirty: true, shouldValidate: true })}
+                                                        >
+                                                            <X className="mr-1.5 h-3.5 w-3.5" />
+                                                            {"Xóa ảnh"}
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                                <input ref={productImageFileRef} type="file" accept={IMAGE.VALID_TYPES.join(",")} onChange={handleProductImageUpload} className="hidden" />
+                                            </div>
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )} />

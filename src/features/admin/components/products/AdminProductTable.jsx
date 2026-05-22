@@ -218,7 +218,7 @@ export default function AdminProductTable() {
                       <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
                         <img
                           src={
-                            parseJsonField(product.images)?.[0] || product.image
+                            product.image || parseJsonField(product.images)?.[0]
                           }
                           alt={product.name}
                           className="h-full w-full object-contain"
