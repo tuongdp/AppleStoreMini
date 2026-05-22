@@ -13,9 +13,20 @@ test.describe("ecommerce flows", () => {
     test.skip(testInfo.project.name.includes("mobile"), "Desktop navbar is hidden on mobile viewports");
 
     await page.goto("/products?category=iphone");
-    const iphoneNavItem = page.getByRole("button", { name: "iPhone", exact: true });
+    const iphoneNavItem = page.locator("header").getByRole("link", { name: "iPhone", exact: true });
 
     await expect(iphoneNavItem).toHaveClass(/bg-muted/);
+  });
+
+  test("does not open a category submenu from the header navbar", async ({ mockedPage: page }, testInfo) => {
+    test.skip(testInfo.project.name.includes("mobile"), "Desktop navbar is hidden on mobile viewports");
+
+    const header = page.locator("header");
+
+    await page.goto("/products?category=iphone");
+    await header.getByRole("link", { name: "iPhone", exact: true }).hover();
+
+    await expect(header.locator('a[href*="sort="]')).toHaveCount(0);
   });
 
   test("does not show duplicate category tabs on product listing pages", async ({ mockedPage: page }, testInfo) => {
