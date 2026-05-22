@@ -91,9 +91,6 @@ export default function OrderDetail({ order }) {
         fullName: order.shippingFullName,
         phone: order.shippingPhone,
         address: order.shippingAddress,
-        ward: order.shippingWard,
-        district: order.shippingDistrict,
-        province: order.shippingProvince,
     };
 
     const shippingFee = order.shippingFee ?? 0;
@@ -317,8 +314,7 @@ export default function OrderDetail({ order }) {
                                 {formatPhone(shippingInfo.phone)}
                             </p>
                             <p className="text-muted-foreground">
-                                {shippingInfo.address}, {shippingInfo.ward},{" "}
-                                {shippingInfo.district}, {shippingInfo.province}
+                                {shippingInfo.address}
                             </p>
                         </div>
                     </div>

@@ -68,6 +68,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             slug: product?.slug || "",
             category: product?.category?.slug || product?.categorySlug || "",
             description: product?.description || "",
+            image: product?.image || parseJsonField(product?.images)?.[0] || "",
             isActive: product?.isActive ?? true,
         },
     });
@@ -78,6 +79,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 name: product.name || "",
                 slug: product.slug || "",
                 description: product.description || "",
+                image: product.image || parseJsonField(product.images)?.[0] || "",
                 isActive: product.isActive ?? true,
             });
 
@@ -210,6 +212,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     slug: formValues.slug.trim(),
                     category: formValues.category,
                     description: formValues.description || "",
+                    image: formValues.image || "",
                     isActive: formValues.isActive ?? true,
                     specifications: buildSpecsArray(),
                     variants: [{
@@ -311,6 +314,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         onSubmit({
             ...values,
             productId: autoCreatedId,
+            image: values.image || "",
             specifications: buildSpecsArray(),
             variants: variants.map(({ images: vImgs, ...rest }) => ({
                 ...rest,
@@ -388,6 +392,15 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                     />
                                                 )}
                                             />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="image" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Ảnh đại diện webshop"}</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder={"https://..."} disabled={isLoading} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

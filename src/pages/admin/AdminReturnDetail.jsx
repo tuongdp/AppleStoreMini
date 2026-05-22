@@ -127,7 +127,7 @@ export default function AdminReturnDetail() {
                     <div className="flex gap-4">
                       <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-1.5">
                         <img
-                          src={oi.variant?.images?.[0] || oi.variant?.product?.images?.[0] || ""}
+                          src={oi.variant?.images?.[0] || oi.variant?.product?.image || ""}
                           alt={oi.variant?.product?.name || ""}
                           className="h-full w-full object-contain"
                         />
@@ -256,7 +256,7 @@ export default function AdminReturnDetail() {
               <p className="font-medium">{order?.shippingFullName}</p>
               <p className="text-muted-foreground">{order?.shippingPhone}</p>
               <p className="text-muted-foreground">
-                {[order?.shippingAddress, order?.shippingWard, order?.shippingDistrict, order?.shippingProvince].filter(Boolean).join(", ")}
+                {order?.shippingAddress}
               </p>
             </div>
           </div>

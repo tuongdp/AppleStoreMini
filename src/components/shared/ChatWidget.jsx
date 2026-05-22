@@ -82,7 +82,9 @@ export default function ChatWidget() {
                         {messages.length === 0 && (
                             <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
                                 <Bot className="mb-2 h-10 w-10 text-blue-500" />
-                                <p className="text-sm font-medium">Xin chào! Mình có thể giúp bạn chọn sản phẩm Apple phù hợp.</p>
+                                <p className="text-sm font-medium">
+                                    Xin chào! Mình có thể giúp bạn chọn sản phẩm Apple phù hợp.
+                                </p>
                             </div>
                         )}
 
@@ -102,7 +104,7 @@ export default function ChatWidget() {
                                     <div className="w-full space-y-2">
                                         {item.products.map((product) => (
                                             <button
-                                                key={product.id}
+                                                key={product.id || product.slug}
                                                 onClick={() => navigate(`/products/${product.slug}`)}
                                                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-muted/50 p-2 text-left transition-colors hover:bg-muted"
                                             >

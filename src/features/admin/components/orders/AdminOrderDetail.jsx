@@ -165,9 +165,6 @@ export default function AdminOrderDetail({ order }) {
         fullName: order.shippingFullName,
         phone: order.shippingPhone,
         address: order.shippingAddress,
-        ward: order.shippingWard,
-        district: order.shippingDistrict,
-        province: order.shippingProvince,
     };
 
     // ✅ BE dùng discountAmount (không phải discount)
@@ -407,10 +404,8 @@ export default function AdminOrderDetail({ order }) {
                                 <p className="text-muted-foreground">
                                     {formatPhone(shippingInfo.phone)}
                                 </p>
-                                <p className="text-muted-foreground">
-                                    {shippingInfo.address}, {shippingInfo.ward},{" "}
-                                    {shippingInfo.district},{" "}
-                                    {shippingInfo.province}
+                            <p className="text-muted-foreground">
+                                    {shippingInfo.address}
                                 </p>
                             </div>
                         </div>

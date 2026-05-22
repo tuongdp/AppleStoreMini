@@ -8,7 +8,6 @@ import {
     Users,
     LogOut,
     Menu,
-    X,
     ChevronRight,
     Store,
     MessageSquare,
@@ -30,22 +29,23 @@ import { ROUTES } from "@/lib/constants";
 import { logout, selectCurrentUser, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
-  "backToStore": "Về trang Store",
-  "banners": "Banner quảng cáo",
-  "categories": "Danh mục",
-  "coupons": "Khuyến mãi",
-  "dashboard": "Tổng quan",
-  "flashSales": "Giảm sốc",
-  "logout": "Đăng xuất",
-  "news": "Tin tức",
-  "options": "Tùy chọn",
-  "orders": "Đơn hàng",
-  "products": "Sản phẩm",
-  "returns": "Yêu cầu trả hàng",
-  "comments": "Bình luận sản phẩm",
-  "settings": "Cài đặt",
-  "users": "Người dùng"
+    backToStore: "Về trang Store",
+    banners: "Banner quảng cáo",
+    categories: "Danh mục",
+    coupons: "Khuyến mãi",
+    dashboard: "Tổng quan",
+    flashSales: "Giảm sốc",
+    logout: "Đăng xuất",
+    news: "Tin tức",
+    options: "Tùy chọn",
+    orders: "Đơn hàng",
+    products: "Sản phẩm",
+    returns: "Yêu cầu trả hàng",
+    comments: "Bình luận sản phẩm",
+    settings: "Cài đặt",
+    users: "Người dùng",
 };
+
 const NAV_ITEMS = [
     {
         key: "dashboard",
@@ -100,7 +100,6 @@ function SidebarContent({ onClose }) {
 
     return (
         <div className="flex h-full flex-col">
-            {/* Logo */}
             <div className="flex h-16 items-center border-b border-border px-6">
                 <Link
                     to={ROUTES.ADMIN_DASHBOARD}
@@ -111,7 +110,6 @@ function SidebarContent({ onClose }) {
                 </Link>
             </div>
 
-            {/* Nav */}
             <nav className="flex-1 space-y-0.5 p-3">
                 {visibleItems.map((item) => (
                     <NavLink
@@ -130,7 +128,7 @@ function SidebarContent({ onClose }) {
                     >
                         <span className="flex items-center gap-3">
                             <item.icon className="h-4 w-4 shrink-0" />
-                            {(SIDEBAR_MAP[item.key] || item.key)}
+                            {SIDEBAR_MAP[item.key] || item.key}
                         </span>
                         <ChevronRight className="h-3.5 w-3.5 opacity-40" />
                     </NavLink>
@@ -139,9 +137,7 @@ function SidebarContent({ onClose }) {
 
             <Separator />
 
-            {/* User info + logout */}
             <div className="space-y-0.5 p-3">
-                {/* Về store */}
                 <Link
                     to={ROUTES.HOME}
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -153,7 +149,6 @@ function SidebarContent({ onClose }) {
 
                 <Separator className="my-1" />
 
-                {/* Avatar + tên */}
                 <div className="flex items-center gap-3 px-3 py-2">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src={user?.avatar} alt={user?.fullName} />
@@ -171,7 +166,6 @@ function SidebarContent({ onClose }) {
                     </div>
                 </div>
 
-                {/* Logout */}
                 <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
@@ -189,16 +183,12 @@ export default function AdminLayout() {
 
     return (
         <div className="flex min-h-screen bg-muted/40">
-            {/* ── Sidebar desktop ── */}
             <aside className="hidden w-64 shrink-0 border-r border-border bg-background md:flex md:flex-col">
                 <SidebarContent />
             </aside>
 
-            {/* ── Main ── */}
             <div className="flex min-w-0 flex-1 flex-col">
-                {/* Topbar */}
                 <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
-                    {/* Mobile menu trigger */}
                     <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                         <SheetTrigger asChild>
                             <Button
@@ -216,18 +206,15 @@ export default function AdminLayout() {
                         </SheetContent>
                     </Sheet>
 
-                    {/* Title — desktop */}
                     <span className="hidden text-sm font-medium text-muted-foreground md:block">
                         Admin
                     </span>
 
-                    {/* Actions */}
                     <div className="flex items-center gap-1">
                         <ThemeToggle />
                     </div>
                 </header>
 
-                {/* Content */}
                 <main className="flex-1 p-4 md:p-6">
                     <Outlet />
                 </main>

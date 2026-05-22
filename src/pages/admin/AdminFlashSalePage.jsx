@@ -419,7 +419,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                                             onClick={() => selectProductSlug(product.slug)}
                                         >
                                             <img
-                                                src={parseJsonField(product.images)?.[0] || ""}
+                                                src={product.image || parseJsonField(product.images)?.[0] || ""}
                                                 alt={product.name}
                                                 className="h-10 w-10 rounded-lg object-cover"
                                             />

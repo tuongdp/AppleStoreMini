@@ -192,6 +192,7 @@ export const productSchema = z.object({
         .string()
         .min(10, { message: v("product.descriptionMinLength") })
         .or(z.literal("")),
+    image: z.string().optional().or(z.literal("")),
     isActive: z.boolean().default(true),
 });
 
