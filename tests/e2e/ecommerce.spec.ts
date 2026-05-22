@@ -29,6 +29,17 @@ test.describe("ecommerce flows", () => {
     await expect(header.locator('a[href*="sort="]')).toHaveCount(0);
   });
 
+  test("uses consistent hover background for simple header nav links", async ({ mockedPage: page }, testInfo) => {
+    test.skip(testInfo.project.name.includes("mobile"), "Desktop navbar is hidden on mobile viewports");
+
+    const header = page.locator("header");
+
+    await page.goto("/products?category=iphone");
+
+    await expect(header.locator('a[href="/apple-care"]')).toHaveClass(/hover:bg-muted/);
+    await expect(header.locator('a[href="/news"]')).toHaveClass(/hover:bg-muted/);
+  });
+
   test("does not show duplicate category tabs on product listing pages", async ({ mockedPage: page }, testInfo) => {
     test.skip(testInfo.project.name.includes("mobile"), "Desktop navbar is hidden on mobile viewports");
 
