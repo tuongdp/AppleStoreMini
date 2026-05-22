@@ -39,14 +39,15 @@ export default function AdminLoginPage() {
     const onSubmit = async (values) => {
         try {
             const response = await login(values).unwrap();
-            const { user, accessToken, refreshToken } = response.data;
+            const { user, accessToken, refreshToken } = response;
 
             if (user.role !== "admin" && user.role !== "staff") {
                 toast.error("Bạn không có quyền truy cập trang quản trị.");
                 return;
             }
 
-            dispatch(setCredentials({ user, accessToken, refreshToken }));
+            localStorage.setItem("rememberMe", "true");
+            dispatch(setCredentials({ user, accessToken, refreshToken, rememberMe: true }));
             toast.success("Đăng nhập thành công");
             navigate(ROUTES.ADMIN_DASHBOARD);
         } catch (error) {

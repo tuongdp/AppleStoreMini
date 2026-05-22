@@ -1,6 +1,8 @@
 import { baseApi } from "./baseApi";
 import { setCredentials } from "../authSlice";
 
+const unwrapAuthPayload = (response) => response?.data ?? response;
+
 export const authApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         login: builder.mutation({
@@ -9,10 +11,11 @@ export const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: credentials,
             }),
+            transformResponse: unwrapAuthPayload,
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(setCredentials(data.data));
+                    dispatch(setCredentials(data));
                 } catch { /* noop */ }
             },
         }),
@@ -44,10 +47,11 @@ export const authApi = baseApi.injectEndpoints({
         getMe: builder.query({
             query: () => "/auth/me",
             providesTags: ["Profile"],
+            transformResponse: unwrapAuthPayload,
             async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(setCredentials({ ...data.data, rememberMe: arg.rememberMe }));
+                    dispatch(setCredentials({ user: data, rememberMe: arg?.rememberMe }));
                 } catch { /* noop */ }
             },
         }),
@@ -89,10 +93,11 @@ export const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
+            transformResponse: unwrapAuthPayload,
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    if (data.data) dispatch(setCredentials(data.data));
+                    if (data) dispatch(setCredentials(data));
                 } catch { /* noop */ }
             },
         }),
@@ -111,10 +116,11 @@ export const authApi = baseApi.injectEndpoints({
                 method: "POST",
                 body,
             }),
+            transformResponse: unwrapAuthPayload,
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(setCredentials(data.data));
+                    dispatch(setCredentials(data));
                 } catch { /* noop */ }
             },
         }),

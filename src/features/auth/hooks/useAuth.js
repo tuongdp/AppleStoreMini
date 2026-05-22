@@ -13,6 +13,7 @@ import {
     selectCurrentUser,
     selectIsAuthenticated,
     selectIsAdmin,
+    setCredentials,
     logout as logoutAction,
 } from "@/store/authSlice";
 import { clearCart, selectCartItems } from "@/store/cartSlice";
@@ -41,7 +42,8 @@ export function useAuth() {
 
     const login = async (credentials, redirectTo = ROUTES.HOME) => {
         try {
-            await loginMutation(credentials).unwrap();
+            const auth = await loginMutation(credentials).unwrap();
+            dispatch(setCredentials({ ...auth, rememberMe: credentials.rememberMe }));
 
             if (cartItems.length > 0) {
                 try {
