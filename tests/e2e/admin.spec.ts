@@ -21,6 +21,25 @@ test.describe("admin dashboard", () => {
     await expect(page).toHaveURL(/\/admin\/dashboard$/);
   });
 
+  test("shows staff sidebar links for granted modules", async ({ mockedPage: page }) => {
+    await seedAuthStorage(page, "staff", ["PRODUCTS", "orders"]);
+    await page.goto("/admin/dashboard");
+
+    await expect(page.getByRole("link", { name: /tổng quan/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /sản phẩm/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /đơn hàng/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /người dùng/i })).toHaveCount(0);
+  });
+
+  test("keeps staff dashboard navigation visible without module permissions", async ({ mockedPage: page }) => {
+    await seedAuthStorage(page, "staff", []);
+    await page.goto("/admin/dashboard");
+
+    await expect(page.getByRole("link", { name: /tổng quan/i })).toBeVisible();
+    await expect(page.getByText(/chưa có module được cấp/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /sản phẩm/i })).toHaveCount(0);
+  });
+
   test("admin product/category/statistics routes render without hard failure", async ({ mockedPage: page }) => {
     await seedAuthStorage(page, "admin");
     for (const path of ["/admin/products", "/admin/categories", "/admin/dashboard"]) {

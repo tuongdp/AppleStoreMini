@@ -9,9 +9,9 @@ export async function loginViaUi(page: Page, email = testEnv.userEmail, password
   await page.waitForURL(/\/$|\/admin\/dashboard|\/products|\/profile/, { timeout: 15_000 });
 }
 
-export async function seedAuthStorage(page: Page, role: "user" | "admin" | "staff" = "user") {
-  await page.addInitScript((selectedRole) => {
-    const permissions = selectedRole === "staff" ? ["products", "orders"] : [];
+export async function seedAuthStorage(page: Page, role: "user" | "admin" | "staff" = "user", permissions?: string[]) {
+  await page.addInitScript(({ selectedRole, selectedPermissions }) => {
+    const permissions = selectedPermissions ?? (selectedRole === "staff" ? ["products", "orders"] : []);
     const payload = JSON.stringify({
       auth: JSON.stringify({
         user: { id: "storage-user", email: `${selectedRole}@example.com`, role: selectedRole, permissions, isVerified: true },
@@ -24,5 +24,5 @@ export async function seedAuthStorage(page: Page, role: "user" | "admin" | "staf
     });
     sessionStorage.setItem("persist:apple-store", payload);
     localStorage.setItem("persist:apple-store", payload);
-  }, role);
+  }, { selectedRole: role, selectedPermissions: permissions });
 }

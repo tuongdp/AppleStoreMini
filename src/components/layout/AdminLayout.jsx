@@ -26,7 +26,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
-import { logout, selectCurrentUser, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
+import { logout, selectCurrentUser, selectHasAdminAccess, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
     backToStore: "Về trang Store",
@@ -51,7 +51,7 @@ const NAV_ITEMS = [
         key: "dashboard",
         href: ROUTES.ADMIN_DASHBOARD,
         icon: LayoutDashboard,
-        permission: "dashboard",
+        permission: null,
         end: true,
     },
     { key: "products", href: ROUTES.ADMIN_PRODUCTS, icon: Package, permission: "products", end: false },
@@ -84,13 +84,17 @@ function SidebarContent({ onClose }) {
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
     const isAdmin = useSelector(selectIsAdmin);
+    const hasAdminAccess = useSelector(selectHasAdminAccess);
     const permissions = useSelector(selectUserPermissions);
+    const permissionSet = new Set(permissions);
 
     const visibleItems = NAV_ITEMS.filter((item) => {
         if (item.adminOnly && !isAdmin) return false;
-        if (item.permission && !isAdmin && !permissions.includes(item.permission)) return false;
+        if (item.permission && !isAdmin && !permissionSet.has(item.permission)) return false;
         return true;
     });
+    const grantedModuleCount = visibleItems.filter((item) => item.permission).length;
+    const defaultAdminHref = visibleItems[0]?.href || ROUTES.ADMIN_DASHBOARD;
 
     const handleLogout = () => {
         dispatch(logout());
@@ -102,7 +106,7 @@ function SidebarContent({ onClose }) {
         <div className="flex h-full flex-col">
             <div className="flex h-16 items-center border-b border-border px-6">
                 <Link
-                    to={ROUTES.ADMIN_DASHBOARD}
+                    to={defaultAdminHref}
                     className="text-base font-semibold text-foreground"
                     onClick={onClose}
                 >
@@ -133,6 +137,14 @@ function SidebarContent({ onClose }) {
                         <ChevronRight className="h-3.5 w-3.5 opacity-40" />
                     </NavLink>
                 ))}
+                {!isAdmin && hasAdminAccess && grantedModuleCount === 0 && (
+                    <div className="rounded-xl border border-dashed border-border bg-muted/30 px-3 py-4 text-sm">
+                        <p className="font-medium text-foreground">Chưa có module được cấp</p>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                            Bạn vẫn có thể xem tổng quan. Liên hệ quản trị viên để được cấp quyền thao tác.
+                        </p>
+                    </div>
+                )}
             </nav>
 
             <Separator />
@@ -162,6 +174,9 @@ function SidebarContent({ onClose }) {
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
                             {user?.email}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">
+                            {isAdmin ? "Quản trị viên" : "Nhân viên"}
                         </p>
                     </div>
                 </div>
@@ -195,6 +210,7 @@ export default function AdminLayout() {
                                 variant="ghost"
                                 size="icon"
                                 className="md:hidden"
+                                aria-label="Mở menu quản trị"
                             >
                                 <Menu className="h-5 w-5" />
                             </Button>
