@@ -48,10 +48,34 @@ test.describe("ecommerce flows", () => {
     await expect(page.getByRole("button", { name: /danh/i })).toHaveCount(0);
   });
 
+  test("shows active filter chips and clears product filters", async ({ mockedPage: page }) => {
+    await page.goto("/products?category=iphone&minPrice=20000000&maxPrice=30000000&sort=price_asc");
+
+    await expect(page.getByTestId("active-filter-chip")).toContainText([
+      "iPhone",
+      "20.000.000",
+      "Giá thấp đến cao",
+    ]);
+
+    await page.getByRole("button", { name: "Xóa tất cả bộ lọc" }).click();
+    await expect(page).toHaveURL(/\/products$/);
+    await expect(page.getByTestId("active-filter-chip")).toHaveCount(0);
+  });
+
   test("opens product detail from a stable card selector", async ({ mockedPage: page }) => {
     await page.goto("/products");
     await page.getByTestId("product-card-link").first().click();
     await expect(page).toHaveURL(/\/products\/iphone-15-pro-e2e/);
+  });
+
+  test("shows mobile sticky buy bar on product detail", async ({ mockedPage: page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/products/iphone-15-pro-e2e");
+
+    const stickyBar = page.getByTestId("mobile-sticky-buy-bar");
+    await expect(stickyBar).toBeVisible();
+    await expect(stickyBar).toContainText("iPhone 15 Pro E2E");
+    await expect(stickyBar.getByRole("button", { name: "Mua ngay" })).toBeVisible();
   });
 
   test("search suggestions and search results route are available", async ({ mockedPage: page }) => {

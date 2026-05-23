@@ -247,9 +247,12 @@ export default function ProductDetailPage() {
     }
 
     const categoryDisplay = product.category?.slug || product.categorySlug || "";
+    const stickyPrice = hasActiveFlashSale && flashSaleData?.salePrice
+        ? flashSaleData.salePrice
+        : displaySalePrice || displayOriginalPrice;
 
     return (
-        <div className="section-padding py-8 md:py-12">
+        <div className="section-padding pb-28 pt-8 md:py-12">
             <Breadcrumb
                 items={[
                     { label: "Sản phẩm", href: ROUTES.PRODUCTS },
@@ -649,6 +652,40 @@ export default function ProductDetailPage() {
             {/* Related */}
             <Separator className="my-12" />
             <RelatedProducts slug={slug} category={categoryDisplay} />
+
+            <div
+                data-testid="mobile-sticky-buy-bar"
+                className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur md:hidden"
+            >
+                <div className="mx-auto flex max-w-7xl items-center gap-3">
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">
+                            {product.name}
+                        </p>
+                        <p className="text-sm font-semibold text-apple-blue">
+                            {stickyPrice ? formatPrice(stickyPrice) : "Liên hệ"}
+                        </p>
+                    </div>
+                    <Button
+                        size="sm"
+                        className="rounded-full px-4"
+                        onClick={handleBuyNow}
+                        disabled={!selectedVariant || !inStock || isFlashSaleSoldOut || isAddingToCart}
+                    >
+                        Mua ngay
+                    </Button>
+                    <Button
+                        size="icon-sm"
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={handleAddToCart}
+                        disabled={!selectedVariant || !inStock || isFlashSaleSoldOut || isAddingToCart}
+                        aria-label="Thêm vào giỏ hàng"
+                    >
+                        <ShoppingCart className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 }

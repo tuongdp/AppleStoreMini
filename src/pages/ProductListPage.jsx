@@ -15,9 +15,21 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useCategories } from "@/hooks/useCategories";
-import { ROUTES, SORT_OPTIONS, PRICE_RANGES, PAGINATION } from "@/lib/constants";
+import { CATEGORIES, ROUTES, SORT_OPTIONS, PRICE_RANGES, PAGINATION } from "@/lib/constants";
 import { cn, formatPrice } from "@/lib/utils";
 import AIRecommendation from "@/features/ai/AIRecommendation";
+
+const MAX_PRICE = 100000000;
+const OPEN_ENDED_PRICE = 999999999;
+
+const SORT_LABELS = {
+    featured: "Nổi bật",
+    best_seller: "Bán chạy nhất",
+    newest: "Mới nhất",
+    price_asc: "Giá thấp đến cao",
+    price_desc: "Giá cao đến thấp",
+    rating: "Đánh giá cao nhất",
+};
 
 export default function ProductListPage() {
     const { categories } = useCategories();
@@ -34,13 +46,12 @@ export default function ProductListPage() {
             search: searchParams.get("search") || undefined,
             slug: searchParams.get("slug") || undefined,
         };
-        // Remove undefined keys so RTK Query doesn't serialize them as "undefined"
-        return Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined));
+        return Object.fromEntries(Object.entries(raw).filter(([, value]) => value !== undefined));
     }, [searchParams]);
 
     const [priceRange, setPriceRange] = useState([
         Number(searchParams.get("minPrice")) || 0,
-        Number(searchParams.get("maxPrice")) || 100000000,
+        Number(searchParams.get("maxPrice")) || MAX_PRICE,
     ]);
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
@@ -61,7 +72,7 @@ export default function ProductListPage() {
     const updateFilter = (key, value) => {
         const params = new URLSearchParams(searchParams);
         if (value) {
-            params.set(key, value);
+            params.set(key, String(value));
         } else {
             params.delete(key);
         }
@@ -74,7 +85,7 @@ export default function ProductListPage() {
         const params = new URLSearchParams(searchParams);
         updates.forEach(([key, value]) => {
             if (value) {
-                params.set(key, value);
+                params.set(key, String(value));
             } else {
                 params.delete(key);
             }
@@ -85,27 +96,25 @@ export default function ProductListPage() {
 
     const clearAll = () => {
         setSearchParams({});
-        setPriceRange([0, 100000000]);
+        setPriceRange([0, MAX_PRICE]);
     };
 
     const handlePriceCommit = (value) => {
         updateFilters([
             ["minPrice", value[0] > 0 ? String(value[0]) : ""],
-            ["maxPrice", value[1] < 100000000 ? String(value[1]) : ""],
+            ["maxPrice", value[1] < MAX_PRICE ? String(value[1]) : ""],
         ]);
     };
-
-    const hasActiveFilters = filters.category || filters.slug || filters.minPrice || filters.maxPrice;
 
     const slugGroups = useMemo(() => {
         const source = slugData?.products ?? [];
         if (!filters.category || !source.length) return [];
         const map = new Map();
-        source.forEach((p) => {
-            const parts = p.slug?.split("-") || [];
-            const n = p.slug?.startsWith("apple-") ? 3 : 2;
-            if (parts.length > n) {
-                const family = parts.slice(0, n).join("-");
+        source.forEach((product) => {
+            const parts = product.slug?.split("-") || [];
+            const familyLength = product.slug?.startsWith("apple-") ? 3 : 2;
+            if (parts.length > familyLength) {
+                const family = parts.slice(0, familyLength).join("-");
                 map.set(family, (map.get(family) || 0) + 1);
             }
         });
@@ -114,7 +123,40 @@ export default function ProductListPage() {
             .sort((a, b) => b[1] - a[1]);
     }, [slugData?.products, filters.category]);
 
-    const currentCategory = categories.find((c) => c.slug === filters.category);
+    const currentCategory = categories.find((category) => category.slug === filters.category);
+    const fallbackCategory = CATEGORIES.find((category) => category.value === filters.category);
+    const categoryLabel = currentCategory?.label || fallbackCategory?.label || filters.category;
+
+    const activeFilterChips = [
+        filters.category && {
+            key: "category",
+            label: categoryLabel,
+            onRemove: () => updateFilters([["category", ""], ["slug", ""]]),
+        },
+        filters.slug && {
+            key: "slug",
+            label: filters.slug.replace(/-/g, " "),
+            onRemove: () => updateFilter("slug", ""),
+        },
+        (filters.minPrice || filters.maxPrice) && {
+            key: "price",
+            label: `${filters.minPrice ? formatPrice(Number(filters.minPrice)) : "0đ"} - ${filters.maxPrice ? formatPrice(Number(filters.maxPrice)) : "Không giới hạn"}`,
+            onRemove: () => {
+                setPriceRange([0, MAX_PRICE]);
+                updateFilters([["minPrice", ""], ["maxPrice", ""]]);
+            },
+        },
+        filters.sort && filters.sort !== "featured" && {
+            key: "sort",
+            label: SORT_LABELS[filters.sort] || filters.sort,
+            onRemove: () => updateFilter("sort", "featured"),
+        },
+        filters.search && {
+            key: "search",
+            label: filters.search,
+            onRemove: () => updateFilter("search", ""),
+        },
+    ].filter(Boolean);
 
     const totalPages = pagination.totalPages || 1;
     const currentPage = filters.page;
@@ -122,13 +164,17 @@ export default function ProductListPage() {
     const getPageNumbers = () => {
         const delta = 2;
         const range = [];
-        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i += 1) {
             range.push(i);
         }
         if (currentPage - delta > 2) range.unshift("...");
         if (currentPage + delta < totalPages - 1) range.push("...");
-        if (totalPages > 1) { range.unshift(1); range.push(totalPages); }
-        else { range.unshift(1); }
+        if (totalPages > 1) {
+            range.unshift(1);
+            range.push(totalPages);
+        } else {
+            range.unshift(1);
+        }
         return [...new Set(range)];
     };
 
@@ -138,20 +184,20 @@ export default function ProductListPage() {
                 <Breadcrumb
                     items={[
                         { label: "Sản phẩm", href: ROUTES.PRODUCTS },
-                        ...(currentCategory ? [{ label: currentCategory.label }] : []),
+                        ...(categoryLabel ? [{ label: categoryLabel }] : []),
                     ]}
                     className="mb-6"
                 />
 
-                {/* Slug filters + active filter badge */}
                 {slugGroups.length > 0 && (
                     <div className="mb-4 flex flex-wrap items-center gap-1.5">
                         {slugGroups.map(([slug, count]) => (
                             <button
                                 key={slug}
+                                type="button"
                                 onClick={() => updateFilter("slug", filters.slug === slug ? "" : slug)}
                                 className={cn(
-                                    "shrink-0 rounded-full border px-3 py-1 text-xs transition-colors",
+                                    "shrink-0 rounded-full border px-3 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                     filters.slug === slug
                                         ? "border-amber-500/50 bg-amber-500/10 text-amber-700 dark:border-amber-400/50 dark:bg-amber-400/10 dark:text-amber-400"
                                         : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
@@ -161,67 +207,83 @@ export default function ProductListPage() {
                                 <span className="ml-1 opacity-50">({count})</span>
                             </button>
                         ))}
-                        {hasActiveFilters && (
-                            <button
-                                onClick={clearAll}
-                                className="shrink-0 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
-                            >
-                                <X className="mr-1 inline h-3 w-3" />
-                                Xoá bộ lọc
-                            </button>
-                        )}
                     </div>
                 )}
 
-                {/* Header row: title, count, sort */}
+                {activeFilterChips.length > 0 && (
+                    <div className="mb-5 flex flex-wrap items-center gap-2" aria-label="Bộ lọc đang áp dụng">
+                        {activeFilterChips.map((chip) => (
+                            <button
+                                key={chip.key}
+                                type="button"
+                                data-testid="active-filter-chip"
+                                onClick={chip.onRemove}
+                                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-foreground/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                                aria-label={`Xóa bộ lọc ${chip.label}`}
+                            >
+                                <span className="truncate">{chip.label}</span>
+                                <X className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                            </button>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={clearAll}
+                            className="rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                            aria-label="Xóa tất cả bộ lọc"
+                        >
+                            Xóa tất cả
+                        </button>
+                    </div>
+                )}
+
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold text-foreground">
-                            {currentCategory ? currentCategory.label : "Tất cả sản phẩm"}
+                            {categoryLabel || "Tất cả sản phẩm"}
                         </h1>
                         {!isLoading && pagination.total > 0 && (
                             <p className="mt-1 text-sm text-muted-foreground">
-                                {pagination.total} {"sản phẩm"}
+                                {pagination.total} sản phẩm
                             </p>
                         )}
                     </div>
-                    <Select value={filters.sort} onValueChange={(val) => updateFilter("sort", val)}>
+                    <Select value={filters.sort} onValueChange={(value) => updateFilter("sort", value)}>
                         <SelectTrigger className="w-44 rounded-full text-sm">
-                            <SelectValue placeholder={"Sắp xếp theo"} />
+                            <SelectValue placeholder="Sắp xếp theo" />
                         </SelectTrigger>
                         <SelectContent>
-                            {SORT_OPTIONS.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
+                            {SORT_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                    {SORT_LABELS[option.value] || option.label}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
 
-                {/* Price filter */}
                 <div className="mb-6 rounded-2xl border border-border bg-card p-4">
-                    <div className="mb-3 flex items-center gap-2">
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
                         <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium text-foreground">Khoảng giá</span>
                         <span className="text-sm text-muted-foreground">
-                            {formatPrice(priceRange[0])} – {priceRange[1] >= 100000000 ? "∞" : formatPrice(priceRange[1])}
+                            {formatPrice(priceRange[0])} - {priceRange[1] >= MAX_PRICE ? "Không giới hạn" : formatPrice(priceRange[1])}
                         </span>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="mb-3 flex flex-wrap gap-2">
                         {PRICE_RANGES.map((range) => (
                             <button
                                 key={range.label}
+                                type="button"
                                 onClick={() => {
                                     setPriceRange([range.min, range.max]);
                                     updateFilters([
                                         ["minPrice", range.min > 0 ? String(range.min) : ""],
-                                        ["maxPrice", range.max < 999999999 ? String(range.max) : ""],
+                                        ["maxPrice", range.max < OPEN_ENDED_PRICE ? String(range.max) : ""],
                                     ]);
                                 }}
                                 className={cn(
-                                    "rounded-full border px-3 py-1 text-xs transition-colors",
-                                    Number(filters.minPrice || 0) === range.min && (Number(filters.maxPrice || 999999999) === range.max || (!filters.maxPrice && range.max === 999999999))
+                                    "rounded-full border px-3 py-1 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                                    Number(filters.minPrice || 0) === range.min && (Number(filters.maxPrice || OPEN_ENDED_PRICE) === range.max || (!filters.maxPrice && range.max === OPEN_ENDED_PRICE))
                                         ? "border-amber-500/50 bg-amber-500/10 text-amber-700 dark:border-amber-400/50 dark:bg-amber-400/10 dark:text-amber-400"
                                         : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
                                 )}
@@ -232,7 +294,7 @@ export default function ProductListPage() {
                     </div>
                     <Slider
                         min={0}
-                        max={100000000}
+                        max={MAX_PRICE}
                         step={1000000}
                         value={priceRange}
                         onValueChange={setPriceRange}
@@ -243,13 +305,12 @@ export default function ProductListPage() {
 
                 <AIRecommendation />
 
-                {/* Product grid */}
                 {products.length === 0 && !isLoading ? (
                     <EmptyState
                         icon={SearchX}
-                        title={"Không tìm thấy sản phẩm"}
-                        description={"Thử thay đổi bộ lọc hoặc từ khoá tìm kiếm"}
-                        actionLabel={"Xoá bộ lọc"}
+                        title="Không tìm thấy sản phẩm"
+                        description="Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm."
+                        actionLabel="Xóa bộ lọc"
                         onAction={clearAll}
                     />
                 ) : (
@@ -262,20 +323,41 @@ export default function ProductListPage() {
 
                         {!isLoading && totalPages > 1 && (
                             <div className="mt-10 flex items-center justify-center gap-1">
-                                <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" disabled={currentPage <= 1} onClick={() => updateFilter("page", currentPage - 1)}>
-                                    ‹
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-9 w-9 rounded-full"
+                                    disabled={currentPage <= 1}
+                                    onClick={() => updateFilter("page", currentPage - 1)}
+                                    aria-label="Trang trước"
+                                >
+                                    {"‹"}
                                 </Button>
-                                {getPageNumbers().map((page, idx) =>
+                                {getPageNumbers().map((page, index) =>
                                     page === "..." ? (
-                                        <span key={`e-${idx}`} className="px-1 text-sm text-muted-foreground">...</span>
+                                        <span key={`ellipsis-${index}`} className="px-1 text-sm text-muted-foreground">...</span>
                                     ) : (
-                                        <Button key={page} variant={currentPage === page ? "default" : "outline"} size="icon" className="h-9 w-9 rounded-full text-sm" onClick={() => updateFilter("page", page)}>
+                                        <Button
+                                            key={page}
+                                            variant={currentPage === page ? "default" : "outline"}
+                                            size="icon"
+                                            className="h-9 w-9 rounded-full text-sm"
+                                            onClick={() => updateFilter("page", page)}
+                                            aria-label={`Trang ${page}`}
+                                        >
                                             {page}
                                         </Button>
                                     ),
                                 )}
-                                <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" disabled={currentPage >= totalPages} onClick={() => updateFilter("page", currentPage + 1)}>
-                                    ›
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-9 w-9 rounded-full"
+                                    disabled={currentPage >= totalPages}
+                                    onClick={() => updateFilter("page", currentPage + 1)}
+                                    aria-label="Trang tiếp theo"
+                                >
+                                    {"›"}
                                 </Button>
                             </div>
                         )}

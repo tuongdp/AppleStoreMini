@@ -27,6 +27,20 @@ export const testProducts = [
     stock: 12,
     inStock: true,
     images: JSON.stringify(["/assets/test/iphone.png"]),
+    variants: [
+      {
+        id: "v1",
+        color: "Titan tự nhiên",
+        storage: "128GB",
+        ram: "8GB",
+        edition: "",
+        price: 29990000,
+        salePrice: 27990000,
+        stock: 12,
+        inStock: true,
+        images: ["/assets/test/iphone.png"],
+      },
+    ],
   },
   {
     id: "prod-macbook-air",

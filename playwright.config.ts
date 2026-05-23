@@ -28,12 +28,6 @@ export default defineConfig({
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
   },
-  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER ? undefined : {
-    command: "node ./node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort",
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
   projects: [
     { name: "chromium", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
     { name: "firefox", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Firefox"] } },
@@ -47,6 +41,5 @@ export default defineConfig({
     },
   ],
   globalSetup: "./tests/global-setup.ts",
-  globalTeardown: "./tests/global-teardown.ts",
   outputDir: "test-results/artifacts",
 });
