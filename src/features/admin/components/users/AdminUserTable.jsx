@@ -1,5 +1,5 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
     Search,
@@ -22,7 +22,7 @@ import {
     useToggleUserStatusMutation,
     useDeleteUserMutation,
 } from "@/store/api/usersApi";
-import { selectIsAdmin } from "@/store/authSlice";
+import { selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -90,9 +90,9 @@ const SummaryCard = ({ icon: Icon, label, value, className }) => (
     <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${className}`}>
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
-            <div>
+            <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <p className="text-xl font-semibold text-foreground">
                     {formatNumber(value || 0)}
@@ -109,6 +109,7 @@ export default function AdminUserTable() {
     );
     const [deleteId, setDeleteId] = useState(null);
     const isAdmin = useSelector(selectIsAdmin);
+    const currentUser = useSelector(selectCurrentUser);
 
     const debouncedSearch = useDebounce(searchInput, 400);
 
@@ -130,6 +131,24 @@ export default function AdminUserTable() {
     // ✅ usersApi transformResponse → { users, pagination }
     const users = data?.users ?? [];
     const pagination = data?.pagination ?? {};
+    const hasActiveFilters =
+        !!searchInput ||
+        !!searchParams.get("role") ||
+        !!searchParams.get("status");
+
+    useEffect(() => {
+        const currentSearch = searchParams.get("search") || "";
+        if (debouncedSearch === currentSearch) return;
+
+        const params = new URLSearchParams(searchParams);
+        if (debouncedSearch) {
+            params.set("search", debouncedSearch);
+        } else {
+            params.delete("search");
+        }
+        params.set("page", "1");
+        setSearchParams(params, { replace: true });
+    }, [debouncedSearch, searchParams, setSearchParams]);
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -142,7 +161,29 @@ export default function AdminUserTable() {
         setSearchParams(params);
     };
 
+    const clearFilters = () => {
+        setSearchInput("");
+        setSearchParams(new URLSearchParams());
+    };
+
+    const getManagementState = (user) => {
+        const isSelf = String(user.id) === String(currentUser?.id);
+        const isTargetAdmin = user.role === ROLE.ADMIN;
+
+        return {
+            isSelf,
+            canChangeRole: isAdmin && !isSelf,
+            canToggleStatus: isAdmin && !isSelf && !isTargetAdmin,
+            canDelete: isAdmin && !isSelf && !isTargetAdmin,
+        };
+    };
+
     const handleSetRole = async (user, newRole) => {
+        const { canChangeRole } = getManagementState(user);
+        if (!canChangeRole) {
+            toast.error("Không thể thay đổi vai trò của tài khoản này");
+            return;
+        }
         if (user.role === newRole) return;
         try {
             await updateRole({ id: user.id, role: newRole }).unwrap();
@@ -153,6 +194,11 @@ export default function AdminUserTable() {
     };
 
     const handleToggleStatus = async (user) => {
+        const { canToggleStatus } = getManagementState(user);
+        if (!canToggleStatus) {
+            toast.error("Không thể khóa hoặc mở khóa tài khoản này");
+            return;
+        }
         try {
             await toggleStatus(user.id).unwrap();
             toast.success(user.isBlocked ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản");
@@ -162,6 +208,12 @@ export default function AdminUserTable() {
     };
 
     const handleDelete = async () => {
+        const targetUser = users.find((user) => user.id === deleteId);
+        if (!targetUser || !getManagementState(targetUser).canDelete) {
+            toast.error("Không thể xóa tài khoản này");
+            setDeleteId(null);
+            return;
+        }
         try {
             await deleteUser(deleteId).unwrap();
             toast.success("Xoá tài khoản thành công");
@@ -244,11 +296,14 @@ export default function AdminUserTable() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-3">
-                <div className="relative max-w-xs min-w-[200px] flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3">
+                <div className="relative min-w-[220px] flex-1">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                     <Input
-                        placeholder={"Tìm kiếm người dùng..."}
+                        aria-label="Tìm kiếm người dùng"
+                        name="admin-user-search"
+                        autoComplete="off"
+                        placeholder="Tìm kiếm tên, email, số điện thoại…"
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
                         className="rounded-full pl-9"
@@ -284,7 +339,18 @@ export default function AdminUserTable() {
                         ))}
                     </SelectContent>
                 </Select>
-                <div className="flex-1" />
+                {hasActiveFilters && (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-full"
+                        onClick={clearFilters}
+                    >
+                        Xóa bộ lọc
+                    </Button>
+                )}
+                <div className="min-w-0 flex-1" />
                 <ExportButton
                     onExportExcel={handleExportUsersExcel}
                     onExportPDF={handleExportUsersPDF}
@@ -294,8 +360,8 @@ export default function AdminUserTable() {
             </div>
 
             {/* Table */}
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
-                <Table>
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                <Table className="min-w-[900px]">
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
                             <TableHead>{"Họ và tên"}</TableHead>
@@ -326,11 +392,34 @@ export default function AdminUserTable() {
                                     colSpan={7}
                                     className="py-12 text-center text-muted-foreground"
                                 >
-                                    {"Không có dữ liệu"}
+                                    <div className="flex flex-col items-center gap-3">
+                                        <Users className="h-8 w-8 text-muted-foreground/60" aria-hidden="true" />
+                                        <div>
+                                            <p className="text-sm font-medium text-foreground">
+                                                Không tìm thấy người dùng
+                                            </p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                Thử thay đổi từ khóa hoặc bộ lọc đang áp dụng.
+                                            </p>
+                                        </div>
+                                        {hasActiveFilters && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-full"
+                                                onClick={clearFilters}
+                                            >
+                                                Xóa bộ lọc
+                                            </Button>
+                                        )}
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            users.map((user) => (
+                            users.map((user) => {
+                                const management = getManagementState(user);
+                                return (
                                 // ✅ MySQL integer id thuần — không có _id
                                 <TableRow key={user.id}>
                                     {/* Name + Email */}
@@ -422,8 +511,9 @@ export default function AdminUserTable() {
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8"
+                                                    aria-label={`Mở thao tác cho ${user.fullName || user.email}`}
                                                 >
-                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
@@ -434,7 +524,7 @@ export default function AdminUserTable() {
                                                         )}
                                                         className="flex items-center gap-2"
                                                     >
-                                                        <Eye className="h-4 w-4" />
+                                                        <Eye className="h-4 w-4" aria-hidden="true" />
                                                         {"Xem chi tiết"}
                                                     </Link>
                                                 </DropdownMenuItem>
@@ -444,52 +534,59 @@ export default function AdminUserTable() {
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             className="gap-2"
-                                                            disabled={isUpdating || user.role === ROLE.ADMIN}
+                                                            disabled={isUpdating || user.role === ROLE.ADMIN || !management.canChangeRole}
                                                             onClick={() => handleSetRole(user, ROLE.ADMIN)}
                                                         >
-                                                            <ShieldCheck className="h-4 w-4" />
+                                                            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                                                             {"Đặt làm Quản trị viên"}
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             className="gap-2"
-                                                            disabled={isUpdating || user.role === ROLE.STAFF}
+                                                            disabled={isUpdating || user.role === ROLE.STAFF || !management.canChangeRole}
                                                             onClick={() => handleSetRole(user, ROLE.STAFF)}
                                                         >
-                                                            <Shield className="h-4 w-4" />
+                                                            <Shield className="h-4 w-4" aria-hidden="true" />
                                                             {"Đặt làm Nhân viên"}
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             className="gap-2"
-                                                            disabled={isUpdating || user.role === ROLE.USER}
+                                                            disabled={isUpdating || user.role === ROLE.USER || !management.canChangeRole}
                                                             onClick={() => handleSetRole(user, ROLE.USER)}
                                                         >
-                                                            <ShieldOff className="h-4 w-4" />
+                                                            <ShieldOff className="h-4 w-4" aria-hidden="true" />
                                                             {"Đặt làm Người dùng"}
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             className="gap-2"
-                                                            disabled={isToggling}
+                                                            disabled={isToggling || !management.canToggleStatus}
                                                             onClick={() => handleToggleStatus(user)}
                                                         >
-                                                            <ShieldOff className="h-4 w-4" />
+                                                            <ShieldOff className="h-4 w-4" aria-hidden="true" />
                                                             {user.isBlocked ? "Bỏ chặn" : "Chặn"}
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             className="gap-2 text-destructive focus:text-destructive"
+                                                            disabled={!management.canDelete}
                                                             onClick={() => setDeleteId(user.id)}
                                                         >
-                                                            <Trash2 className="h-4 w-4" />
+                                                            <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                             {"Xoá"}
                                                         </DropdownMenuItem>
+                                                        {management.isSelf && (
+                                                            <DropdownMenuItem disabled className="text-xs">
+                                                                Không thể tự khóa, xóa hoặc hạ quyền
+                                                            </DropdownMenuItem>
+                                                        )}
                                                     </>
                                                 )}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
                                 </TableRow>
-                            ))
+                                );
+                            })
                         )}
                     </TableBody>
                 </Table>

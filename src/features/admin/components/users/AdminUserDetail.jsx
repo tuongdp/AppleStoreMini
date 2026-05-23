@@ -26,7 +26,7 @@ import {
     useUpdateUserPermissionsMutation,
     useUpdateUserRoleMutation,
 } from "@/store/api/usersApi";
-import { selectIsAdmin } from "@/store/authSlice";
+import { selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
 import {
     formatPrice,
     formatDate,
@@ -85,6 +85,7 @@ const StatCard = ({ icon: Icon, label, value, iconClassName }) => (
 
 export default function AdminUserDetail({ user, orders = [] }) {
     const isAdmin = useSelector(selectIsAdmin);
+    const currentUser = useSelector(selectCurrentUser);
     const [perms, setPerms] = useState(user.permissions || []);
     const [updatePerms, { isLoading: isUpdatingPerms }] =
         useUpdateUserPermissionsMutation();
@@ -92,6 +93,9 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const [toggleStatus, { isLoading: isTogglingStatus }] = useToggleUserStatusMutation();
 
     const roleConfig = ROLE_CONFIG[user.role] || ROLE_CONFIG.user;
+    const isSelf = String(user.id) === String(currentUser?.id);
+    const canChangeRole = isAdmin && !isSelf;
+    const canToggleStatus = isAdmin && !isSelf && user.role !== "admin";
 
     useEffect(() => {
         setPerms(user.permissions || []);
@@ -115,6 +119,10 @@ export default function AdminUserDetail({ user, orders = [] }) {
     };
 
     const handleSetRole = async (role) => {
+        if (!canChangeRole) {
+            toast.error("Không thể thay đổi vai trò của tài khoản này");
+            return;
+        }
         if (role === user.role) return;
         try {
             await updateRole({ id: user.id, role }).unwrap();
@@ -125,6 +133,10 @@ export default function AdminUserDetail({ user, orders = [] }) {
     };
 
     const handleToggleStatus = async () => {
+        if (!canToggleStatus) {
+            toast.error("Không thể khóa hoặc mở khóa tài khoản này");
+            return;
+        }
         try {
             await toggleStatus(user.id).unwrap();
             toast.success(user.isBlocked ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản");
@@ -277,7 +289,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     variant="outline"
                                     size="sm"
                                     className="justify-start rounded-lg"
-                                    disabled={isUpdatingRole || user.role === "admin"}
+                                    disabled={isUpdatingRole || user.role === "admin" || !canChangeRole}
                                     onClick={() => handleSetRole("admin")}
                                 >
                                     <ShieldCheck className="mr-2 h-4 w-4" />
@@ -287,7 +299,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     variant="outline"
                                     size="sm"
                                     className="justify-start rounded-lg"
-                                    disabled={isUpdatingRole || user.role === "staff"}
+                                    disabled={isUpdatingRole || user.role === "staff" || !canChangeRole}
                                     onClick={() => handleSetRole("staff")}
                                 >
                                     <Shield className="mr-2 h-4 w-4" />
@@ -297,7 +309,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     variant="outline"
                                     size="sm"
                                     className="justify-start rounded-lg"
-                                    disabled={isUpdatingRole || user.role === "user"}
+                                    disabled={isUpdatingRole || user.role === "user" || !canChangeRole}
                                     onClick={() => handleSetRole("user")}
                                 >
                                     <User className="mr-2 h-4 w-4" />
@@ -308,13 +320,18 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     variant={user.isBlocked ? "outline" : "destructive"}
                                     size="sm"
                                     className="justify-start rounded-lg"
-                                    disabled={isTogglingStatus}
+                                    disabled={isTogglingStatus || !canToggleStatus}
                                     onClick={handleToggleStatus}
                                 >
                                     <ShieldOff className="mr-2 h-4 w-4" />
                                     {user.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
                                 </Button>
                             </div>
+                            {isSelf && (
+                                <p className="mt-3 text-xs text-muted-foreground">
+                                    Không thể tự khóa, xóa hoặc hạ quyền tài khoản đang đăng nhập.
+                                </p>
+                            )}
                         </div>
                     )}
 

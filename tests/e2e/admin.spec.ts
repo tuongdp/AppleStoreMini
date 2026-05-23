@@ -15,6 +15,12 @@ test.describe("admin dashboard", () => {
     await expect(page).not.toHaveURL(/\/admin\/dashboard$/);
   });
 
+  test("blocks staff from direct user management routes", async ({ mockedPage: page }) => {
+    await seedAuthStorage(page, "staff");
+    await page.goto("/admin/users");
+    await expect(page).toHaveURL(/\/admin\/dashboard$/);
+  });
+
   test("admin product/category/statistics routes render without hard failure", async ({ mockedPage: page }) => {
     await seedAuthStorage(page, "admin");
     for (const path of ["/admin/products", "/admin/categories", "/admin/dashboard"]) {

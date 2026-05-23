@@ -12,6 +12,7 @@ import ProfileLayout from "@/components/layout/ProfileLayout";
 // Guards
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import AdminRoute from "@/features/auth/components/AdminRoute";
+import AdminPermissionRoute from "@/features/auth/components/AdminPermissionRoute";
 import GuestRoute from "@/features/auth/components/GuestRoute";
 
 // Eager-loaded pages (critical path)
@@ -180,25 +181,25 @@ export const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="dashboard" replace /> },
             { path: "dashboard", element: <AdminDashboard /> },
-            { path: "products", element: <AdminProductList /> },
-            { path: "products/create", element: <AdminProductCreate /> },
-            { path: "products/:id/edit", element: <AdminProductEdit /> },
-            { path: "orders", element: <AdminOrderList /> },
-            { path: "orders/:id", element: <AdminOrderDetail /> },
-            { path: "returns", element: <AdminReturnList /> },
-            { path: "returns/:returnId", element: <AdminReturnDetail /> },
-            { path: "users", element: <AdminUserList /> },
-            { path: "users/:id", element: <AdminUserDetail /> },
-            { path: "comments", element: <AdminCommentPage /> },
-            { path: "coupons", element: <AdminCouponPage /> },
-            { path: "categories", element: <AdminCategoryPage /> },
-            { path: "news", element: <AdminNewsPage /> },
-            { path: "news/create", element: <AdminNewsCreate /> },
-            { path: "news/:slug/edit", element: <AdminNewsEdit /> },
-            { path: "banners", element: <AdminBannerPage /> },
-            { path: "flash-sales", element: <AdminFlashSalePage /> },
-            { path: "options", element: <AdminGlobalOptionsPage /> },
-            { path: "settings/shop", element: <AdminShopSettingsPage /> },
+            { path: "products", element: <AdminPermissionRoute permission="products"><AdminProductList /></AdminPermissionRoute> },
+            { path: "products/create", element: <AdminPermissionRoute permission="products"><AdminProductCreate /></AdminPermissionRoute> },
+            { path: "products/:id/edit", element: <AdminPermissionRoute permission="products"><AdminProductEdit /></AdminPermissionRoute> },
+            { path: "orders", element: <AdminPermissionRoute permission="orders"><AdminOrderList /></AdminPermissionRoute> },
+            { path: "orders/:id", element: <AdminPermissionRoute permission="orders"><AdminOrderDetail /></AdminPermissionRoute> },
+            { path: "returns", element: <AdminPermissionRoute permission="returns"><AdminReturnList /></AdminPermissionRoute> },
+            { path: "returns/:returnId", element: <AdminPermissionRoute permission="returns"><AdminReturnDetail /></AdminPermissionRoute> },
+            { path: "users", element: <AdminPermissionRoute adminOnly><AdminUserList /></AdminPermissionRoute> },
+            { path: "users/:id", element: <AdminPermissionRoute adminOnly><AdminUserDetail /></AdminPermissionRoute> },
+            { path: "comments", element: <AdminPermissionRoute permission="comments"><AdminCommentPage /></AdminPermissionRoute> },
+            { path: "coupons", element: <AdminPermissionRoute adminOnly><AdminCouponPage /></AdminPermissionRoute> },
+            { path: "categories", element: <AdminPermissionRoute permission="categories"><AdminCategoryPage /></AdminPermissionRoute> },
+            { path: "news", element: <AdminPermissionRoute permission="news"><AdminNewsPage /></AdminPermissionRoute> },
+            { path: "news/create", element: <AdminPermissionRoute permission="news"><AdminNewsCreate /></AdminPermissionRoute> },
+            { path: "news/:slug/edit", element: <AdminPermissionRoute permission="news"><AdminNewsEdit /></AdminPermissionRoute> },
+            { path: "banners", element: <AdminPermissionRoute adminOnly><AdminBannerPage /></AdminPermissionRoute> },
+            { path: "flash-sales", element: <AdminPermissionRoute adminOnly><AdminFlashSalePage /></AdminPermissionRoute> },
+            { path: "options", element: <AdminPermissionRoute adminOnly><AdminGlobalOptionsPage /></AdminPermissionRoute> },
+            { path: "settings/shop", element: <AdminPermissionRoute adminOnly><AdminShopSettingsPage /></AdminPermissionRoute> },
         ],
     },
 

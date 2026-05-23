@@ -9,11 +9,12 @@ export async function loginViaUi(page: Page, email = testEnv.userEmail, password
   await page.waitForURL(/\/$|\/admin\/dashboard|\/products|\/profile/, { timeout: 15_000 });
 }
 
-export async function seedAuthStorage(page: Page, role: "user" | "admin" = "user") {
+export async function seedAuthStorage(page: Page, role: "user" | "admin" | "staff" = "user") {
   await page.addInitScript((selectedRole) => {
+    const permissions = selectedRole === "staff" ? ["products", "orders"] : [];
     const payload = JSON.stringify({
       auth: JSON.stringify({
-        user: { id: "storage-user", email: selectedRole === "admin" ? "admin@example.com" : "user@example.com", role: selectedRole, isVerified: true },
+        user: { id: "storage-user", email: `${selectedRole}@example.com`, role: selectedRole, permissions, isVerified: true },
         accessToken: `${selectedRole}.access`,
         refreshToken: `${selectedRole}.refresh`,
       }),
