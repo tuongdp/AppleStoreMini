@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import BannerSlider from "@/components/shared/BannerSlider";
 import FlashSaleBanner from "@/components/shared/FlashSaleBanner";
 import ProductSlider from "@/components/shared/ProductSlider";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import SectionTitle from "@/components/shared/SectionTitle";
 import { ROUTES } from "@/lib/constants";
 
@@ -118,13 +119,15 @@ export default function HomePage() {
               <Link
                 key={cat.id || cat.slug}
                 to={`${ROUTES.PRODUCTS}?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-all duration-200 hover:border-border hover:shadow-sm md:p-5"
+                className="group flex flex-col items-center gap-3 rounded-2xl border border-transparent bg-card p-4 transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:p-5"
               >
                 <div className="h-14 w-14 overflow-hidden rounded-xl bg-muted md:h-20 md:w-20">
                   {cat.image ? (
-                    <img
+                    <ResponsiveImage
                       src={cat.image}
                       alt={cat.name}
+                      width={80}
+                      height={80}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                       loading="lazy"
                     />

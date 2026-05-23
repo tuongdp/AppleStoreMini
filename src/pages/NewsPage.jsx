@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import {
     Select,
     SelectContent,
@@ -80,12 +81,18 @@ export default function NewsPage() {
                     </div>
                     {/* Search */}
                     <div className="relative max-w-xs w-full">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <label htmlFor="news-search" className="sr-only">
+                            {"Tìm kiếm bài viết"}
+                        </label>
                         <Input
+                            id="news-search"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
                             placeholder={"Tìm kiếm bài viết..."}
                             className="rounded-full pl-9"
+                            name="news-search"
+                            autoComplete="off"
                         />
                     </div>
                     <Select
@@ -113,7 +120,7 @@ export default function NewsPage() {
                             type="button"
                             onClick={() => updateParam("category", cat.value)}
                             className={cn(
-                                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+                                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                 (activeCategory === cat.value) ||
                                 (!activeCategory && cat.value === "")
                                     ? "bg-foreground text-background"
@@ -162,9 +169,11 @@ export default function NewsPage() {
                             >
                                 <div className="aspect-video overflow-hidden bg-muted md:aspect-auto">
                                     {featuredNews.thumbnail && (
-                                        <img
+                                        <ResponsiveImage
                                             src={featuredNews.thumbnail}
                                             alt={featuredNews.title}
+                                            width={720}
+                                            height={405}
                                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                                             loading="lazy"
                                         />

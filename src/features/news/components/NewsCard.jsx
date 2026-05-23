@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { newsApi } from "@/store/api/newsApi";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 
 export default function NewsCard({ news, className }) {
     const dispatch = useDispatch();
@@ -32,9 +33,11 @@ export default function NewsCard({ news, className }) {
             {/* Thumbnail */}
             <div className="aspect-video w-full overflow-hidden bg-muted">
                 {news.thumbnail ? (
-                    <img
+                    <ResponsiveImage
                         src={news.thumbnail}
                         alt={news.title}
+                        width={640}
+                        height={360}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                     />

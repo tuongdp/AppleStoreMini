@@ -1,10 +1,8 @@
-import { useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
-import { formatPrice, parseJsonField } from "@/lib/utils";
-import { ROUTES } from "@/lib/constants";
+import ProductSearchSuggestions from "@/features/products/components/ProductSearchSuggestions";
 
 export default function NavbarSearch({ onClose }) {
     const inputRef = useRef(null);
@@ -20,13 +18,12 @@ export default function NavbarSearch({ onClose }) {
         handleClear,
     } = useProductSearch();
 
-    // Auto focus khi mở
     useEffect(() => {
         inputRef.current?.focus();
     }, []);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = (event) => {
+        event.preventDefault();
         handleSearch();
         onClose?.();
     };
@@ -35,20 +32,27 @@ export default function NavbarSearch({ onClose }) {
         <div className="relative w-full max-w-md">
             <form onSubmit={handleSubmit}>
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search
+                        aria-hidden="true"
+                        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                    />
                     <Input
                         ref={inputRef}
                         value={keyword}
-                        onChange={(e) => handleKeywordChange(e.target.value)}
-                        placeholder={"Tìm kiếm sản phẩm..."}
+                        onChange={(event) => handleKeywordChange(event.target.value)}
+                        placeholder="Tìm kiếm sản phẩm..."
                         className="h-9 rounded-full pl-9 pr-9 text-sm"
+                        aria-label="Tìm kiếm sản phẩm"
+                        name="navbar-product-search"
+                        autoComplete="off"
                         data-testid="product-search-input"
                     />
                     {keyword && (
                         <button
                             type="button"
                             onClick={handleClear}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            aria-label="Xóa tìm kiếm"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                         >
                             {isLoading ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -60,72 +64,21 @@ export default function NavbarSearch({ onClose }) {
                 </div>
             </form>
 
-            {/* Suggestions dropdown */}
             {isOpen && (
                 <div className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-border bg-popover shadow-xl">
-                    {suggestions.length === 0 && !isLoading ? (
-                        <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-                            {"Không tìm thấy sản phẩm"}
-                        </div>
-                    ) : (
-                        <div className="py-1.5">
-                            {suggestions.map((product) => (
-                                <button
-                                    key={product.id}
-                                    onClick={() => {
-                                        handleSelectSuggestion(product);
-                                        onClose?.();
-                                    }}
-                                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-muted"
-                                    data-testid="product-search-suggestion"
-                                >
-                                    {/* Image */}
-                                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted/50 p-1">
-                                        <img
-                                            src={
-                                                product.image ||
-                                                parseJsonField(product.images)?.[0]
-                                            }
-                                            alt={product.name}
-                                            className="h-full w-full object-contain"
-                                        />
-                                    </div>
-
-                                    {/* Info */}
-                                    <div className="min-w-0 flex-1">
-                                        <p className="truncate text-sm font-medium text-foreground">
-                                            {product.name}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {product.category}
-                                        </p>
-                                    </div>
-
-                                    {/* Price */}
-                                    <span className="shrink-0 text-xs font-medium text-foreground">
-                                        {formatPrice(product.price)}
-                                    </span>
-                                </button>
-                            ))}
-
-                            {/* View all */}
-                            {keyword && (
-                                <div className="border-t border-border px-3 py-2">
-                                    <Link
-                                        to={`${ROUTES.SEARCH}?q=${encodeURIComponent(keyword)}`}
-                                        onClick={() => {
-                                            handleClear();
-                                            onClose?.();
-                                        }}
-                                        className="flex items-center justify-center text-xs font-medium text-apple-blue hover:opacity-70"
-                                    >
-                                        {"Xem tất cả kết quả cho"} &ldquo;{keyword}
-                                        &rdquo;
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    <ProductSearchSuggestions
+                        keyword={keyword}
+                        suggestions={suggestions}
+                        isLoading={isLoading}
+                        onSelect={(product) => {
+                            handleSelectSuggestion(product);
+                            onClose?.();
+                        }}
+                        onViewAll={() => {
+                            handleClear();
+                            onClose?.();
+                        }}
+                    />
                 </div>
             )}
         </div>

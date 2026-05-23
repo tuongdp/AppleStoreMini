@@ -71,12 +71,18 @@ export default function SearchPage() {
             {/* Search bar */}
             <form onSubmit={handleSearch} className="mb-8">
                 <div className="relative mx-auto max-w-2xl">
-                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <Search aria-hidden="true" className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <label htmlFor="search-page-input" className="sr-only">
+                        {"Tìm kiếm sản phẩm"}
+                    </label>
                     <Input
+                        id="search-page-input"
                         value={inputValue}
                         onChange={handleInputChange}
                         placeholder={aiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm..."}
                         className="h-12 rounded-full pl-12 pr-32 text-base"
+                        name="search"
+                        autoComplete="off"
                         autoFocus
                         data-testid="search-page-input"
                     />

@@ -50,6 +50,7 @@ export function useProductSearch() {
       keyword,
       isOpen,
       isFetching,
+      isLoading: isFetching,
       suggestions,
       handleKeywordChange,
       handleSearch,

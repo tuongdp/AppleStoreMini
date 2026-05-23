@@ -18,6 +18,7 @@ import { useScrolled } from "@/hooks/useScrollToTop";
 import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { appleLogo } from "@/assets/images";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 
 const SearchOverlay = lazy(() => import("@/components/shared/SearchOverlay"));
 
@@ -45,7 +46,7 @@ export default function Navbar() {
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full border-b transition-all duration-200",
+                "sticky top-0 z-50 w-full border-b transition-[background-color,border-color,backdrop-filter] duration-200",
                 isScrolled
                     ? "border-border bg-background/90 backdrop-blur-md"
                     : "border-transparent bg-background/60 backdrop-blur-sm",
@@ -61,9 +62,13 @@ export default function Navbar() {
                             aria-label="Trang chủ Apple Store"
                             className="flex shrink-0 items-center transition-opacity hover:opacity-70"
                         >
-                            <img
+                            <ResponsiveImage
                                 src={appleLogo}
                                 alt="Apple"
+                                width={24}
+                                height={24}
+                                loading="eager"
+                                fetchPriority="high"
                                 className="h-6 w-6 dark:invert"
                             />
                         </Link>

@@ -9,6 +9,7 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
 import { formatPrice, cn, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 
 import { productPlaceholder } from "@/assets/images";
 
@@ -67,7 +68,7 @@ export default function ProductCard({ product }) {
 
     return (
         <Card
-            className="group overflow-hidden border-transparent bg-muted/30 transition-all duration-200 hover:border-border hover:shadow-md"
+            className="group overflow-hidden border-transparent bg-muted/30 transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-md"
             data-testid="product-card"
             data-product-id={product._id || product.id}
             data-product-slug={product.slug}
@@ -100,7 +101,7 @@ export default function ProductCard({ product }) {
                                 {"Hết hàng"}
                             </Badge>
                         )}
-                        {isNewProduct && (
+                        {isNewProduct(product.createdAt) && (
                             <Badge className="bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white dark:bg-green-600">
                                 {"Mới"}
                             </Badge>
@@ -110,7 +111,7 @@ export default function ProductCard({ product }) {
                     {/* Wishlist button */}
                     <button
                         onClick={handleToggleWishlist}
-                        className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-background/80 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100 hover:scale-110"
+                        className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-background/80 opacity-0 backdrop-blur-sm transition-[opacity,transform] group-hover:opacity-100 hover:scale-110 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                         aria-label="Thêm vào yêu thích"
                         data-testid="wishlist-toggle"
                     >
@@ -130,12 +131,13 @@ export default function ProductCard({ product }) {
                     )}
 
                     {/* Product image */}
-                    <img
+                    <ResponsiveImage
                         src={
                             product.image ||
                             parseJsonField(product.images)?.[0] ||
                             productPlaceholder
                         }
+                        fallbackSrc={productPlaceholder}
                         alt={product.name}
                         width={400}
                         height={300}
@@ -145,9 +147,6 @@ export default function ProductCard({ product }) {
                             isOutOfStock && "opacity-60",
                         )}
                         loading="lazy"
-                        onError={(e) => {
-                            e.currentTarget.src = productPlaceholder;
-                        }}
                     />
                 </div>
             </Link>
