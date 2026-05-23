@@ -131,6 +131,7 @@ export default function AdminProductTable() {
           <div className="relative min-w-[200px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+              aria-label="Tìm kiếm sản phẩm"
               placeholder={"Tìm kiếm sản phẩm..."}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -174,7 +175,7 @@ export default function AdminProductTable() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -305,6 +306,7 @@ export default function AdminProductTable() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
+                            aria-label={`Mở thao tác cho ${product.name}`}
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>

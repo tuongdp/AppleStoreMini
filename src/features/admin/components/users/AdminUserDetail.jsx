@@ -84,6 +84,140 @@ const StatCard = ({ icon: Icon, label, value, iconClassName }) => (
     </div>
 );
 
+const ACTIVITY_TYPE_CONFIG = {
+    created: { label: "Tạo tài khoản", tone: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400" },
+    updated: { label: "Cập nhật hồ sơ", tone: "bg-muted text-muted-foreground" },
+    login: { label: "Đăng nhập", tone: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" },
+    permissions: { label: "Phân quyền", tone: "bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-400" },
+    role: { label: "Vai trò", tone: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400" },
+    status: { label: "Trạng thái", tone: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400" },
+};
+
+const getUserActivityLogs = (user) => {
+    const rawLogs = user.activityLogs || user.activities || user.auditLogs || [];
+    const externalLogs = Array.isArray(rawLogs)
+        ? rawLogs.map((log, index) => ({
+            id: log.id || log._id || `log-${index}`,
+            type: log.type || log.action || "updated",
+            title: log.title || log.actionLabel || log.action || "Hoạt động",
+            description: log.description || log.message || log.details || "",
+            createdAt: log.createdAt || log.timestamp || log.time,
+            actor: log.actorName || log.actor?.fullName || log.actor?.email || log.actor,
+        }))
+        : [];
+
+    const inferredLogs = [
+        user.createdAt && {
+            id: "created",
+            type: "created",
+            title: "Tài khoản được tạo",
+            description: "Nhân viên được thêm vào hệ thống.",
+            createdAt: user.createdAt,
+        },
+        user.role === "staff" && {
+            id: "role",
+            type: "role",
+            title: "Đang giữ vai trò nhân viên",
+            description: "Tài khoản có quyền truy cập khu vực quản trị theo module được cấp.",
+            createdAt: user.updatedAt || user.createdAt,
+        },
+        user.role === "staff" && Array.isArray(user.permissions) && {
+            id: "permissions",
+            type: "permissions",
+            title: `${user.permissions.length} quyền đang được cấp`,
+            description: user.permissions.length
+                ? user.permissions.join(", ")
+                : "Chưa có module thao tác nào ngoài trang tổng quan.",
+            createdAt: user.updatedAt || user.createdAt,
+        },
+        user.isBlocked && {
+            id: "status",
+            type: "status",
+            title: "Tài khoản đang bị khóa",
+            description: "Nhân viên không thể đăng nhập cho đến khi được mở khóa.",
+            createdAt: user.updatedAt || user.createdAt,
+        },
+        (user.lastLoginAt || user.lastLogin || user.loginAt) && {
+            id: "login",
+            type: "login",
+            title: "Lần đăng nhập gần nhất",
+            description: "Hoạt động đăng nhập gần nhất được ghi nhận.",
+            createdAt: user.lastLoginAt || user.lastLogin || user.loginAt,
+        },
+        user.updatedAt && user.updatedAt !== user.createdAt && {
+            id: "updated",
+            type: "updated",
+            title: "Hồ sơ được cập nhật",
+            description: "Thông tin tài khoản hoặc quyền đã có thay đổi.",
+            createdAt: user.updatedAt,
+        },
+    ].filter(Boolean);
+
+    return [...externalLogs, ...inferredLogs]
+        .filter((item) => item.createdAt)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 8);
+};
+
+function StaffActivityTimeline({ user }) {
+    const logs = getUserActivityLogs(user);
+
+    return (
+        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Lịch sử hoạt động
+                    </h3>
+                </div>
+                <Badge variant="secondary" className="text-xs">{logs.length}</Badge>
+            </div>
+
+            {logs.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
+                    <p className="text-sm font-medium text-foreground">Chưa có hoạt động</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        Khi nhân viên đăng nhập hoặc được cập nhật quyền, lịch sử sẽ hiển thị tại đây.
+                    </p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {logs.map((log) => {
+                        const config = ACTIVITY_TYPE_CONFIG[log.type] || ACTIVITY_TYPE_CONFIG.updated;
+                        return (
+                            <div key={log.id} className="flex gap-3">
+                                <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted">
+                                    <span className="h-2 w-2 rounded-full bg-foreground" />
+                                </div>
+                                <div className="min-w-0 flex-1 border-b border-border pb-4 last:border-0 last:pb-0">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <Badge className={config.tone}>{config.label}</Badge>
+                                        <span className="text-xs text-muted-foreground">
+                                            {formatDateTime(log.createdAt)}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 text-sm font-medium text-foreground">{log.title}</p>
+                                    {log.description && (
+                                        <p className="mt-1 break-words text-xs leading-5 text-muted-foreground">
+                                            {log.description}
+                                        </p>
+                                    )}
+                                    {log.actor && (
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            Thực hiện bởi {log.actor}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function AdminUserDetail({ user, orders = [] }) {
     const isAdmin = useSelector(selectIsAdmin);
     const currentUser = useSelector(selectCurrentUser);
@@ -461,6 +595,9 @@ export default function AdminUserDetail({ user, orders = [] }) {
 
                 {/* ── Right Column — Orders ── */}
                 <div className="lg:col-span-2">
+                    <div className="space-y-6">
+                    {user.role === "staff" && <StaffActivityTimeline user={user} />}
+
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -525,6 +662,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 ))}
                             </div>
                         )}
+                    </div>
                     </div>
                 </div>
             </div>

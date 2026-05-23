@@ -40,6 +40,17 @@ test.describe("admin dashboard", () => {
     await expect(page.getByRole("link", { name: /sản phẩm/i })).toHaveCount(0);
   });
 
+  test("shows admin entry in storefront profile menu for staff", async ({ mockedPage: page }) => {
+    await seedAuthStorage(page, "staff", ["products"]);
+    await page.addInitScript(() => {
+      localStorage.setItem("app-welcome-dismissed", "1");
+    });
+    await page.goto("/");
+
+    await page.getByRole("button", { name: /mở menu tài khoản/i }).click();
+    await expect(page.getByRole("menuitem", { name: /quản trị/i })).toBeVisible();
+  });
+
   test("admin product/category/statistics routes render without hard failure", async ({ mockedPage: page }) => {
     await seedAuthStorage(page, "admin");
     for (const path of ["/admin/products", "/admin/categories", "/admin/dashboard"]) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,15 +16,29 @@ const DEFAULTS = {
 };
 
 export default function AdminShopSettings() {
-  const [fields, setFields] = useState(() => {
+  const loadSettings = () => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return { ...DEFAULTS, ...JSON.parse(raw) };
     } catch { /* ignore */ }
     return { ...DEFAULTS };
-  });
+  };
+  const [fields, setFields] = useState(loadSettings);
+  const [savedFields, setSavedFields] = useState(fields);
 
   const [errors, setErrors] = useState({});
+  const isDirty = JSON.stringify(fields) !== JSON.stringify(savedFields);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (!isDirty) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
 
   const handleChange = (key) => (e) => {
     setFields((prev) => ({ ...prev, [key]: e.target.value }));
@@ -43,14 +57,27 @@ export default function AdminShopSettings() {
       return;
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fields));
+    setSavedFields(fields);
     toast.success("Đã lưu thông tin cửa hàng");
+  };
+
+  const handleReset = () => {
+    setFields(savedFields);
+    setErrors({});
   };
 
   return (
     <div className="max-w-2xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Thông tin cửa hàng</CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle>Thông tin cửa hàng</CardTitle>
+            {isDirty && (
+              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                Có thay đổi chưa lưu
+              </span>
+            )}
+          </div>
           <CardDescription>
             Cấu hình thông tin người bán hiển thị trên hóa đơn GTGT.
             Dữ liệu được lưu trên trình duyệt.
@@ -116,7 +143,12 @@ export default function AdminShopSettings() {
         </CardContent>
       </Card>
 
-      <Button onClick={handleSave}>Lưu thông tin</Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button onClick={handleSave} disabled={!isDirty}>Lưu thông tin</Button>
+        <Button type="button" variant="outline" onClick={handleReset} disabled={!isDirty}>
+          Hoàn tác
+        </Button>
+      </div>
     </div>
   );
 }

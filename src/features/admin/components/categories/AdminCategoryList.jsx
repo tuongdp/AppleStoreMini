@@ -167,6 +167,7 @@ function CategoryForm({ category, onClose }) {
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isLoading}
                             className="group flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-muted/30 transition-colors hover:border-muted-foreground/40"
+                            aria-label="Chọn ảnh danh mục"
                         >
                             {imagePreview ? (
                                 <img
@@ -395,6 +396,7 @@ export default function AdminCategoryList() {
                                                 onClick={() =>
                                                     handleEdit(category)
                                                 }
+                                                aria-label={`Sửa danh mục ${category.name}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -405,6 +407,7 @@ export default function AdminCategoryList() {
                                                 onClick={() =>
                                                     setDeleteId(catId)
                                                 }
+                                                aria-label={`Xóa danh mục ${category.name}`}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

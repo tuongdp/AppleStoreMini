@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Check, Filter, Palette, Plus, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import {
     useGetGlobalOptionsQuery,
     useCreateGlobalOptionMutation,
@@ -44,12 +46,17 @@ const SummaryCard = ({ icon: Icon, label, value, className }) => (
 );
 
 export default function AdminGlobalOptionsPage() {
-    const [activeTab, setActiveTab] = useState("COLOR");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialType = OPTION_TYPES.some((type) => type.value === searchParams.get("type"))
+        ? searchParams.get("type")
+        : "COLOR";
+    const [activeTab, setActiveTab] = useState(initialType);
     const [newValue, setNewValue] = useState("");
     const [newHex, setNewHex] = useState("#000000");
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(searchParams.get("search") || "");
     const [editingId, setEditingId] = useState(null);
     const [editingValue, setEditingValue] = useState("");
+    const [deleteId, setDeleteId] = useState(null);
 
     const { data: options = [], isLoading } = useGetGlobalOptionsQuery(activeTab);
     const { data: allOptions = [] } = useGetGlobalOptionsQuery();
@@ -69,6 +76,15 @@ export default function AdminGlobalOptionsPage() {
     const configuredLabel = activeTab === "COLOR" ? "Màu đã có mã" : "Tổng toàn cục";
     const configuredValue = activeTab === "COLOR" ? configuredColors : allOptions.length;
 
+    const updateViewParams = ({ type = activeTab, keyword = search }) => {
+        const params = new URLSearchParams(searchParams);
+        if (type === "COLOR") params.delete("type");
+        else params.set("type", type);
+        if (keyword.trim()) params.set("search", keyword.trim());
+        else params.delete("search");
+        setSearchParams(params, { replace: true });
+    };
+
     const handleAdd = async () => {
         if (!newValue.trim()) return;
         try {
@@ -84,10 +100,12 @@ export default function AdminGlobalOptionsPage() {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
+        if (!deleteId) return;
         try {
-            await deleteOption(id).unwrap();
+            await deleteOption(deleteId).unwrap();
             toast.success("Xóa thành công");
+            setDeleteId(null);
         } catch (err) {
             toast.error(err?.data?.message || "Không thể xóa");
         }
@@ -167,6 +185,7 @@ export default function AdminGlobalOptionsPage() {
                     setActiveTab(value);
                     setSearch("");
                     cancelEdit();
+                    updateViewParams({ type: value, keyword: "" });
                 }}
             >
                 <TabsList className="h-auto flex-wrap justify-start">
@@ -193,6 +212,7 @@ export default function AdminGlobalOptionsPage() {
 
                 <div className="flex flex-wrap items-center gap-2">
                     <Input
+                        aria-label={`Thêm ${activeType?.label?.toLowerCase() || "tùy chọn"}`}
                         placeholder="Thêm giá trị..."
                         value={newValue}
                         onChange={(e) => setNewValue(e.target.value)}
@@ -207,6 +227,7 @@ export default function AdminGlobalOptionsPage() {
                     {activeTab === "COLOR" && (
                         <div className="flex items-center gap-1">
                             <input
+                                aria-label="Chọn mã màu"
                                 type="color"
                                 value={newHex}
                                 onChange={(e) => setNewHex(e.target.value)}
@@ -239,16 +260,24 @@ export default function AdminGlobalOptionsPage() {
                     <div className="relative ml-auto">
                         <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                         <Input
+                            aria-label="Tìm kiếm tùy chọn"
                             placeholder="Tìm kiếm..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            updateViewParams({ keyword: e.target.value });
+                        }}
                             className="h-8 w-[180px] pl-8 text-xs"
                         />
                         {search && (
                             <button
                                 type="button"
-                                onClick={() => setSearch("")}
+                                onClick={() => {
+                                    setSearch("");
+                                    updateViewParams({ keyword: "" });
+                                }}
                                 className="absolute right-2 top-1/2 -translate-y-1/2"
+                                aria-label="Xóa từ khóa tìm kiếm"
                             >
                                 <X className="h-3 w-3 text-muted-foreground" />
                             </button>
@@ -257,7 +286,7 @@ export default function AdminGlobalOptionsPage() {
                 </div>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
                 {isLoading ? (
                     <div className="space-y-2 p-4">
                         {[...Array(5)].map((_, index) => (
@@ -287,6 +316,7 @@ export default function AdminGlobalOptionsPage() {
                                                 {activeTab === "COLOR" ? (
                                                     <div className="flex items-center gap-2">
                                                         <input
+                                                            aria-label={`Chọn mã màu cho ${option.value}`}
                                                             type="color"
                                                             value={option.hex || "#cccccc"}
                                                             onChange={(e) => handleHexChange(option, e.target.value)}
@@ -343,13 +373,14 @@ export default function AdminGlobalOptionsPage() {
                                                             Sửa
                                                         </Button>
                                                     )}
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive"
-                                                        disabled={isDeleting}
-                                                        onClick={() => handleDelete(option.id)}
-                                                    >
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive"
+                                                            disabled={isDeleting}
+                                                            onClick={() => setDeleteId(option.id)}
+                                                            aria-label={`Xóa tùy chọn ${option.value}`}
+                                                        >
                                                         <Trash2 className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </div>
@@ -362,6 +393,14 @@ export default function AdminGlobalOptionsPage() {
                     </div>
                 )}
             </div>
+            <ConfirmDialog
+                open={!!deleteId}
+                onOpenChange={(open) => !open && setDeleteId(null)}
+                title="Xóa tùy chọn"
+                description="Bạn có chắc muốn xóa tùy chọn này? Hành động này không thể hoàn tác."
+                onConfirm={handleDelete}
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

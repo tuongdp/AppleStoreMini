@@ -346,6 +346,7 @@ export default function AdminBannerPage() {
                                                 onClick={() =>
                                                     handleEdit(banner)
                                                 }
+                                                aria-label={`Sửa banner thứ tự ${banner.order}`}
                                             >
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -356,6 +357,7 @@ export default function AdminBannerPage() {
                                                 onClick={() =>
                                                     setDeleteId(bannerId)
                                                 }
+                                                aria-label={`Xóa banner thứ tự ${banner.order}`}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

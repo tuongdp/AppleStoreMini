@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,10 +38,10 @@ const STATUS_FILTERS = [
 ];
 
 export default function AdminReturnList() {
-  const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+  const search = searchParams.get("search") || "";
+  const statusFilter = searchParams.get("status") || "all";
   const [rejectId, setRejectId] = useState(null);
   const [adminNote, setAdminNote] = useState("");
 
@@ -51,6 +51,14 @@ export default function AdminReturnList() {
 
   const returns = data?.data || [];
   const pagination = data?.pagination;
+
+  const updateParam = (key, value) => {
+    const params = new URLSearchParams(searchParams);
+    if (value && value !== "all") params.set(key, String(value));
+    else params.delete(key);
+    if (key !== "page") params.set("page", "1");
+    setSearchParams(params);
+  };
 
   const handleApprove = async (id) => {
     try {
@@ -119,13 +127,14 @@ export default function AdminReturnList() {
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
+            aria-label="Tìm kiếm yêu cầu trả hàng"
             placeholder="Tìm mã đơn hàng..."
             className="pl-9 rounded-full"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            onChange={(e) => updateParam("search", e.target.value)}
           />
         </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+        <Select value={statusFilter} onValueChange={(v) => updateParam("status", v)}>
           <SelectTrigger className="w-40 rounded-full">
             <SelectValue placeholder="Trạng thái" />
           </SelectTrigger>
@@ -145,7 +154,7 @@ export default function AdminReturnList() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -203,6 +212,7 @@ export default function AdminReturnList() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <span className="sr-only">Mở thao tác yêu cầu trả hàng</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -226,9 +236,11 @@ export default function AdminReturnList() {
                             </DropdownMenuItem>
                           </>
                         )}
-                        <DropdownMenuItem onClick={() => navigate(`/admin/returns/${ret.id}`)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Xem chi tiết
+                        <DropdownMenuItem asChild>
+                          <Link to={`/admin/returns/${ret.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            Xem chi tiết
+                          </Link>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -247,7 +259,7 @@ export default function AdminReturnList() {
             variant="outline"
             size="sm"
             disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
+            onClick={() => updateParam("page", page - 1)}
           >
             Trước
           </Button>
@@ -258,7 +270,7 @@ export default function AdminReturnList() {
             variant="outline"
             size="sm"
             disabled={page >= pagination.totalPages}
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => updateParam("page", page + 1)}
           >
             Sau
           </Button>

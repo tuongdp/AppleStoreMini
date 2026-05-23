@@ -135,18 +135,20 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
                                 <TableRow key={idx}>
                                     <TableCell className="p-1">
                                         <input
+                                            aria-label={`Tên thông số dòng ${idx + 1}`}
                                             value={spec.key}
                                             onChange={(e) => updateEditable(idx, "key", e.target.value)}
                                             placeholder={"Tên thông số"}
-                                            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none focus:border-primary"
+                                            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                         />
                                     </TableCell>
                                     <TableCell className="p-1">
                                         <input
+                                            aria-label={`Giá trị thông số dòng ${idx + 1}`}
                                             value={spec.value}
                                             onChange={(e) => updateEditable(idx, "value", e.target.value)}
                                             placeholder={"Giá trị"}
-                                            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm outline-none focus:border-primary"
+                                            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm focus:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                         />
                                     </TableCell>
                                     <TableCell className="p-1">

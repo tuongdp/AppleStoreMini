@@ -153,6 +153,7 @@ export default function AdminNewsList() {
                 <div className="relative max-w-xs min-w-[200px] flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
+                        aria-label="Tìm kiếm bài viết"
                         placeholder="Tìm bài viết..."
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
@@ -212,7 +213,7 @@ export default function AdminNewsList() {
                 </Button>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -312,6 +313,7 @@ export default function AdminNewsList() {
                                                         ? "Ẩn"
                                                         : "Xuất bản"
                                                 }
+                                                aria-label={item.isPublished ? `Ẩn bài viết ${item.title}` : `Xuất bản bài viết ${item.title}`}
                                             >
                                                 {item.isPublished ? (
                                                     <EyeOff className="h-4 w-4" />
@@ -323,6 +325,7 @@ export default function AdminNewsList() {
                                                 variant="ghost"
                                                 size="icon"
                                                 className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                aria-label={`Sửa bài viết ${item.title}`}
                                                 asChild
                                             >
                                                 <Link
@@ -338,6 +341,7 @@ export default function AdminNewsList() {
                                                 onClick={() =>
                                                     setDeleteId(item.id)
                                                 }
+                                                aria-label={`Xóa bài viết ${item.title}`}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>

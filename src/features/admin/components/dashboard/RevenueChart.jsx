@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
     AreaChart,
     Area,
@@ -71,7 +72,11 @@ function YAxisTick({ x, y, payload }) {
 }
 
 export default function RevenueChart() {
-    const [period, setPeriod] = useState("month");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialPeriod = PERIODS.some((item) => item.value === searchParams.get("revenuePeriod"))
+        ? searchParams.get("revenuePeriod")
+        : "month";
+    const [period, setPeriod] = useState(initialPeriod);
 
     const { data, isLoading } = useGetRevenueStatsQuery({ period });
 
@@ -80,6 +85,14 @@ export default function RevenueChart() {
     const chartData = data?.chart ?? [];
 
     const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const handlePeriodChange = (value) => {
+        setPeriod(value);
+        const params = new URLSearchParams(searchParams);
+        if (value === "month") params.delete("revenuePeriod");
+        else params.set("revenuePeriod", value);
+        setSearchParams(params, { replace: true });
+    };
 
     const revenueColumns = [
         { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
@@ -119,7 +132,7 @@ export default function RevenueChart() {
                         key={p.value}
                         variant="ghost"
                         size="sm"
-                        onClick={() => setPeriod(p.value)}
+                        onClick={() => handlePeriodChange(p.value)}
                         className={periodButtonClass(period === p.value)}
                     >
                         {p.label}

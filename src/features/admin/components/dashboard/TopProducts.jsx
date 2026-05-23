@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useGetTopProductsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -35,10 +35,22 @@ const getFirstImage = (images) => {
 };
 
 export default function TopProducts() {
-    const [period, setPeriod] = useState("month");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialPeriod = PERIODS.some((item) => item.value === searchParams.get("topProductsPeriod"))
+        ? searchParams.get("topProductsPeriod")
+        : "month";
+    const [period, setPeriod] = useState(initialPeriod);
     const { data = [], isLoading } = useGetTopProductsQuery({ period, limit: 5 });
 
     const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const handlePeriodChange = (value) => {
+        setPeriod(value);
+        const params = new URLSearchParams(searchParams);
+        if (value === "month") params.delete("topProductsPeriod");
+        else params.set("topProductsPeriod", value);
+        setSearchParams(params, { replace: true });
+    };
 
     const topProdColumns = [
         { key: "index", label: "#" },
@@ -95,7 +107,7 @@ export default function TopProducts() {
             <div className="flex items-center justify-between gap-1.5">
                 <div className="flex gap-1.5">
                 {PERIODS.map((p) => (
-                    <Button key={p.value} variant="ghost" size="sm" onClick={() => setPeriod(p.value)}
+                    <Button key={p.value} variant="ghost" size="sm" onClick={() => handlePeriodChange(p.value)}
                         className={periodButtonClass(period === p.value)}>
                         {p.label}
                     </Button>

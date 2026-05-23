@@ -30,6 +30,7 @@ import { ROUTES, ORDER_STATUS, PAGINATION, RETURN_REQUEST_STATUS } from "@/lib/c
 import { useDebounce } from "@/hooks/useDebounce";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -72,6 +73,7 @@ export default function AdminOrderTable() {
     searchParams.get("search") || "",
   );
   const [updatingId, setUpdatingId] = useState(null);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState(null);
 
   const debouncedSearch = useDebounce(searchInput, 400);
 
@@ -111,6 +113,21 @@ export default function AdminOrderTable() {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const requestUpdateStatus = (order, status) => {
+    setPendingStatusUpdate({
+      id: order._id || order.id,
+      code: order.code,
+      status,
+      label: STATUS_MAP[status] || status,
+    });
+  };
+
+  const handleConfirmUpdateStatus = async () => {
+    if (!pendingStatusUpdate) return;
+    await handleUpdateStatus(pendingStatusUpdate.id, pendingStatusUpdate.status);
+    setPendingStatusUpdate(null);
   };
 
   const EXPORT_PAYMENT_LABELS = {
@@ -160,6 +177,7 @@ export default function AdminOrderTable() {
         <div className="relative min-w-[200px] flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
+            aria-label="Tìm kiếm đơn hàng"
             placeholder={"Tìm kiếm đơn hàng..."}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -191,7 +209,7 @@ export default function AdminOrderTable() {
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
@@ -298,8 +316,8 @@ export default function AdminOrderTable() {
                           className="rounded-full text-xs"
                           disabled={updatingId === (order._id || order.id)}
                           onClick={() =>
-                            handleUpdateStatus(
-                              order._id || order.id,
+                            requestUpdateStatus(
+                              order,
                               NEXT_STATUS[(order.status || "").toLowerCase()],
                             )
                           }
@@ -313,6 +331,7 @@ export default function AdminOrderTable() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
+                        aria-label={`Xem chi tiết đơn hàng ${order.code}`}
                         asChild
                       >
                         <Link
@@ -361,6 +380,19 @@ export default function AdminOrderTable() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={!!pendingStatusUpdate}
+        onOpenChange={(open) => !open && setPendingStatusUpdate(null)}
+        title="Cập nhật trạng thái đơn hàng"
+        description={
+          pendingStatusUpdate
+            ? `Chuyển đơn #${pendingStatusUpdate.code} sang trạng thái ${pendingStatusUpdate.label}. Hành động này có thể ảnh hưởng thông báo và xử lý vận hành.`
+            : ""
+        }
+        confirmLabel="Cập nhật trạng thái"
+        onConfirm={handleConfirmUpdateStatus}
+        isLoading={!!pendingStatusUpdate && updatingId === pendingStatusUpdate.id}
+      />
     </div>
   );
 }

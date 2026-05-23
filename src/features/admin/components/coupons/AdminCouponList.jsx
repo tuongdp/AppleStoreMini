@@ -174,7 +174,7 @@ export default function AdminCouponList() {
             )}
 
             {/* Table */}
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -353,6 +353,7 @@ export default function AdminCouponList() {
                                                             ? "Tắt mã"
                                                             : "Bật mã"
                                                     }
+                                                    aria-label={coupon.isActive ? `Tắt mã ${coupon.code}` : `Bật mã ${coupon.code}`}
                                                 >
                                                     {coupon.isActive ? (
                                                         <ToggleRight className="h-4 w-4 text-green-500" />
@@ -369,6 +370,7 @@ export default function AdminCouponList() {
                                                     onClick={() =>
                                                         handleEdit(coupon)
                                                     }
+                                                    aria-label={`Sửa mã ${coupon.code}`}
                                                 >
                                                     <Pencil className="h-4 w-4" />
                                                 </Button>
@@ -381,6 +383,7 @@ export default function AdminCouponList() {
                                                     onClick={() =>
                                                         setDeleteId(couponId)
                                                     }
+                                                    aria-label={`Xóa mã ${coupon.code}`}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>

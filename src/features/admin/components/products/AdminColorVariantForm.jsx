@@ -57,6 +57,7 @@ export default function AdminColorVariantForm({ colors = [], onChange }) {
                             {/* Color swatch */}
                             <div className="relative shrink-0">
                                 <input
+                                    aria-label={`Chọn mã màu cho màu ${index + 1}`}
                                     type="color"
                                     value={item.hex}
                                     onChange={(e) =>

@@ -14,7 +14,7 @@ import {
 import {
     selectCurrentUser,
     selectIsAuthenticated,
-    selectIsAdmin,
+    selectHasAdminAccess,
     logout,
 } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
@@ -24,7 +24,7 @@ export default function NavbarUserMenu() {
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isAdmin = useSelector(selectIsAdmin);
+    const hasAdminAccess = useSelector(selectHasAdminAccess);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -50,7 +50,7 @@ export default function NavbarUserMenu() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full" aria-label="Mở menu tài khoản">
                     <Avatar className="h-7 w-7">
                         <AvatarImage src={user?.avatar} alt={user?.fullName} />
                         <AvatarFallback className="text-xs">
@@ -103,7 +103,7 @@ export default function NavbarUserMenu() {
                     </Link>
                 </DropdownMenuItem>
 
-                {isAdmin && (
+                {hasAdminAccess && (
                     <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>

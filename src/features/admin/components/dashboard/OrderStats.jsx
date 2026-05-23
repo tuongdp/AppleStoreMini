@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useGetOrderStatsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,10 +25,22 @@ const periodButtonClass = (active) =>
     );
 
 export default function OrderStats() {
-    const [period, setPeriod] = useState("month");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialPeriod = PERIODS.some((item) => item.value === searchParams.get("orderStatsPeriod"))
+        ? searchParams.get("orderStatsPeriod")
+        : "month";
+    const [period, setPeriod] = useState(initialPeriod);
     const { data = [], isLoading } = useGetOrderStatsQuery({ period });
 
     const { exportExcel, exportPDF, isExporting } = useExport();
+
+    const handlePeriodChange = (value) => {
+        setPeriod(value);
+        const params = new URLSearchParams(searchParams);
+        if (value === "month") params.delete("orderStatsPeriod");
+        else params.set("orderStatsPeriod", value);
+        setSearchParams(params, { replace: true });
+    };
 
     const orderStatsColumns = [
         { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
@@ -66,7 +79,7 @@ export default function OrderStats() {
                         key={p.value}
                         variant="ghost"
                         size="sm"
-                        onClick={() => setPeriod(p.value)}
+                        onClick={() => handlePeriodChange(p.value)}
                         className={periodButtonClass(period === p.value)}
                     >
                         {p.label}

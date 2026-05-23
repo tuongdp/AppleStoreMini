@@ -67,7 +67,7 @@ export default function OrderStatusChart() {
                         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                             <div
                                 className={cn(
-                                    "h-full rounded-full transition-all duration-500",
+                                    "h-full rounded-full transition-[width] duration-500",
                                     ORDER_STATUS_COLOR[status]?.includes("green") ? "bg-green-500"
                                     : ORDER_STATUS_COLOR[status]?.includes("blue") ? "bg-blue-500"
                                     : ORDER_STATUS_COLOR[status]?.includes("orange") ? "bg-orange-500"

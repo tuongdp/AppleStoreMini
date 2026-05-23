@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -78,6 +78,18 @@ const NAV_ITEMS = [
     { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false, adminOnly: true },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
+
+const getAdminPageTitle = (pathname) => {
+    const item = [...NAV_ITEMS]
+        .sort((a, b) => b.href.length - a.href.length)
+        .find((navItem) => pathname === navItem.href || pathname.startsWith(`${navItem.href}/`));
+
+    if (pathname.includes("/create")) return "Tạo mới";
+    if (pathname.includes("/edit")) return "Chỉnh sửa";
+    if (pathname.split("/").length > 3) return "Chi tiết";
+
+    return item ? SIDEBAR_MAP[item.key] : "Admin";
+};
 
 function SidebarContent({ onClose }) {
     const dispatch = useDispatch();
@@ -195,6 +207,8 @@ function SidebarContent({ onClose }) {
 
 export default function AdminLayout() {
     const [mobileOpen, setMobileOpen] = useState(false);
+    const location = useLocation();
+    const pageTitle = getAdminPageTitle(location.pathname);
 
     return (
         <div className="flex min-h-screen bg-muted/40">
@@ -222,9 +236,10 @@ export default function AdminLayout() {
                         </SheetContent>
                     </Sheet>
 
-                    <span className="hidden text-sm font-medium text-muted-foreground md:block">
-                        Admin
-                    </span>
+                    <div className="hidden min-w-0 md:block">
+                        <p className="text-xs text-muted-foreground">Admin / {pageTitle}</p>
+                        <h2 className="truncate text-sm font-medium text-foreground">{pageTitle}</h2>
+                    </div>
 
                     <div className="flex items-center gap-1">
                         <ThemeToggle />

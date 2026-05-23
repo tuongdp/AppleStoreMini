@@ -841,13 +841,13 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
                                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
                                 </div>
                             )}
-                            <button type="button" onClick={() => removeVImage(idx)} className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-background/80 hover:bg-destructive hover:text-white">
+                            <button type="button" onClick={() => removeVImage(idx)} className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-background/80 hover:bg-destructive hover:text-white" aria-label={`Xóa ảnh biến thể ${idx + 1}`}>
                                 <X className="h-2.5 w-2.5" />
                             </button>
                         </div>
                     ))}
                     {vImages.length < IMAGE.MAX_COUNT && (
-                        <button type="button" onClick={() => fileRef.current?.click()} className="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:border-foreground hover:text-foreground">
+                        <button type="button" onClick={() => fileRef.current?.click()} className="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:border-foreground hover:text-foreground" aria-label="Thêm ảnh biến thể">
                             <Upload className="h-4 w-4" />
                         </button>
                     )}

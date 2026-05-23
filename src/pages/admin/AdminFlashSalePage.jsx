@@ -738,7 +738,7 @@ function FlashSaleCard({ flashSale, onToggle, onEdit, onDelete, onAddItem, onRem
                     </div>
                     {stats.totalLimit > 0 && (
                         <div className="col-span-3 h-1.5 overflow-hidden rounded-full bg-background">
-                            <div className="h-full rounded-full bg-destructive transition-all" style={{ width: `${progress}%` }} />
+                            <div className="h-full rounded-full bg-destructive transition-[width]" style={{ width: `${progress}%` }} />
                         </div>
                     )}
                 </div>
