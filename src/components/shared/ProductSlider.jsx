@@ -9,17 +9,6 @@ import ProductCard from "@/components/shared/ProductCard";
 import ProductCardSkeleton from "@/components/shared/ProductCardSkeleton";
 import { cn } from "@/lib/utils";
 
-/**
- * ProductSlider — slider sản phẩm dùng chung
- *
- * Props:
- *   products     — array sản phẩm
- *   isLoading    — hiển thị skeleton khi đang fetch
- *   skeletonCount — số skeleton card (default 4)
- *   sliderId     — id duy nhất để tránh xung đột nav button (required khi dùng nhiều slider cùng trang)
- *   autoplayDelay — ms giữa các slide (default 4000)
- *   renderItem   — custom render function (product) => JSX, mặc định dùng ProductCard
- */
 export default function ProductSlider({
     products = [],
     isLoading = false,
@@ -31,7 +20,6 @@ export default function ProductSlider({
     const prevId = `swiper-prev-${sliderId}`;
     const nextId = `swiper-next-${sliderId}`;
 
-    // Skeleton state
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -52,41 +40,53 @@ export default function ProductSlider({
         );
     }
 
-    return (
-        <div className="group/slider relative overflow-hidden">
-            {/* Prev */}
-            <Button
-                id={prevId}
-                variant="outline"
-                size="icon"
-                className={cn(
-                    "absolute -left-4 top-1/2 z-10 -translate-y-1/2 rounded-full shadow-md",
-                    "h-10 w-10 border-border bg-background/90 backdrop-blur-sm",
-                    "opacity-0 transition-opacity duration-200 group-hover/slider:opacity-100",
-                )}
-                aria-label={"Slide trước"}
-            >
-                <ChevronLeft className="h-5 w-5" />
-            </Button>
+    const hasNavigation = products.length > 1;
 
-            {/* Next */}
-            <Button
-                id={nextId}
-                variant="outline"
-                size="icon"
-                className={cn(
-                    "absolute -right-4 top-1/2 z-10 -translate-y-1/2 rounded-full shadow-md",
-                    "h-10 w-10 border-border bg-background/90 backdrop-blur-sm",
-                    "opacity-0 transition-opacity duration-200 group-hover/slider:opacity-100",
-                )}
-                aria-label={"Slide tiếp"}
-            >
-                <ChevronRight className="h-5 w-5" />
-            </Button>
+    return (
+        <div className="group/slider relative">
+            {hasNavigation && (
+                <Button
+                    id={prevId}
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className={cn(
+                        "absolute left-2 top-1/2 z-20 size-10 -translate-y-1/2 rounded-full shadow-lg",
+                        "border-border bg-background/95 text-foreground backdrop-blur-sm",
+                        "transition-[opacity,transform,background-color] duration-200",
+                        "hover:scale-105 hover:bg-background focus-visible:ring-2 focus-visible:ring-ring/50",
+                        "md:opacity-0 md:group-hover/slider:opacity-100 md:group-focus-within/slider:opacity-100",
+                        "disabled:pointer-events-none disabled:opacity-0",
+                    )}
+                    aria-label="Slide trước"
+                >
+                    <ChevronLeft className="h-5 w-5" />
+                </Button>
+            )}
+
+            {hasNavigation && (
+                <Button
+                    id={nextId}
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className={cn(
+                        "absolute right-2 top-1/2 z-20 size-10 -translate-y-1/2 rounded-full shadow-lg",
+                        "border-border bg-background/95 text-foreground backdrop-blur-sm",
+                        "transition-[opacity,transform,background-color] duration-200",
+                        "hover:scale-105 hover:bg-background focus-visible:ring-2 focus-visible:ring-ring/50",
+                        "md:opacity-0 md:group-hover/slider:opacity-100 md:group-focus-within/slider:opacity-100",
+                        "disabled:pointer-events-none disabled:opacity-0",
+                    )}
+                    aria-label="Slide tiếp"
+                >
+                    <ChevronRight className="h-5 w-5" />
+                </Button>
+            )}
 
             <Swiper
                 modules={[Navigation, Autoplay]}
-                navigation={{ prevEl: `#${prevId}`, nextEl: `#${nextId}` }}
+                navigation={hasNavigation ? { prevEl: `#${prevId}`, nextEl: `#${nextId}` } : false}
                 autoplay={{
                     delay: autoplayDelay,
                     disableOnInteraction: false,
