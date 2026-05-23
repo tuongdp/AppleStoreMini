@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures/test";
+import { waitForAppReady } from "../utils/waits";
 
 test.describe("pwa and service worker", () => {
   test("serves offline fallback page", async ({ page }) => {
@@ -20,10 +21,12 @@ test.describe("pwa and service worker", () => {
 
   test("shows application after offline then online transition", async ({ mockedPage: page, context }) => {
     await page.goto("/");
+    await waitForAppReady(page);
     await context.setOffline(true);
-    await page.reload().catch(() => undefined);
+    await expect(page.locator("body")).toBeVisible();
     await context.setOffline(false);
-    await page.goto("/");
+    await page.reload();
+    await waitForAppReady(page);
     await expect(page.locator("body")).toBeVisible();
   });
 });

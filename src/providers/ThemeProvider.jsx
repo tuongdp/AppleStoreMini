@@ -1,6 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
-
-const ThemeProviderContext = createContext(null);
+import { useEffect, useState } from "react";
+import { ThemeProviderContext } from "@/providers/theme-context";
 
 const getSystemTheme = () =>
     typeof window !== "undefined" &&
@@ -65,10 +64,3 @@ export function ThemeProvider({
         </ThemeProviderContext.Provider>
     );
 }
-
-export const useTheme = () => {
-    const context = useContext(ThemeProviderContext);
-    if (!context)
-        throw new Error("useTheme must be used within a ThemeProvider");
-    return context;
-};

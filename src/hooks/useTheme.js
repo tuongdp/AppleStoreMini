@@ -1,3 +1,10 @@
-// Không cần tạo file này nữa — import useTheme trực tiếp từ provider
-// import { useTheme } from "@/providers/ThemeProvider"
-export { useTheme } from "@/providers/ThemeProvider";
+import { useContext } from "react";
+import { ThemeProviderContext } from "@/providers/theme-context";
+
+export function useTheme() {
+    const context = useContext(ThemeProviderContext);
+    if (!context) {
+        throw new Error("useTheme must be used within a ThemeProvider");
+    }
+    return context;
+}

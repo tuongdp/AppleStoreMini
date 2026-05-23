@@ -7,10 +7,15 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function Dialog({
-  ...props
-}) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+function Dialog(props) {
+  const { open, defaultOpen, ...rootProps } = props;
+  const isControlled = Object.prototype.hasOwnProperty.call(props, "open");
+  const controlledProps =
+    isControlled
+      ? { open: Boolean(open) }
+      : { defaultOpen };
+
+  return <DialogPrimitive.Root data-slot="dialog" {...controlledProps} {...rootProps} />;
 }
 
 function DialogTrigger({

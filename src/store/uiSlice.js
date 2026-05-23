@@ -48,8 +48,8 @@ export const {
 export default uiSlice.reducer;
 
 // Selectors
-export const selectCartDrawerOpen = (state) => state.ui.cartDrawerOpen;
-export const selectAuthModalOpen = (state) => state.ui.authModalOpen;
-export const selectMobileMenuOpen = (state) => state.ui.mobileMenuOpen;
-export const selectSearchOpen = (state) => state.ui.searchOpen;
-export const selectPageLoading = (state) => state.ui.pageLoading;
+export const selectCartDrawerOpen = (state) => Boolean(state.ui?.cartDrawerOpen);
+export const selectAuthModalOpen = (state) => Boolean(state.ui?.authModalOpen);
+export const selectMobileMenuOpen = (state) => Boolean(state.ui?.mobileMenuOpen);
+export const selectSearchOpen = (state) => Boolean(state.ui?.searchOpen);
+export const selectPageLoading = (state) => Boolean(state.ui?.pageLoading);

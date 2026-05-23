@@ -800,7 +800,7 @@ export default function AdminFlashSalePage() {
     const [toggleStatus, { isLoading: isToggling }] = useToggleFlashSaleStatusMutation();
     const [removeItem, { isLoading: isRemoving }] = useRemoveFlashSaleItemMutation();
 
-    const flashSales = data || [];
+    const flashSales = useMemo(() => data || [], [data]);
     const summary = useMemo(() => {
         return flashSales.reduce(
             (acc, flashSale) => {

@@ -131,7 +131,7 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
         if (editor && value !== editor.getHTML()) {
             editor.commands.setContent(value || "", false);
         }
-    }, [value]);
+    }, [editor, value]);
 
     const handleFileInput = useCallback(async (e) => {
         await insertImages(e.target.files);

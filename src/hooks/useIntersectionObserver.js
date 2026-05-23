@@ -1,14 +1,11 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function useIntersectionObserver(options = {}) {
     const ref = useRef(null);
     const [isIntersecting, setIsIntersecting] = useState(false);
     const [hasIntersected, setHasIntersected] = useState(false);
 
-    const stableOptions = useMemo(() => ({
-        threshold: 0.1,
-        ...options,
-    }), [options.threshold, options.root, options.rootMargin]);
+    const { root = null, rootMargin = "0px", threshold = 0.1 } = options;
 
     useEffect(() => {
         const element = ref.current;
@@ -23,12 +20,12 @@ export function useIntersectionObserver(options = {}) {
                 }
                 if (entry.isIntersecting) setHasIntersected(true);
             },
-            stableOptions,
+            { root, rootMargin, threshold },
         );
 
         observer.observe(element);
         return () => observer.disconnect();
-    }, [stableOptions]);
+    }, [root, rootMargin, threshold]);
 
     return { ref, isIntersecting, hasIntersected };
 }

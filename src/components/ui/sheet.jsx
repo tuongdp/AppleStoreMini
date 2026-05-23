@@ -5,10 +5,15 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function Sheet({
-  ...props
-}) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+function Sheet(props) {
+  const { open, defaultOpen, ...rootProps } = props;
+  const isControlled = Object.prototype.hasOwnProperty.call(props, "open");
+  const controlledProps =
+    isControlled
+      ? { open: Boolean(open) }
+      : { defaultOpen };
+
+  return <SheetPrimitive.Root data-slot="sheet" {...controlledProps} {...rootProps} />;
 }
 
 function SheetTrigger({

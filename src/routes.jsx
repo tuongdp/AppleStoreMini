@@ -87,7 +87,6 @@ const AdminShopSettingsPage = lazyPage(() => import("@/pages/admin/AdminShopSett
 const AdminReturnList = lazyPage(() => import("@/pages/admin/AdminReturnList"));
 const AdminReturnDetail = lazyPage(() => import("@/pages/admin/AdminReturnDetail"));
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const router = createBrowserRouter([
     {
         path: "/",
