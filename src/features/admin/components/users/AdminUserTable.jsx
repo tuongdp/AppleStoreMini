@@ -172,7 +172,7 @@ export default function AdminUserTable() {
 
         return {
             isSelf,
-            canChangeRole: isAdmin && !isSelf,
+            canChangeRole: isAdmin && !isSelf && !isTargetAdmin,
             canToggleStatus: isAdmin && !isSelf && !isTargetAdmin,
             canDelete: isAdmin && !isSelf && !isTargetAdmin,
         };

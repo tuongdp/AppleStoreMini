@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
 import {
     useToggleUserStatusMutation,
@@ -87,6 +88,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const isAdmin = useSelector(selectIsAdmin);
     const currentUser = useSelector(selectCurrentUser);
     const [perms, setPerms] = useState(user.permissions || []);
+    const [pendingAction, setPendingAction] = useState(null);
     const [updatePerms, { isLoading: isUpdatingPerms }] =
         useUpdateUserPermissionsMutation();
     const [updateRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
@@ -94,8 +96,12 @@ export default function AdminUserDetail({ user, orders = [] }) {
 
     const roleConfig = ROLE_CONFIG[user.role] || ROLE_CONFIG.user;
     const isSelf = String(user.id) === String(currentUser?.id);
-    const canChangeRole = isAdmin && !isSelf;
+    const canChangeRole = isAdmin && !isSelf && user.role !== "admin";
     const canToggleStatus = isAdmin && !isSelf && user.role !== "admin";
+    const savedPerms = Array.isArray(user.permissions) ? user.permissions : [];
+    const selectedPermissionCount = Array.isArray(perms) ? perms.length : 0;
+    const permissionsDirty =
+        [...savedPerms].sort().join("|") !== [...perms].sort().join("|");
 
     useEffect(() => {
         setPerms(user.permissions || []);
@@ -110,12 +116,53 @@ export default function AdminUserDetail({ user, orders = [] }) {
     };
 
     const handleSavePerms = async () => {
+        if (!permissionsDirty) return;
         try {
             await updatePerms({ id: user.id, permissions: perms }).unwrap();
             toast.success("Đã cập nhật quyền");
         } catch {
             toast.error("Có lỗi xảy ra");
         }
+    };
+
+    const handleResetPerms = () => {
+        setPerms(savedPerms);
+    };
+
+    const requestRoleChange = (role) => {
+        const config = ROLE_CONFIG[role] || ROLE_CONFIG.user;
+        setPendingAction({
+            type: "role",
+            role,
+            title: "Cập nhật vai trò người dùng",
+            description: `Chuyển ${user.fullName || user.email} sang vai trò ${config.label}. Quyền truy cập admin sẽ thay đổi ngay sau khi lưu.`,
+            confirmLabel: "Cập nhật vai trò",
+            variant: "default",
+        });
+    };
+
+    const requestStatusToggle = () => {
+        setPendingAction({
+            type: "status",
+            title: user.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản",
+            description: user.isBlocked
+                ? `${user.fullName || user.email} sẽ có thể đăng nhập và sử dụng tài khoản trở lại.`
+                : `${user.fullName || user.email} sẽ không thể đăng nhập hoặc sử dụng tài khoản cho đến khi được mở khóa.`,
+            confirmLabel: user.isBlocked ? "Mở khóa" : "Khóa tài khoản",
+            variant: user.isBlocked ? "default" : "destructive",
+        });
+    };
+
+    const handleConfirmAction = async () => {
+        if (!pendingAction) return;
+
+        if (pendingAction.type === "role") {
+            await handleSetRole(pendingAction.role);
+        }
+        if (pendingAction.type === "status") {
+            await handleToggleStatus();
+        }
+        setPendingAction(null);
     };
 
     const handleSetRole = async (role) => {
@@ -290,7 +337,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     size="sm"
                                     className="justify-start rounded-lg"
                                     disabled={isUpdatingRole || user.role === "admin" || !canChangeRole}
-                                    onClick={() => handleSetRole("admin")}
+                                    onClick={() => requestRoleChange("admin")}
                                 >
                                     <ShieldCheck className="mr-2 h-4 w-4" />
                                     Đặt làm quản trị viên
@@ -300,7 +347,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     size="sm"
                                     className="justify-start rounded-lg"
                                     disabled={isUpdatingRole || user.role === "staff" || !canChangeRole}
-                                    onClick={() => handleSetRole("staff")}
+                                    onClick={() => requestRoleChange("staff")}
                                 >
                                     <Shield className="mr-2 h-4 w-4" />
                                     Đặt làm nhân viên
@@ -310,7 +357,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     size="sm"
                                     className="justify-start rounded-lg"
                                     disabled={isUpdatingRole || user.role === "user" || !canChangeRole}
-                                    onClick={() => handleSetRole("user")}
+                                    onClick={() => requestRoleChange("user")}
                                 >
                                     <User className="mr-2 h-4 w-4" />
                                     Đặt làm người dùng
@@ -321,7 +368,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     size="sm"
                                     className="justify-start rounded-lg"
                                     disabled={isTogglingStatus || !canToggleStatus}
-                                    onClick={handleToggleStatus}
+                                    onClick={requestStatusToggle}
                                 >
                                     <ShieldOff className="mr-2 h-4 w-4" />
                                     {user.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
@@ -338,11 +385,52 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     {/* Permissions */}
                     {isAdmin && user.role === "staff" && (
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <div className="mb-4 flex items-center gap-2">
-                                <ShieldCheck className="h-4 w-4 text-blue-600" />
-                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                    Phân quyền
-                                </h3>
+                            <div className="mb-4 flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="h-4 w-4 text-blue-600" />
+                                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                        Phân quyền
+                                    </h3>
+                                </div>
+                                <Badge variant={permissionsDirty ? "default" : "secondary"} className="text-xs">
+                                    {selectedPermissionCount}/{STAFF_PERMISSIONS.length}
+                                </Badge>
+                            </div>
+                            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+                                Chọn các khu vực admin mà nhân viên được phép truy cập. Thay đổi chỉ có hiệu lực sau khi lưu.
+                            </p>
+                            {permissionsDirty && (
+                                <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
+                                    Có thay đổi chưa lưu.
+                                </div>
+                            )}
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="rounded-full"
+                                    disabled={!permissionsDirty || isUpdatingPerms}
+                                    onClick={handleResetPerms}
+                                >
+                                    Hoàn tác
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    className="rounded-full"
+                                    disabled={!permissionsDirty || isUpdatingPerms}
+                                    onClick={handleSavePerms}
+                                >
+                                    {isUpdatingPerms ? (
+                                        <>
+                                            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                            Đang lưu...
+                                        </>
+                                    ) : (
+                                        "Lưu quyền"
+                                    )}
+                                </Button>
                             </div>
                             <div className="space-y-0.5">
                                 {STAFF_PERMISSIONS.map((p) => {
@@ -356,6 +444,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                             <input
                                                 type="checkbox"
                                                 checked={checked}
+                                                disabled={isUpdatingPerms}
                                                 onChange={() => togglePerm(p.key)}
                                                 className="h-4 w-4 shrink-0 rounded accent-blue-600"
                                             />
@@ -366,21 +455,6 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     );
                                 })}
                             </div>
-                            <Button
-                                size="sm"
-                                className="mt-4 w-full rounded-full"
-                                disabled={isUpdatingPerms}
-                                onClick={handleSavePerms}
-                            >
-                                {isUpdatingPerms ? (
-                                    <>
-                                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                                        Đang lưu...
-                                    </>
-                                ) : (
-                                    "Lưu quyền"
-                                )}
-                            </Button>
                         </div>
                     )}
                 </div>
@@ -454,6 +528,17 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={!!pendingAction}
+                onOpenChange={(open) => !open && setPendingAction(null)}
+                title={pendingAction?.title}
+                description={pendingAction?.description}
+                confirmLabel={pendingAction?.confirmLabel}
+                variant={pendingAction?.variant}
+                onConfirm={handleConfirmAction}
+                isLoading={isUpdatingRole || isTogglingStatus}
+            />
         </div>
     );
 }
