@@ -103,17 +103,24 @@ export default function Navbar() {
                     <div className="flex items-center gap-0.5">
                         <Button
                             variant="ghost"
-                            size="icon"
-                            className="rounded-full"
-                            aria-label="Tìm kiếm"
+                            size="default"
+                            className="h-9 rounded-full px-2.5 md:gap-2 md:px-3"
+                            aria-label="Tìm kiếm (Ctrl K)"
                             aria-keyshortcuts="Control+K Meta+K"
-                            title="Tìm kiếm (Ctrl+K / ⌘K)"
+                            title="Tìm kiếm (Ctrl+K / Cmd+K)"
                             onClick={() => {
                                 dispatch(toggleSearch(true));
                                 dispatch(toggleMobileMenu(false));
                             }}
                         >
                             <Search className="h-5 w-5" />
+                            <span className="sr-only">Tìm kiếm</span>
+                            <kbd
+                                aria-hidden="true"
+                                className="hidden h-5 items-center gap-1 rounded-md border border-border bg-background px-1.5 font-sans text-[11px] font-medium text-muted-foreground shadow-sm md:inline-flex"
+                            >
+                                Ctrl K
+                            </kbd>
                         </Button>
 
                         <NavbarActions />
