@@ -61,6 +61,26 @@ test.describe("ecommerce flows", () => {
     await expect(page.getByTestId("product-card").first()).toBeVisible();
   });
 
+  test("opens global search with keyboard shortcut", async ({ mockedPage: page }) => {
+    await page.goto("/");
+    await page.keyboard.press("ControlOrMeta+K");
+
+    const overlayInput = page.getByRole("textbox", { name: "Tìm kiếm sản phẩm" });
+    await expect(overlayInput).toBeVisible();
+    await expect(overlayInput).toBeFocused();
+  });
+
+  test("does not hijack keyboard shortcut while typing in a field", async ({ mockedPage: page }) => {
+    await page.goto("/search", { waitUntil: "domcontentloaded" });
+
+    const pageInput = page.getByTestId("search-page-input");
+    await pageInput.focus();
+    await page.keyboard.press("ControlOrMeta+K");
+
+    await expect(pageInput).toBeFocused();
+    await expect(page.getByRole("button", { name: "Đóng tìm kiếm" })).toHaveCount(0);
+  });
+
   test("updates cart quantity using deterministic controls", async ({ mockedPage: page }) => {
     await page.addInitScript(() => {
       const persisted = {

@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { lazy, Suspense } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { Menu, Search, X } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import MegaMenu from "./MegaMenu";
@@ -29,7 +29,6 @@ export default function Navbar() {
     const isScrolled = useScrolled(10);
     const SIMPLE_NAV_LINKS = [
         { label: "AppleCare", href: "/apple-care", icon: null },
-
         { label: "Tin tức", href: "/news", icon: null, reloadDocument: true },
     ];
 
@@ -54,9 +53,7 @@ export default function Navbar() {
         >
             <div className="section-padding">
                 <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-4">
-                    {/* ── Left — Logo + Nav ── */}
                     <div className="flex items-center gap-6">
-                        {/* Logo */}
                         <Link
                             to={ROUTES.HOME}
                             aria-label="Trang chủ Apple Store"
@@ -73,7 +70,6 @@ export default function Navbar() {
                             />
                         </Link>
 
-                        {/* Desktop nav */}
                         <nav className="hidden items-center gap-1 lg:flex">
                             {CATEGORIES.map((cat) => (
                                 <MegaMenu key={cat.value} category={cat} />
@@ -104,13 +100,14 @@ export default function Navbar() {
                         </nav>
                     </div>
 
-                    {/* ── Right — Actions ── */}
                     <div className="flex items-center gap-0.5">
                         <Button
                             variant="ghost"
                             size="icon"
                             className="rounded-full"
                             aria-label="Tìm kiếm"
+                            aria-keyshortcuts="Control+K Meta+K"
+                            title="Tìm kiếm (Ctrl+K / ⌘K)"
                             onClick={() => {
                                 dispatch(toggleSearch(true));
                                 dispatch(toggleMobileMenu(false));
