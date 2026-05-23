@@ -15,6 +15,14 @@ const PERIODS = [
     { value: "year", label: "Năm" },
 ];
 
+const periodButtonClass = (active) =>
+    cn(
+        "rounded-full text-xs",
+        active
+            ? "bg-foreground text-background hover:bg-foreground hover:text-background"
+            : "text-muted-foreground",
+    );
+
 export default function OrderStats() {
     const [period, setPeriod] = useState("month");
     const { data = [], isLoading } = useGetOrderStatsQuery({ period });
@@ -49,10 +57,6 @@ export default function OrderStats() {
         );
     }
 
-    if (data.length === 0) {
-        return <p className="text-sm text-muted-foreground text-center py-8">Chưa có dữ liệu</p>;
-    }
-
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-1.5">
@@ -63,7 +67,7 @@ export default function OrderStats() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setPeriod(p.value)}
-                        className={cn("rounded-full text-xs", period === p.value ? "bg-foreground text-background hover:bg-foreground/90" : "text-muted-foreground")}
+                        className={periodButtonClass(period === p.value)}
                     >
                         {p.label}
                     </Button>
@@ -71,6 +75,14 @@ export default function OrderStats() {
                 </div>
                 <ExportButton onExportExcel={handleExportOrderStatsExcel} onExportPDF={handleExportOrderStatsPDF} loading={isExporting} />
             </div>
+            {data.length === 0 ? (
+                <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-4 py-8 text-center">
+                    <p className="text-sm font-medium text-foreground">Chưa có dữ liệu</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                        Thử chọn khoảng thời gian khác để xem thống kê đơn hàng.
+                    </p>
+                </div>
+            ) : (
             <div className="grid gap-4 lg:grid-cols-5">
                 <div className="lg:col-span-2">
                     <Table>
@@ -109,6 +121,7 @@ export default function OrderStats() {
                     </ResponsiveContainer>
                 </div>
             </div>
+            )}
         </div>
     );
 }

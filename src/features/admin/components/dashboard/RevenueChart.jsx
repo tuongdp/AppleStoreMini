@@ -23,6 +23,14 @@ const PERIODS = [
     { value: "year", label: "Năm" },
 ];
 
+const periodButtonClass = (active) =>
+    cn(
+        "rounded-full text-xs",
+        active
+            ? "bg-foreground text-background hover:bg-foreground hover:text-background"
+            : "text-muted-foreground",
+    );
+
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
     return (
@@ -112,12 +120,7 @@ export default function RevenueChart() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setPeriod(p.value)}
-                        className={cn(
-                            "rounded-full text-xs",
-                            period === p.value
-                                ? "bg-foreground text-background hover:bg-foreground/90"
-                                : "text-muted-foreground",
-                        )}
+                        className={periodButtonClass(period === p.value)}
                     >
                         {p.label}
                     </Button>

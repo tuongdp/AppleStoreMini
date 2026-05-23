@@ -16,6 +16,14 @@ const PERIODS = [
     { value: "year", label: "Năm" },
 ];
 
+const periodButtonClass = (active) =>
+    cn(
+        "h-7 rounded-full text-xs",
+        active
+            ? "bg-foreground text-background hover:bg-foreground hover:text-background"
+            : "text-muted-foreground",
+    );
+
 const getFirstImage = (images) => {
     if (!images) return placeholderImg;
     if (Array.isArray(images)) return images[0] || placeholderImg;
@@ -88,7 +96,7 @@ export default function TopProducts() {
                 <div className="flex gap-1.5">
                 {PERIODS.map((p) => (
                     <Button key={p.value} variant="ghost" size="sm" onClick={() => setPeriod(p.value)}
-                        className={cn("rounded-full text-xs h-7", period === p.value ? "bg-foreground text-background hover:bg-foreground/90" : "text-muted-foreground")}>
+                        className={periodButtonClass(period === p.value)}>
                         {p.label}
                     </Button>
                 ))}
