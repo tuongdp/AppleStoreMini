@@ -12,10 +12,9 @@ export default function AddressSavedList({
     return (
         <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-                {"savedAddresses"}
+                {"Địa chỉ đã lưu"}
             </p>
             {addresses.map((addr) => {
-                // ✅ MySQL integer id — không có _id
                 const isSelected = selectedId === addr.id;
 
                 return (
@@ -24,7 +23,7 @@ export default function AddressSavedList({
                         type="button"
                         onClick={() => onSelect(addr)}
                         className={cn(
-                            "w-full rounded-xl border p-4 text-left transition-all",
+                            "w-full rounded-xl border p-4 text-left transition-[background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                             isSelected
                                 ? "border-foreground bg-muted/30"
                                 : "border-border hover:border-foreground/30",
@@ -58,7 +57,7 @@ export default function AddressSavedList({
 
                             <div
                                 className={cn(
-                                    "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+                                    "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-[background-color,border-color] duration-200",
                                     isSelected
                                         ? "border-foreground bg-foreground"
                                         : "border-border",

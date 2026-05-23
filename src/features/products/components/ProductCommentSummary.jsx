@@ -1,5 +1,4 @@
 import StarRating from "@/components/shared/StarRating";
-import { cn } from "@/lib/utils";
 
 export default function ProductCommentSummary({
     rating = 0,
@@ -8,7 +7,6 @@ export default function ProductCommentSummary({
 }) {
     return (
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-            {/* Average score */}
             <div className="flex flex-col items-center gap-2 sm:w-32">
                 <span className="text-5xl font-bold text-foreground">
                     {rating.toFixed(1)}
@@ -19,7 +17,6 @@ export default function ProductCommentSummary({
                 </span>
             </div>
 
-            {/* Distribution bars */}
             <div className="flex-1 space-y-1.5">
                 {[5, 4, 3, 2, 1].map((star) => {
                     const count = distribution[star] || 0;
@@ -35,9 +32,7 @@ export default function ProductCommentSummary({
                             </span>
                             <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                                 <div
-                                    className={cn(
-                                        "h-full rounded-full bg-amber-400 transition-all duration-500",
-                                    )}
+                                    className="h-full rounded-full bg-amber-400 transition-[width] duration-500"
                                     style={{ width: `${pct}%` }}
                                 />
                             </div>

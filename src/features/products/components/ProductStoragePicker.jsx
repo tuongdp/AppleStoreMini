@@ -20,7 +20,7 @@ export default function ProductStoragePicker({
                         onClick={() => option.inStock && onChange(option)}
                         disabled={!option.inStock}
                         className={cn(
-                            "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
+                            "rounded-xl border px-4 py-2 text-sm font-medium transition-[background-color,border-color,color,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                             selectedStorage?.label === option.label
                                 ? "border-foreground bg-foreground text-background"
                                 : "border-border text-foreground hover:border-foreground/50",

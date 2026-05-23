@@ -24,8 +24,9 @@ export default function ProductColorPicker({
                         type="button"
                         onClick={() => onChange(color)}
                         title={color.label}
+                        aria-label={`Chọn màu ${color.label}`}
                         className={cn(
-                            "h-10 w-10 rounded-full border-2 transition-all",
+                            "h-10 w-10 rounded-full border-2 transition-[border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                             selectedColor?.label === color.label
                                 ? "border-foreground ring-2 ring-foreground ring-offset-2 ring-offset-background"
                                 : "border-transparent ring-1 ring-border hover:ring-foreground/50",

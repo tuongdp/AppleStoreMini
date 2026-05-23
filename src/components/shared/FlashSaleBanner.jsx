@@ -92,7 +92,6 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                             <CountdownTimer endTime={flashSale.endTime} />
                         </div>
                     </div>
-
                 </div>
 
                 <ProductSlider
@@ -115,7 +114,7 @@ export default function FlashSaleBanner({ flashSale, isLoading }) {
                                         </div>
                                         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                                             <div
-                                                className="h-full rounded-full bg-amber-500 transition-all dark:bg-amber-400"
+                                                className="h-full rounded-full bg-amber-500 transition-[width] duration-300 dark:bg-amber-400"
                                                 style={{ width: `${progress}%` }}
                                             />
                                         </div>

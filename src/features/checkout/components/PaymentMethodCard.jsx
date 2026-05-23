@@ -4,6 +4,7 @@ const PAYMENT_LABELS = {
   cod: "Thanh toán khi nhận hàng",
   momo: "MoMo",
 };
+
 const PAYMENT_DESCS = {
   cod: "Thanh toán bằng tiền mặt khi nhận hàng",
   momo: "Thanh toán qua ví điện tử MoMo",
@@ -15,14 +16,13 @@ export default function PaymentMethodCard({ method, selected, onSelect }) {
             type="button"
             onClick={() => onSelect(method.id)}
             className={cn(
-                "w-full rounded-xl border p-4 text-left transition-all",
+                "w-full rounded-xl border p-4 text-left transition-[background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                 selected
                     ? "border-foreground bg-muted/30"
                     : "border-border hover:border-foreground/30",
             )}
         >
             <div className="flex items-center gap-4">
-                {/* Icon */}
                 <div
                     className={cn(
                         "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
@@ -32,7 +32,6 @@ export default function PaymentMethodCard({ method, selected, onSelect }) {
                     <method.icon className={cn("h-5 w-5", method.color)} />
                 </div>
 
-                {/* Text */}
                 <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-foreground">
                         {PAYMENT_LABELS[method.id] || method.id}
@@ -42,10 +41,9 @@ export default function PaymentMethodCard({ method, selected, onSelect }) {
                     </p>
                 </div>
 
-                {/* Radio indicator */}
                 <div
                     className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-[background-color,border-color] duration-200",
                         selected
                             ? "border-foreground bg-foreground"
                             : "border-border",

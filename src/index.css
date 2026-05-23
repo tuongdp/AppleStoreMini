@@ -181,6 +181,21 @@
         color-scheme: dark;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
     /* Custom scrollbar */
     ::-webkit-scrollbar {
         width: 6px;
@@ -197,6 +212,10 @@
 }
 
 @layer utilities {
+    .skip-link {
+        @apply fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-background px-4 py-2 text-sm font-medium text-foreground shadow-lg ring-1 ring-border transition-transform duration-200 focus-visible:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    }
+
     /* Apple-style section padding */
     .section-padding {
         @apply px-4 md:px-8 lg:px-16 xl:px-24;

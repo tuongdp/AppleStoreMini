@@ -18,11 +18,10 @@ export default function CheckoutStepper({ currentStep, className }) {
 
                 return (
                     <div key={step.key} className="flex items-center">
-                        {/* Step circle + label */}
                         <div className="flex flex-col items-center gap-1.5">
                             <div
                                 className={cn(
-                                    "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-medium transition-all",
+                                    "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-medium transition-[background-color,border-color,color] duration-200",
                                     isDone &&
                                         "border-green-500 bg-green-500 text-white",
                                     isCurrent &&
@@ -53,7 +52,6 @@ export default function CheckoutStepper({ currentStep, className }) {
                             </span>
                         </div>
 
-                        {/* Connector line */}
                         {!isLast && (
                             <div
                                 className={cn(

@@ -51,7 +51,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
     return (
         <>
             <div className="flex flex-col gap-3">
-                {/* ── Main Swiper ── */}
                 <div className="group/swiper relative aspect-square overflow-hidden rounded-2xl bg-muted/30">
                     <Swiper
                         modules={[Navigation, Pagination, Thumbs, Controller]}
@@ -79,17 +78,15 @@ export default function ImageGallery({ images = [], productName = "" }) {
                         ))}
                     </Swiper>
 
-                    {/* Zoom button */}
                     <button
                         type="button"
                         onClick={() => openZoom(activeIndex)}
                         aria-label="Phóng to ảnh sản phẩm"
-                        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-opacity hover:bg-background md:opacity-0 md:group-hover/swiper:opacity-100"
+                        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-[background-color,opacity] duration-200 hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:opacity-0 md:group-hover/swiper:opacity-100"
                     >
                         <ZoomIn className="h-4 w-4" />
                     </button>
 
-                    {/* Prev / Next arrows */}
                     {images.length > 1 && (
                         <>
                             <Button
@@ -114,7 +111,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
                     )}
                 </div>
 
-                {/* ── Thumbnails Swiper ── */}
                 {images.length > 1 && (
                     <div className="relative px-1">
                         <Swiper
@@ -132,7 +128,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                         onClick={() => mainSwiper?.slideTo(i)}
                                         aria-label={`Xem ảnh sản phẩm ${i + 1}`}
                                         className={cn(
-                                            "aspect-square w-full overflow-hidden rounded-xl bg-muted/30 p-1.5 transition-all ring-2",
+                                            "aspect-square w-full overflow-hidden rounded-xl bg-muted/30 p-1.5 ring-2 transition-[box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                             i === activeIndex
                                                 ? "ring-foreground opacity-100"
                                                 : "ring-transparent opacity-50 hover:opacity-80",
@@ -154,7 +150,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
                 )}
             </div>
 
-            {/* Zoom dialog */}
             <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
                 <DialogContent
                     className="border-none bg-black/95 p-0 max-w-[95vw] sm:max-w-[95vw] rounded-2xl"
@@ -170,7 +165,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
                             className="max-h-[90%] max-w-[90%] object-contain"
                         />
 
-                        {/* Close */}
                         <Button
                             variant="ghost"
                             size="icon"
@@ -181,7 +175,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
                             <X className="h-5 w-5" />
                         </Button>
 
-                        {/* Prev / Next */}
                         {images.length > 1 && (
                             <>
                                 <Button
@@ -205,7 +198,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
                             </>
                         )}
 
-                        {/* Counter */}
                         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-1.5 text-sm text-white backdrop-blur-sm">
                             {zoomIndex + 1} / {images.length}
                         </div>

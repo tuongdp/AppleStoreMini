@@ -26,9 +26,12 @@ export default function RootLayout() {
     }, [pathname, dispatch]);
     return (
         <div className="relative flex min-h-screen flex-col">
+            <a href="#main-content" className="skip-link">
+                Bỏ qua đến nội dung chính
+            </a>
             <ScrollToTop />
             <Navbar />
-            <main className="flex-1">
+            <main id="main-content" className="flex-1" tabIndex={-1}>
                 {/* Outlet là nơi React Router sẽ render các trang con (Home, Product,...) */}
                 <Outlet />
             </main>

@@ -53,14 +53,14 @@ export default function SpecsAccordion({ specs = [], className }) {
                 <div
                     key={idx}
                     className={cn(
-                        "overflow-hidden rounded-xl border border-border bg-card transition-all",
+                        "overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-200",
                         openSections[idx] && "shadow-sm",
                     )}
                 >
                     <button
                         type="button"
                         onClick={() => toggle(idx)}
-                        className="flex w-full items-center justify-between px-4 py-3 text-left"
+                        className="flex w-full items-center justify-between px-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                     >
                         <span className="text-sm font-semibold text-foreground">
                             {group.header}
@@ -75,7 +75,7 @@ export default function SpecsAccordion({ specs = [], className }) {
 
                     <div
                         className={cn(
-                            "grid transition-all duration-300 ease-in-out",
+                            "grid transition-[grid-template-rows,opacity] duration-300 ease-in-out",
                             openSections[idx] ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
                         )}
                     >
