@@ -89,7 +89,7 @@ export default function SearchOverlay({ open, onClose }) {
                                     ref={inputRef}
                                     value={keyword}
                                     onChange={(event) => handleKeywordChange(event.target.value)}
-                                    placeholder="Tìm kiếm sản phẩm..."
+                                    placeholder="Tìm kiếm sản phẩm…"
                                     className="h-12 rounded-2xl pl-12 pr-12 text-base transition-[border-color,box-shadow] duration-200 focus-visible:ring-2 focus-visible:ring-foreground/20"
                                     name="overlay-product-search"
                                     autoComplete="off"

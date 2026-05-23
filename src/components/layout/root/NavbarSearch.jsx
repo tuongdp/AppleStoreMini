@@ -40,7 +40,7 @@ export default function NavbarSearch({ onClose }) {
                         ref={inputRef}
                         value={keyword}
                         onChange={(event) => handleKeywordChange(event.target.value)}
-                        placeholder="Tìm kiếm sản phẩm..."
+                        placeholder="Tìm kiếm sản phẩm…"
                         className="h-9 rounded-full pl-9 pr-9 text-sm"
                         aria-label="Tìm kiếm sản phẩm"
                         name="navbar-product-search"

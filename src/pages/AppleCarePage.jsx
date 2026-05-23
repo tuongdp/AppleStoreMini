@@ -19,6 +19,7 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { care } from "@/assets/images/care";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 
 export default function AppleCarePage() {
   const PROCESS_STEPS = [
@@ -170,12 +171,13 @@ export default function AppleCarePage() {
                 className="mx-auto flex items-center justify-center"
                 style={{ width: 200, height: 200 }}
               >
-                <img
+                <ResponsiveImage
                   src={service.image}
                   alt={service.name}
+                  width={200}
+                  height={200}
                   className="object-contain transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
-                  decoding="async"
                   style={{ width: 200, height: 200 }}
                 />
               </div>
@@ -245,12 +247,13 @@ export default function AppleCarePage() {
                 className="mb-3 mx-auto flex items-center justify-center overflow-hidden rounded-xl"
                 style={{ width: 150, height: 150 }}
               >
-                <img
+                <ResponsiveImage
                   src={item.image}
                   alt={item.name}
+                  width={150}
+                  height={150}
                   className="object-contain"
                   loading="lazy"
-                  decoding="async"
                   style={{ width: 150, height: 150 }}
                 />
               </div>
@@ -349,12 +352,14 @@ export default function AppleCarePage() {
                   className="overflow-hidden rounded-xl bg-muted"
                   style={{ height: 324 }}
                 >
-                  <img
+                  <ResponsiveImage
                     src={img}
                     alt={`AppleCare ${i + 1}`}
+                    width={486}
+                    height={324}
                     className="h-full w-full object-cover"
                     loading={i === 0 ? "eager" : "lazy"}
-                    decoding="async"
+                    fetchPriority={i === 0 ? "high" : undefined}
                   />
                 </div>
               </SwiperSlide>

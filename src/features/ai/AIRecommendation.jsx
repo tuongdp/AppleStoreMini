@@ -16,6 +16,8 @@ import { useAiRecommendMutation } from "@/store/api/aiApi";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import { productPlaceholder } from "@/assets/images";
 
 const PERSONAS = [
   { value: "student", label: "Sinh viên" },
@@ -141,9 +143,12 @@ export default function AIRecommendation() {
                     className="rounded-xl border border-border p-4 transition-colors hover:border-apple-blue/50 hover:bg-muted/50"
                   >
                     {p.image && (
-                      <img
+                      <ResponsiveImage
                         src={p.image}
+                        fallbackSrc={productPlaceholder}
                         alt={p.name}
+                        width={240}
+                        height={128}
                         className="mb-3 h-32 w-full rounded-lg object-contain"
                       />
                     )}

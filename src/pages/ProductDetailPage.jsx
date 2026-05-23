@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
     ShoppingCart,
@@ -38,6 +38,7 @@ export default function ProductDetailPage() {
     const { slug } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
 
@@ -64,10 +65,29 @@ export default function ProductDetailPage() {
         return [...new Set(variants.map((v) => v.edition).filter(Boolean))];
     }, [variants]);
 
-    const [selectedColor, setSelectedColor] = useState("");
-    const [selectedStorage, setSelectedStorage] = useState("");
-    const [selectedRam, setSelectedRam] = useState("");
-    const [selectedEdition, setSelectedEdition] = useState("");
+    const [selectedColor, setSelectedColor] = useState(() => searchParams.get("color") || "");
+    const [selectedStorage, setSelectedStorage] = useState(() => searchParams.get("storage") || "");
+    const [selectedRam, setSelectedRam] = useState(() => searchParams.get("ram") || "");
+    const [selectedEdition, setSelectedEdition] = useState(() => searchParams.get("edition") || "");
+
+    const updateVariantUrl = (updates) => {
+        setSearchParams((prevParams) => {
+            const params = new URLSearchParams(prevParams);
+            Object.entries(updates).forEach(([key, value]) => {
+                if (value) params.set(key, value);
+                else params.delete(key);
+            });
+            return params;
+        }, { replace: true });
+    };
+
+    const selectVariantOptions = (updates) => {
+        if (Object.prototype.hasOwnProperty.call(updates, "color")) setSelectedColor(updates.color || "");
+        if (Object.prototype.hasOwnProperty.call(updates, "storage")) setSelectedStorage(updates.storage || "");
+        if (Object.prototype.hasOwnProperty.call(updates, "ram")) setSelectedRam(updates.ram || "");
+        if (Object.prototype.hasOwnProperty.call(updates, "edition")) setSelectedEdition(updates.edition || "");
+        updateVariantUrl(updates);
+    };
 
     const defaultVariant = useMemo(() => {
         if (!variants.length) return null;
@@ -143,11 +163,12 @@ export default function ProductDetailPage() {
     const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
 
     useEffect(() => {
-        setSelectedColor("");
-        setSelectedStorage("");
-        setSelectedRam("");
-        setSelectedEdition("");
+        setSelectedColor(searchParams.get("color") || "");
+        setSelectedStorage(searchParams.get("storage") || "");
+        setSelectedRam(searchParams.get("ram") || "");
+        setSelectedEdition(searchParams.get("edition") || "");
         setQuantity(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug]);
 
     useEffect(() => {
@@ -311,7 +332,7 @@ export default function ProductDetailPage() {
                                     </div>
                                     <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-muted">
                                         <div
-                                            className="h-full rounded-full bg-amber-500 dark:bg-amber-400 transition-all"
+                                            className="h-full rounded-full bg-amber-500 transition-[width] dark:bg-amber-400"
                                             style={{
                                                 width: `${Math.min(
                                                     flashSaleData.quantityLimit > 0
@@ -353,20 +374,27 @@ export default function ProductDetailPage() {
                                     return (
                                                     <button
                                                         key={color}
+                                                        aria-pressed={effectiveColor === color}
                                                         onClick={() => {
-                                                            setSelectedColor(color);
-                                                            setSelectedRam("");
-                                                            setSelectedEdition("");
                                                             const hasStorage = effectiveStorage &&
                                                                 variants.some((v) => v.color === color && v.storage === effectiveStorage);
+                                                            const nextStorage = hasStorage
+                                                                ? effectiveStorage
+                                                                : variants.find((v) => v.color === color)?.storage || "";
                                                             if (!hasStorage) {
-                                                                const first = variants.find((v) => v.color === color)?.storage || "";
-                                                                setSelectedStorage(first);
+                                                                selectVariantOptions({
+                                                                    color,
+                                                                    storage: nextStorage,
+                                                                    ram: "",
+                                                                    edition: "",
+                                                                });
+                                                                return;
                                                             }
+                                                            selectVariantOptions({ color, ram: "", edition: "" });
                                                         }}
                                             disabled={disabled}
                                             className={cn(
-                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                                 !disabled && "hover:border-foreground",
                                                 effectiveColor === color
                                                     ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
@@ -397,14 +425,11 @@ export default function ProductDetailPage() {
                                     return (
                                                     <button
                                                         key={storage}
-                                                        onClick={() => {
-                                                            setSelectedStorage(storage);
-                                                            setSelectedRam("");
-                                                            setSelectedEdition("");
-                                                        }}
+                                                        aria-pressed={effectiveStorage === storage}
+                                                        onClick={() => selectVariantOptions({ storage, ram: "", edition: "" })}
                                             disabled={disabled}
                                             className={cn(
-                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                                 !disabled && "hover:border-foreground",
                                                 effectiveStorage === storage
                                                     ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
@@ -435,10 +460,11 @@ export default function ProductDetailPage() {
                                     return (
                                         <button
                                             key={ram}
-                                            onClick={() => setSelectedRam(ram)}
+                                            aria-pressed={effectiveRam === ram}
+                                            onClick={() => selectVariantOptions({ ram })}
                                             disabled={disabled}
                                             className={cn(
-                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                                 !disabled && "hover:border-foreground",
                                                 effectiveRam === ram
                                                     ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
@@ -467,10 +493,11 @@ export default function ProductDetailPage() {
                                     return (
                                         <button
                                             key={edition}
-                                            onClick={() => setSelectedEdition(edition)}
+                                            aria-pressed={effectiveEdition === edition}
+                                            onClick={() => selectVariantOptions({ edition })}
                                             disabled={disabled}
                                             className={cn(
-                                                "rounded-full border px-4 py-1.5 text-sm transition-all",
+                                                "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                                                 !disabled && "hover:border-foreground",
                                                 effectiveEdition === edition
                                                     ? "border-apple-blue bg-apple-blue/10 text-apple-blue"
@@ -592,6 +619,7 @@ export default function ProductDetailPage() {
                             variant="outline"
                             className="rounded-full"
                             onClick={handleToggleWishlist}
+                            aria-label={isInWishlist ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
                         >
                             <Heart
                                 className={cn(

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import RichTextViewer from "@/components/shared/RichTextViewer";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -17,9 +18,11 @@ function SidebarNewsCard({ news, index }) {
         >
             {news.thumbnail ? (
                 <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    <img
+                    <ResponsiveImage
                         src={news.thumbnail}
                         alt={news.title}
+                        width={160}
+                        height={112}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
                     />
@@ -195,7 +198,15 @@ export default function NewsDetailPage() {
 
                         {news.thumbnail && (
                             <div className="mb-8 overflow-hidden rounded-2xl">
-                                <img src={news.thumbnail} alt={news.title} className="w-full object-cover" />
+                                <ResponsiveImage
+                                    src={news.thumbnail}
+                                    alt={news.title}
+                                    width={960}
+                                    height={540}
+                                    className="w-full object-cover"
+                                    loading="eager"
+                                    fetchPriority="high"
+                                />
                             </div>
                         )}
 

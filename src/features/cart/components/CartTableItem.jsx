@@ -8,6 +8,8 @@ import { removeFromCart, updateQuantity, getEffectivePrice } from "@/store/cartS
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import { productPlaceholder } from "@/assets/images";
 
 const getFirstImage = (images) => {
   if (!images) return null;
@@ -60,9 +62,12 @@ export default function CartTableItem({ item, isLast }) {
             to={ROUTES.PRODUCT_DETAIL(product?.slug)}
             className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
           >
-            <img
+            <ResponsiveImage
               src={firstImage}
+              fallbackSrc={productPlaceholder}
               alt={product?.name}
+              width={96}
+              height={96}
               className="h-full w-full object-contain"
             />
           </Link>
@@ -79,6 +84,7 @@ export default function CartTableItem({ item, isLast }) {
             <button
               onClick={handleRemove}
               className="mt-2 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive md:hidden"
+              aria-label={`Xoá ${product?.name || "sản phẩm"} khỏi giỏ hàng`}
               data-testid="cart-remove-mobile"
             >
               <Trash2 className="h-3 w-3" />
@@ -113,6 +119,7 @@ export default function CartTableItem({ item, isLast }) {
           <button
             onClick={handleRemove}
             className="hidden text-muted-foreground transition-colors hover:text-destructive md:block"
+            aria-label={`Xoá ${product?.name || "sản phẩm"} khỏi giỏ hàng`}
             data-testid="cart-remove"
           >
             <Trash2 className="h-4 w-4" />

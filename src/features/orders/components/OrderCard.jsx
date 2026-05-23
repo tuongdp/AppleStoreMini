@@ -7,6 +7,8 @@ import OrderStatusBadge from "./OrderStatusBadge";
 import CommentModal from "./CommentModal";
 import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import { productPlaceholder } from "@/assets/images";
 
 const isValidId = (value) =>
     value !== undefined &&
@@ -153,9 +155,12 @@ export default function OrderCard({ order }) {
                                 key={index}
                                 className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1.5"
                             >
-                                <img
+                                <ResponsiveImage
                                     src={getItemImage(item)}
+                                    fallbackSrc={productPlaceholder}
                                     alt={getItemName(item)}
+                                    width={64}
+                                    height={64}
                                     className="h-full w-full object-contain"
                                 />
                             </div>

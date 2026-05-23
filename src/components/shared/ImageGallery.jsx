@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { productPlaceholder } from "@/assets/images";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -22,7 +23,6 @@ export default function ImageGallery({ images = [], productName = "" }) {
     useEffect(() => {
         if (prevImagesRef.current !== images) {
             prevImagesRef.current = images;
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveIndex(0);
             if (mainSwiper) {
                 mainSwiper.slideTo(0);
@@ -66,13 +66,13 @@ export default function ImageGallery({ images = [], productName = "" }) {
                         {images.map((img, i) => (
                             <SwiperSlide key={i}>
                                 <div className="flex h-full w-full items-center justify-center p-6">
-                                    <img
+                                    <ResponsiveImage
                                         src={img}
+                                        fallbackSrc={productPlaceholder}
                                         alt={`${productName} - ${i + 1}`}
                                         width={600}
                                         height={600}
                                         className="h-full w-full object-contain"
-                                        onError={(e) => { e.currentTarget.src = productPlaceholder; }}
                                     />
                                 </div>
                             </SwiperSlide>
@@ -83,6 +83,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                     <button
                         type="button"
                         onClick={() => openZoom(activeIndex)}
+                        aria-label="Phóng to ảnh sản phẩm"
                         className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm transition-opacity hover:bg-background md:opacity-0 md:group-hover/swiper:opacity-100"
                     >
                         <ZoomIn className="h-4 w-4" />
@@ -95,6 +96,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                 id={prevId}
                                 variant="ghost"
                                 size="icon"
+                                aria-label="Ảnh trước"
                                 className="absolute left-2 top-1/2 z-10 h-9 w-9 -translate-y-1/2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
                             >
                                 <ChevronLeft className="h-4 w-4" />
@@ -103,6 +105,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                 id={nextId}
                                 variant="ghost"
                                 size="icon"
+                                aria-label="Ảnh tiếp theo"
                                 className="absolute right-2 top-1/2 z-10 h-9 w-9 -translate-y-1/2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
                             >
                                 <ChevronRight className="h-4 w-4" />
@@ -127,6 +130,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                     <button
                                         type="button"
                                         onClick={() => mainSwiper?.slideTo(i)}
+                                        aria-label={`Xem ảnh sản phẩm ${i + 1}`}
                                         className={cn(
                                             "aspect-square w-full overflow-hidden rounded-xl bg-muted/30 p-1.5 transition-all ring-2",
                                             i === activeIndex
@@ -134,11 +138,13 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                                 : "ring-transparent opacity-50 hover:opacity-80",
                                         )}
                                     >
-                                        <img
+                                        <ResponsiveImage
                                             src={img}
+                                            fallbackSrc={productPlaceholder}
                                             alt={`${productName} thumb ${i + 1}`}
+                                            width={80}
+                                            height={80}
                                             className="h-full w-full object-contain"
-                                            onError={(e) => { e.currentTarget.src = productPlaceholder; }}
                                         />
                                     </button>
                                 </SwiperSlide>
@@ -155,11 +161,13 @@ export default function ImageGallery({ images = [], productName = "" }) {
                     showCloseButton={false}
                 >
                     <div className="relative flex h-[85vh] w-full items-center justify-center">
-                        <img
+                        <ResponsiveImage
                             src={images[zoomIndex]}
+                            fallbackSrc={productPlaceholder}
                             alt={`${productName} - zoom ${zoomIndex + 1}`}
+                            width={1200}
+                            height={1200}
                             className="max-h-[90%] max-w-[90%] object-contain"
-                            onError={(e) => { e.currentTarget.src = productPlaceholder; }}
                         />
 
                         {/* Close */}
@@ -167,6 +175,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                             variant="ghost"
                             size="icon"
                             onClick={() => setZoomOpen(false)}
+                            aria-label="Đóng ảnh phóng to"
                             className="absolute right-4 top-4 size-10 rounded-full bg-white/10 text-white hover:bg-white/20"
                         >
                             <X className="h-5 w-5" />
@@ -179,6 +188,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                     variant="ghost"
                                     size="icon"
                                     onClick={handleZoomPrev}
+                                    aria-label="Ảnh trước"
                                     className="absolute left-4 top-1/2 size-10 -translate-y-1/2 rounded-full bg-white/10 text-white hover:bg-white/20"
                                 >
                                     <ChevronLeft className="h-5 w-5" />
@@ -187,6 +197,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                                     variant="ghost"
                                     size="icon"
                                     onClick={handleZoomNext}
+                                    aria-label="Ảnh tiếp theo"
                                     className="absolute right-4 top-1/2 size-10 -translate-y-1/2 rounded-full bg-white/10 text-white hover:bg-white/20"
                                 >
                                     <ChevronRight className="h-5 w-5" />

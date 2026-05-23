@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { ROUTES } from "@/lib/constants";
 import { parseJsonField } from "@/lib/utils";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import { productPlaceholder } from "@/assets/images";
 
 const getFirstImage = (...sources) => {
     for (const source of sources) {
@@ -40,9 +42,12 @@ export default function OrderItemRow({ item, isLast }) {
                     }
                     className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-1.5 transition-opacity hover:opacity-80"
                 >
-                    <img
+                    <ResponsiveImage
                         src={firstImage}
+                        fallbackSrc={productPlaceholder}
                         alt={productName}
+                        width={64}
+                        height={64}
                         className="h-full w-full object-contain"
                     />
                 </Link>

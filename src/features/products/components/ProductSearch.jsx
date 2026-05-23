@@ -40,7 +40,7 @@ export default function ProductSearch({ autoFocus = false, onClose }) {
                         ref={inputRef}
                         value={keyword}
                         onChange={(event) => handleKeywordChange(event.target.value)}
-                        placeholder="Tìm kiếm sản phẩm..."
+                        placeholder="Tìm kiếm sản phẩm…"
                         className="h-10 rounded-full pl-9 pr-9"
                         aria-label="Tìm kiếm sản phẩm"
                         name="product-search"

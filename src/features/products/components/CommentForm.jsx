@@ -16,6 +16,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import StarRating from "@/components/shared/StarRating";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { toast } from "sonner";
 
 const isValidProductId = (value) =>
@@ -168,7 +169,7 @@ export default function CommentForm({
                                                 {isVideoUrl(url) ? (
                                                     <video src={url} className="h-full w-full object-cover" muted />
                                                 ) : (
-                                                    <img src={url} alt="" className="h-full w-full object-cover" />
+                                                    <ResponsiveImage src={url} alt="" width={120} height={120} className="h-full w-full object-cover" />
                                                 )}
                                                 <Button
                                                     type="button"
@@ -176,6 +177,7 @@ export default function CommentForm({
                                                     size="icon"
                                                     className="absolute right-1 top-1 h-6 w-6 rounded-full"
                                                     onClick={() => removeMedia(index)}
+                                                    aria-label="Xoá media đã tải lên"
                                                 >
                                                     <X className="h-3 w-3" />
                                                 </Button>

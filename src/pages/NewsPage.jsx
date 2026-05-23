@@ -89,7 +89,7 @@ export default function NewsPage() {
                             id="news-search"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder={"Tìm kiếm bài viết..."}
+                            placeholder={"Tìm kiếm bài viết…"}
                             className="rounded-full pl-9"
                             name="news-search"
                             autoComplete="off"

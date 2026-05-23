@@ -11,7 +11,18 @@ export default function ChatWidget() {
     const [messages, setMessages] = useState([]);
     const [sendMessage, { isLoading }] = useSendMessageMutation();
     const scrollRef = useRef(null);
+    const inputRef = useRef(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!open) return;
+        inputRef.current?.focus();
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape") setOpen(false);
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [open]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -58,27 +69,43 @@ export default function ChatWidget() {
     return (
         <>
             <button
+                type="button"
                 onClick={() => setOpen((value) => !value)}
                 aria-label={open ? "Đóng chat" : "Mở chat"}
-                className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-colors hover:bg-blue-700 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
+                className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
             >
                 {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
             </button>
 
             {open && (
-                <div className="fixed inset-0 z-50 flex flex-col bg-card sm:inset-auto sm:bottom-20 sm:right-6 sm:h-[480px] sm:w-[380px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl">
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="chat-widget-title"
+                    className="fixed inset-0 z-50 flex flex-col bg-card sm:inset-auto sm:bottom-20 sm:right-6 sm:h-[480px] sm:w-[380px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl"
+                >
                     <div className="flex items-center gap-3 bg-blue-600 px-4 py-3 text-white sm:rounded-t-2xl">
-                        <Sparkles className="h-5 w-5" />
+                        <Sparkles aria-hidden="true" className="h-5 w-5" />
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold">Apple Store Assistant</p>
+                            <p id="chat-widget-title" className="truncate text-sm font-semibold">Apple Store Assistant</p>
                             <p className="text-xs text-blue-100">AI hỗ trợ tư vấn sản phẩm</p>
                         </div>
-                        <button onClick={() => setOpen(false)} aria-label="Đóng chat" className="sm:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setOpen(false)}
+                            aria-label="Đóng chat"
+                            className="rounded-full p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:hidden"
+                        >
                             <X className="h-5 w-5" />
                         </button>
                     </div>
 
-                    <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
+                    <div
+                        ref={scrollRef}
+                        className="flex-1 space-y-3 overflow-y-auto px-4 py-3"
+                        aria-live="polite"
+                        aria-relevant="additions text"
+                    >
                         {messages.length === 0 && (
                             <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
                                 <Bot className="mb-2 h-10 w-10 text-blue-500" />
@@ -105,8 +132,9 @@ export default function ChatWidget() {
                                         {item.products.map((product) => (
                                             <button
                                                 key={product.id || product.slug}
+                                                type="button"
                                                 onClick={() => navigate(`/products/${product.slug}`)}
-                                                className="flex w-full items-center gap-3 rounded-xl border border-border bg-muted/50 p-2 text-left transition-colors hover:bg-muted"
+                                                className="flex w-full items-center gap-3 rounded-xl border border-border bg-muted/50 p-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                                             >
                                                 <div className="min-w-0 flex-1">
                                                     <p className="truncate text-sm font-medium">{product.name}</p>
@@ -133,12 +161,21 @@ export default function ChatWidget() {
 
                     <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-border p-3">
                         <Input
-                            placeholder="Nhập tin nhắn..."
+                            ref={inputRef}
+                            placeholder="Nhập tin nhắn…"
                             value={message}
                             onChange={(event) => setMessage(event.target.value)}
+                            name="chat-message"
+                            autoComplete="off"
                             className="h-9 flex-1 rounded-full border-border text-sm"
                         />
-                        <Button type="submit" size="icon" className="h-9 w-9 rounded-full" disabled={!message.trim() || isLoading}>
+                        <Button
+                            type="submit"
+                            size="icon"
+                            className="h-9 w-9 rounded-full"
+                            disabled={!message.trim() || isLoading}
+                            aria-label="Gửi tin nhắn"
+                        >
                             <Send className="h-4 w-4" />
                         </Button>
                     </form>

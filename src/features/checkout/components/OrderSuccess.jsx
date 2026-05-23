@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { CheckCircle2, Package, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, PAYMENT_METHODS } from "@/lib/constants";
+import { productPlaceholder } from "@/assets/images";
 
 export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
     const isMoMo = order?.paymentMethod?.toLowerCase() === PAYMENT_METHODS.MOMO;
@@ -60,9 +62,12 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
                             >
                                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1">
                                     {item.image && (
-                                        <img
+                                        <ResponsiveImage
                                             src={item.image}
+                                            fallbackSrc={productPlaceholder}
                                             alt={item.name}
+                                            width={48}
+                                            height={48}
                                             className="h-full w-full object-contain"
                                         />
                                     )}

@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import StarRating from "@/components/shared/StarRating";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { selectCurrentUser } from "@/store/authSlice";
 import { timeAgo } from "@/lib/utils";
 
@@ -57,6 +58,7 @@ export default function ProductCommentItem({ comment, onEdit, onDelete }) {
                             size="icon"
                             className="h-7 w-7 text-muted-foreground hover:text-foreground"
                             onClick={() => onEdit?.(comment)}
+                            aria-label="Chỉnh sửa bình luận"
                         >
                             <Pencil className="h-3.5 w-3.5" />
                         </Button>
@@ -65,6 +67,7 @@ export default function ProductCommentItem({ comment, onEdit, onDelete }) {
                             size="icon"
                             className="h-7 w-7 text-muted-foreground hover:text-destructive"
                             onClick={() => onDelete?.(comment.id)}
+                            aria-label="Xoá bình luận"
                         >
                             <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -101,9 +104,11 @@ export default function ProductCommentItem({ comment, onEdit, onDelete }) {
                             key={index}
                             className="h-16 w-16 overflow-hidden rounded-lg bg-muted/30"
                         >
-                            <img
+                            <ResponsiveImage
                                 src={img}
                                 alt={`Ảnh ${index + 1}`}
+                                width={64}
+                                height={64}
                                 className="h-full w-full object-cover"
                             />
                         </div>

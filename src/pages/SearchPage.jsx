@@ -79,11 +79,10 @@ export default function SearchPage() {
                         id="search-page-input"
                         value={inputValue}
                         onChange={handleInputChange}
-                        placeholder={aiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm..."}
+                        placeholder={aiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm…"}
                         className="h-12 rounded-full pl-12 pr-32 text-base"
                         name="search"
                         autoComplete="off"
-                        autoFocus
                         data-testid="search-page-input"
                     />
                     <Button

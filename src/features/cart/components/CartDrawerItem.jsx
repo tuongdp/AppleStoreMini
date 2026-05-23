@@ -8,6 +8,8 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
 import { Link } from "react-router-dom";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import { productPlaceholder } from "@/assets/images";
 
 const getFirstImage = (images) => {
   if (!images) return null;
@@ -57,9 +59,12 @@ export default function CartDrawerItem({ item }) {
         to={ROUTES.PRODUCT_DETAIL(product?.slug)}
         className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
       >
-        <img
+        <ResponsiveImage
           src={firstImage}
+          fallbackSrc={productPlaceholder}
           alt={product?.name}
+          width={80}
+          height={80}
           className="h-full w-full object-contain"
         />
       </Link>
@@ -83,6 +88,7 @@ export default function CartDrawerItem({ item }) {
             size="icon"
             className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
             onClick={handleRemove}
+            aria-label={`Xoá ${product?.name || "sản phẩm"} khỏi giỏ hàng`}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>

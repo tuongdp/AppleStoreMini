@@ -76,6 +76,7 @@ export default function QuantityInput({
                 variant="ghost"
                 onClick={handleDecrease}
                 disabled={disabled || value <= min}
+                aria-label="Giảm số lượng"
                 data-testid="quantity-decrease"
                 className={cn(
                     "shrink-0 rounded-l-md border-none transition-colors",
@@ -91,6 +92,9 @@ export default function QuantityInput({
                 value={value}
                 min={min}
                 max={max}
+                name="quantity"
+                aria-label="Số lượng"
+                inputMode="numeric"
                 onChange={handleInputChange}
                 onBlur={handleBlur}
                 disabled={disabled}
@@ -108,6 +112,7 @@ export default function QuantityInput({
                 variant="ghost"
                 onClick={handleIncrease}
                 disabled={disabled || value >= max}
+                aria-label="Tăng số lượng"
                 data-testid="quantity-increase"
                 className={cn(
                     "shrink-0 rounded-r-md border-none transition-colors",

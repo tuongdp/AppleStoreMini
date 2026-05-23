@@ -4,6 +4,7 @@ import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 
 function BannerSkeleton() {
   return (
@@ -35,12 +36,13 @@ export default function BannerSlider({ slides = [] }) {
                 aria-label={slide.ctaLink ? `Banner ${i + 1}` : undefined}
                 className="relative block h-full w-full overflow-hidden bg-muted"
               >
-                <img
+                <ResponsiveImage
                   src={slide.image}
                   alt={slide.ctaLink ? `Banner ${i + 1}` : ""}
                   width={1440}
                   height={375}
                   loading={i === 0 ? "eager" : "lazy"}
+                  fetchPriority={i === 0 ? "high" : undefined}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </Wrapper>

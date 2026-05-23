@@ -167,12 +167,18 @@
     }
     body {
         @apply bg-background text-foreground;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
     html {
         @apply font-sans;
+        color-scheme: light;
         scroll-behavior: smooth;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+    }
+    html.dark {
+        color-scheme: dark;
     }
 
     /* Custom scrollbar */

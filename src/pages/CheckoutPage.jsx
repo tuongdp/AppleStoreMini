@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import EmptyState from "@/components/shared/EmptyState";
 import PriceDisplay from "@/components/shared/PriceDisplay";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import CheckoutStepper from "@/features/checkout/components/CheckoutStepper";
 import AddressStep from "@/features/checkout/components/AddressStep";
 import PaymentStep from "@/features/checkout/components/PaymentStep";
@@ -15,6 +16,7 @@ import CouponInput from "@/features/checkout/components/CouponInput";
 import { getEffectivePrice } from "@/store/cartSlice";
 import { formatPrice, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import { productPlaceholder } from "@/assets/images";
 
 export default function CheckoutPage() {
     const {
@@ -129,13 +131,16 @@ export default function CheckoutPage() {
                                 return (
                                     <div key={variantId} className="flex gap-3">
                                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1">
-                                            <img
+                                            <ResponsiveImage
                                                 src={
                                                     parseJsonField(product?.images)?.[0] ||
                                                     product?.image ||
                                                     item.image
                                                 }
+                                                fallbackSrc={productPlaceholder}
                                                 alt={product?.name || item.name}
+                                                width={56}
+                                                height={56}
                                                 className="h-full w-full object-contain"
                                             />
                                         </div>

@@ -5,6 +5,8 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import CommentForm from "@/features/products/components/CommentForm";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import { productPlaceholder } from "@/assets/images";
 
 const getFirstImage = (...sources) => {
     for (const source of sources) {
@@ -57,9 +59,12 @@ export default function CommentModal({
                     <div className="flex items-center gap-3 rounded-xl bg-muted/30 p-3">
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted p-1">
                             {imageSrc && (
-                                <img
+                                <ResponsiveImage
                                     src={imageSrc}
+                                    fallbackSrc={productPlaceholder}
                                     alt={productName}
+                                    width={48}
+                                    height={48}
                                     className="h-full w-full object-contain"
                                 />
                             )}
