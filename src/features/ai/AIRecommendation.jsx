@@ -139,7 +139,6 @@ export default function AIRecommendation() {
                   <Link
                     key={p.slug}
                     to={`/products/${p.slug}`}
-                    reloadDocument
                     className="rounded-xl border border-border p-4 transition-colors hover:border-apple-blue/50 hover:bg-muted/50"
                   >
                     {p.image && (

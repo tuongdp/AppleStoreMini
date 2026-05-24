@@ -101,7 +101,6 @@ export default function NavbarMobile() {
                             <Link
                                 key={cat.value}
                                 to={cat.href}
-                                reloadDocument
                                 onMouseEnter={() => prefetchProductList(cat.href)}
                                 onFocus={() => prefetchProductList(cat.href)}
                                 onClick={handleClose}
@@ -113,7 +112,6 @@ export default function NavbarMobile() {
                         ))}
                         <Link
                             to={ROUTES.PRODUCTS}
-                            reloadDocument
                             onMouseEnter={() => prefetchProductList(ROUTES.PRODUCTS)}
                             onFocus={() => prefetchProductList(ROUTES.PRODUCTS)}
                             onClick={handleClose}
@@ -142,7 +140,6 @@ export default function NavbarMobile() {
                         </Link>
                         <Link
                             to="/news"
-                            reloadDocument
                             onMouseEnter={prefetchNewsList}
                             onFocus={prefetchNewsList}
                             onClick={handleClose}

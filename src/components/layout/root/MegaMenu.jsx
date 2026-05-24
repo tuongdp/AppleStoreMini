@@ -28,7 +28,6 @@ export default function MegaMenu({ category }) {
     return (
         <Link
             to={category.href}
-            reloadDocument
             aria-current={isActive ? "page" : undefined}
             onMouseEnter={() => prefetchProductList(category.href)}
             onFocus={() => prefetchProductList(category.href)}

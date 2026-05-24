@@ -10,10 +10,8 @@ import ErrorBoundary from "./components/shared/ErrorBoundary";
 import NetworkStatusNotifier from "./components/shared/NetworkStatusNotifier";
 import App from "./App.jsx";
 import "./index.css";
-import { injectStore } from "./lib/axios";
 import { registerServiceWorker } from "./lib/registerServiceWorker";
 
-injectStore(store);
 registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById("root")).render(

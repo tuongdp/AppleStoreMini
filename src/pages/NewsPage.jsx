@@ -164,7 +164,6 @@ export default function NewsPage() {
                         {featuredNews && (
                             <Link
                                 to={`/news/${featuredNews.slug}`}
-                                reloadDocument
                                 className="group mb-6 grid overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-border/80 md:grid-cols-[1.25fr_1fr]"
                             >
                                 <div className="aspect-video overflow-hidden bg-muted md:aspect-auto">

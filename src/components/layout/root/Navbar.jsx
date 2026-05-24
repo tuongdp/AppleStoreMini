@@ -29,7 +29,7 @@ export default function Navbar() {
     const isScrolled = useScrolled(10);
     const SIMPLE_NAV_LINKS = [
         { label: "AppleCare", href: "/apple-care", icon: null },
-        { label: "Tin tức", href: "/news", icon: null, reloadDocument: true },
+        { label: "Tin tức", href: "/news", icon: null },
     ];
 
     const prefetchNewsList = () => {
@@ -81,7 +81,6 @@ export default function Navbar() {
                                 <NavLink
                                     key={link.href}
                                     to={link.href}
-                                    reloadDocument={link.reloadDocument}
                                     onMouseEnter={link.href === "/news" ? prefetchNewsList : undefined}
                                     onFocus={link.href === "/news" ? prefetchNewsList : undefined}
                                     className={({ isActive }) =>

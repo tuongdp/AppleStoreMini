@@ -22,7 +22,6 @@ export default function NewsCard({ news, className }) {
     return (
         <Link
             to={`/news/${slug}`}
-            reloadDocument
             onMouseEnter={prefetchNewsDetail}
             onFocus={prefetchNewsDetail}
             className={cn(

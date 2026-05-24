@@ -8,10 +8,6 @@ export default function SectionTitle({
   align = "left", // left | center
   className,
 }) {
-  const shouldUseDocumentNavigation =
-    typeof viewAllHref === "string" &&
-    (viewAllHref.startsWith("/products") || viewAllHref.startsWith("/news"));
-
   return (
     <div
       className={cn(
@@ -31,7 +27,6 @@ export default function SectionTitle({
       {viewAllHref && align !== "center" && (
         <Link
           to={viewAllHref}
-          reloadDocument={shouldUseDocumentNavigation}
           className="group flex shrink-0 items-center gap-0.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
         >
           {viewAllLabel || "Xem tất cả"}
@@ -43,7 +38,6 @@ export default function SectionTitle({
       {viewAllHref && align === "center" && (
         <Link
           to={viewAllHref}
-          reloadDocument={shouldUseDocumentNavigation}
           className="group mt-2 flex items-center gap-0.5 text-sm font-medium text-primary transition-opacity hover:opacity-70"
         >
           {viewAllLabel || "viewAll"}

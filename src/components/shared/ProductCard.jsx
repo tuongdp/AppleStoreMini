@@ -76,7 +76,6 @@ export default function ProductCard({ product }) {
             {/* Image */}
             <Link
                 to={ROUTES.PRODUCT_DETAIL(product.slug)}
-                reloadDocument
                 onMouseEnter={prefetchProductDetail}
                 onFocus={prefetchProductDetail}
                 data-testid="product-card-link"
@@ -159,7 +158,6 @@ export default function ProductCard({ product }) {
 
                 <Link
                     to={ROUTES.PRODUCT_DETAIL(product.slug)}
-                    reloadDocument
                     onMouseEnter={prefetchProductDetail}
                     onFocus={prefetchProductDetail}
                 >

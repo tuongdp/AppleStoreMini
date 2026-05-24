@@ -13,7 +13,6 @@ function SidebarNewsCard({ news, index }) {
     return (
         <Link
             to={`/news/${news.slug}`}
-            reloadDocument
             className="group flex gap-3 rounded-xl p-2 transition-colors hover:bg-muted/50"
         >
             {news.thumbnail ? (

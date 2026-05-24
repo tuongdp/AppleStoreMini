@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import * as XLSX from "xlsx";
 import { Upload, FileSpreadsheet, Eye, Check, AlertTriangle, X, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+const loadExcelParser = () => import("xlsx");
 
 export default function ImportSpecsFromExcel({ onImport, onCancel }) {
     const [, setPreview] = useState([]);
@@ -16,8 +17,9 @@ export default function ImportSpecsFromExcel({ onImport, onCancel }) {
         setError("");
         setFileName(file.name);
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
+                const XLSX = await loadExcelParser();
                 const wb = XLSX.read(e.target.result, { type: "array" });
                 const ws = wb.Sheets[wb.SheetNames[0]];
                 const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
