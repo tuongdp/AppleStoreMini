@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { filterChatProductsByMessage } from "../src/features/ai/chatProductFilter.js";
+import {
+  buildFocusedChatReply,
+  filterChatProductsByMessage,
+} from "../src/features/ai/chatProductFilter.js";
 
 test("filters exact iPhone model query to the exact product card", () => {
   const products = [
@@ -71,4 +74,16 @@ test("filters MacBook recommendations by family and budget", () => {
   const filtered = filterChatProductsByMessage("macbook dưới 30 triệu để học", products);
 
   assert.deepEqual(filtered.map((product) => product.slug), ["macbook-air-m2"]);
+});
+
+test("builds focused reply for exact model instead of keeping unrelated backend text", () => {
+  const reply = buildFocusedChatReply(
+    "iphone 15",
+    "iPhone 17 có giá 24.490.000đ. Bạn muốn biết thêm thông tin gì về iPhone 17?",
+    [{ name: "iPhone 15", slug: "iphone-15", price: 17900000, stock: 6 }],
+  );
+
+  assert.match(reply, /iPhone 15/);
+  assert.match(reply, /17\.900\.000/);
+  assert.doesNotMatch(reply, /iPhone 17/);
 });

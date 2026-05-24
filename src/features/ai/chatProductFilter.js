@@ -66,6 +66,11 @@ function getPrice(product) {
   return Number(product?.price ?? product?.salePrice ?? product?.flashSale?.salePrice ?? 0);
 }
 
+function formatPrice(value) {
+  const price = getPrice({ price: value });
+  return price ? `${price.toLocaleString("vi-VN")}đ` : "liên hệ";
+}
+
 function scoreProduct(product, { exactModel, family, accessoryIntent, budget }) {
   let score = 0;
 
@@ -126,4 +131,24 @@ export function filterChatProductsByMessage(message, products) {
     .sort((a, b) => b.score - a.score || getPrice(a.product) - getPrice(b.product))
     .slice(0, MAX_CHAT_PRODUCTS)
     .map((item) => item.product);
+}
+
+export function buildFocusedChatReply(message, originalReply, products) {
+  const exactModel = extractExactModelQuery(message);
+  if (!exactModel || !Array.isArray(products) || products.length !== 1) {
+    return originalReply;
+  }
+
+  const product = products[0];
+  if (productName(product) !== exactModel) return originalReply;
+
+  const stock = Number(product?.stock ?? 0);
+  const stockText = stock > 0 ? `Hiện còn ${stock} sản phẩm.` : "";
+
+  return [
+    `Mình tìm thấy đúng sản phẩm bạn hỏi: ${product.name}.`,
+    `Giá hiện tại: ${formatPrice(product.price)}.`,
+    stockText,
+    "Bạn có thể bấm vào sản phẩm bên dưới để xem chi tiết cấu hình, màu sắc và tùy chọn dung lượng.",
+  ].filter(Boolean).join(" ");
 }
