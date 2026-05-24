@@ -17,7 +17,6 @@ import {
 import { useCategories } from "@/hooks/useCategories";
 import { CATEGORIES, ROUTES, SORT_OPTIONS, PRICE_RANGES, PAGINATION } from "@/lib/constants";
 import { cn, formatPrice } from "@/lib/utils";
-import AIRecommendation from "@/features/ai/AIRecommendation";
 
 const MAX_PRICE = 100000000;
 const OPEN_ENDED_PRICE = 999999999;
@@ -302,8 +301,6 @@ export default function ProductListPage() {
                         className="mt-2"
                     />
                 </div>
-
-                <AIRecommendation />
 
                 {products.length === 0 && !isLoading ? (
                     <EmptyState
