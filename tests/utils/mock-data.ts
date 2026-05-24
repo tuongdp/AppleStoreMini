@@ -95,6 +95,7 @@ export const testNews = [
     _id: "news-iphone-buying-guide",
     title: "Kinh nghiệm chọn iPhone phù hợp",
     slug: "kinh-nghiem-chon-iphone-phu-hop",
+    thumbnail: "/assets/test/news-iphone.jpg",
     excerpt: "Gợi ý nhanh để chọn iPhone theo nhu cầu sử dụng hằng ngày.",
     category: "Tư vấn",
   },

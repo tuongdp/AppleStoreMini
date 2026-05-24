@@ -10,6 +10,10 @@ function getProductImage(product) {
     return product.image || parseJsonField(product.images)?.[0] || productPlaceholder;
 }
 
+function getNewsImage(news) {
+    return news.thumbnail || news.image;
+}
+
 export default function ProductSearchSuggestions({
     keyword,
     suggestions,
@@ -119,8 +123,19 @@ export default function ProductSearchSuggestions({
                                 itemClassName,
                             )}
                         >
-                            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                                <Newspaper className="h-4 w-4" />
+                            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-muted-foreground">
+                                {getNewsImage(news) ? (
+                                    <ResponsiveImage
+                                        src={getNewsImage(news)}
+                                        alt={news.title || ""}
+                                        width={40}
+                                        height={40}
+                                        className="h-full w-full object-cover"
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <Newspaper className="h-4 w-4" />
+                                )}
                             </span>
                             <span className="min-w-0 flex-1">
                                 <span className="line-clamp-1 text-sm font-medium text-foreground">

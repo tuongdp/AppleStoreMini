@@ -7,6 +7,7 @@ import ProductCard from "@/components/shared/ProductCard";
 import { ProductGridSkeleton } from "@/components/shared/ProductCardSkeleton";
 import EmptyState from "@/components/shared/EmptyState";
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { Input } from "@/components/ui/input";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -16,16 +17,33 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getNewsHref, groupProductsByCategory } from "@/features/products/utils/searchResults";
 
+function getNewsImage(news) {
+    return news.thumbnail || news.image;
+}
+
 function NewsResultCard({ news }) {
+    const image = getNewsImage(news);
+
     return (
         <Link
             to={getNewsHref(news)}
-            className="group flex h-full gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/20 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="group flex h-full gap-3 overflow-hidden rounded-xl border border-border bg-card p-3 transition-colors hover:border-foreground/20 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-background group-hover:text-foreground">
-                <Newspaper className="h-5 w-5" />
+            <span className="flex h-16 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-muted-foreground transition-colors group-hover:bg-background group-hover:text-foreground">
+                {image ? (
+                    <ResponsiveImage
+                        src={image}
+                        alt={news.title || ""}
+                        width={160}
+                        height={96}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                    />
+                ) : (
+                    <Newspaper className="h-5 w-5" />
+                )}
             </span>
-            <span className="min-w-0">
+            <span className="min-w-0 py-1">
                 <span className="line-clamp-2 text-sm font-semibold text-foreground">
                     {news.title}
                 </span>
