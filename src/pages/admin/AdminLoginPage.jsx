@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
 
     const onSubmit = async (values) => {
         try {
-            const response = await login(values).unwrap();
+            const response = await login({ ...values, rememberMe: true }).unwrap();
             const { user, accessToken, refreshToken } = response;
 
             if (user.role !== "admin" && user.role !== "staff") {
