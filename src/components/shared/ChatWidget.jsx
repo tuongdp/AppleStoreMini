@@ -4,6 +4,7 @@ import { Bot, Loader2, MessageCircle, Send, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
+import { filterChatProductsByMessage } from "@/features/ai/chatProductFilter";
 
 export default function ChatWidget() {
     const [open, setOpen] = useState(false);
@@ -44,7 +45,7 @@ export default function ChatWidget() {
         try {
             const result = await sendMessage({ message: text }).unwrap();
             const reply = result?.reply || "Mình chưa có câu trả lời phù hợp. Bạn thử hỏi theo cách khác nhé.";
-            const products = result?.products || [];
+            const products = filterChatProductsByMessage(text, result?.products || []);
 
             setMessages((prev) => [
                 ...prev,
