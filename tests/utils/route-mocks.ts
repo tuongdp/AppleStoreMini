@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { apiEnvelope, makeOrder, testFlashSales, testProducts, testUsers } from "./mock-data";
+import { apiEnvelope, makeOrder, testFlashSales, testNews, testProducts, testUsers } from "./mock-data";
 
 const json = (body: unknown, status = 200) => ({
   status,
@@ -48,6 +48,11 @@ export async function mockApi(page: Page) {
 
     if (path === "/products/search") {
       await route.fulfill(json(apiEnvelope(testProducts)));
+      return;
+    }
+
+    if (path === "/news") {
+      await route.fulfill(json({ ...apiEnvelope(testNews), pagination: { page: 1, limit: 6, total: testNews.length, totalPages: 1 } }));
       return;
     }
 
@@ -120,6 +125,10 @@ export async function mockApi(page: Page) {
 
   await page.route("**/api/products/search**", async (route) => {
     await route.fulfill(json(apiEnvelope(testProducts)));
+  });
+
+  await page.route(/.*\/api\/news(\?.*)?$/, async (route) => {
+    await route.fulfill(json({ ...apiEnvelope(testNews), pagination: { page: 1, limit: 6, total: testNews.length, totalPages: 1 } }));
   });
 
   await page.route(/.*\/api\/products\/slug\/[^/]+\/related(\?.*)?$/, async (route) => {

@@ -89,6 +89,17 @@ export const testFlashSales = [
   },
 ];
 
+export const testNews = [
+  {
+    id: "news-iphone-buying-guide",
+    _id: "news-iphone-buying-guide",
+    title: "Kinh nghiệm chọn iPhone phù hợp",
+    slug: "kinh-nghiem-chon-iphone-phu-hop",
+    excerpt: "Gợi ý nhanh để chọn iPhone theo nhu cầu sử dụng hằng ngày.",
+    category: "Tư vấn",
+  },
+];
+
 export const apiEnvelope = <T>(data: T, message = "ok") => ({ statusCode: 200, data, message, success: true });
 
 export function makeOrder(overrides = {}) {

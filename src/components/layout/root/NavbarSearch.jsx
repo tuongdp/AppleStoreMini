@@ -12,9 +12,12 @@ export default function NavbarSearch({ onClose }) {
         isOpen,
         isLoading,
         suggestions,
+        groupedSuggestions,
+        newsSuggestions,
         handleKeywordChange,
         handleSearch,
         handleSelectSuggestion,
+        handleSelectNews,
         handleClear,
     } = useProductSearch();
 
@@ -69,9 +72,15 @@ export default function NavbarSearch({ onClose }) {
                     <ProductSearchSuggestions
                         keyword={keyword}
                         suggestions={suggestions}
+                        groupedSuggestions={groupedSuggestions}
+                        newsSuggestions={newsSuggestions}
                         isLoading={isLoading}
                         onSelect={(product) => {
                             handleSelectSuggestion(product);
+                            onClose?.();
+                        }}
+                        onSelectNews={(news) => {
+                            handleSelectNews(news);
                             onClose?.();
                         }}
                         onViewAll={() => {

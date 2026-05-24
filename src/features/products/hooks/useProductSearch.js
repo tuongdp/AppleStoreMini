@@ -1,8 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearchProductsQuery } from "@/store/api/productsApi";
+import { useGetNewsQuery } from "@/store/api/newsApi";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ROUTES } from "@/lib/constants";
+import { getNewsHref, groupProductsByCategory } from "@/features/products/utils/searchResults";
 
 export function useProductSearch() {
     const navigate = useNavigate();
@@ -11,15 +13,28 @@ export function useProductSearch() {
 
     const debouncedKeyword = useDebounce(keyword, 300);
 
-    const { data, isFetching } = useSearchProductsQuery(debouncedKeyword, {
-      skip: debouncedKeyword.length < 2,
+    const canSearch = debouncedKeyword.trim().length >= 2;
+
+    const { data, isFetching: isProductsFetching } = useSearchProductsQuery(debouncedKeyword, {
+      skip: !canSearch,
     });
 
-    const suggestions = data || [];
+    const { data: newsData, isFetching: isNewsFetching } = useGetNewsQuery(
+        { search: debouncedKeyword, limit: 4 },
+        { skip: !canSearch },
+    );
+
+    const suggestions = useMemo(() => data || [], [data]);
+    const groupedSuggestions = useMemo(
+        () => groupProductsByCategory(suggestions),
+        [suggestions],
+    );
+    const newsSuggestions = newsData?.news || [];
+    const isFetching = isProductsFetching || isNewsFetching;
 
     const handleKeywordChange = useCallback((value) => {
         setKeyword(value);
-        setIsOpen(value.length >= 2);
+        setIsOpen(value.trim().length >= 2);
     }, []);
 
     const handleSearch = useCallback(() => {
@@ -31,6 +46,15 @@ export function useProductSearch() {
     const handleSelectSuggestion = useCallback(
         (product) => {
             navigate(ROUTES.PRODUCT_DETAIL(product.slug));
+            setKeyword("");
+            setIsOpen(false);
+        },
+        [navigate],
+    );
+
+    const handleSelectNews = useCallback(
+        (news) => {
+            navigate(getNewsHref(news));
             setKeyword("");
             setIsOpen(false);
         },
@@ -52,9 +76,12 @@ export function useProductSearch() {
       isFetching,
       isLoading: isFetching,
       suggestions,
+      groupedSuggestions,
+      newsSuggestions,
       handleKeywordChange,
       handleSearch,
       handleSelectSuggestion,
+      handleSelectNews,
       handleClear,
       handleClose,
     };

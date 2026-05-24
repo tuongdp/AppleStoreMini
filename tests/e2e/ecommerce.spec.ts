@@ -83,6 +83,7 @@ test.describe("ecommerce flows", () => {
     await page.getByTestId("search-page-input").fill("iphone");
     await page.getByTestId("search-page-input").press("Enter");
     await expect(page.getByTestId("product-card").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Tin tức liên quan" })).toBeVisible();
   });
 
   test("opens global search with keyboard shortcut", async ({ mockedPage: page }) => {

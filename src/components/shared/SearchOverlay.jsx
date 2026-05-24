@@ -13,9 +13,12 @@ export default function SearchOverlay({ open, onClose }) {
         isOpen: hasResults,
         isFetching,
         suggestions,
+        groupedSuggestions,
+        newsSuggestions,
         handleKeywordChange,
         handleSearch,
         handleSelectSuggestion,
+        handleSelectNews,
         handleClear,
     } = useProductSearch();
 
@@ -132,9 +135,15 @@ export default function SearchOverlay({ open, onClose }) {
                             <ProductSearchSuggestions
                                 keyword={keyword}
                                 suggestions={suggestions}
+                                groupedSuggestions={groupedSuggestions}
+                                newsSuggestions={newsSuggestions}
                                 isLoading={isFetching}
                                 onSelect={(product) => {
                                     handleSelectSuggestion(product);
+                                    close();
+                                }}
+                                onSelectNews={(news) => {
+                                    handleSelectNews(news);
                                     close();
                                 }}
                                 onViewAll={() => {
