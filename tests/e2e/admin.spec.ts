@@ -58,4 +58,30 @@ test.describe("admin dashboard", () => {
       await expect(page.locator("body")).toBeVisible();
     }
   });
+
+  test("admin header shows breadcrumb for nested management pages", async ({ mockedPage: page }) => {
+    await seedAuthStorage(page, "admin");
+    await page.goto("/admin/products/create");
+
+    const breadcrumb = page.getByRole("navigation", { name: /admin breadcrumb/i });
+    await expect(breadcrumb).toBeVisible();
+    await expect(breadcrumb.getByRole("link", { name: /sản phẩm/i })).toBeVisible();
+    await expect(breadcrumb.getByText(/tạo mới/i)).toBeVisible();
+  });
+
+  test("flash sale filters are shareable through URL params", async ({ mockedPage: page }) => {
+    await seedAuthStorage(page, "admin");
+    await page.goto("/admin/flash-sales?search=school&status=upcoming");
+
+    await expect(page.getByRole("textbox", { name: /tìm kiếm flash sale/i })).toHaveValue("school");
+    await expect(page.getByText(/back to school e2e/i)).toBeVisible();
+    await expect(page.getByText(/tet flash sale e2e/i)).toHaveCount(0);
+
+    await page.getByRole("textbox", { name: /tìm kiếm flash sale/i }).fill("tet");
+    await expect(page).toHaveURL(/search=tet/);
+
+    await page.getByRole("combobox", { name: /lọc trạng thái flash sale/i }).click();
+    await page.getByRole("option", { name: /tất cả trạng thái/i }).click();
+    await expect(page).toHaveURL(/status=all|\/admin\/flash-sales\?search=tet/);
+  });
 });

@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ThemeToggle from "@/components/shared/ThemeToggle";
+import AdminBreadcrumb from "@/components/layout/admin/AdminBreadcrumb";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { logout, selectCurrentUser, selectHasAdminAccess, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
@@ -237,7 +238,7 @@ export default function AdminLayout() {
                     </Sheet>
 
                     <div className="hidden min-w-0 md:block">
-                        <p className="text-xs text-muted-foreground">Admin / {pageTitle}</p>
+                        <AdminBreadcrumb className="mb-1" />
                         <h2 className="truncate text-sm font-medium text-foreground">{pageTitle}</h2>
                     </div>
 

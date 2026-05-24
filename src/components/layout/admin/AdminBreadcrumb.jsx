@@ -8,8 +8,17 @@ const SEGMENT_MAP = {
     dashboard: "Tổng quan",
     products: "Sản phẩm",
     orders: "Đơn hàng",
+    returns: "Hoàn trả",
     users: "Người dùng",
     comments: "Bình luận SP",
+    coupons: "Khuyến mãi",
+    categories: "Danh mục",
+    news: "Tin tức",
+    banners: "Banner",
+    "flash-sales": "Flash Sale",
+    options: "Tùy chọn",
+    settings: "Cài đặt",
+    shop: "Cửa hàng",
     create: "Tạo mới",
     edit: "Chỉnh sửa",
 };
@@ -23,7 +32,7 @@ export default function AdminBreadcrumb({ className }) {
         const href = "/" + segments.slice(0, index + 1).join("/");
         const isId = /^[0-9a-fA-F-]{6,}$/.test(segment);
         const label = isId
-            ? segment.slice(0, 8) + "..."
+            ? segment.slice(0, 8) + "…"
             : SEGMENT_MAP[segment] || segment;
 
         return { label, href, isId };

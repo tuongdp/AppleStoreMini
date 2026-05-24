@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
     Plus,
     Pencil,
@@ -15,6 +16,7 @@ import {
     BarChart3,
     AlertTriangle,
     TrendingUp,
+    X,
 } from "lucide-react";
 import {
     useGetAllFlashSalesQuery,
@@ -54,6 +56,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { cn, formatPrice, parseJsonField } from "@/lib/utils";
+
+const FLASH_SALE_STATUS_FILTERS = ["all", "active", "upcoming", "ended", "disabled"];
 
 function formatDateTime(dateStr) {
     if (!dateStr) return "";
@@ -788,12 +792,14 @@ function FlashSaleCard({ flashSale, onToggle, onEdit, onDelete, onAddItem, onRem
 
 // ── Main Page ──────────────────────────────────────────
 export default function AdminFlashSalePage() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [deleteId, setDeleteId] = useState(null);
     const [editingFlashSale, setEditingFlashSale] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [addItemTo, setAddItemTo] = useState(null);
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState("all");
+    const search = searchParams.get("search") || "";
+    const statusParam = searchParams.get("status") || "all";
+    const statusFilter = FLASH_SALE_STATUS_FILTERS.includes(statusParam) ? statusParam : "all";
 
     const { data, isLoading } = useGetAllFlashSalesQuery();
     const [deleteFlashSale, { isLoading: isDeleting }] = useDeleteFlashSaleMutation();
@@ -829,6 +835,26 @@ export default function AdminFlashSalePage() {
             return matchesStatus && matchesSearch;
         });
     }, [flashSales, search, statusFilter]);
+
+    const updateFilterParam = (key, value) => {
+        const params = new URLSearchParams(searchParams);
+        const normalizedValue = typeof value === "string" ? value.trim() : value;
+
+        if (!normalizedValue || normalizedValue === "all") {
+            params.delete(key);
+        } else {
+            params.set(key, normalizedValue);
+        }
+
+        setSearchParams(params, { replace: true });
+    };
+
+    const clearFilters = () => {
+        const params = new URLSearchParams(searchParams);
+        params.delete("search");
+        params.delete("status");
+        setSearchParams(params, { replace: true });
+    };
 
     const handleDelete = async () => {
         try {
@@ -888,22 +914,39 @@ export default function AdminFlashSalePage() {
                             <Input
                                 className="pl-9"
                                 placeholder="Tìm theo tên flash sale..."
+                                aria-label="Tìm kiếm flash sale"
+                                name="admin-flash-sale-search"
+                                autoComplete="off"
                                 value={search}
-                                onChange={(event) => setSearch(event.target.value)}
+                                onChange={(event) => updateFilterParam("search", event.target.value)}
                             />
                         </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full rounded-full md:w-48">
-                                <SelectValue placeholder="Trạng thái" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                                <SelectItem value="active">Đang diễn ra</SelectItem>
-                                <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
-                                <SelectItem value="ended">Đã kết thúc</SelectItem>
-                                <SelectItem value="disabled">Đã tắt</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <Select value={statusFilter} onValueChange={(value) => updateFilterParam("status", value)}>
+                                <SelectTrigger className="w-full rounded-full md:w-48" aria-label="Lọc trạng thái flash sale">
+                                    <SelectValue placeholder="Trạng thái" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                    <SelectItem value="active">Đang diễn ra</SelectItem>
+                                    <SelectItem value="upcoming">Sắp diễn ra</SelectItem>
+                                    <SelectItem value="ended">Đã kết thúc</SelectItem>
+                                    <SelectItem value="disabled">Đã tắt</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {(search || statusFilter !== "all") && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="rounded-full"
+                                    onClick={clearFilters}
+                                >
+                                    <X className="mr-1.5 h-3.5 w-3.5" />
+                                    Xóa lọc
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </>
             )}

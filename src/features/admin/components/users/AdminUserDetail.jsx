@@ -51,21 +51,21 @@ const ROLE_CONFIG = {
 };
 
 const ALL_PERMISSIONS = [
-    { key: "dashboard", label: "Tổng quan" },
-    { key: "products", label: "Sản phẩm" },
-    { key: "orders", label: "Đơn hàng" },
-    { key: "users", label: "Người dùng" },
-    { key: "news", label: "Tin tức" },
-    { key: "comments", label: "Bình luận" },
-    { key: "categories", label: "Danh mục" },
+    { key: "dashboard", label: "Tổng quan", note: "Xem số liệu vận hành" },
+    { key: "products", label: "Sản phẩm", note: "Quản lý sản phẩm và biến thể" },
+    { key: "orders", label: "Đơn hàng", note: "Xem và cập nhật đơn hàng" },
+    { key: "returns", label: "Trả hàng", note: "Xử lý yêu cầu hoàn trả" },
+    { key: "news", label: "Tin tức", note: "Tạo và xuất bản bài viết" },
+    { key: "comments", label: "Bình luận", note: "Duyệt, ẩn và phản hồi đánh giá" },
+    { key: "categories", label: "Danh mục", note: "Quản lý danh mục sản phẩm" },
 ];
 
 const EXTRA_PERMISSIONS = [
-    { key: "returns", label: "Trả hàng" },
-    { key: "banners", label: "Banner" },
-    { key: "flashSales", label: "Flash sale" },
-    { key: "coupons", label: "Khuyến mãi" },
-    { key: "points", label: "Điểm thưởng" },
+    { key: "users", label: "Người dùng", note: "Chỉ quản trị viên nên thay đổi vai trò/quyền" },
+    { key: "banners", label: "Banner", note: "Một số thao tác banner vẫn giữ cho admin" },
+    { key: "flashSales", label: "Flash sale", note: "Nhân viên có thể xem, tạo/sửa vẫn nên do admin" },
+    { key: "coupons", label: "Khuyến mãi", note: "Mã giảm giá ảnh hưởng doanh thu, nên giữ admin" },
+    { key: "points", label: "Điểm thưởng", note: "Điều chỉnh điểm là thao tác nhạy cảm" },
 ];
 
 const STAFF_PERMISSIONS = [...ALL_PERMISSIONS, ...EXTRA_PERMISSIONS];
@@ -531,7 +531,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 </Badge>
                             </div>
                             <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                Chọn các khu vực admin mà nhân viên được phép truy cập. Thay đổi chỉ có hiệu lực sau khi lưu.
+                                Chọn khu vực admin mà nhân viên được phép truy cập. Các thao tác nhạy cảm như đổi vai trò, mã giảm giá hoặc cấu hình hệ thống vẫn nên giữ cho quản trị viên.
                             </p>
                             {permissionsDirty && (
                                 <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
@@ -582,8 +582,13 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                                 onChange={() => togglePerm(p.key)}
                                                 className="h-4 w-4 shrink-0 rounded accent-blue-600"
                                             />
-                                            <span className="text-foreground">
-                                                {p.label}
+                                            <span className="min-w-0">
+                                                <span className="block text-foreground">
+                                                    {p.label}
+                                                </span>
+                                                <span className="block text-xs text-muted-foreground">
+                                                    {p.note}
+                                                </span>
                                             </span>
                                         </label>
                                     );
