@@ -15,7 +15,7 @@ const SEGMENT_MAP = {
     categories: "Danh mục",
     news: "Tin tức",
     banners: "Banner",
-    "flash-sales": "Flash Sale",
+    "flash-sales": "Giảm sốc",
     options: "Tùy chọn",
     settings: "Cài đặt",
     shop: "Cửa hàng",
@@ -42,7 +42,7 @@ export default function AdminBreadcrumb({ className }) {
 
     return (
         <nav
-            aria-label="Admin breadcrumb"
+            aria-label="Điều hướng quản trị"
             className={cn("flex items-center gap-1 text-sm", className)}
         >
             {/* Home */}

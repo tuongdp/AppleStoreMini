@@ -73,7 +73,7 @@ export default function CommentForm({
                 form.setValue("images", [...media, result.url], { shouldValidate: true });
             }
         } catch (error) {
-            toast.error(error?.data?.message || "Upload hình ảnh/video thất bại");
+            toast.error(error?.data?.message || "Tải hình ảnh/video lên thất bại");
         }
     };
 
@@ -159,7 +159,7 @@ export default function CommentForm({
                                 {isUploading && (
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                        Đang upload media...
+                                        Đang tải tệp lên...
                                     </div>
                                 )}
                                 {field.value?.length > 0 ? (

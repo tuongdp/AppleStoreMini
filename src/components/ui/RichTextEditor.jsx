@@ -53,7 +53,7 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
         }
         if (!valid.length) { uploadingRef.current = false; return; }
 
-        const toastId = toast.loading(`Đang upload ${valid.length} ảnh...`);
+        const toastId = toast.loading(`Đang tải lên ${valid.length} ảnh...`);
         let inserted = 0;
 
         for (const file of valid) {
@@ -64,7 +64,7 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
                 editorRef.current?.chain().focus().setImage({ src: res.url }).run();
                 inserted++;
             } catch {
-                toast.error(`Upload ảnh "${file.name}" thất bại`);
+                toast.error(`Tải ảnh "${file.name}" lên thất bại`);
             }
         }
 

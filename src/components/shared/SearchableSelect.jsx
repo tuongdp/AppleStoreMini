@@ -88,14 +88,14 @@ export default function SearchableSelect({
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Search..."
+                            placeholder="Tìm kiếm..."
                             className="h-8 border-0 bg-transparent px-2 text-xs focus-visible:ring-0 focus-visible:ring-offset-0"
                         />
                     </div>
                     <div className="max-h-[200px] overflow-y-auto p-1">
                         {filtered.length === 0 ? (
                             <div className="px-3 py-4 text-center text-xs text-muted-foreground">
-                                No results
+                                Không có kết quả
                             </div>
                         ) : (
                             filtered.map((opt, i) => (

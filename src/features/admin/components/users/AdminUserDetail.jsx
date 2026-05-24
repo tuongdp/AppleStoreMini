@@ -63,7 +63,7 @@ const ALL_PERMISSIONS = [
 const EXTRA_PERMISSIONS = [
     { key: "users", label: "Người dùng", note: "Chỉ quản trị viên nên thay đổi vai trò/quyền" },
     { key: "banners", label: "Banner", note: "Một số thao tác banner vẫn giữ cho admin" },
-    { key: "flashSales", label: "Flash sale", note: "Nhân viên có thể xem, tạo/sửa vẫn nên do admin" },
+    { key: "flashSales", label: "Giảm sốc", note: "Nhân viên có thể xem, tạo/sửa vẫn nên do quản trị viên" },
     { key: "coupons", label: "Khuyến mãi", note: "Mã giảm giá ảnh hưởng doanh thu, nên giữ admin" },
     { key: "points", label: "Điểm thưởng", note: "Điều chỉnh điểm là thao tác nhạy cảm" },
 ];

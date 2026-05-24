@@ -63,7 +63,7 @@ test.describe("admin dashboard", () => {
     await seedAuthStorage(page, "admin");
     await page.goto("/admin/products/create");
 
-    const breadcrumb = page.getByRole("navigation", { name: /admin breadcrumb/i });
+    const breadcrumb = page.getByRole("navigation", { name: /điều hướng quản trị/i });
     await expect(breadcrumb).toBeVisible();
     await expect(breadcrumb.getByRole("link", { name: /sản phẩm/i })).toBeVisible();
     await expect(breadcrumb.getByText(/tạo mới/i)).toBeVisible();
@@ -73,14 +73,14 @@ test.describe("admin dashboard", () => {
     await seedAuthStorage(page, "admin");
     await page.goto("/admin/flash-sales?search=school&status=upcoming");
 
-    await expect(page.getByRole("textbox", { name: /tìm kiếm flash sale/i })).toHaveValue("school");
+    await expect(page.getByRole("textbox", { name: /tìm kiếm đợt giảm sốc/i })).toHaveValue("school");
     await expect(page.getByText(/back to school e2e/i)).toBeVisible();
     await expect(page.getByText(/tet flash sale e2e/i)).toHaveCount(0);
 
-    await page.getByRole("textbox", { name: /tìm kiếm flash sale/i }).fill("tet");
+    await page.getByRole("textbox", { name: /tìm kiếm đợt giảm sốc/i }).fill("tet");
     await expect(page).toHaveURL(/search=tet/);
 
-    await page.getByRole("combobox", { name: /lọc trạng thái flash sale/i }).click();
+    await page.getByRole("combobox", { name: /lọc trạng thái đợt giảm sốc/i }).click();
     await page.getByRole("option", { name: /tất cả trạng thái/i }).click();
     await expect(page).toHaveURL(/status=all|\/admin\/flash-sales\?search=tet/);
   });

@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
                         <ShieldCheck className="h-7 w-7 text-white" />
                     </div>
                     <h1 className="mb-3 text-3xl font-semibold tracking-tight text-white">
-                        {"Admin Panel"}
+                        {"Bảng quản trị"}
                     </h1>
                     <p className="max-w-xs text-sm leading-relaxed text-white/50">
                         {"Quản lý toàn bộ hoạt động của Apple Store Vietnam — sản phẩm, đơn hàng, khách hàng và doanh thu."}
@@ -123,7 +123,7 @@ export default function AdminLoginPage() {
                             {"Đăng nhập quản trị"}
                         </h2>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            {"Nhập thông tin tài khoản admin để tiếp tục"}
+                            {"Nhập thông tin tài khoản quản trị để tiếp tục"}
                         </p>
                     </div>
 
@@ -213,7 +213,7 @@ export default function AdminLoginPage() {
                             href="/"
                             className="hover:text-foreground hover:underline"
                         >
-                            {"← Quay về trang Store"}
+                            {"← Quay về cửa hàng"}
                         </a>
                     </p>
                 </div>

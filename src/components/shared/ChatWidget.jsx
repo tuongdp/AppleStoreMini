@@ -87,8 +87,8 @@ export default function ChatWidget() {
                     <div className="flex items-center gap-3 bg-blue-600 px-4 py-3 text-white sm:rounded-t-2xl">
                         <Sparkles aria-hidden="true" className="h-5 w-5" />
                         <div className="min-w-0 flex-1">
-                            <p id="chat-widget-title" className="truncate text-sm font-semibold">Apple Store Assistant</p>
-                            <p className="text-xs text-blue-100">AI hỗ trợ tư vấn sản phẩm</p>
+                            <p id="chat-widget-title" className="truncate text-sm font-semibold">Trợ lý Apple Store</p>
+                            <p className="text-xs text-blue-100">Hỗ trợ tư vấn sản phẩm bằng AI</p>
                         </div>
                         <button
                             type="button"

@@ -8,7 +8,7 @@ import { logout, selectCurrentUser } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
 const SIDEBAR_MAP = {
-  backToStore: "Về trang Store",
+  backToStore: "Về cửa hàng",
   banners: "Banner quảng cáo",
   categories: "Danh mục",
   coupons: "Khuyến mãi",

@@ -181,10 +181,10 @@ function FlashSaleForm({ flashSale, onClose }) {
             };
             if (isEditing) {
                 await updateFlashSale({ id: flashSale.id, ...payload }).unwrap();
-                toast.success("Đã cập nhật flash sale");
+                toast.success("Đã cập nhật đợt giảm sốc");
             } else {
                 await createFlashSale(payload).unwrap();
-                toast.success("Đã tạo flash sale mới");
+                toast.success("Đã tạo đợt giảm sốc mới");
             }
             onClose();
         } catch (error) {
@@ -321,15 +321,15 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                 return;
             }
             if (!selectedVariant.inStock || Number(selectedVariant.stock) <= 0) {
-                toast.error("Chỉ thêm sản phẩm đang bán và còn hàng vào flash sale");
+                toast.error("Chỉ thêm sản phẩm đang bán và còn hàng vào đợt giảm sốc");
                 return;
             }
             if (Number(values.salePrice) >= Number(selectedVariant.price)) {
-                toast.error("Giá flash sale phải thấp hơn giá gốc");
+                toast.error("Giá giảm sốc phải thấp hơn giá gốc");
                 return;
             }
             if (Number(values.quantityLimit) > 0 && Number(values.quantityLimit) > Number(selectedVariant.stock || 0)) {
-                toast.error("Giới hạn flash sale không được vượt quá tồn kho");
+                toast.error("Giới hạn giảm sốc không được vượt quá tồn kho");
                 return;
             }
             if (Number(values.quantityLimit) > 0 && Number(values.maxPerUser) > Number(values.quantityLimit)) {
@@ -375,7 +375,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
         }}>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{"Thêm sản phẩm vào flash sale"}</DialogTitle>
+                    <DialogTitle>{"Thêm sản phẩm vào đợt giảm sốc"}</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -524,7 +524,7 @@ function AddItemDialog({ flashSaleId, open, onClose }) {
                             name="salePrice"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>{"Giá flash sale"}</FormLabel>
+                                    <FormLabel>{"Giá giảm sốc"}</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="number"
@@ -859,7 +859,7 @@ export default function AdminFlashSalePage() {
     const handleDelete = async () => {
         try {
             await deleteFlashSale(deleteId).unwrap();
-            toast.success("Đã xóa flash sale");
+            toast.success("Đã xóa đợt giảm sốc");
         } catch (error) {
             toast.error(error?.data?.message || "Có lỗi xảy ra");
         } finally {
@@ -890,12 +890,12 @@ export default function AdminFlashSalePage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-foreground">{"Quản lý Flash Sale"}</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">{"Tạo đợt flash sale, thêm sản phẩm giảm giá"}</p>
+                    <h1 className="text-2xl font-semibold text-foreground">{"Quản lý giảm sốc"}</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{"Tạo đợt giảm sốc, thêm sản phẩm giảm giá"}</p>
                 </div>
                 <Button className="rounded-full" onClick={() => { setEditingFlashSale(null); setShowForm(true); }}>
                     <Plus className="mr-1.5 h-4 w-4" />
-                    {"Tạo đợt flash sale"}
+                    {"Tạo đợt giảm sốc"}
                 </Button>
             </div>
 
@@ -904,7 +904,7 @@ export default function AdminFlashSalePage() {
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         <FlashSaleSummaryCard icon={Zap} label="Đang chạy" value={summary.active} note={`${summary.upcoming} sắp diễn ra`} tone="active" />
                         <FlashSaleSummaryCard icon={BarChart3} label="Đã bán" value={summary.totalSold} note={`${summary.soldOut} sản phẩm hết suất`} />
-                        <FlashSaleSummaryCard icon={TrendingUp} label="Doanh thu flash sale" value={formatPrice(summary.revenue)} note="Tính theo số đã bán" tone="warning" />
+                        <FlashSaleSummaryCard icon={TrendingUp} label="Doanh thu giảm sốc" value={formatPrice(summary.revenue)} note="Tính theo số đã bán" tone="warning" />
                         <FlashSaleSummaryCard icon={AlertTriangle} label="Đã kết thúc" value={summary.ended} note={`${summary.total} chương trình`} tone="danger" />
                     </div>
 
@@ -913,8 +913,8 @@ export default function AdminFlashSalePage() {
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 className="pl-9"
-                                placeholder="Tìm theo tên flash sale..."
-                                aria-label="Tìm kiếm flash sale"
+                                placeholder="Tìm theo tên đợt giảm sốc..."
+                                aria-label="Tìm kiếm đợt giảm sốc"
                                 name="admin-flash-sale-search"
                                 autoComplete="off"
                                 value={search}
@@ -923,7 +923,7 @@ export default function AdminFlashSalePage() {
                         </div>
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                             <Select value={statusFilter} onValueChange={(value) => updateFilterParam("status", value)}>
-                                <SelectTrigger className="w-full rounded-full md:w-48" aria-label="Lọc trạng thái flash sale">
+                                <SelectTrigger className="w-full rounded-full md:w-48" aria-label="Lọc trạng thái đợt giảm sốc">
                                     <SelectValue placeholder="Trạng thái" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -955,7 +955,7 @@ export default function AdminFlashSalePage() {
             {showForm && (
                 <div className="rounded-2xl border border-border bg-card p-5">
                     <h3 className="mb-4 text-sm font-medium text-foreground">
-                        {editingFlashSale ? "Chỉnh sửa flash sale" : "Tạo flash sale mới"}
+                        {editingFlashSale ? "Chỉnh sửa đợt giảm sốc" : "Tạo đợt giảm sốc mới"}
                     </h3>
                     <FlashSaleForm
                         flashSale={editingFlashSale}
@@ -979,9 +979,9 @@ export default function AdminFlashSalePage() {
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                         <PackageOpen className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <p className="mt-3 text-sm font-medium text-foreground">Chưa có Flash Sale nào</p>
+                    <p className="mt-3 text-sm font-medium text-foreground">Chưa có đợt giảm sốc nào</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Tạo đợt flash sale đầu tiên để bắt đầu
+                        Tạo đợt giảm sốc đầu tiên để bắt đầu
                     </p>
                     <Button
                         variant="outline"
@@ -990,14 +990,14 @@ export default function AdminFlashSalePage() {
                         onClick={() => { setEditingFlashSale(null); setShowForm(true); }}
                     >
                         <Plus className="mr-1.5 h-4 w-4" />
-                        {"Tạo đợt flash sale"}
+                        {"Tạo đợt giảm sốc"}
                     </Button>
                 </div>
             )}
 
             {!isLoading && flashSales.length > 0 && filteredFlashSales.length === 0 && (
                 <div className="rounded-xl border border-dashed border-border py-10 text-center">
-                    <p className="text-sm font-medium text-foreground">Không tìm thấy flash sale phù hợp</p>
+                    <p className="text-sm font-medium text-foreground">Không tìm thấy đợt giảm sốc phù hợp</p>
                     <p className="mt-1 text-xs text-muted-foreground">Thử đổi từ khóa hoặc bộ lọc trạng thái.</p>
                 </div>
             )}
@@ -1030,8 +1030,8 @@ export default function AdminFlashSalePage() {
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(open) => !open && setDeleteId(null)}
-                title={"Xóa flash sale"}
-                description={"Bạn có chắc muốn xóa đợt flash sale này?"}
+                title={"Xóa đợt giảm sốc"}
+                description={"Bạn có chắc muốn xóa đợt giảm sốc này?"}
                 onConfirm={handleDelete}
                 isLoading={isDeleting}
             />

@@ -139,7 +139,7 @@ function EmptyState() {
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
                 <ZapOff className="h-7 w-7 text-muted-foreground" />
             </div>
-            <h2 className="mt-4 text-lg font-semibold text-foreground">Không có Flash Sale nào đang diễn ra</h2>
+            <h2 className="mt-4 text-lg font-semibold text-foreground">Không có chương trình giảm sốc nào đang diễn ra</h2>
             <p className="mt-1 text-sm text-muted-foreground">Vui lòng quay lại sau để không bỏ lỡ ưu đãi hấp dẫn</p>
         </div>
     );
@@ -159,11 +159,11 @@ export default function FlashSalePage() {
         <div className="section-padding">
             <div className="mx-auto max-w-7xl section-y">
                 <Breadcrumb
-                    items={[{ label: "Trang chủ", href: "/" }, { label: "Flash Sale" }]}
+                    items={[{ label: "Trang chủ", href: "/" }, { label: "Giảm sốc" }]}
                     className="mb-6"
                 />
 
-                <h1 className="text-2xl font-bold text-foreground md:text-3xl">Flash Sale</h1>
+                <h1 className="text-2xl font-bold text-foreground md:text-3xl">Giảm sốc</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
                     Săn ngay sản phẩm Apple với giá cực tốt, số lượng có hạn
                 </p>

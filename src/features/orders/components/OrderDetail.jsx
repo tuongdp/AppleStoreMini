@@ -212,7 +212,7 @@ export default function OrderDetail({ order }) {
                         </p>
                         {returnRequest.status === "PENDING" && (
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Admin sẽ phản hồi trong thời gian sớm nhất
+                                Nhân viên sẽ phản hồi trong thời gian sớm nhất
                             </p>
                         )}
                     </div>

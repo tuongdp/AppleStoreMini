@@ -30,7 +30,7 @@ import { ROUTES } from "@/lib/constants";
 import { logout, selectCurrentUser, selectHasAdminAccess, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
-    backToStore: "Về trang Store",
+    backToStore: "Về cửa hàng",
     banners: "Banner quảng cáo",
     categories: "Danh mục",
     coupons: "Khuyến mãi",
@@ -89,7 +89,7 @@ const getAdminPageTitle = (pathname) => {
     if (pathname.includes("/edit")) return "Chỉnh sửa";
     if (pathname.split("/").length > 3) return "Chi tiết";
 
-    return item ? SIDEBAR_MAP[item.key] : "Admin";
+    return item ? SIDEBAR_MAP[item.key] : "Quản trị";
 };
 
 function SidebarContent({ onClose }) {
@@ -169,7 +169,7 @@ function SidebarContent({ onClose }) {
                     onClick={onClose}
                 >
                     <Store className="h-4 w-4 shrink-0" />
-                    {"Về trang Store"}
+                    {"Về cửa hàng"}
                 </Link>
 
                 <Separator className="my-1" />

@@ -604,7 +604,7 @@ export default function ProductDetailPage() {
                                 className="flex-1 rounded-full text-base"
                                 disabled
                             >
-                                {isFlashSaleSoldOut ? "Hết suất flash sale" : "Hết hàng"}
+                                {isFlashSaleSoldOut ? "Hết suất giảm sốc" : "Hết hàng"}
                             </Button>
                         )}
                         <Button

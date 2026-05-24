@@ -222,14 +222,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     savedId = created.id;
                 }
              } catch (err) {
-                toast.error(err?.data?.message || "Lỗi khi lưu variant");
+                toast.error(err?.data?.message || "Lỗi khi lưu biến thể");
                 return;
             }
         } else {
             // Create mode — auto-create product first so variant can be saved via API
             const formValues = form.getValues();
             if (!formValues.name?.trim() || !formValues.slug?.trim() || !formValues.category) {
-                toast.error("Vui lòng nhập đầy đủ tên, slug và danh mục trước khi thêm variant");
+                toast.error("Vui lòng nhập đầy đủ tên, slug và danh mục trước khi thêm biến thể");
                 return;
             }
             setIsCreatingProduct(true);
@@ -258,7 +258,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 onProductAutoCreated?.(newProductId);
                 const createdVariant = created.variants?.[0];
                 if (createdVariant) { savedId = createdVariant.id; }
-                toast.success("Đã tạo sản phẩm và lưu variant");
+                toast.success("Đã tạo sản phẩm và lưu biến thể");
             } catch (err) {
                 toast.error(err?.data?.message || "Lỗi khi tạo sản phẩm");
                 setIsCreatingProduct(false);
@@ -312,14 +312,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             try {
                 await deleteVariant(variant.id).unwrap();
             } catch {
-                toast.error("Xóa variant thất bại");
+                toast.error("Xóa biến thể thất bại");
                 setDeleteTarget(null);
                 return;
             }
         }
         setVariants(variants.filter((_, i) => i !== idx));
         setDeleteTarget(null);
-        toast.success("Đã xóa variant");
+        toast.success("Đã xóa biến thể");
     };
 
     const handleBlockedVariantToggle = async () => {
@@ -337,7 +337,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     };
 
     const handleSubmit = (values) => {
-        if (variants.length === 0) { toast.error("Cần có ít nhất 1 variant"); return; }
+        if (variants.length === 0) { toast.error("Cần có ít nhất 1 biến thể"); return; }
         onSubmit({
             ...values,
             productId: autoCreatedId,
@@ -452,7 +452,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                         ) : (
                                                             <Upload className="mr-1.5 h-3.5 w-3.5" />
                                                         )}
-                                                        {"Upload ảnh"}
+                                                        {"Tải ảnh lên"}
                                                     </Button>
                                                     {field.value && (
                                                         <Button
@@ -510,13 +510,13 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
                     {/* ── Section 3: Variants ── */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <h3 className="mb-5 text-sm font-medium text-foreground">Variants</h3>
+                        <h3 className="mb-5 text-sm font-medium text-foreground">Biến thể</h3>
 
                         <div className="max-h-[45vh] overflow-y-auto pr-1">
                             {!hasVariants && !showVariantForm && (
                                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
                                     <PackageOpen className="mb-3 h-10 w-10 text-muted-foreground/50" />
-                                    <p className="text-sm text-muted-foreground">{"Chưa có variant nào. Hãy thêm ít nhất một variant."}</p>
+                                    <p className="text-sm text-muted-foreground">{"Chưa có biến thể nào. Hãy thêm ít nhất một biến thể."}</p>
                                 </div>
                             )}
 
@@ -584,7 +584,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         {!showVariantForm && (
                             <div className="mt-3 flex gap-2">
                                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => { setEditingVariantIdx(null); setShowVariantForm(true); }}>
-                                    <Plus className="mr-1 h-3.5 w-3.5" /> {"Thêm variant"}
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> {"Thêm biến thể"}
                                 </Button>
                             </div>
                         )}
@@ -618,7 +618,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             {!hasVariants && (
                                 <div className="absolute -top-8 left-0 right-0 text-center">
                                     <span className="text-xs text-destructive flex items-center justify-center gap-1">
-                                        <AlertTriangle className="h-3 w-3" /> {"Cần có ít nhất 1 variant"}
+                                        <AlertTriangle className="h-3 w-3" /> {"Cần có ít nhất 1 biến thể"}
                                     </span>
                                 </div>
                             )}
@@ -659,16 +659,16 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             <ConfirmDialog
                 open={deleteTarget !== null}
                 onOpenChange={(o) => !o && setDeleteTarget(null)}
-                title={"Xóa variant"}
-                description={"Bạn có chắc muốn xóa variant này?"}
+                title={"Xóa biến thể"}
+                description={"Bạn có chắc muốn xóa biến thể này?"}
                 onConfirm={confirmDeleteVariant}
             />
 
             <ConfirmDialog
                 open={blockedVariant !== null}
                 onOpenChange={(o) => !o && setBlockedVariant(null)}
-                title={"Không thể xóa variant"}
-                description={"Không thể xóa variant này vì đã có trong đơn hàng. Bạn có thể tắt trạng thái còn hàng thay thế."}
+                title={"Không thể xóa biến thể"}
+                description={"Không thể xóa biến thể này vì đã có trong đơn hàng. Bạn có thể tắt trạng thái còn hàng thay thế."}
                 confirmLabel={"Tắt còn hàng"}
                 onConfirm={handleBlockedVariantToggle}
             />
@@ -761,7 +761,7 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     return (
         <div className="mb-4 rounded-xl border border-border bg-muted/20 p-4 space-y-3">
             <p className="text-sm font-medium text-foreground">
-                {initial ? "Sửa variant" : "Thêm variant mới"}
+                {initial ? "Sửa biến thể" : "Thêm biến thể mới"}
             </p>
             <div className="grid grid-cols-2 gap-3">
                 {allColorOptions.length > 0 && (
@@ -831,7 +831,7 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
             </div>
 
             <div>
-                <Label className="text-xs">{"variantImages"}</Label>
+                <Label className="text-xs">{"Ảnh biến thể"}</Label>
                 <div className="mt-1 flex flex-wrap gap-2">
                     {vImages.map((src, idx) => (
                         <div key={idx} className="group relative h-14 w-14 overflow-hidden rounded-lg bg-muted/30">
@@ -858,7 +858,7 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
             <div className="flex justify-end gap-2 pt-1">
                 <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onCancel}>{"Huỷ"}</Button>
                 <Button type="button" size="sm" className="rounded-full" onClick={handleSave} disabled={isSaving}>
-                    {isSaving ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> {"Đang tạo..."}</> : <><Save className="mr-1 h-3.5 w-3.5" /> {"Lưu variant"}</>}
+                    {isSaving ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> {"Đang tạo..."}</> : <><Save className="mr-1 h-3.5 w-3.5" /> {"Lưu biến thể"}</>}
                 </Button>
             </div>
         </div>
