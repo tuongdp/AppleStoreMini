@@ -18,10 +18,10 @@ test("buildCompareProductInput includes practical commerce context", () => {
   });
 
   assert.equal(input.name, "iPhone 15");
-  assert.match(input.specs, /Gia hien tai: 17\.900\.000/);
-  assert.match(input.specs, /Tinh trang: Con hang/);
-  assert.match(input.specs, /Phien ban: 128GB Blue, 256GB Black/);
-  assert.match(input.specs, /Thong so: screen: 6.1 inch; chip: A16/);
+  assert.match(input.storeContext, /Gia hien tai: 17\.900\.000/);
+  assert.match(input.storeContext, /Tinh trang: Con hang/);
+  assert.match(input.storeContext, /Phien ban: 128GB Blue, 256GB Black/);
+  assert.equal("specs" in input, false);
 });
 
 test("parseComparisonReply keeps structured AI comparison sections", () => {
