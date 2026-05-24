@@ -259,7 +259,7 @@ function RegisterFormInModal({ onSuccess }) {
                         </FormItem>
                     )}
                 />
-                <div className="flex gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs leading-relaxed text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300">
+                <div className="flex gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
                     <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <p>
                         Vui lòng sử dụng email thật để nhận link kích hoạt tài khoản, thông báo đơn hàng và ưu đãi từ cửa hàng. Tài khoản chưa xác thực email trong 24 giờ sẽ được tự động xóa.

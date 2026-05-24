@@ -31,7 +31,7 @@ const CONTACT_INFO = [
     icon: MapPin,
     label: "Địa chỉ",
     value: STORE_ADDRESS,
-    color: "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
+    color: "bg-muted text-foreground",
   },
   {
     icon: Phone,
@@ -39,21 +39,21 @@ const CONTACT_INFO = [
     rawPhone: "0562456055",
     suffix: " (miễn phí)",
     color:
-      "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
+      "bg-muted text-foreground",
   },
   {
     icon: Mail,
     label: "Email",
     value: "phuctuong123456@gmail.com",
     color:
-      "bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400",
+      "bg-muted text-foreground",
   },
   {
     icon: Clock,
     label: "Giờ làm việc",
     value: "8:00 – 21:00, tất cả các ngày",
     color:
-      "bg-purple-100 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400",
+      "bg-muted text-foreground",
   },
 ];
 

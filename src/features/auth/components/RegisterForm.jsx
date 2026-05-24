@@ -112,8 +112,8 @@ export default function RegisterForm() {
     if (registerSuccess) {
         return (
             <div className="w-full max-w-sm text-center">
-                <div className="mb-6 mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/30">
-                    <MailCheck className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <div className="mb-6 mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted text-foreground">
+                    <MailCheck className="h-8 w-8" />
                 </div>
                 <h1 className="mb-2 text-xl font-semibold text-foreground">
                     {"Xác thực email"}
@@ -222,7 +222,7 @@ export default function RegisterForm() {
                         <p className="-mt-3 text-xs text-emerald-600">Email có thể sử dụng</p>
                     )}
 
-                    <div className="-mt-2 flex gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs leading-relaxed text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300">
+                    <div className="-mt-2 flex gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
                         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                         <p>
                             Vui lòng sử dụng email thật để nhận link kích hoạt tài khoản, thông báo đơn hàng và ưu đãi từ cửa hàng. Tài khoản chưa xác thực email trong 24 giờ sẽ được tự động xóa.

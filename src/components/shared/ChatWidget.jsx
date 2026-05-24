@@ -72,7 +72,7 @@ export default function ChatWidget() {
                 type="button"
                 onClick={() => setOpen((value) => !value)}
                 aria-label={open ? "Đóng chat" : "Mở chat"}
-                className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
+                className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
             >
                 {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
             </button>
@@ -84,11 +84,11 @@ export default function ChatWidget() {
                     aria-labelledby="chat-widget-title"
                     className="fixed inset-0 z-50 flex flex-col bg-card sm:inset-auto sm:bottom-20 sm:right-6 sm:h-[480px] sm:w-[380px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl"
                 >
-                    <div className="flex items-center gap-3 bg-blue-600 px-4 py-3 text-white sm:rounded-t-2xl">
+                    <div className="flex items-center gap-3 bg-foreground px-4 py-3 text-background sm:rounded-t-2xl">
                         <Sparkles aria-hidden="true" className="h-5 w-5" />
                         <div className="min-w-0 flex-1">
                             <p id="chat-widget-title" className="truncate text-sm font-semibold">Trợ lý Apple Store</p>
-                            <p className="text-xs text-blue-100">Hỗ trợ tư vấn sản phẩm bằng AI</p>
+                            <p className="text-xs text-background/70">Hỗ trợ tư vấn sản phẩm bằng AI</p>
                         </div>
                         <button
                             type="button"
@@ -108,7 +108,7 @@ export default function ChatWidget() {
                     >
                         {messages.length === 0 && (
                             <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground">
-                                <Bot className="mb-2 h-10 w-10 text-blue-500" />
+                                <Bot className="mb-2 h-10 w-10 text-muted-foreground" />
                                 <p className="text-sm font-medium">
                                     Xin chào! Mình có thể giúp bạn chọn sản phẩm Apple phù hợp.
                                 </p>
@@ -121,7 +121,7 @@ export default function ChatWidget() {
                                     <div
                                         className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                                             item.senderType === "USER"
-                                                ? "rounded-br-md bg-blue-600 text-white"
+                                                ? "rounded-br-md bg-foreground text-background"
                                                 : "rounded-bl-md bg-muted text-foreground"
                                         }`}
                                     >
@@ -138,11 +138,11 @@ export default function ChatWidget() {
                                             >
                                                 <div className="min-w-0 flex-1">
                                                     <p className="truncate text-sm font-medium">{product.name}</p>
-                                                    <p className="text-xs font-semibold text-blue-600">
+                                                    <p className="text-xs font-semibold text-foreground">
                                                         {Number(product.price || 0).toLocaleString("vi-VN")}đ
                                                     </p>
                                                 </div>
-                                                <span className="text-xs font-medium text-blue-600">Xem</span>
+                                                <span className="text-xs font-medium text-foreground">Xem</span>
                                             </button>
                                         ))}
                                     </div>

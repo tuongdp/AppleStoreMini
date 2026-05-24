@@ -88,7 +88,7 @@ export default function ProductCard({ product }) {
                     {/* Badges */}
                     <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
                         {hasFlashSale && (
-                            <Badge className="flex items-center gap-1 border-0 bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm dark:bg-amber-400 dark:text-black">
+                            <Badge className="flex items-center gap-1 border-0 bg-foreground px-1.5 py-0.5 text-[10px] font-bold text-background shadow-sm">
                                 <Flame className="h-3 w-3" />
                                 {"FLASH SALE"}
                             </Badge>
@@ -102,7 +102,7 @@ export default function ProductCard({ product }) {
                             </Badge>
                         )}
                         {isNewProduct(product.createdAt) && (
-                            <Badge className="bg-green-500 px-1.5 py-0.5 text-[10px] font-bold text-white dark:bg-green-600">
+                            <Badge className="bg-muted px-1.5 py-0.5 text-[10px] font-bold text-foreground">
                                 {"Mới"}
                             </Badge>
                         )}
@@ -178,7 +178,7 @@ export default function ProductCard({ product }) {
                         <>
                             <span className={cn(
                                 "text-sm font-semibold",
-                                hasFlashSale ? "text-amber-600 dark:text-amber-400" : "text-foreground",
+                                "text-foreground",
                             )}>
                                 {formatPrice(effectivePrice)}
                             </span>

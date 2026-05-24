@@ -56,7 +56,7 @@ export default function PrivacyPage() {
                 <Breadcrumb items={[{ label: "Chính sách bảo mật" }]} className="mb-6" />
 
                 <div className="mb-8 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground">
                         <Lock className="h-5 w-5" />
                     </div>
                     <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">

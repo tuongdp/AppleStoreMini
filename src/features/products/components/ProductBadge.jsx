@@ -7,7 +7,7 @@ export default function ProductBadge({ product, className }) {
     return (
         <div className={cn("flex flex-col gap-1", className)}>
             {product.isNew && (
-                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400">
+                <Badge className="bg-muted text-foreground hover:bg-muted">
                     {"Mới"}
                 </Badge>
             )}
@@ -27,7 +27,7 @@ export default function ProductBadge({ product, className }) {
                 </Badge>
             )}
             {product.featured && (
-                <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
+                <Badge className="bg-foreground text-background hover:bg-foreground/90">
                     {"Nổi bật"}
                 </Badge>
             )}

@@ -153,8 +153,8 @@ export default function AppleCarePage() {
         />
 
         <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-950/30">
-            <Wrench className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <Wrench className="h-5 w-5" />
           </div>
           <h1 className="text-3xl font-semibold text-foreground">
             {"Dịch vụ sửa chữa AppleCare"}
@@ -190,7 +190,7 @@ export default function AppleCarePage() {
                 </p>
                 <a
                   href="#"
-                  className="text-xs font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  className="text-xs font-medium text-foreground underline-offset-4 transition-colors hover:underline"
                 >
                   {"Xem bảng giá tham khảo →"}
                 </a>
@@ -200,8 +200,8 @@ export default function AppleCarePage() {
         </div>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/30">
-            <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <ShieldCheck className="h-5 w-5" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
             {"Lý do lựa chọn AppleCare"}
@@ -229,8 +229,8 @@ export default function AppleCarePage() {
         </div>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-950/30">
-            <Package className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <Package className="h-5 w-5" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
             {"Phụ kiện chính hãng Apple tại AppleCare"}
@@ -274,8 +274,8 @@ export default function AppleCarePage() {
         </p>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950/30">
-            <ClipboardList className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <ClipboardList className="h-5 w-5" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
             {"Quy trình bảo hành AppleCare"}
@@ -308,22 +308,22 @@ export default function AppleCarePage() {
           {"Điều khoản bảo hành sửa chữa Apple toàn cầu:"}{" "}
           <a
             href="#"
-            className="text-blue-600 hover:underline dark:text-blue-400"
+            className="text-foreground underline-offset-4 hover:underline"
           >
             {"Pháp lý"}
           </a>
           {" | "}
           <a
             href="#"
-            className="text-blue-600 hover:underline dark:text-blue-400"
+            className="text-foreground underline-offset-4 hover:underline"
           >
             {"Sửa chữa"}
           </a>
         </p>
 
         <div className="mb-8 mt-16 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-950/30">
-            <Building2 className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground">
+            <Building2 className="h-5 w-5" />
           </div>
           <h2 className="text-3xl font-semibold text-foreground">
             {"Trung tâm bảo hành AppleCare - Đẳng cấp khác biệt"}

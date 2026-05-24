@@ -76,7 +76,7 @@ export default function AboutPage() {
         <div className="space-y-10">
           {/* Who we are */}
           <section className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-muted text-foreground">
               <Store className="h-7 w-7" />
             </div>
             <div>
@@ -96,7 +96,7 @@ export default function AboutPage() {
 
           {/* Mission */}
           <section className="flex flex-col gap-4 sm:flex-row">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-muted text-foreground">
               <Target className="h-7 w-7" />
             </div>
             <div>
@@ -116,7 +116,7 @@ export default function AboutPage() {
           {/* Core values */}
           <section>
             <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
                 <Heart className="h-5 w-5" />
               </div>
               <h2 className="text-lg font-semibold text-foreground">

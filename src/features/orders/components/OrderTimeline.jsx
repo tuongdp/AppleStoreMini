@@ -58,7 +58,7 @@ export default function OrderTimeline({ order }) {
                                     isDone &&
                                         "border-green-500 bg-green-500 text-white",
                                     isCurrent &&
-                                        "border-apple-blue bg-apple-blue text-white",
+                                        "border-foreground bg-foreground text-background",
                                     isPending &&
                                         "border-border bg-background text-muted-foreground",
                                 )}
