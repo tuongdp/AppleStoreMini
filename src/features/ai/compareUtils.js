@@ -26,19 +26,32 @@ const formatPriceText = (price) => (
 const formatVariantLabel = (variant = {}) =>
   [variant.storage, variant.ram, variant.edition, variant.color].filter(Boolean).join(" ");
 
+const formatSpecs = (specifications) => {
+  if (!specifications || typeof specifications !== "object" || Array.isArray(specifications)) {
+    return "";
+  }
+  return Object.entries(specifications)
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .slice(0, 12)
+    .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+    .join("; ");
+};
+
 export function buildCompareProductInput(product = {}) {
   const variants = product.variants || [];
   const inStockCount = variants.filter((variant) => variant.inStock || toNumber(variant.stock) > 0).length;
   const variantLabels = [...new Set(variants.map(formatVariantLabel).filter(Boolean))].slice(0, 8);
   const price = getProductPrice(product);
+  const specs = formatSpecs(product.specifications);
 
   return {
     name: product.name || "",
-    storeContext: [
+    specs: [
       `Danh muc: ${product.category?.name || product.category?.slug || product.category || "Khong ro"}`,
       `Gia hien tai: ${formatPriceText(price)}`,
       `Tinh trang: ${!variants.length || inStockCount > 0 ? "Con hang" : "Het hang"}`,
       variantLabels.length ? `Phien ban: ${variantLabels.join(", ")}` : "",
+      specs ? `Thong so tu cua hang: ${specs}` : "",
     ].filter(Boolean).join("\n"),
   };
 }
