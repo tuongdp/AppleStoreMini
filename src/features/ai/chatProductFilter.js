@@ -1,40 +1,129 @@
+const MAX_CHAT_PRODUCTS = 4;
+
 function normalizeText(value) {
   return String(value || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
+    .replace(/đ/g, "d")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
 
+function productText(product) {
+  return normalizeText(`${product?.name || ""} ${product?.category || ""} ${product?.slug || ""}`);
+}
+
+function productName(product) {
+  return normalizeText(product?.name);
+}
+
+function extractBudget(message) {
+  const text = normalizeText(message);
+  const millionMatch = text.match(/\b(\d+(?:[.,]\d+)?)\s*(trieu|tr|m)\b/);
+  if (millionMatch) return Math.round(Number(millionMatch[1].replace(",", ".")) * 1000000);
+
+  const rawNumberMatch = text.match(/\b(\d{7,})\b/);
+  return rawNumberMatch ? Number(rawNumberMatch[1]) : null;
+}
+
+function extractFamily(message) {
+  const text = normalizeText(message);
+  if (/\biphone\b/.test(text)) return "iphone";
+  if (/\b(ipad)\b/.test(text)) return "ipad";
+  if (/\b(macbook|mac)\b/.test(text)) return "macbook";
+  if (/\b(airpods)\b/.test(text)) return "airpods";
+  if (/\b(apple watch|watch)\b/.test(text)) return "watch";
+  return "";
+}
+
 function extractExactModelQuery(message) {
-  const normalized = normalizeText(message);
-  const match = normalized.match(/\b(iphone|ipad|macbook|airpods|apple watch)\s+(\d+[a-z]?)(?:\s+(pro max|pro|plus|air|max|mini))?\b/);
+  const text = normalizeText(message);
+  const match = text.match(/\b(iphone|ipad|macbook|airpods|apple watch|watch)\s+(\d+[a-z]?|air|pro|ultra|se|m\d)(?:\s+(pro max|pro|plus|air|max|mini|ultra|se|m\d))*\b/);
   if (!match) return "";
 
-  return [match[1], match[2], match[3]].filter(Boolean).join(" ");
+  const start = match.index;
+  const candidate = text.slice(start).split(/\b(?:duoi|tren|tam|gia|ngan sach|cho|de|can|nen|mua)\b/)[0].trim();
+  return candidate.replace(/^watch\b/, "apple watch");
+}
+
+function hasAccessoryIntent(message) {
+  return /\b(op lung|cap|cap sac|adapter|cu sac|sac|magsafe|case|day deo|phu kien)\b/.test(normalizeText(message));
 }
 
 function isAccessory(product) {
-  const text = normalizeText(`${product?.name} ${product?.category || ""}`);
-  return /\b(op lung|cap sac|adapter|sac|cu sac|earpods|case|magsafe|day deo)\b/.test(text);
+  return /\b(op lung|cap sac|adapter|cu sac|sac|earpods|case|magsafe|day deo|phu kien)\b/.test(productText(product));
+}
+
+function matchesFamily(product, family) {
+  const text = productText(product);
+  if (!family) return true;
+  if (family === "watch") return /\b(apple watch|watch)\b/.test(text);
+  return text.startsWith(`${family} `) || text.includes(` ${family} `);
+}
+
+function getPrice(product) {
+  return Number(product?.price ?? product?.salePrice ?? product?.flashSale?.salePrice ?? 0);
+}
+
+function scoreProduct(product, { exactModel, family, accessoryIntent, budget }) {
+  let score = 0;
+
+  const name = productName(product);
+  if (exactModel && name === exactModel) score += 100;
+  else if (exactModel && name.startsWith(`${exactModel} `)) score += 60;
+
+  if (family && matchesFamily(product, family)) score += 20;
+  if (accessoryIntent && isAccessory(product)) score += 40;
+  if (!accessoryIntent && isAccessory(product)) score -= 40;
+
+  const price = getPrice(product);
+  if (budget && price > 0 && price <= budget) score += 10;
+  if (budget && price > budget) score -= 100;
+  if (Number(product?.stock ?? 1) > 0 || product?.inStock) score += 2;
+
+  return score;
 }
 
 export function filterChatProductsByMessage(message, products) {
   if (!Array.isArray(products) || !products.length) return [];
 
-  const exactModel = extractExactModelQuery(message);
-  if (exactModel) {
-    const exactMatches = products.filter((product) => normalizeText(product?.name) === exactModel);
+  const intent = {
+    exactModel: extractExactModelQuery(message),
+    family: extractFamily(message),
+    accessoryIntent: hasAccessoryIntent(message),
+    budget: extractBudget(message),
+  };
+
+  let candidates = products;
+
+  if (intent.exactModel && !intent.accessoryIntent) {
+    const exactMatches = candidates.filter((product) => productName(product) === intent.exactModel);
     if (exactMatches.length) return exactMatches;
-
-    return products.filter((product) => normalizeText(product?.name).startsWith(`${exactModel} `));
+    candidates = candidates.filter((product) => productName(product).startsWith(`${intent.exactModel} `));
   }
 
-  const normalizedMessage = normalizeText(message);
-  if (/\biphone\b/.test(normalizedMessage)) {
-    return products.filter((product) => normalizeText(product?.name).startsWith("iphone ") && !isAccessory(product));
+  if (intent.family) {
+    candidates = candidates.filter((product) => matchesFamily(product, intent.family));
   }
 
-  return products.filter((product) => !isAccessory(product));
+  if (intent.accessoryIntent) {
+    candidates = candidates.filter(isAccessory);
+  } else {
+    candidates = candidates.filter((product) => !isAccessory(product));
+  }
+
+  if (intent.budget) {
+    candidates = candidates.filter((product) => {
+      const price = getPrice(product);
+      return !price || price <= intent.budget;
+    });
+  }
+
+  return candidates
+    .map((product) => ({ product, score: scoreProduct(product, intent) }))
+    .filter((item) => item.score > -20)
+    .sort((a, b) => b.score - a.score || getPrice(a.product) - getPrice(b.product))
+    .slice(0, MAX_CHAT_PRODUCTS)
+    .map((item) => item.product);
 }
