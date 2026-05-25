@@ -48,17 +48,13 @@ test.describe("ecommerce flows", () => {
     await expect(page.getByRole("button", { name: /danh/i })).toHaveCount(0);
   });
 
-  test("shows active filter chips and clears product filters", async ({ mockedPage: page }) => {
-    await page.goto("/products?category=iphone&minPrice=20000000&maxPrice=30000000&sort=price_asc");
+  test("uses simplified product filter and sort nav", async ({ mockedPage: page }) => {
+    await page.goto("/products?category=iphone&sort=price_asc");
 
-    await expect(page.getByTestId("active-filter-chip")).toContainText([
-      "iPhone",
-      "20.000.000",
-      "Giá thấp đến cao",
-    ]);
-
-    await page.getByRole("button", { name: "Xóa tất cả bộ lọc" }).click();
-    await expect(page).toHaveURL(/\/products$/);
+    await expect(page.getByText("Sắp xếp theo")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Giá thấp đến cao" })).toHaveClass(/bg-foreground/);
+    await page.getByRole("button", { name: "Bán chạy" }).click();
+    await expect(page).toHaveURL(/sort=best_seller/);
     await expect(page.getByTestId("active-filter-chip")).toHaveCount(0);
   });
 

@@ -13,6 +13,8 @@ test("product list reads and displays product arrival filters", () => {
   const source = readFileSync("src/pages/ProductListPage.jsx", "utf8");
 
   assert.match(source, /searchParams\.get\("arrivalType"\)/);
-  assert.match(source, /PRODUCT_ARRIVAL_FILTERS/);
-  assert.match(source, /updateFilter\("arrivalType"/);
+  assert.match(source, /PRODUCT_SORT_OPTIONS/);
+  assert.match(source, /arrivalType:\s*"NEW_RELEASE"/);
+  assert.match(source, /arrivalType:\s*"RESTOCK"/);
+  assert.match(source, /updateSort/);
 });

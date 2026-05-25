@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Plus, Pencil, Trash2, GripVertical, ImagePlus, ImageUp } from "lucide-react";
+import { Plus, Pencil, Trash2, GripVertical, ImagePlus, ImageUp, Loader2, X } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
@@ -7,6 +7,7 @@ import {
     useDeleteCategoryMutation,
     useToggleCategoryStatusMutation,
 } from "@/store/api/categoriesApi";
+import { useUploadEditorImageMutation } from "@/store/api/productsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +27,9 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { slugify } from "@/lib/utils";
+import { parseJsonField, slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { IMAGE } from "@/lib/constants";
 
 const categorySchema = z.object({
     name: z.string().min(1, "Tên danh mục không được để trống"),
@@ -43,8 +45,17 @@ function CategoryForm({ category, onClose }) {
         useUpdateCategoryMutation();
     const isLoading = isCreating || isUpdating;
     const fileInputRef = useRef(null);
+    const sliderInputRef = useRef(null);
+    const [uploadImage] = useUploadEditorImageMutation();
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(category?.image || null);
+    const [sliderImages, setSliderImages] = useState(() =>
+        parseJsonField(category?.sliderImages ?? category?.slider ?? category?.slides ?? category?.bannerImages)
+            .map((item) => (typeof item === "string" ? item : item?.image || item?.url || item?.src))
+            .filter(Boolean),
+    );
+    const [sliderUrl, setSliderUrl] = useState("");
+    const [isUploadingSlider, setIsUploadingSlider] = useState(false);
 
     const form = useForm({
         resolver: zodResolver(categorySchema),
@@ -70,10 +81,49 @@ function CategoryForm({ category, onClose }) {
         reader.readAsDataURL(file);
     };
 
+    const addSliderUrl = () => {
+        const url = sliderUrl.trim();
+        if (!url) return;
+        setSliderImages((prev) => [...prev, url]);
+        setSliderUrl("");
+    };
+
+    const removeSliderImage = (index) => {
+        setSliderImages((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
+    };
+
+    const handleSliderUpload = async (e) => {
+        const files = [...(e.target.files || [])];
+        if (!files.length) return;
+        const validFiles = files.filter((file) => IMAGE.VALID_TYPES.includes(file.type) && file.size <= IMAGE.MAX_SIZE);
+        if (validFiles.length !== files.length) {
+            toast.error("Chỉ hỗ trợ ảnh JPG, PNG, WebP tối đa 5MB");
+        }
+        if (!validFiles.length) return;
+
+        setIsUploadingSlider(true);
+        try {
+            const uploaded = [];
+            for (const file of validFiles) {
+                const fd = new FormData();
+                fd.append("image", file);
+                const result = await uploadImage(fd).unwrap();
+                uploaded.push(result.url || result);
+            }
+            setSliderImages((prev) => [...prev, ...uploaded.filter(Boolean)]);
+        } catch (error) {
+            toast.error(error?.data?.message || "Upload ảnh slider thất bại");
+        } finally {
+            setIsUploadingSlider(false);
+            if (sliderInputRef.current) sliderInputRef.current.value = "";
+        }
+    };
+
     const onSubmit = async (values) => {
         try {
             const payload = { ...values };
             if (imageFile) payload.image = imageFile;
+            payload.sliderImages = sliderImages;
             if (isEditing) {
                 payload.id = category._id || category.id;
                 await updateCategory(payload).unwrap();
@@ -182,6 +232,69 @@ function CategoryForm({ category, onClose }) {
                                 </div>
                             )}
                         </button>
+                    </div>
+                </div>
+
+                <div>
+                    <FormLabel>Ảnh slider danh mục</FormLabel>
+                    <div className="mt-1.5 space-y-3">
+                        {sliderImages.length > 0 && (
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                {sliderImages.map((src, index) => (
+                                    <div key={`${src}-${index}`} className="relative aspect-[16/7] overflow-hidden rounded-lg border border-border bg-muted">
+                                        <img src={src} alt="" className="h-full w-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeSliderImage(index)}
+                                            className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-muted-foreground shadow-sm hover:text-destructive"
+                                            aria-label={`Xóa ảnh slider ${index + 1}`}
+                                        >
+                                            <X className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                            <Input
+                                value={sliderUrl}
+                                onChange={(e) => setSliderUrl(e.target.value)}
+                                placeholder="https://..."
+                                disabled={isLoading || isUploadingSlider}
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="shrink-0 rounded-full"
+                                onClick={addSliderUrl}
+                                disabled={isLoading || isUploadingSlider || !sliderUrl.trim()}
+                            >
+                                Thêm URL
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="shrink-0 rounded-full"
+                                onClick={() => sliderInputRef.current?.click()}
+                                disabled={isLoading || isUploadingSlider}
+                            >
+                                {isUploadingSlider ? (
+                                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                ) : (
+                                    <ImageUp className="mr-1.5 h-4 w-4" />
+                                )}
+                                Upload
+                            </Button>
+                            <input
+                                ref={sliderInputRef}
+                                type="file"
+                                multiple
+                                accept={IMAGE.VALID_TYPES.join(",")}
+                                className="hidden"
+                                onChange={handleSliderUpload}
+                            />
+                        </div>
                     </div>
                 </div>
 

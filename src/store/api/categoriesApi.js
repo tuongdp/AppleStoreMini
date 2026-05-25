@@ -23,7 +23,9 @@ export const categoriesApi = baseApi.injectEndpoints({
                 const body = hasFile ? new FormData() : data;
                 if (hasFile) {
                     Object.entries(data).forEach(([k, v]) => {
-                        if (v !== undefined && v !== null) body.append(k, v);
+                        if (v !== undefined && v !== null) {
+                            body.append(k, Array.isArray(v) || typeof v === "object" && !(v instanceof File) ? JSON.stringify(v) : v);
+                        }
                     });
                 }
                 return { url: "/admin/categories", method: "POST", body, formData: hasFile };
@@ -39,7 +41,9 @@ export const categoriesApi = baseApi.injectEndpoints({
                 const body = hasFile ? new FormData() : data;
                 if (hasFile) {
                     Object.entries(data).forEach(([k, v]) => {
-                        if (v !== undefined && v !== null) body.append(k, v);
+                        if (v !== undefined && v !== null) {
+                            body.append(k, Array.isArray(v) || typeof v === "object" && !(v instanceof File) ? JSON.stringify(v) : v);
+                        }
                     });
                 }
                 return { url: `/admin/categories/${id}`, method: "PUT", body, formData: hasFile };
