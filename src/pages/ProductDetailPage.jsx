@@ -32,6 +32,12 @@ import {
     getProductMarketingBadge,
     getProductMarketingBadgeClassName,
 } from "@/features/products/utils/productMarketingBadge";
+import {
+    findVariantForOption,
+    getSelectedVariant,
+    getVariantSelection,
+    isOptionSelectable,
+} from "@/features/products/utils/productVariantSelection";
 import { ROUTES } from "@/lib/constants";
 import AIComparePanel from "@/features/ai/AIComparePanel";
 import AIReviewSummary from "@/features/ai/AIReviewSummary";
@@ -74,6 +80,13 @@ export default function ProductDetailPage() {
     const [selectedRam, setSelectedRam] = useState(() => searchParams.get("ram") || "");
     const [selectedEdition, setSelectedEdition] = useState(() => searchParams.get("edition") || "");
 
+    const currentSelection = useMemo(() => ({
+        color: selectedColor,
+        storage: selectedStorage,
+        ram: selectedRam,
+        edition: selectedEdition,
+    }), [selectedColor, selectedStorage, selectedRam, selectedEdition]);
+
     const updateVariantUrl = (updates) => {
         setSearchParams((prevParams) => {
             const params = new URLSearchParams(prevParams);
@@ -93,34 +106,23 @@ export default function ProductDetailPage() {
         updateVariantUrl(updates);
     };
 
-    const defaultVariant = useMemo(() => {
-        if (!variants.length) return null;
-        return variants.find((v) => v.inStock) || variants[0];
-    }, [variants]);
-
-    const defaultColor = defaultVariant?.color || "";
-    const defaultStorage = defaultVariant?.storage || "";
-    const defaultRam = defaultVariant?.ram || "";
-    const defaultEdition = defaultVariant?.edition || "";
-
-    const effectiveColor = selectedColor || defaultColor;
-    const effectiveStorage = selectedStorage || defaultStorage;
-    const effectiveRam = selectedRam || defaultRam;
-    const effectiveEdition = selectedEdition || defaultEdition;
-
     const selectedVariant = useMemo(() => {
-        if (!effectiveColor && !effectiveStorage && !effectiveRam && !effectiveEdition) return null;
-        const match = variants.find(
-            (v) =>
-                (v.color || "") === effectiveColor &&
-                (v.storage || "") === effectiveStorage &&
-                (v.ram || "") === effectiveRam &&
-                (v.edition || "") === effectiveEdition,
-        );
-        return match || null;
-    }, [variants, effectiveColor, effectiveStorage, effectiveRam, effectiveEdition]);
+        return getSelectedVariant(variants, currentSelection);
+    }, [variants, currentSelection]);
 
-    const invalidSelection = !selectedVariant && (effectiveColor || effectiveStorage || effectiveRam || effectiveEdition);
+    const effectiveColor = selectedColor || selectedVariant?.color || "";
+    const effectiveStorage = selectedStorage || selectedVariant?.storage || "";
+    const effectiveRam = selectedRam || selectedVariant?.ram || "";
+    const effectiveEdition = selectedEdition || selectedVariant?.edition || "";
+
+    const effectiveSelection = useMemo(() => ({
+        color: effectiveColor,
+        storage: effectiveStorage,
+        ram: effectiveRam,
+        edition: effectiveEdition,
+    }), [effectiveColor, effectiveStorage, effectiveRam, effectiveEdition]);
+
+    const invalidSelection = !selectedVariant && (selectedColor || selectedStorage || selectedRam || selectedEdition);
 
     const inStock = selectedVariant?.inStock ?? false;
     const stock = selectedVariant?.stock ?? 0;
@@ -173,8 +175,16 @@ export default function ProductDetailPage() {
         setSelectedRam(searchParams.get("ram") || "");
         setSelectedEdition(searchParams.get("edition") || "");
         setQuantity(1);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [slug]);
+    }, [slug, searchParams]);
+
+    const handleOptionSelect = (field, value) => {
+        const nextVariant = findVariantForOption(variants, field, value, effectiveSelection);
+        if (nextVariant) {
+            selectVariantOptions(getVariantSelection(nextVariant));
+            return;
+        }
+        selectVariantOptions({ ...currentSelection, [field]: value });
+    };
 
     useEffect(() => {
         if (quantity > maxQuantity && maxQuantity > 0) {
@@ -387,30 +397,12 @@ export default function ProductDetailPage() {
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allColors.map((color) => {
-                                    const disabled = effectiveStorage
-                                        ? !variants.some((v) => v.color === color && v.storage === effectiveStorage)
-                                        : false;
+                                    const disabled = !isOptionSelectable(variants, "color", color, effectiveSelection);
                                     return (
                                                     <button
                                                         key={color}
                                                         aria-pressed={effectiveColor === color}
-                                                        onClick={() => {
-                                                            const hasStorage = effectiveStorage &&
-                                                                variants.some((v) => v.color === color && v.storage === effectiveStorage);
-                                                            const nextStorage = hasStorage
-                                                                ? effectiveStorage
-                                                                : variants.find((v) => v.color === color)?.storage || "";
-                                                            if (!hasStorage) {
-                                                                selectVariantOptions({
-                                                                    color,
-                                                                    storage: nextStorage,
-                                                                    ram: "",
-                                                                    edition: "",
-                                                                });
-                                                                return;
-                                                            }
-                                                            selectVariantOptions({ color, ram: "", edition: "" });
-                                                        }}
+                                                        onClick={() => handleOptionSelect("color", color)}
                                             disabled={disabled}
                                             className={cn(
                                                 "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
@@ -438,14 +430,12 @@ export default function ProductDetailPage() {
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allStorages.map((storage) => {
-                                    const disabled = effectiveColor
-                                        ? !variants.some((v) => v.storage === storage && v.color === effectiveColor)
-                                        : false;
+                                    const disabled = !isOptionSelectable(variants, "storage", storage, effectiveSelection);
                                     return (
                                                     <button
                                                         key={storage}
                                                         aria-pressed={effectiveStorage === storage}
-                                                        onClick={() => selectVariantOptions({ storage, ram: "", edition: "" })}
+                                                        onClick={() => handleOptionSelect("storage", storage)}
                                             disabled={disabled}
                                             className={cn(
                                                 "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
@@ -473,14 +463,12 @@ export default function ProductDetailPage() {
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {allRams.map((ram) => {
-                                    const disabled = effectiveColor && effectiveStorage
-                                        ? !variants.some((v) => v.ram === ram && v.color === effectiveColor && v.storage === effectiveStorage)
-                                        : false;
+                                    const disabled = !isOptionSelectable(variants, "ram", ram, effectiveSelection);
                                     return (
                                         <button
                                             key={ram}
                                             aria-pressed={effectiveRam === ram}
-                                            onClick={() => selectVariantOptions({ ram })}
+                                            onClick={() => handleOptionSelect("ram", ram)}
                                             disabled={disabled}
                                             className={cn(
                                                 "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
@@ -506,14 +494,12 @@ export default function ProductDetailPage() {
                             <p className="mb-2 text-sm font-medium text-foreground">{"Phiên bản"}</p>
                             <div className="flex flex-wrap gap-2">
                                 {allEditions.map((edition) => {
-                                    const disabled = effectiveColor && effectiveStorage && effectiveRam
-                                        ? !variants.some((v) => v.edition === edition && v.color === effectiveColor && v.storage === effectiveStorage && v.ram === effectiveRam)
-                                        : false;
+                                    const disabled = !isOptionSelectable(variants, "edition", edition, effectiveSelection);
                                     return (
                                         <button
                                             key={edition}
                                             aria-pressed={effectiveEdition === edition}
-                                            onClick={() => selectVariantOptions({ edition })}
+                                            onClick={() => handleOptionSelect("edition", edition)}
                                             disabled={disabled}
                                             className={cn(
                                                 "rounded-full border px-4 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
