@@ -27,7 +27,7 @@ import {
     useUpdateUserPermissionsMutation,
     useUpdateUserRoleMutation,
 } from "@/store/api/usersApi";
-import { selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
+import { PERMISSION_ACTIONS, normalizePermissions, selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
 import {
     formatPrice,
     formatDate,
@@ -69,6 +69,27 @@ const EXTRA_PERMISSIONS = [
 ];
 
 const STAFF_PERMISSIONS = [...ALL_PERMISSIONS, ...EXTRA_PERMISSIONS];
+
+const PERMISSION_ACTION_LABELS = {
+    view: "Xem",
+    create: "Tạo",
+    update: "Sửa",
+    delete: "Xóa",
+};
+
+const PERMISSION_ACTION_OVERRIDES = {
+    dashboard: ["view", "update"],
+    orders: ["view", "update"],
+    returns: ["view", "update"],
+    comments: ["view", "update", "delete"],
+    users: ["view", "update", "delete"],
+    points: ["view", "update"],
+};
+
+const getPermissionActions = (permission) =>
+    PERMISSION_ACTION_OVERRIDES[permission.key] || PERMISSION_ACTIONS;
+
+const getPermissionKey = (module, action) => `${module}:${action}`;
 
 const StatCard = ({ icon: Icon, label, value, iconClassName }) => (
     <div className="flex items-start gap-3">
@@ -221,7 +242,7 @@ function StaffActivityTimeline({ user }) {
 export default function AdminUserDetail({ user, orders = [] }) {
     const isAdmin = useSelector(selectIsAdmin);
     const currentUser = useSelector(selectCurrentUser);
-    const [perms, setPerms] = useState(user.permissions || []);
+    const [perms, setPerms] = useState(() => normalizePermissions(user.permissions || []));
     const [pendingAction, setPendingAction] = useState(null);
     const [updatePerms, { isLoading: isUpdatingPerms }] =
         useUpdateUserPermissionsMutation();
@@ -232,13 +253,17 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const isSelf = String(user.id) === String(currentUser?.id);
     const canChangeRole = isAdmin && !isSelf && user.role !== "admin";
     const canToggleStatus = isAdmin && !isSelf && user.role !== "admin";
-    const savedPerms = Array.isArray(user.permissions) ? user.permissions : [];
+    const savedPerms = normalizePermissions(user.permissions || []);
     const selectedPermissionCount = Array.isArray(perms) ? perms.length : 0;
+    const availablePermissionCount = STAFF_PERMISSIONS.reduce(
+        (total, permission) => total + getPermissionActions(permission).length,
+        0,
+    );
     const permissionsDirty =
         [...savedPerms].sort().join("|") !== [...perms].sort().join("|");
 
     useEffect(() => {
-        setPerms(user.permissions || []);
+        setPerms(normalizePermissions(user.permissions || []));
     }, [user.id, user.permissions]);
 
     const togglePerm = (key) => {
@@ -527,7 +552,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     </h3>
                                 </div>
                                 <Badge variant={permissionsDirty ? "default" : "secondary"} className="text-xs">
-                                    {selectedPermissionCount}/{STAFF_PERMISSIONS.length}
+                                    {selectedPermissionCount}/{availablePermissionCount}
                                 </Badge>
                             </div>
                             <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
@@ -566,33 +591,36 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     )}
                                 </Button>
                             </div>
-                            <div className="space-y-0.5">
-                                {STAFF_PERMISSIONS.map((p) => {
-                                    const checked =
-                                        Array.isArray(perms) && perms.includes(p.key);
-                                    return (
-                                        <label
-                                            key={p.key}
-                                            className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted/50"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={checked}
-                                                disabled={isUpdatingPerms}
-                                                onChange={() => togglePerm(p.key)}
-                                                className="h-4 w-4 shrink-0 rounded accent-blue-600"
-                                            />
-                                            <span className="min-w-0">
-                                                <span className="block text-foreground">
-                                                    {p.label}
-                                                </span>
-                                                <span className="block text-xs text-muted-foreground">
-                                                    {p.note}
-                                                </span>
-                                            </span>
-                                        </label>
-                                    );
-                                })}
+                            <div className="space-y-3">
+                                {STAFF_PERMISSIONS.map((p) => (
+                                    <div key={p.key} className="rounded-xl border border-border p-3">
+                                        <div className="mb-2">
+                                            <p className="text-sm font-medium text-foreground">{p.label}</p>
+                                            <p className="text-xs leading-5 text-muted-foreground">{p.note}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                            {getPermissionActions(p).map((action) => {
+                                                const permissionKey = getPermissionKey(p.key, action);
+                                                const checked = Array.isArray(perms) && perms.includes(permissionKey);
+                                                return (
+                                                    <label
+                                                        key={permissionKey}
+                                                        className="flex cursor-pointer items-center gap-2 rounded-lg bg-muted/30 px-2.5 py-2 text-xs transition-colors hover:bg-muted"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={checked}
+                                                            disabled={isUpdatingPerms}
+                                                            onChange={() => togglePerm(permissionKey)}
+                                                            className="h-4 w-4 shrink-0 rounded accent-blue-600"
+                                                        />
+                                                        <span>{PERMISSION_ACTION_LABELS[action]}</span>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}

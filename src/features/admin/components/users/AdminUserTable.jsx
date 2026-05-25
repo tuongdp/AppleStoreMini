@@ -22,7 +22,7 @@ import {
     useToggleUserStatusMutation,
     useDeleteUserMutation,
 } from "@/store/api/usersApi";
-import { selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
+import { selectCurrentUser, selectHasPermission, selectIsAdmin } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -109,6 +109,8 @@ export default function AdminUserTable() {
     );
     const [deleteId, setDeleteId] = useState(null);
     const isAdmin = useSelector(selectIsAdmin);
+    const canUpdateUsers = useSelector(selectHasPermission("users", "update"));
+    const canDeleteUsers = useSelector(selectHasPermission("users", "delete"));
     const currentUser = useSelector(selectCurrentUser);
 
     const debouncedSearch = useDebounce(searchInput, 400);
@@ -173,8 +175,8 @@ export default function AdminUserTable() {
         return {
             isSelf,
             canChangeRole: isAdmin && !isSelf && !isTargetAdmin,
-            canToggleStatus: isAdmin && !isSelf && !isTargetAdmin,
-            canDelete: isAdmin && !isSelf && !isTargetAdmin,
+            canToggleStatus: canUpdateUsers && !isSelf && !isTargetAdmin,
+            canDelete: canDeleteUsers && !isSelf && !isTargetAdmin,
         };
     };
 

@@ -27,7 +27,7 @@ import ThemeToggle from "@/components/shared/ThemeToggle";
 import AdminBreadcrumb from "@/components/layout/admin/AdminBreadcrumb";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
-import { logout, selectCurrentUser, selectHasAdminAccess, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
+import { hasPermissionAction, logout, selectCurrentUser, selectHasAdminAccess, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
     backToStore: "Về cửa hàng",
@@ -64,9 +64,9 @@ const NAV_ITEMS = [
         end: false,
     },
     { key: "returns", href: "/admin/returns", icon: RotateCcw, permission: "returns", end: false },
-    { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, permission: "users", end: false, adminOnly: true },
+    { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, permission: "users", end: false },
     { key: "comments", href: "/admin/comments", icon: MessageSquare, permission: "comments", end: false },
-    { key: "coupons", href: "/admin/coupons", icon: Tag, permission: "coupons", end: false, adminOnly: true },
+    { key: "coupons", href: "/admin/coupons", icon: Tag, permission: "coupons", end: false },
     {
         key: "categories",
         href: "/admin/categories",
@@ -75,8 +75,8 @@ const NAV_ITEMS = [
         end: false,
     },
     { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
-    { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false, adminOnly: true },
-    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false, adminOnly: true },
+    { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false },
+    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 
@@ -99,11 +99,10 @@ function SidebarContent({ onClose }) {
     const isAdmin = useSelector(selectIsAdmin);
     const hasAdminAccess = useSelector(selectHasAdminAccess);
     const permissions = useSelector(selectUserPermissions);
-    const permissionSet = new Set(permissions);
 
     const visibleItems = NAV_ITEMS.filter((item) => {
         if (item.adminOnly && !isAdmin) return false;
-        if (item.permission && !isAdmin && !permissionSet.has(item.permission)) return false;
+        if (item.permission && !isAdmin && !hasPermissionAction(permissions, item.permission, "view")) return false;
         return true;
     });
     const grantedModuleCount = visibleItems.filter((item) => item.permission).length;

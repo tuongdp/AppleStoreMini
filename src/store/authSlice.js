@@ -8,6 +8,7 @@ const initialState = {
     rememberMe: false,
 };
 const EMPTY_PERMISSIONS = [];
+export const PERMISSION_ACTIONS = ["view", "create", "update", "delete"];
 
 const PERMISSION_ALIASES = {
     banner: "banners",
@@ -74,8 +75,31 @@ export const normalizePermissions = (permissions) => {
 
     if (!Array.isArray(rawPermissions)) return EMPTY_PERMISSIONS;
 
-    return rawPermissions.map(normalizePermissionKey).filter(Boolean);
+    const normalized = [];
+    rawPermissions.forEach((permission) => {
+        const rawPermission = getPermissionValue(permission).trim();
+        if (!rawPermission) return;
+
+        const [moduleValue, actionValue] = rawPermission.split(":");
+        const module = normalizePermissionKey(moduleValue);
+        if (!module) return;
+
+        if (!actionValue) {
+            PERMISSION_ACTIONS.forEach((action) => normalized.push(`${module}:${action}`));
+            return;
+        }
+
+        const action = actionValue.trim().toLowerCase();
+        if (PERMISSION_ACTIONS.includes(action)) {
+            normalized.push(`${module}:${action}`);
+        }
+    });
+
+    return [...new Set(normalized)];
 };
+
+export const hasPermissionAction = (permissions, permission, action = "view") =>
+    normalizePermissions(permissions).includes(`${normalizePermissionKey(permission)}:${action}`);
 
 const authSlice = createSlice({
     name: "auth",
@@ -118,12 +142,12 @@ export const selectHasAdminAccess = (state) => {
 };
 export const selectUserPermissions = createSelector([selectRawUserPermissions], normalizePermissions);
 
-export const selectHasPermission = (permission) => (state) => {
+export const selectHasPermission = (permission, action = "view") => (state) => {
     const user = state.auth.user;
     if (!user || user.isBlocked) return false;
     if (user.role === "admin") return true;
     if (user.role === "staff") {
-        return normalizePermissions(user.permissions).includes(permission);
+        return hasPermissionAction(user.permissions, permission, action);
     }
     return false;
 };
