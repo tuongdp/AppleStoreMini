@@ -100,3 +100,15 @@ export function buildSeriesFilters(products, categorySlug) {
     }))
     .sort((a, b) => b.count - a.count);
 }
+
+export function buildSeriesFiltersFromSeries(series = []) {
+  return [...series]
+    .filter((item) => item && item.isActive !== false)
+    .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
+    .map((item) => ({
+      id: item.id || item._id,
+      slug: item.slug,
+      label: item.name || item.label || seriesSlugToLabel(item.slug, item.categorySlug || item.category?.slug),
+    }))
+    .filter((item) => item.slug && item.label);
+}

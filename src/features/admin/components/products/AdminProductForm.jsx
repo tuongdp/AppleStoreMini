@@ -31,6 +31,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
+import { useGetAdminSeriesQuery } from "@/store/api/seriesApi";
 import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput, parsePriceInput } from "@/lib/utils";
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
@@ -111,6 +112,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             name: product?.name || "",
             slug: product?.slug || "",
             category: product?.category?.slug || product?.categorySlug || "",
+            seriesId: product?.seriesId || product?.series?.id || product?.series?._id || "",
             description: product?.description || "",
             image: product?.image || parseJsonField(product?.images)?.[0] || "",
             isActive: product?.isActive ?? true,
@@ -122,6 +124,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             form.reset({
                 name: product.name || "",
                 slug: product.slug || "",
+                category: product.category?.slug || product.categorySlug || "",
+                seriesId: product.seriesId || product.series?.id || product.series?._id || "",
                 description: product.description || "",
                 image: product.image || parseJsonField(product.images)?.[0] || "",
                 isActive: product.isActive ?? true,
@@ -164,6 +168,12 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             }
         }
     }, [categories, product, form]);
+
+    const selectedCategory = form.watch("category");
+    const { data: seriesOptions = [] } = useGetAdminSeriesQuery(
+        { category: selectedCategory },
+        { skip: !selectedCategory },
+    );
 
     const handleNameChange = (e) => {
         const name = e.target.value;
@@ -283,6 +293,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     name: formValues.name.trim(),
                     slug: formValues.slug.trim(),
                     category: formValues.category,
+                    ...(formValues.seriesId ? { seriesId: formValues.seriesId } : {}),
                     description: formValues.description || "",
                     image: formValues.image || "",
                     isActive: formValues.isActive ?? true,
@@ -387,6 +398,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         if (variants.length === 0) { toast.error("Cần có ít nhất 1 biến thể"); return; }
         onSubmit({
             ...values,
+            seriesId: values.seriesId || null,
             productId: autoCreatedId,
             image: values.image || "",
             specifications: buildSpecsArray(),
@@ -432,13 +444,46 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 <FormField control={form.control} name="category" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Danh mục <span className="text-destructive">*</span></FormLabel>
-                                        <Select key={categories ? "loaded" : "loading"} value={field.value} onValueChange={field.onChange} disabled={isLoading}>
+                                        <Select
+                                            key={categories ? "loaded" : "loading"}
+                                            value={field.value}
+                                            onValueChange={(value) => {
+                                                field.onChange(value);
+                                                form.setValue("seriesId", "");
+                                            }}
+                                            disabled={isLoading}
+                                        >
                                             <FormControl>
                                                 <SelectTrigger><SelectValue placeholder={"Chọn danh mục"} /></SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {(categories || []).map((cat) => (
                                                     <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="seriesId" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Series</FormLabel>
+                                        <Select
+                                            value={field.value || "none"}
+                                            onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
+                                            disabled={isLoading || !selectedCategory || seriesOptions.length === 0}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={"Chọn series"} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="none">Không chọn series</SelectItem>
+                                                {seriesOptions.map((series) => (
+                                                    <SelectItem key={series.id || series._id || series.slug} value={series.id || series._id || series.slug}>
+                                                        {series.name}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>

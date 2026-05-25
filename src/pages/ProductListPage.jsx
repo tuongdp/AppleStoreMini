@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { SearchX } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
+import { useGetSeriesQuery } from "@/store/api/seriesApi";
 import ProductGrid from "@/features/products/components/ProductGrid";
 import EmptyState from "@/components/shared/EmptyState";
 import Breadcrumb from "@/components/shared/Breadcrumb";
@@ -12,6 +13,7 @@ import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
     buildSeriesFilters,
+    buildSeriesFiltersFromSeries,
     getCategorySliderImages,
 } from "@/features/products/utils/productListFilters";
 
@@ -35,9 +37,11 @@ function getSortOption(searchParams) {
 
 function ScrollNav({ label, children }) {
     return (
-        <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">{label}</p>
-            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide sm:mx-0 sm:px-0">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <p className="shrink-0 whitespace-nowrap text-sm font-medium leading-9 text-foreground sm:w-24">
+                {label}
+            </p>
+            <div className="-mx-4 flex min-w-0 flex-1 gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide sm:mx-0 sm:px-0">
                 {children}
             </div>
         </div>
@@ -57,6 +61,7 @@ export default function ProductListPage() {
             category: searchParams.get("category") || undefined,
             sort: activeSortOption.sort,
             search: searchParams.get("search") || undefined,
+            series: searchParams.get("series") || undefined,
             slug: searchParams.get("slug") || undefined,
             arrivalType: activeSortOption.arrivalType,
         };
@@ -74,6 +79,10 @@ export default function ProductListPage() {
     const { data: seriesData } = useGetProductsQuery(seriesQuery, {
         skip: !filters.category,
     });
+    const { data: dbSeries = [] } = useGetSeriesQuery(
+        { category: filters.category },
+        { skip: !filters.category },
+    );
 
     const products = useMemo(() => data?.products ?? [], [data?.products]);
     const pagination = data?.pagination ?? {};
@@ -89,10 +98,16 @@ export default function ProductListPage() {
         image,
     }));
 
-    const seriesFilters = useMemo(
-        () => buildSeriesFilters(seriesData?.products ?? [], filters.category),
-        [filters.category, seriesData?.products],
-    );
+    const seriesFilters = useMemo(() => {
+        const databaseFilters = buildSeriesFiltersFromSeries(dbSeries);
+        if (databaseFilters.length > 0) {
+            return databaseFilters.map((series) => ({ ...series, source: "series" }));
+        }
+        return buildSeriesFilters(seriesData?.products ?? [], filters.category)
+            .map((series) => ({ ...series, source: "slug" }));
+    }, [dbSeries, filters.category, seriesData?.products]);
+
+    const activeSeries = filters.series || filters.slug;
 
     const updateParams = (updates) => {
         const params = new URLSearchParams(searchParams);
@@ -110,8 +125,16 @@ export default function ProductListPage() {
         setSearchParams(params);
     };
 
-    const updateSeries = (slug) => {
-        updateParams([["slug", filters.slug === slug ? "" : slug]]);
+    const clearSeries = () => {
+        updateParams([["series", ""], ["slug", ""]]);
+    };
+
+    const updateSeries = (series) => {
+        const nextValue = activeSeries === series.slug ? "" : series.slug;
+        updateParams([
+            ["series", series.source === "series" ? nextValue : ""],
+            ["slug", series.source === "slug" ? nextValue : ""],
+        ]);
     };
 
     const updateSort = (option) => {
@@ -173,10 +196,10 @@ export default function ProductListPage() {
                         <ScrollNav label="Lọc">
                             <button
                                 type="button"
-                                onClick={() => updateParams([["slug", ""]])}
+                                onClick={clearSeries}
                                 className={cn(
                                     "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                                    !filters.slug
+                                    !activeSeries
                                         ? "border-foreground bg-foreground text-background"
                                         : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
                                 )}
@@ -187,10 +210,10 @@ export default function ProductListPage() {
                                 <button
                                     key={series.slug}
                                     type="button"
-                                    onClick={() => updateSeries(series.slug)}
+                                    onClick={() => updateSeries(series)}
                                     className={cn(
                                         "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                                        filters.slug === series.slug
+                                        activeSeries === series.slug
                                             ? "border-foreground bg-foreground text-background"
                                             : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
                                     )}
