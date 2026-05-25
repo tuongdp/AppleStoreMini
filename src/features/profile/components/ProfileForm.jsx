@@ -3,6 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateProfileMutation } from "@/store/api/usersApi";
 import { profileSchema } from "@/lib/validations";
+import {
+  getProfileFormDefaults,
+  getProfileSubmitValues,
+} from "@/features/profile/utils/profileFormValues";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,13 +45,7 @@ export default function ProfileForm({ user }) {
 
   useEffect(() => {
     if (user) {
-      form.reset({
-        fullName: user.fullName || "",
-        phone: user.phone || "",
-        birthday: user.birthday || "",
-        gender: user.gender || undefined,
-        address: user.address || "",
-      });
+      form.reset(getProfileFormDefaults(user));
     }
   }, [user, form]);
 
@@ -55,7 +53,7 @@ export default function ProfileForm({ user }) {
     try {
       // ✅ updateProfile.onQueryStarted tự dispatch updateUser(data)
       // data đã qua transformResponse → user object trực tiếp
-      await updateProfile(values).unwrap();
+      await updateProfile(getProfileSubmitValues(values)).unwrap();
       toast.success("Cập nhật thông tin thành công");
     } catch {
       toast.error("Cập nhật thông tin thất bại");

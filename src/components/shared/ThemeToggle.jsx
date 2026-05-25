@@ -9,6 +9,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTheme } from "@/hooks/useTheme";
@@ -17,6 +18,7 @@ export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   return (
+    <TooltipProvider>
     <DropdownMenu>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -56,5 +58,6 @@ export default function ThemeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+    </TooltipProvider>
   );
 }

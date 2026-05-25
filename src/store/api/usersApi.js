@@ -1,5 +1,6 @@
 import { baseApi } from "./baseApi";
 import { updateUser } from "../authSlice";
+import { normalizeProfileUser } from "./userTransforms";
 
 export const usersApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
@@ -7,7 +8,7 @@ export const usersApi = baseApi.injectEndpoints({
         getProfile: builder.query({
             query: () => "/users/profile",
             providesTags: ["Profile"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => normalizeProfileUser(response.data),
         }),
 
         // PUT /users/profile
@@ -63,7 +64,7 @@ export const usersApi = baseApi.injectEndpoints({
         getUserStats: builder.query({
             query: () => "/admin/users/stats",
             providesTags: ["Users"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => normalizeProfileUser(response.data),
         }),
 
         // GET /admin/users/:id
@@ -82,7 +83,7 @@ export const usersApi = baseApi.injectEndpoints({
                 body: { role: role.toUpperCase() },
             }),
             invalidatesTags: (_, __, { id }) => ["Users", { type: "User", id }],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => normalizeProfileUser(response.data),
         }),
 
         // PATCH /admin/users/:id/permissions — BE nhận { permissions }
