@@ -67,9 +67,11 @@ export default function ProductCard({ product }) {
     const showDiscount = hasFlashSale
         ? product.flashSale.salePrice < product.flashSale.originalPrice
         : product.salePrice && product.salePrice < product.price;
-    const flashSaleDiscount = hasFlashSale
+    const discountPercent = hasFlashSale && showDiscount
         ? product.flashSale.discountPercent || calcDiscount(product.flashSale.originalPrice, product.flashSale.salePrice)
-        : 0;
+        : showDiscount && product.price > effectivePrice
+            ? calcDiscount(product.price, effectivePrice)
+            : 0;
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
@@ -226,9 +228,9 @@ export default function ProductCard({ product }) {
                                     {formatPrice(hasFlashSale ? originalPrice : product.price)}
                                 </span>
                             )}
-                            {hasFlashSale && flashSaleDiscount > 0 && (
+                            {showDiscount && discountPercent > 0 && (
                                 <Badge className="border-0 bg-foreground px-1.5 py-0.5 text-[10px] font-bold text-background hover:bg-foreground">
-                                    -{flashSaleDiscount}%
+                                    -{discountPercent}%
                                 </Badge>
                             )}
                         </>
