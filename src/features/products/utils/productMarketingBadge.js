@@ -21,6 +21,7 @@ const PRODUCT_MARKETING_BADGES = {
 
 export function getProductMarketingBadge(product, now = new Date()) {
   if (!product?.arrivalType || !product?.arrivalDate) return null;
+  if (product.inStock === false || Number(product.stock) <= 0) return null;
 
   const badge = PRODUCT_MARKETING_BADGES[product.arrivalType];
   if (!badge) return null;

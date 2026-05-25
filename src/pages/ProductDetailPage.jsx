@@ -28,6 +28,10 @@ import SpecsAccordion from "@/components/shared/SpecsAccordion";
 import ProductComments from "@/features/products/components/ProductComments";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn, formatPrice } from "@/lib/utils";
+import {
+    getProductMarketingBadge,
+    getProductMarketingBadgeClassName,
+} from "@/features/products/utils/productMarketingBadge";
 import { ROUTES } from "@/lib/constants";
 import AIComparePanel from "@/features/ai/AIComparePanel";
 import AIReviewSummary from "@/features/ai/AIReviewSummary";
@@ -120,6 +124,7 @@ export default function ProductDetailPage() {
 
     const inStock = selectedVariant?.inStock ?? false;
     const stock = selectedVariant?.stock ?? 0;
+    const marketingBadge = getProductMarketingBadge(selectedVariant);
 
     const flashSaleData = selectedVariant?.flashSale ?? null;
     const [hasActiveFlashSale, setHasActiveFlashSale] = useState(false);
@@ -281,6 +286,17 @@ export default function ProductDetailPage() {
                     <h1 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
                         {product.name}
                     </h1>
+
+                    {marketingBadge && (
+                        <div>
+                            <Badge
+                                className={cn(getProductMarketingBadgeClassName(marketingBadge.tone))}
+                                title={marketingBadge.title}
+                            >
+                                {marketingBadge.label}
+                            </Badge>
+                        </div>
+                    )}
 
                     {(effectiveColor || effectiveStorage || effectiveRam) && (
                         <p className="text-sm text-muted-foreground">

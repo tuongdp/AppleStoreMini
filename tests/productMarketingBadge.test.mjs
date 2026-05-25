@@ -13,6 +13,8 @@ test("shows new release badge while the marketing label is active", () => {
     {
       arrivalType: PRODUCT_MARKETING_BADGE_TYPES.NEW_RELEASE,
       arrivalDate: "2026-05-01T00:00:00.000Z",
+      inStock: true,
+      stock: 10,
     },
     NOW,
   );
@@ -29,6 +31,8 @@ test("shows restock badge while the marketing label is active", () => {
     {
       arrivalType: PRODUCT_MARKETING_BADGE_TYPES.RESTOCK,
       arrivalDate: "2026-05-20T00:00:00.000Z",
+      inStock: true,
+      stock: 10,
     },
     NOW,
   );
@@ -45,6 +49,22 @@ test("hides marketing badge after 30 days", () => {
     {
       arrivalType: PRODUCT_MARKETING_BADGE_TYPES.NEW_RELEASE,
       arrivalDate: "2026-04-20T00:00:00.000Z",
+      inStock: true,
+      stock: 10,
+    },
+    NOW,
+  );
+
+  assert.equal(badge, null);
+});
+
+test("hides marketing badge when the represented variant is out of stock", () => {
+  const badge = getProductMarketingBadge(
+    {
+      arrivalType: PRODUCT_MARKETING_BADGE_TYPES.RESTOCK,
+      arrivalDate: "2026-05-20T00:00:00.000Z",
+      inStock: true,
+      stock: 0,
     },
     NOW,
   );

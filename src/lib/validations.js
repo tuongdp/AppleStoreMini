@@ -194,8 +194,6 @@ export const productSchema = z.object({
         .or(z.literal("")),
     image: z.string().optional().or(z.literal("")),
     isActive: z.boolean().default(true),
-    arrivalType: z.enum(["NEW_RELEASE", "RESTOCK", "NONE"]).optional().default("NONE"),
-    arrivalDate: z.string().optional().or(z.literal("")),
 });
 
 // ── Comment ───────────────────────────────────────────

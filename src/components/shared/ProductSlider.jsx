@@ -102,7 +102,7 @@ export default function ProductSlider({
                 className="!pb-2"
             >
                 {products.map((product) => (
-                    <SwiperSlide key={product._id || product.id}>
+                    <SwiperSlide key={product.variantId || product._id || product.id}>
                         {renderItem ? (
                             renderItem(product)
                         ) : (

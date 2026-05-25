@@ -8,7 +8,11 @@ import {
   CreditCard,
 } from "lucide-react";
 
-import { useGetProductsByCategoryQuery } from "@/store/api/productsApi";
+import {
+  useGetNewReleaseProductsQuery,
+  useGetProductsByCategoryQuery,
+  useGetRestockedProductsQuery,
+} from "@/store/api/productsApi";
 import { useGetActiveFlashSaleQuery } from "@/store/api/flashSalesApi";
 import { useGetBannersQuery } from "@/store/api/bannersApi";
 import { useGetCategoriesQuery } from "@/store/api/categoriesApi";
@@ -88,6 +92,10 @@ export default function HomePage() {
     useGetActiveFlashSaleQuery();
   const { data: bannerData, isLoading: isBannerLoading } = useGetBannersQuery();
   const { data: categories = [] } = useGetCategoriesQuery();
+  const { data: newReleaseProducts = [], isLoading: isNewReleaseLoading } =
+    useGetNewReleaseProductsQuery(10);
+  const { data: restockedProducts = [], isLoading: isRestockedLoading } =
+    useGetRestockedProductsQuery(10);
 
   const banners =
     bannerData
@@ -111,6 +119,36 @@ export default function HomePage() {
       <BannerSlider slides={banners} isLoading={isBannerLoading} />
 
       <FlashSaleBanner flashSale={flashSale} isLoading={isFlashLoading} />
+
+      <section className="section-padding py-8 md:py-10 lg:py-14">
+        <div className="mx-auto max-w-7xl">
+          <SectionTitle
+            title="Sản phẩm mới ra mắt"
+            viewAllHref={`${ROUTES.PRODUCTS}?sort=newest`}
+            className="mb-8"
+          />
+          <ProductSlider
+            products={newReleaseProducts}
+            isLoading={isNewReleaseLoading}
+            sliderId="new-releases"
+          />
+        </div>
+      </section>
+
+      <section className="section-padding bg-muted/20 py-8 md:py-10 lg:py-14">
+        <div className="mx-auto max-w-7xl">
+          <SectionTitle
+            title="Sản phẩm mới nhập về"
+            viewAllHref={`${ROUTES.PRODUCTS}?sort=newest`}
+            className="mb-8"
+          />
+          <ProductSlider
+            products={restockedProducts}
+            isLoading={isRestockedLoading}
+            sliderId="restocked"
+          />
+        </div>
+      </section>
 
       <section className="section-padding border-b border-border bg-muted/20 py-8">
         <div className="mx-auto max-w-7xl">

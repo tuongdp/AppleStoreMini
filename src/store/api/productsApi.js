@@ -45,6 +45,24 @@ export const productsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data.map(parseProduct),
         }),
 
+        getNewReleaseProducts: builder.query({
+            query: (limit = 8) => ({
+                url: "/products/new-releases",
+                params: { limit },
+            }),
+            providesTags: ["Products"],
+            transformResponse: (response) => response.data.map(parseProduct),
+        }),
+
+        getRestockedProducts: builder.query({
+            query: (limit = 8) => ({
+                url: "/products/restocked",
+                params: { limit },
+            }),
+            providesTags: ["Products"],
+            transformResponse: (response) => response.data.map(parseProduct),
+        }),
+
         // GET /products?category=:slug&limit=4
         getProductsByCategory: builder.query({
             query: ({ category, limit = 4 }) => ({
@@ -173,6 +191,8 @@ export const {
     useGetProductByIdQuery,
     useGetFeaturedProductsQuery,
     useGetNewProductsQuery,
+    useGetNewReleaseProductsQuery,
+    useGetRestockedProductsQuery,
     useGetProductsByCategoryQuery,
     useGetRelatedProductsQuery,
     useSearchProductsQuery,

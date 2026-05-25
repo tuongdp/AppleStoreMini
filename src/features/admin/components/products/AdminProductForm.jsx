@@ -38,7 +38,17 @@ import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 import AIDescriptionButton from "./AIDescriptionButton";
 import { PRODUCT_MARKETING_BADGE_TYPES } from "@/features/products/utils/productMarketingBadge";
 
-const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
+const EMPTY_VARIANT = {
+    color: "",
+    storage: "",
+    ram: "",
+    edition: "",
+    price: "",
+    salePrice: "",
+    stock: 0,
+    arrivalType: "NONE",
+    arrivalDate: "",
+};
 const NO_MARKETING_BADGE = "NONE";
 const PRODUCT_MARKETING_BADGE_OPTIONS = [
     { value: NO_MARKETING_BADGE, label: "Không gắn nhãn" },
@@ -104,8 +114,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             description: product?.description || "",
             image: product?.image || parseJsonField(product?.images)?.[0] || "",
             isActive: product?.isActive ?? true,
-            arrivalType: product?.arrivalType || NO_MARKETING_BADGE,
-            arrivalDate: getDateInputValue(product?.arrivalDate),
         },
     });
 
@@ -117,8 +125,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 description: product.description || "",
                 image: product.image || parseJsonField(product.images)?.[0] || "",
                 isActive: product.isActive ?? true,
-                arrivalType: product.arrivalType || NO_MARKETING_BADGE,
-                arrivalDate: getDateInputValue(product.arrivalDate),
             });
 
             const rawSpecs = product.specifications || {};
@@ -143,6 +149,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 stock: v.stock ?? 0,
                 images: parseJsonField(v.images),
                 inStock: v.inStock ?? true,
+                arrivalType: v.arrivalType || NO_MARKETING_BADGE,
+                arrivalDate: getDateInputValue(v.arrivalDate),
             }));
             setVariants(productVariants);
         }
@@ -225,6 +233,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
     const saveVariant = async (data) => {
         const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
+        const marketingFields = normalizeMarketingBadgeFields(data);
         if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
         if (!price || Number(price) < 1000) { toast.error("Giá bán phải lớn hơn 1.000đ"); return; }
         if (salePrice && Number(salePrice) >= Number(price)) { toast.error("Giá sale phải nhỏ hơn giá bán"); return; }
@@ -247,14 +256,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 if (editingVariantIdx !== null) {
                     const existing = variants[editingVariantIdx];
                     if (existing?.id) {
-                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
                         savedId = existing.id;
                     } else {
-                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
                         savedId = created.id;
                     }
                 } else {
-                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images }).unwrap();
+                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
                     savedId = created.id;
                 }
              } catch (err) {
@@ -277,7 +286,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     description: formValues.description || "",
                     image: formValues.image || "",
                     isActive: formValues.isActive ?? true,
-                    ...normalizeMarketingBadgeFields(formValues),
                     specifications: buildSpecsArray(),
                     variants: [{
                         color: color.trim(),
@@ -288,6 +296,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         salePrice: salePrice ? Number(salePrice) : null,
                         stock: Number(stock) || 0,
                         images,
+                        ...marketingFields,
                     }],
                 }).unwrap();
                 const newProductId = created.id;
@@ -314,6 +323,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             stock: Number(stock) || 0,
             images,
             inStock: Number(stock) > 0,
+            ...marketingFields,
             id: savedId,
         };
 
@@ -377,7 +387,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         if (variants.length === 0) { toast.error("Cần có ít nhất 1 biến thể"); return; }
         onSubmit({
             ...values,
-            ...normalizeMarketingBadgeFields(values),
             productId: autoCreatedId,
             image: values.image || "",
             specifications: buildSpecsArray(),
@@ -387,12 +396,12 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 salePrice: rest.salePrice ? Number(rest.salePrice) : null,
                 stock: Number(rest.stock) || 0,
                 images: vImgs || [],
+                ...normalizeMarketingBadgeFields(rest),
             })),
         });
     };
 
     const hasVariants = variants.length > 0;
-    const selectedArrivalType = form.watch("arrivalType");
 
     return (
         <>
@@ -631,60 +640,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-4 text-sm font-medium text-foreground">{"Trạng thái"}</h3>
-                            <div className="mb-5 grid gap-4 md:grid-cols-2">
-                                <FormField control={form.control} name="arrivalType" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{"Nhãn hàng mới"}</FormLabel>
-                                        <Select
-                                            value={field.value || NO_MARKETING_BADGE}
-                                            onValueChange={(value) => {
-                                                field.onChange(value);
-                                                if (value === NO_MARKETING_BADGE) {
-                                                    form.setValue("arrivalDate", "", { shouldDirty: true });
-                                                    return;
-                                                }
-                                                if (!form.getValues("arrivalDate")) {
-                                                    form.setValue("arrivalDate", getTodayDateInputValue(), { shouldDirty: true });
-                                                }
-                                            }}
-                                            disabled={isLoading}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={"Chọn nhãn"} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {PRODUCT_MARKETING_BADGE_OPTIONS.map((option) => (
-                                                    <SelectItem key={option.value} value={option.value}>
-                                                        {option.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <p className="text-xs text-muted-foreground">
-                                            {"Dùng để phân biệt sản phẩm mới ra mắt và hàng vừa nhập lại."}
-                                        </p>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                                <FormField control={form.control} name="arrivalDate" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{"Ngày bắt đầu gắn nhãn"}</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="date"
-                                                disabled={isLoading || selectedArrivalType === NO_MARKETING_BADGE}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <p className="text-xs text-muted-foreground">
-                                            {"Badge tự ẩn sau 30 ngày kể từ ngày này."}
-                                        </p>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
-                            </div>
                             <FormField control={form.control} name="isActive" render={({ field }) => (
                                 <FormItem className="flex items-center justify-between gap-4">
                                     <div>
@@ -777,6 +732,8 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     const [price, setPrice] = useState(initial?.price || "");
     const [salePrice, setSalePrice] = useState(initial?.salePrice || "");
     const [stock, setStock] = useState(initial?.stock ?? 0);
+    const [arrivalType, setArrivalType] = useState(initial?.arrivalType || NO_MARKETING_BADGE);
+    const [arrivalDate, setArrivalDate] = useState(getDateInputValue(initial?.arrivalDate));
     const [vImages, setVImages] = useState(initial?.images || []);
     const [uploadingIdx, setUploadingIdx] = useState({});
     const vImagesRef = useRef(vImages);
@@ -848,7 +805,7 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     const removeVImage = (idx) => setVImages((prev) => prev.filter((_, i) => i !== idx));
 
     const handleSave = () => {
-        onSave({ color, storage, ram, edition, price, salePrice, stock, images: vImages });
+        onSave({ color, storage, ram, edition, price, salePrice, stock, arrivalType, arrivalDate, images: vImages });
     };
 
     return (
@@ -920,6 +877,43 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
                 <div>
                     <Label className="text-xs">{"Tồn kho"} <span className="text-destructive">*</span></Label>
                     <Input type="number" min={0} placeholder={"0"} value={stock} onChange={(e) => setStock(Number(e.target.value) || 0)} className="mt-1 h-9 text-xs" />
+                </div>
+                <div>
+                    <Label className="text-xs">{"Nhãn hàng mới"}</Label>
+                    <Select
+                        value={arrivalType || NO_MARKETING_BADGE}
+                        onValueChange={(value) => {
+                            setArrivalType(value);
+                            if (value === NO_MARKETING_BADGE) {
+                                setArrivalDate("");
+                                return;
+                            }
+                            if (!arrivalDate) {
+                                setArrivalDate(getTodayDateInputValue());
+                            }
+                        }}
+                    >
+                        <SelectTrigger className="mt-1 h-9 text-xs">
+                            <SelectValue placeholder={"Chọn nhãn"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {PRODUCT_MARKETING_BADGE_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label className="text-xs">{"Ngày bắt đầu gắn nhãn"}</Label>
+                    <Input
+                        type="date"
+                        value={arrivalDate}
+                        onChange={(e) => setArrivalDate(e.target.value)}
+                        disabled={arrivalType === NO_MARKETING_BADGE}
+                        className="mt-1 h-9 text-xs"
+                    />
                 </div>
             </div>
 
