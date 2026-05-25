@@ -7,7 +7,7 @@ import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleAuthModal } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
-import { formatPrice, cn, parseJsonField } from "@/lib/utils";
+import { formatPrice, cn, parseJsonField, calcDiscount } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import {
@@ -67,6 +67,9 @@ export default function ProductCard({ product }) {
     const showDiscount = hasFlashSale
         ? product.flashSale.salePrice < product.flashSale.originalPrice
         : product.salePrice && product.salePrice < product.price;
+    const flashSaleDiscount = hasFlashSale
+        ? product.flashSale.discountPercent || calcDiscount(product.flashSale.originalPrice, product.flashSale.salePrice)
+        : 0;
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
@@ -116,6 +119,11 @@ export default function ProductCard({ product }) {
                             <Badge className="flex items-center gap-1 border-0 bg-foreground px-1.5 py-0.5 text-[10px] font-bold text-background shadow-sm">
                                 <Flame className="h-3 w-3" />
                                 {"FLASH SALE"}
+                            </Badge>
+                        )}
+                        {hasFlashSale && flashSaleDiscount > 0 && (
+                            <Badge className="w-fit border-0 bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm hover:bg-red-600">
+                                -{flashSaleDiscount}%
                             </Badge>
                         )}
                         {isOutOfStock && (
