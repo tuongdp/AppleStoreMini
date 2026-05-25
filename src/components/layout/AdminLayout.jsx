@@ -18,6 +18,7 @@ import {
     Zap,
     ListFilter,
     RotateCcw,
+    ListTree,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -41,6 +42,7 @@ const SIDEBAR_MAP = {
     options: "Tùy chọn",
     orders: "Đơn hàng",
     products: "Sản phẩm",
+    series: "Series sản phẩm",
     returns: "Yêu cầu trả hàng",
     comments: "Bình luận sản phẩm",
     settings: "Cài đặt",
@@ -67,6 +69,7 @@ const NAV_ITEMS = [
     { key: "users", href: ROUTES.ADMIN_USERS, icon: Users, permission: "users", end: false },
     { key: "comments", href: "/admin/comments", icon: MessageSquare, permission: "comments", end: false },
     { key: "coupons", href: "/admin/coupons", icon: Tag, permission: "coupons", end: false },
+    { key: "series", href: "/admin/series", icon: ListTree, permission: "products", end: false },
     {
         key: "categories",
         href: "/admin/categories",

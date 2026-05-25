@@ -15,10 +15,30 @@ export const seriesApi = baseApi.injectEndpoints({
             providesTags: ["Series"],
             transformResponse: normalizeSeriesResponse,
         }),
+
+        createSeries: builder.mutation({
+            query: (body) => ({ url: "/admin/series", method: "POST", body }),
+            invalidatesTags: ["Series"],
+            transformResponse: normalizeSeriesResponse,
+        }),
+
+        updateSeries: builder.mutation({
+            query: ({ id, ...body }) => ({ url: `/admin/series/${id}`, method: "PUT", body }),
+            invalidatesTags: ["Series"],
+            transformResponse: normalizeSeriesResponse,
+        }),
+
+        deleteSeries: builder.mutation({
+            query: (id) => ({ url: `/admin/series/${id}`, method: "DELETE" }),
+            invalidatesTags: ["Series"],
+        }),
     }),
 });
 
 export const {
     useGetSeriesQuery,
     useGetAdminSeriesQuery,
+    useCreateSeriesMutation,
+    useUpdateSeriesMutation,
+    useDeleteSeriesMutation,
 } = seriesApi;

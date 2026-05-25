@@ -78,6 +78,7 @@ const AdminUserDetail = lazyPage(() => import("@/pages/admin/AdminUserDetail"));
 const AdminCommentPage = lazyPage(() => import("@/pages/admin/AdminCommentPage"));
 const AdminCouponPage = lazyPage(() => import("@/pages/admin/AdminCouponPage"));
 const AdminCategoryPage = lazyPage(() => import("@/pages/admin/AdminCategoryPage"));
+const AdminSeriesPage = lazyPage(() => import("@/pages/admin/AdminSeriesPage"));
 const AdminNewsPage = lazyPage(() => import("@/pages/admin/AdminNewsPage"));
 const AdminNewsCreate = lazyPage(() => import("@/pages/admin/AdminNewsCreate"));
 const AdminNewsEdit = lazyPage(() => import("@/pages/admin/AdminNewsEdit"));
@@ -193,6 +194,7 @@ export const router = createBrowserRouter([
             { path: "comments", element: <AdminPermissionRoute permission="comments"><AdminCommentPage /></AdminPermissionRoute> },
             { path: "coupons", element: <AdminPermissionRoute permission="coupons"><AdminCouponPage /></AdminPermissionRoute> },
             { path: "categories", element: <AdminPermissionRoute permission="categories"><AdminCategoryPage /></AdminPermissionRoute> },
+            { path: "series", element: <AdminPermissionRoute permission="products"><AdminSeriesPage /></AdminPermissionRoute> },
             { path: "news", element: <AdminPermissionRoute permission="news"><AdminNewsPage /></AdminPermissionRoute> },
             { path: "news/create", element: <AdminPermissionRoute permission="news" action="create"><AdminNewsCreate /></AdminPermissionRoute> },
             { path: "news/:slug/edit", element: <AdminPermissionRoute permission="news" action="update"><AdminNewsEdit /></AdminPermissionRoute> },
