@@ -12,6 +12,11 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
     selectCurrentUser,
     selectIsAuthenticated,
     selectHasAdminAccess,
@@ -33,10 +38,13 @@ export default function NavbarUserMenu() {
 
     if (!isAuthenticated) {
         return (
+            <Tooltip>
+                <TooltipTrigger asChild>
             <Button
                 variant="ghost"
                 size="icon"
                 className="rounded-full"
+                aria-label="Đăng nhập"
                 asChild
             >
                 <Link to={ROUTES.LOGIN}>
@@ -44,11 +52,18 @@ export default function NavbarUserMenu() {
                     <span className="sr-only">{"Đăng nhập"}</span>
                 </Link>
             </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    {"Đăng nhập"}
+                </TooltipContent>
+            </Tooltip>
         );
     }
 
     return (
         <DropdownMenu>
+            <Tooltip>
+                <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full" aria-label="Mở menu tài khoản">
                     <Avatar className="h-7 w-7">
@@ -59,6 +74,11 @@ export default function NavbarUserMenu() {
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                    {"Tài khoản"}
+                </TooltipContent>
+            </Tooltip>
 
             <DropdownMenuContent align="end" className="w-48">
                 {/* User info */}

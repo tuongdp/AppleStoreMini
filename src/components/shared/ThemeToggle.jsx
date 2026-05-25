@@ -6,6 +6,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useTheme } from "@/hooks/useTheme";
 
 export default function ThemeToggle() {
@@ -13,13 +18,20 @@ export default function ThemeToggle() {
 
   return (
     <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button variant="ghost" size="icon" className="rounded-full" aria-label="Giao diện">
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-[transform,opacity] dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-[transform,opacity] dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Chuyển đổi giao diện</span>
         </Button>
       </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          {"Giao diện"}
+        </TooltipContent>
+      </Tooltip>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           onClick={() => setTheme("light")}

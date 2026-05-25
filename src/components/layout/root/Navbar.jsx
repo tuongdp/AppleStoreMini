@@ -4,6 +4,12 @@ import { Link, NavLink } from "react-router-dom";
 import { Menu, Search } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import MegaMenu from "./MegaMenu";
 import NavbarActions from "./NavbarActions";
 import NavbarMobile from "./NavbarMobile";
@@ -99,7 +105,10 @@ export default function Navbar() {
                         </nav>
                     </div>
 
+                    <TooltipProvider>
                     <div className="flex items-center gap-0.5">
+                        <Tooltip>
+                            <TooltipTrigger asChild>
                         <Button
                             variant="ghost"
                             size="default"
@@ -121,6 +130,11 @@ export default function Navbar() {
                                 Ctrl K
                             </kbd>
                         </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {"Tìm kiếm"}
+                            </TooltipContent>
+                        </Tooltip>
 
                         <NavbarActions />
 
@@ -130,6 +144,8 @@ export default function Navbar() {
                                 dispatch(toggleMobileMenu(open))
                             }
                         >
+                            <Tooltip>
+                                <TooltipTrigger asChild>
                             <SheetTrigger asChild>
                                 <Button
                                     variant="ghost"
@@ -140,11 +156,17 @@ export default function Navbar() {
                                     <Menu className="h-5 w-5" />
                                 </Button>
                             </SheetTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    {"Menu"}
+                                </TooltipContent>
+                            </Tooltip>
                             <SheetContent side="right" className="w-72 p-0">
                                 <NavbarMobile />
                             </SheetContent>
                         </Sheet>
                     </div>
+                    </TooltipProvider>
                 </div>
             </div>
 
