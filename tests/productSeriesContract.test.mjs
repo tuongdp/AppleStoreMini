@@ -35,15 +35,16 @@ test("admin exposes a series management page", () => {
   assert.match(list, /pagination\.totalPages/);
 });
 
-test("admin product form submits the selected series id", () => {
+test("admin product form submits selected series ids from a checkbox grid", () => {
   const source = readFileSync("src/features/admin/components/products/AdminProductForm.jsx", "utf8");
   const validations = readFileSync("src/lib/validations.js", "utf8");
 
-  assert.match(validations, /seriesId:\s*z\.string\(\)\.optional/);
+  assert.match(validations, /seriesIds:\s*z\.array\(z\.string\(\)\)\.default\(\[\]\)/);
   assert.match(source, /useGetAdminSeriesQuery/);
   assert.match(source, /limit:\s*100/);
-  assert.match(source, /name="seriesId"/);
-  assert.match(source, /seriesId:\s*values\.seriesId \|\| null/);
+  assert.match(source, /name="seriesIds"/);
+  assert.match(source, /<Checkbox/);
+  assert.match(source, /seriesIds:\s*values\.seriesIds \|\| \[\]/);
 });
 
 test("product list prefers db series but keeps slug fallback", () => {

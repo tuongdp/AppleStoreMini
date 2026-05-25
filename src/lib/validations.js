@@ -188,7 +188,7 @@ export const productSchema = z.object({
             message: v("product.slugInvalid"),
         }),
     category: z.string().min(1, { message: v("product.categoryRequired") }),
-    seriesId: z.string().optional().or(z.literal("")),
+    seriesIds: z.array(z.string()).default([]),
     description: z
         .string()
         .min(10, { message: v("product.descriptionMinLength") })

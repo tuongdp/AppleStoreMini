@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import SearchableSelect from "@/components/shared/SearchableSelect";
 import { useGetGlobalOptionsQuery } from "@/store/api/globalOptionsApi";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
@@ -82,6 +83,14 @@ function normalizeMarketingBadgeFields(values) {
     };
 }
 
+function getProductSeriesIds(product) {
+    if (!product) return [];
+    if (Array.isArray(product.seriesIds)) return product.seriesIds.filter(Boolean);
+    if (Array.isArray(product.seriesList)) return product.seriesList.map((series) => series.id || series._id).filter(Boolean);
+    if (Array.isArray(product.seriesItems)) return product.seriesItems.map((item) => item.series?.id || item.series?._id || item.seriesId).filter(Boolean);
+    return [product.seriesId || product.series?.id || product.series?._id].filter(Boolean);
+}
+
 export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated }) {
     const isEdit = !!product;
 
@@ -112,7 +121,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             name: product?.name || "",
             slug: product?.slug || "",
             category: product?.category?.slug || product?.categorySlug || "",
-            seriesId: product?.seriesId || product?.series?.id || product?.series?._id || "",
+            seriesIds: getProductSeriesIds(product),
             description: product?.description || "",
             image: product?.image || parseJsonField(product?.images)?.[0] || "",
             isActive: product?.isActive ?? true,
@@ -125,7 +134,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 name: product.name || "",
                 slug: product.slug || "",
                 category: product.category?.slug || product.categorySlug || "",
-                seriesId: product.seriesId || product.series?.id || product.series?._id || "",
+                seriesIds: getProductSeriesIds(product),
                 description: product.description || "",
                 image: product.image || parseJsonField(product.images)?.[0] || "",
                 isActive: product.isActive ?? true,
@@ -294,7 +303,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     name: formValues.name.trim(),
                     slug: formValues.slug.trim(),
                     category: formValues.category,
-                    ...(formValues.seriesId ? { seriesId: formValues.seriesId } : {}),
+                    seriesIds: formValues.seriesIds || [],
                     description: formValues.description || "",
                     image: formValues.image || "",
                     isActive: formValues.isActive ?? true,
@@ -399,7 +408,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         if (variants.length === 0) { toast.error("Cần có ít nhất 1 biến thể"); return; }
         onSubmit({
             ...values,
-            seriesId: values.seriesId || null,
+            seriesIds: values.seriesIds || [],
             productId: autoCreatedId,
             image: values.image || "",
             specifications: buildSpecsArray(),
@@ -450,7 +459,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                             value={field.value}
                                             onValueChange={(value) => {
                                                 field.onChange(value);
-                                                form.setValue("seriesId", "");
+                                                form.setValue("seriesIds", []);
                                             }}
                                             disabled={isLoading}
                                         >
@@ -466,31 +475,75 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         <FormMessage />
                                     </FormItem>
                                 )} />
-                                <FormField control={form.control} name="seriesId" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Series</FormLabel>
-                                        <Select
-                                            value={field.value || "none"}
-                                            onValueChange={(value) => field.onChange(value === "none" ? "" : value)}
-                                            disabled={isLoading || !selectedCategory || seriesOptions.length === 0}
-                                        >
+                                <FormField control={form.control} name="seriesIds" render={({ field }) => {
+                                    const selectedSeriesIds = field.value || [];
+                                    return (
+                                        <FormItem>
+                                            <div className="flex items-center justify-between gap-3">
+                                                <FormLabel>Series</FormLabel>
+                                                {selectedSeriesIds.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        className="text-xs font-medium text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                                                        onClick={() => field.onChange([])}
+                                                        disabled={isLoading}
+                                                    >
+                                                        {"Bỏ chọn tất cả"}
+                                                    </button>
+                                                )}
+                                            </div>
                                             <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={"Chọn series"} />
-                                                </SelectTrigger>
+                                                <div className="rounded-xl border border-border bg-background/60 p-3">
+                                                    {!selectedCategory ? (
+                                                        <p className="text-xs text-muted-foreground">{"Chọn danh mục trước để xem series."}</p>
+                                                    ) : seriesOptions.length === 0 ? (
+                                                        <p className="text-xs text-muted-foreground">{"Danh mục này chưa có series."}</p>
+                                                    ) : (
+                                                        <div className="grid max-h-52 grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+                                                            {seriesOptions.map((series) => {
+                                                                const seriesId = series.id || series._id || series.slug;
+                                                                const checked = selectedSeriesIds.includes(seriesId);
+                                                                return (
+                                                                    <label
+                                                                        key={seriesId}
+                                                                        className="flex min-h-11 cursor-pointer items-start gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors hover:border-primary/50 hover:bg-primary/5 has-data-[state=checked]:border-primary/70 has-data-[state=checked]:bg-primary/10"
+                                                                    >
+                                                                        <Checkbox
+                                                                            checked={checked}
+                                                                            disabled={isLoading}
+                                                                            onCheckedChange={(isChecked) => {
+                                                                                const next = isChecked
+                                                                                    ? [...selectedSeriesIds, seriesId]
+                                                                                    : selectedSeriesIds.filter((id) => id !== seriesId);
+                                                                                field.onChange(next);
+                                                                            }}
+                                                                        />
+                                                                        <span className="min-w-0 flex-1 leading-5">
+                                                                            <span className="block truncate font-medium text-foreground">{series.name}</span>
+                                                                            {series.slug && <span className="block truncate text-xs text-muted-foreground">{series.slug}</span>}
+                                                                        </span>
+                                                                    </label>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="none">Không chọn series</SelectItem>
-                                                {seriesOptions.map((series) => (
-                                                    <SelectItem key={series.id || series._id || series.slug} value={series.id || series._id || series.slug}>
-                                                        {series.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )} />
+                                            {selectedSeriesIds.length > 0 && (
+                                                <div className="flex flex-wrap gap-1.5">
+                                                    {seriesOptions
+                                                        .filter((series) => selectedSeriesIds.includes(series.id || series._id || series.slug))
+                                                        .map((series) => (
+                                                            <Badge key={series.id || series._id || series.slug} variant="secondary" className="rounded-full">
+                                                                {series.name}
+                                                            </Badge>
+                                                        ))}
+                                                </div>
+                                            )}
+                                            <FormMessage />
+                                        </FormItem>
+                                    );
+                                }} />
                                 <FormField control={form.control} name="description" render={() => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
