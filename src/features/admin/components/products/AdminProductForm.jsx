@@ -36,8 +36,40 @@ import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
 import AIDescriptionButton from "./AIDescriptionButton";
+import { PRODUCT_MARKETING_BADGE_TYPES } from "@/features/products/utils/productMarketingBadge";
 
 const EMPTY_VARIANT = { color: "", storage: "", ram: "", edition: "", price: "", salePrice: "", stock: 0 };
+const NO_MARKETING_BADGE = "NONE";
+const PRODUCT_MARKETING_BADGE_OPTIONS = [
+    { value: NO_MARKETING_BADGE, label: "Không gắn nhãn" },
+    { value: PRODUCT_MARKETING_BADGE_TYPES.NEW_RELEASE, label: "Mới ra mắt" },
+    { value: PRODUCT_MARKETING_BADGE_TYPES.RESTOCK, label: "Mới nhập về" },
+];
+
+function getTodayDateInputValue() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function getDateInputValue(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toISOString().slice(0, 10);
+}
+
+function normalizeMarketingBadgeFields(values) {
+    if (!values.arrivalType || values.arrivalType === NO_MARKETING_BADGE) {
+        return {
+            arrivalType: null,
+            arrivalDate: null,
+        };
+    }
+
+    return {
+        arrivalType: values.arrivalType,
+        arrivalDate: values.arrivalDate || getTodayDateInputValue(),
+    };
+}
 
 export default function AdminProductForm({ product, onSubmit, isLoading, onProductAutoCreated }) {
     const isEdit = !!product;
@@ -72,6 +104,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             description: product?.description || "",
             image: product?.image || parseJsonField(product?.images)?.[0] || "",
             isActive: product?.isActive ?? true,
+            arrivalType: product?.arrivalType || NO_MARKETING_BADGE,
+            arrivalDate: getDateInputValue(product?.arrivalDate),
         },
     });
 
@@ -83,6 +117,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 description: product.description || "",
                 image: product.image || parseJsonField(product.images)?.[0] || "",
                 isActive: product.isActive ?? true,
+                arrivalType: product.arrivalType || NO_MARKETING_BADGE,
+                arrivalDate: getDateInputValue(product.arrivalDate),
             });
 
             const rawSpecs = product.specifications || {};
@@ -241,6 +277,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                     description: formValues.description || "",
                     image: formValues.image || "",
                     isActive: formValues.isActive ?? true,
+                    ...normalizeMarketingBadgeFields(formValues),
                     specifications: buildSpecsArray(),
                     variants: [{
                         color: color.trim(),
@@ -340,6 +377,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         if (variants.length === 0) { toast.error("Cần có ít nhất 1 biến thể"); return; }
         onSubmit({
             ...values,
+            ...normalizeMarketingBadgeFields(values),
             productId: autoCreatedId,
             image: values.image || "",
             specifications: buildSpecsArray(),
@@ -354,6 +392,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     };
 
     const hasVariants = variants.length > 0;
+    const selectedArrivalType = form.watch("arrivalType");
 
     return (
         <>
@@ -592,6 +631,60 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
 
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-4 text-sm font-medium text-foreground">{"Trạng thái"}</h3>
+                            <div className="mb-5 grid gap-4 md:grid-cols-2">
+                                <FormField control={form.control} name="arrivalType" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Nhãn hàng mới"}</FormLabel>
+                                        <Select
+                                            value={field.value || NO_MARKETING_BADGE}
+                                            onValueChange={(value) => {
+                                                field.onChange(value);
+                                                if (value === NO_MARKETING_BADGE) {
+                                                    form.setValue("arrivalDate", "", { shouldDirty: true });
+                                                    return;
+                                                }
+                                                if (!form.getValues("arrivalDate")) {
+                                                    form.setValue("arrivalDate", getTodayDateInputValue(), { shouldDirty: true });
+                                                }
+                                            }}
+                                            disabled={isLoading}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={"Chọn nhãn"} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {PRODUCT_MARKETING_BADGE_OPTIONS.map((option) => (
+                                                    <SelectItem key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-muted-foreground">
+                                            {"Dùng để phân biệt sản phẩm mới ra mắt và hàng vừa nhập lại."}
+                                        </p>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={form.control} name="arrivalDate" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{"Ngày bắt đầu gắn nhãn"}</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="date"
+                                                disabled={isLoading || selectedArrivalType === NO_MARKETING_BADGE}
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <p className="text-xs text-muted-foreground">
+                                            {"Badge tự ẩn sau 30 ngày kể từ ngày này."}
+                                        </p>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
                             <FormField control={form.control} name="isActive" render={({ field }) => (
                                 <FormItem className="flex items-center justify-between gap-4">
                                     <div>

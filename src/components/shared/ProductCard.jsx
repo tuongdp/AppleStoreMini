@@ -10,16 +10,12 @@ import { productsApi } from "@/store/api/productsApi";
 import { formatPrice, cn, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import {
+    getProductMarketingBadge,
+    getProductMarketingBadgeClassName,
+} from "@/features/products/utils/productMarketingBadge";
 
 import { productPlaceholder } from "@/assets/images";
-
-const NEW_PRODUCT_DAYS = 30;
-
-function isNewProduct(createdAt) {
-    if (!createdAt) return false;
-    const age = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
-    return age <= NEW_PRODUCT_DAYS;
-}
 
 export default function ProductCard({ product }) {
     const dispatch = useDispatch();
@@ -47,6 +43,7 @@ export default function ProductCard({ product }) {
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
+    const marketingBadge = getProductMarketingBadge(product);
 
     const handleToggleWishlist = (e) => {
         e.preventDefault();
@@ -100,9 +97,15 @@ export default function ProductCard({ product }) {
                                 {"Hết hàng"}
                             </Badge>
                         )}
-                        {isNewProduct(product.createdAt) && (
-                            <Badge className="bg-muted px-1.5 py-0.5 text-[10px] font-bold text-foreground">
-                                {"Mới"}
+                        {marketingBadge && (
+                            <Badge
+                                className={cn(
+                                    "px-1.5 py-0.5 text-[10px] font-bold",
+                                    getProductMarketingBadgeClassName(marketingBadge.tone),
+                                )}
+                                title={marketingBadge.title}
+                            >
+                                {marketingBadge.label}
                             </Badge>
                         )}
                     </div>

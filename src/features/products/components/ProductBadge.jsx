@@ -1,14 +1,23 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+    getProductMarketingBadge,
+    getProductMarketingBadgeClassName,
+} from "@/features/products/utils/productMarketingBadge";
 
 export default function ProductBadge({ product, className }) {
     if (!product) return null;
 
+    const marketingBadge = getProductMarketingBadge(product);
+
     return (
         <div className={cn("flex flex-col gap-1", className)}>
-            {product.isNew && (
-                <Badge className="bg-muted text-foreground hover:bg-muted">
-                    {"Mới"}
+            {marketingBadge && (
+                <Badge
+                    className={getProductMarketingBadgeClassName(marketingBadge.tone)}
+                    title={marketingBadge.title}
+                >
+                    {marketingBadge.label}
                 </Badge>
             )}
             {product.salePrice && product.salePrice < product.price && (
