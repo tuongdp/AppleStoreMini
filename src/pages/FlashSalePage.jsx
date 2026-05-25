@@ -63,6 +63,14 @@ function FlashSaleSection({ flashSale }) {
             color: item.variant?.color || "",
             storage: item.variant?.storage || "",
             category: product?.category?.name || product?.category || "",
+            flashSale: {
+                salePrice: item.salePrice,
+                originalPrice: item.originalPrice,
+                discountPercent: item.discountPercent,
+                quantityLimit: item.quantityLimit,
+                quantitySold: item.quantitySold,
+                endTime: flashSale.endTime,
+            },
             _flashSaleItem: item,
         };
     });
