@@ -17,6 +17,13 @@ import {
 
 import { productPlaceholder } from "@/assets/images";
 
+function getVariantSummary(product) {
+    return [product?.color, product?.storage, product?.ram, product?.edition]
+        .map((value) => (typeof value === "string" ? value.trim() : value))
+        .filter(Boolean)
+        .join(" · ");
+}
+
 export default function ProductCard({ product }) {
     const dispatch = useDispatch();
 
@@ -44,6 +51,7 @@ export default function ProductCard({ product }) {
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
     const marketingBadge = getProductMarketingBadge(product);
+    const variantSummary = getVariantSummary(product);
 
     const handleToggleWishlist = (e) => {
         e.preventDefault();
@@ -168,6 +176,12 @@ export default function ProductCard({ product }) {
                         {product.name}
                     </h3>
                 </Link>
+
+                {variantSummary && (
+                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                        {variantSummary}
+                    </p>
+                )}
 
                 {/* Price */}
                 <div className="mt-1.5 flex items-center justify-center gap-1.5">
