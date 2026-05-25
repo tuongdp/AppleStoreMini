@@ -8,4 +8,6 @@ test("product card shows flash sale discount percent badge", () => {
   assert.match(source, /calcDiscount/);
   assert.match(source, /flashSaleDiscount/);
   assert.match(source, /-\{flashSaleDiscount\}%/);
+  assert.match(source, /formatPrice\(effectivePrice\)[\s\S]*-\{flashSaleDiscount\}%/);
+  assert.doesNotMatch(source, /FLASH SALE[\s\S]{0,260}-\{flashSaleDiscount\}%/);
 });

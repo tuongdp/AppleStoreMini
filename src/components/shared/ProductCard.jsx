@@ -121,11 +121,6 @@ export default function ProductCard({ product }) {
                                 {"FLASH SALE"}
                             </Badge>
                         )}
-                        {hasFlashSale && flashSaleDiscount > 0 && (
-                            <Badge className="w-fit border-0 bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm hover:bg-red-600">
-                                -{flashSaleDiscount}%
-                            </Badge>
-                        )}
                         {isOutOfStock && (
                             <Badge
                                 variant="outline"
@@ -213,7 +208,7 @@ export default function ProductCard({ product }) {
                 )}
 
                 {/* Price */}
-                <div className="mt-1.5 flex items-center justify-center gap-1.5">
+                <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5">
                     {isOutOfStock ? (
                         <span className="text-xs text-muted-foreground">
                             {"Liên hệ để đặt hàng"}
@@ -230,6 +225,11 @@ export default function ProductCard({ product }) {
                                 <span className="text-xs text-muted-foreground line-through">
                                     {formatPrice(hasFlashSale ? originalPrice : product.price)}
                                 </span>
+                            )}
+                            {hasFlashSale && flashSaleDiscount > 0 && (
+                                <Badge className="border-0 bg-foreground px-1.5 py-0.5 text-[10px] font-bold text-background hover:bg-foreground">
+                                    -{flashSaleDiscount}%
+                                </Badge>
                             )}
                         </>
                     )}
