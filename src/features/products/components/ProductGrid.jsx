@@ -35,7 +35,7 @@ export default function ProductGrid({
         >
             {products.map((product) => (
                 <ProductCard
-                    key={product._id || product.id}
+                    key={product.variantId || product._id || product.id}
                     product={product}
                 />
             ))}

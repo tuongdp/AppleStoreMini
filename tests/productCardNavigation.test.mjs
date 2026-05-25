@@ -20,3 +20,12 @@ test("internal React Router links use SPA navigation", () => {
 
   assert.deepEqual(offenders, []);
 });
+
+test("product cards pass variant options to product detail links", () => {
+  const source = readFileSync("src/components/shared/ProductCard.jsx", "utf8");
+
+  assert.match(source, /function getProductDetailHref/);
+  assert.match(source, /new URLSearchParams/);
+  assert.match(source, /params\.set\(key, trimmed\)/);
+  assert.match(source, /to=\{productDetailHref\}/);
+});

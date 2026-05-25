@@ -24,6 +24,26 @@ function getVariantSummary(product) {
         .join(" · ");
 }
 
+function getProductDetailHref(product) {
+    const basePath = ROUTES.PRODUCT_DETAIL(product.slug);
+    const params = new URLSearchParams();
+
+    [
+        ["color", product?.color],
+        ["storage", product?.storage],
+        ["ram", product?.ram],
+        ["edition", product?.edition],
+    ].forEach(([key, value]) => {
+        const trimmed = typeof value === "string" ? value.trim() : value;
+        if (trimmed) {
+            params.set(key, trimmed);
+        }
+    });
+
+    const query = params.toString();
+    return query ? `${basePath}?${query}` : basePath;
+}
+
 export default function ProductCard({ product }) {
     const dispatch = useDispatch();
 
@@ -52,6 +72,7 @@ export default function ProductCard({ product }) {
     const isOutOfStock = !product.inStock || stock === 0;
     const marketingBadge = getProductMarketingBadge(product);
     const variantSummary = getVariantSummary(product);
+    const productDetailHref = getProductDetailHref(product);
 
     const handleToggleWishlist = (e) => {
         e.preventDefault();
@@ -80,7 +101,7 @@ export default function ProductCard({ product }) {
         >
             {/* Image */}
             <Link
-                to={ROUTES.PRODUCT_DETAIL(product.slug)}
+                to={productDetailHref}
                 onMouseEnter={prefetchProductDetail}
                 onFocus={prefetchProductDetail}
                 data-testid="product-card-link"
@@ -168,7 +189,7 @@ export default function ProductCard({ product }) {
                 </div>
 
                 <Link
-                    to={ROUTES.PRODUCT_DETAIL(product.slug)}
+                    to={productDetailHref}
                     onMouseEnter={prefetchProductDetail}
                     onFocus={prefetchProductDetail}
                 >
