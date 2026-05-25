@@ -51,7 +51,7 @@ const ROLE_CONFIG = {
 };
 
 const ALL_PERMISSIONS = [
-    { key: "dashboard", label: "Tổng quan", note: "Xem số liệu vận hành" },
+    { key: "dashboard", label: "Tổng quan", note: "Chỉ xem số liệu vận hành" },
     { key: "products", label: "Sản phẩm", note: "Quản lý sản phẩm và biến thể" },
     { key: "orders", label: "Đơn hàng", note: "Xem và cập nhật đơn hàng" },
     { key: "returns", label: "Trả hàng", note: "Xử lý yêu cầu hoàn trả" },
@@ -78,7 +78,7 @@ const PERMISSION_ACTION_LABELS = {
 };
 
 const PERMISSION_ACTION_OVERRIDES = {
-    dashboard: ["view", "update"],
+    dashboard: ["view"],
     orders: ["view", "update"],
     returns: ["view", "update"],
     comments: ["view", "update", "delete"],
@@ -411,6 +411,113 @@ export default function AdminUserDetail({ user, orders = [] }) {
                 </div>
             </div>
 
+            {isAdmin && user.role === "staff" && (
+                <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                    <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                                <ShieldCheck className="h-4 w-4 text-blue-600" />
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    Phân quyền
+                                </h3>
+                                <Badge variant={permissionsDirty ? "default" : "secondary"} className="text-xs">
+                                    {selectedPermissionCount}/{availablePermissionCount}
+                                </Badge>
+                            </div>
+                            <p className="mt-2 max-w-3xl text-xs leading-relaxed text-muted-foreground">
+                                Cấp quyền theo chức năng và thao tác cụ thể. Tổng quan chỉ là quyền xem số liệu; các thao tác nhạy cảm vẫn giữ cho quản trị viên khi cần.
+                            </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-full"
+                                disabled={!permissionsDirty || isUpdatingPerms}
+                                onClick={handleResetPerms}
+                            >
+                                Hoàn tác
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="rounded-full"
+                                disabled={!permissionsDirty || isUpdatingPerms}
+                                onClick={handleSavePerms}
+                            >
+                                {isUpdatingPerms ? (
+                                    <>
+                                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                        Đang lưu...
+                                    </>
+                                ) : (
+                                    "Lưu quyền"
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                    {permissionsDirty && (
+                        <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
+                            Có thay đổi chưa lưu.
+                        </div>
+                    )}
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[720px] border-separate border-spacing-0 text-sm">
+                            <thead>
+                                <tr className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                                    <th className="w-full rounded-l-lg bg-muted/50 px-3 py-2 text-left">Chức năng</th>
+                                    {PERMISSION_ACTIONS.map((action, index) => (
+                                        <th
+                                            key={action}
+                                            className={`w-24 bg-muted/50 px-3 py-2 text-center ${index === PERMISSION_ACTIONS.length - 1 ? "rounded-r-lg" : ""}`}
+                                        >
+                                            {PERMISSION_ACTION_LABELS[action]}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {STAFF_PERMISSIONS.map((permission) => {
+                                    const availableActions = getPermissionActions(permission);
+
+                                    return (
+                                        <tr key={permission.key}>
+                                            <td className="border-b border-border px-3 py-3 align-middle">
+                                                <p className="font-medium text-foreground">{permission.label}</p>
+                                                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{permission.note}</p>
+                                            </td>
+                                            {PERMISSION_ACTIONS.map((action) => {
+                                                const available = availableActions.includes(action);
+                                                const permissionKey = getPermissionKey(permission.key, action);
+                                                const checked = Array.isArray(perms) && perms.includes(permissionKey);
+
+                                                return (
+                                                    <td key={action} className="border-b border-border px-3 py-3 text-center align-middle">
+                                                        {available ? (
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={checked}
+                                                                disabled={isUpdatingPerms}
+                                                                onChange={() => togglePerm(permissionKey)}
+                                                                aria-label={`${permission.label} - ${PERMISSION_ACTION_LABELS[action]}`}
+                                                                className="h-4 w-4 rounded accent-blue-600"
+                                                            />
+                                                        ) : (
+                                                            <span className="text-muted-foreground/40">-</span>
+                                                        )}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {/* ── Left Column ── */}
                 <div className="space-y-6">
@@ -541,89 +648,6 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         </div>
                     )}
 
-                    {/* Permissions */}
-                    {isAdmin && user.role === "staff" && (
-                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <div className="mb-4 flex items-start justify-between gap-3">
-                                <div className="flex items-center gap-2">
-                                    <ShieldCheck className="h-4 w-4 text-blue-600" />
-                                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                        Phân quyền
-                                    </h3>
-                                </div>
-                                <Badge variant={permissionsDirty ? "default" : "secondary"} className="text-xs">
-                                    {selectedPermissionCount}/{availablePermissionCount}
-                                </Badge>
-                            </div>
-                            <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
-                                Chọn khu vực admin mà nhân viên được phép truy cập. Các thao tác nhạy cảm như đổi vai trò, mã giảm giá hoặc cấu hình hệ thống vẫn nên giữ cho quản trị viên.
-                            </p>
-                            {permissionsDirty && (
-                                <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
-                                    Có thay đổi chưa lưu.
-                                </div>
-                            )}
-                            <div className="mb-2 flex items-center justify-between gap-2">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="rounded-full"
-                                    disabled={!permissionsDirty || isUpdatingPerms}
-                                    onClick={handleResetPerms}
-                                >
-                                    Hoàn tác
-                                </Button>
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    className="rounded-full"
-                                    disabled={!permissionsDirty || isUpdatingPerms}
-                                    onClick={handleSavePerms}
-                                >
-                                    {isUpdatingPerms ? (
-                                        <>
-                                            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                                            Đang lưu...
-                                        </>
-                                    ) : (
-                                        "Lưu quyền"
-                                    )}
-                                </Button>
-                            </div>
-                            <div className="space-y-3">
-                                {STAFF_PERMISSIONS.map((p) => (
-                                    <div key={p.key} className="rounded-xl border border-border p-3">
-                                        <div className="mb-2">
-                                            <p className="text-sm font-medium text-foreground">{p.label}</p>
-                                            <p className="text-xs leading-5 text-muted-foreground">{p.note}</p>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                            {getPermissionActions(p).map((action) => {
-                                                const permissionKey = getPermissionKey(p.key, action);
-                                                const checked = Array.isArray(perms) && perms.includes(permissionKey);
-                                                return (
-                                                    <label
-                                                        key={permissionKey}
-                                                        className="flex cursor-pointer items-center gap-2 rounded-lg bg-muted/30 px-2.5 py-2 text-xs transition-colors hover:bg-muted"
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={checked}
-                                                            disabled={isUpdatingPerms}
-                                                            onChange={() => togglePerm(permissionKey)}
-                                                            className="h-4 w-4 shrink-0 rounded accent-blue-600"
-                                                        />
-                                                        <span>{PERMISSION_ACTION_LABELS[action]}</span>
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* ── Right Column — Orders ── */}
