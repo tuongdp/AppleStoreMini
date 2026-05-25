@@ -35,13 +35,18 @@ function getSortOption(searchParams) {
     return PRODUCT_SORT_OPTIONS.find((option) => option.sort === sort && !option.arrivalType) || PRODUCT_SORT_OPTIONS[0];
 }
 
-function ScrollNav({ label, children }) {
+function ScrollNav({ label, children, wrap = false }) {
     return (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
             <p className="shrink-0 whitespace-nowrap text-sm font-medium leading-9 text-foreground sm:w-24">
                 {label}
             </p>
-            <div className="-mx-4 flex min-w-0 flex-1 gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide sm:mx-0 sm:px-0">
+            <div
+                className={cn(
+                    "-mx-4 flex min-w-0 flex-1 gap-2 px-4 pb-1 sm:mx-0 sm:px-0",
+                    wrap ? "flex-wrap overflow-visible" : "overflow-x-auto scrollbar-hide",
+                )}
+            >
                 {children}
             </div>
         </div>
@@ -193,7 +198,7 @@ export default function ProductListPage() {
 
                 <div className="mb-8 space-y-5 border-y border-border py-4">
                     {seriesFilters.length > 0 && (
-                        <ScrollNav label="Lọc">
+                        <ScrollNav label="Lọc" wrap>
                             <button
                                 type="button"
                                 onClick={clearSeries}

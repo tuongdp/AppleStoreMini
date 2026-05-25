@@ -170,10 +170,11 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     }, [categories, product, form]);
 
     const selectedCategory = form.watch("category");
-    const { data: seriesOptions = [] } = useGetAdminSeriesQuery(
-        { category: selectedCategory },
+    const { data: seriesResult } = useGetAdminSeriesQuery(
+        { category: selectedCategory, limit: 100 },
         { skip: !selectedCategory },
     );
+    const seriesOptions = Array.isArray(seriesResult) ? seriesResult : seriesResult?.data || [];
 
     const handleNameChange = (e) => {
         const name = e.target.value;

@@ -29,6 +29,10 @@ test("admin exposes a series management page", () => {
   assert.match(list, /useCreateSeriesMutation/);
   assert.match(list, /useUpdateSeriesMutation/);
   assert.match(list, /useDeleteSeriesMutation/);
+  assert.match(list, /search:\s*search\.trim\(\)/);
+  assert.match(list, /category:\s*categoryFilter/);
+  assert.match(list, /SERIES_PAGE_SIZE/);
+  assert.match(list, /pagination\.totalPages/);
 });
 
 test("admin product form submits the selected series id", () => {
@@ -37,6 +41,7 @@ test("admin product form submits the selected series id", () => {
 
   assert.match(validations, /seriesId:\s*z\.string\(\)\.optional/);
   assert.match(source, /useGetAdminSeriesQuery/);
+  assert.match(source, /limit:\s*100/);
   assert.match(source, /name="seriesId"/);
   assert.match(source, /seriesId:\s*values\.seriesId \|\| null/);
 });
@@ -46,6 +51,8 @@ test("product list prefers db series but keeps slug fallback", () => {
 
   assert.match(source, /useGetSeriesQuery/);
   assert.match(source, /buildSeriesFiltersFromSeries/);
+  assert.match(source, /function ScrollNav\(\{ label, children, wrap = false \}\)/);
+  assert.match(source, /<ScrollNav label="Lọc" wrap>/);
   assert.match(source, /\["series", series\.source === "series"/);
   assert.match(source, /\["slug", series\.source === "slug"/);
 });
