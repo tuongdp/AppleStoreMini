@@ -30,6 +30,11 @@ const SORT_LABELS = {
     rating: "Đánh giá cao nhất",
 };
 
+const PRODUCT_ARRIVAL_FILTERS = [
+    { label: "Mới ra mắt", value: "NEW_RELEASE" },
+    { label: "Mới nhập về", value: "RESTOCK" },
+];
+
 export default function ProductListPage() {
     const { categories } = useCategories();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -41,9 +46,10 @@ export default function ProductListPage() {
             category: searchParams.get("category") || undefined,
             minPrice: searchParams.get("minPrice") || undefined,
             maxPrice: searchParams.get("maxPrice") || undefined,
-            sort: searchParams.get("sort") || "featured",
+            sort: searchParams.get("sort") || (searchParams.get("arrivalType") ? "newest" : "featured"),
             search: searchParams.get("search") || undefined,
             slug: searchParams.get("slug") || undefined,
+            arrivalType: searchParams.get("arrivalType") || undefined,
         };
         return Object.fromEntries(Object.entries(raw).filter(([, value]) => value !== undefined));
     }, [searchParams]);
@@ -125,8 +131,15 @@ export default function ProductListPage() {
     const currentCategory = categories.find((category) => category.slug === filters.category);
     const fallbackCategory = CATEGORIES.find((category) => category.value === filters.category);
     const categoryLabel = currentCategory?.label || fallbackCategory?.label || filters.category;
+    const arrivalFilter = PRODUCT_ARRIVAL_FILTERS.find((item) => item.value === filters.arrivalType);
+    const pageTitle = arrivalFilter?.label || categoryLabel || "Tất cả sản phẩm";
 
     const activeFilterChips = [
+        arrivalFilter && {
+            key: "arrivalType",
+            label: arrivalFilter.label,
+            onRemove: () => updateFilter("arrivalType", ""),
+        },
         filters.category && {
             key: "category",
             label: categoryLabel,
@@ -183,6 +196,7 @@ export default function ProductListPage() {
                 <Breadcrumb
                     items={[
                         { label: "Sản phẩm", href: ROUTES.PRODUCTS },
+                        ...(arrivalFilter ? [{ label: arrivalFilter.label }] : []),
                         ...(categoryLabel ? [{ label: categoryLabel }] : []),
                     ]}
                     className="mb-6"
@@ -238,7 +252,7 @@ export default function ProductListPage() {
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-semibold text-foreground">
-                            {categoryLabel || "Tất cả sản phẩm"}
+                            {pageTitle}
                         </h1>
                         {!isLoading && pagination.total > 0 && (
                             <p className="mt-1 text-sm text-muted-foreground">
@@ -261,6 +275,23 @@ export default function ProductListPage() {
                 </div>
 
                 <div className="mb-6 rounded-2xl border border-border bg-card p-4">
+                    <div className="mb-4 flex flex-wrap gap-2">
+                        {PRODUCT_ARRIVAL_FILTERS.map((filter) => (
+                            <button
+                                key={filter.value}
+                                type="button"
+                                onClick={() => updateFilter("arrivalType", filters.arrivalType === filter.value ? "" : filter.value)}
+                                className={cn(
+                                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                                    filters.arrivalType === filter.value
+                                        ? "border-blue-500/50 bg-blue-500/10 text-blue-700 dark:border-blue-400/50 dark:bg-blue-400/10 dark:text-blue-400"
+                                        : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                                )}
+                            >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
                     <div className="mb-3 flex flex-wrap items-center gap-2">
                         <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium text-foreground">Khoảng giá</span>

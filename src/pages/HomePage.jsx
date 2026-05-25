@@ -124,7 +124,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             title="Sản phẩm mới ra mắt"
-            viewAllHref={`${ROUTES.PRODUCTS}?sort=newest`}
+            viewAllHref={`${ROUTES.PRODUCTS}?arrivalType=NEW_RELEASE`}
             className="mb-8"
           />
           <ProductSlider
@@ -139,7 +139,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl">
           <SectionTitle
             title="Sản phẩm mới nhập về"
-            viewAllHref={`${ROUTES.PRODUCTS}?sort=newest`}
+            viewAllHref={`${ROUTES.PRODUCTS}?arrivalType=RESTOCK`}
             className="mb-8"
           />
           <ProductSlider
