@@ -28,6 +28,7 @@ export function useCheckout() {
         fullName: "",
         phone: "",
         address: "",
+        email: "",
         paymentMethod: null,
         note: "",
     });
@@ -106,6 +107,7 @@ export function useCheckout() {
                 fullName: checkoutData.fullName,
                 phone: checkoutData.phone,
                 address: checkoutData.address,
+                email: checkoutData.email || undefined,
                 paymentMethod: checkoutData.paymentMethod,
                 note: checkoutData.note || "",
                 couponCode: appliedCoupon?.code || undefined,
@@ -145,6 +147,7 @@ export function useCheckout() {
             fullName: "",
             phone: "",
             address: "",
+            email: "",
             paymentMethod: null,
             note: "",
         });

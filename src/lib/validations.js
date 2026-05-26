@@ -156,6 +156,7 @@ export const addressSchema = z.object({
             message: v("phone.invalid"),
         }),
     address: z.string().min(10, { message: v("address.addressMinLength") }),
+    email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
     note: z.string().max(200).optional(),
 });
 
@@ -169,6 +170,7 @@ export const checkoutSchema = z.object({
             message: v("phone.invalid"),
         }),
     address: z.string().min(10, { message: v("address.addressMinLength") }),
+    email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
     paymentMethod: z.enum(
         ["cod", "momo"],
         { required_error: v("checkout.paymentRequired") },

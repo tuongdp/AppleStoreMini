@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
 import { addressSchema } from "@/lib/validations";
-import { selectCurrentUser } from "@/store/authSlice";
+import { selectCurrentUser, selectIsAuthenticated } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ import {
 
 export default function AddressStep({ defaultData, onNext }) {
     const user = useSelector(selectCurrentUser);
+    const isAuthenticated = useSelector(selectIsAuthenticated);
 
     const form = useForm({
         resolver: zodResolver(addressSchema),
@@ -24,6 +25,7 @@ export default function AddressStep({ defaultData, onNext }) {
             fullName: defaultData?.fullName || user?.fullName || "",
             phone: defaultData?.phone || user?.phone || "",
             address: defaultData?.address || "",
+            email: defaultData?.email || user?.email || "",
             note: defaultData?.note || "",
         },
     });
@@ -81,6 +83,27 @@ export default function AddressStep({ defaultData, onNext }) {
                             )}
                         />
                     </div>
+
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>
+                                    {"Email"}
+                                    {!isAuthenticated && <span className="ml-1 text-xs text-muted-foreground">(để nhận thông báo đơn hàng)</span>}
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="email"
+                                        placeholder={"email@example.com"}
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
                     <FormField
                         control={form.control}

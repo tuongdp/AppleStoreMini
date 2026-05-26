@@ -25,7 +25,7 @@ export default function ConfirmStep({
     onBack,
     isLoading,
 }) {
-    const { fullName, phone, address, paymentMethod } = checkoutData;
+    const { fullName, phone, address, email, paymentMethod } = checkoutData;
 
     return (
         <div className="space-y-4">
@@ -43,6 +43,7 @@ export default function ConfirmStep({
                             {fullName}
                         </p>
                         <p className="text-muted-foreground">{formatPhone(phone)}</p>
+                        {email && <p className="text-muted-foreground">{email}</p>}
                         <p className="text-muted-foreground">
                             {address}
                         </p>
