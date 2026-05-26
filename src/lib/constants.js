@@ -44,7 +44,7 @@ export const CATEGORIES = [
     { label: "iPad", value: "ipad", href: "/products?category=ipad", image: ipadImg },
     { label: "Mac", value: "mac", href: "/products?category=mac", image: macImg },
     { label: "Watch", value: "apple-watch", href: "/products?category=apple-watch", image: watchImg },
-    { label: "AirPods", value: "airpods", href: "/products?category=airpods", image: airpodsImg },
+    { label: "Tai nghe & Loa", value: "tai-nghe-loa", href: "/products?category=tai-nghe-loa", image: airpodsImg },
     { label: "Phụ kiện", value: "phu-kien", href: "/products?category=phu-kien", image: productPlaceholder },
 ];
 

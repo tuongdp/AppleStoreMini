@@ -41,7 +41,7 @@ const CATEGORY_SLIDERS = [
   { slug: "mac", label: "Mac", subtitle: "Mac" },
   { slug: "ipad", label: "iPad", subtitle: "iPad" },
   { slug: "apple-watch", label: "Apple Watch", subtitle: "Watch" },
-  { slug: "airpods", label: "Tai nghe & Loa", subtitle: "Audio" },
+  { slug: "tai-nghe-loa", label: "Tai nghe & Loa", subtitle: "Audio" },
   { slug: "phu-kien", label: "Phụ kiện", subtitle: "Phụ kiện" },
 ];
 
