@@ -155,11 +155,7 @@ export const router = createBrowserRouter([
     },
 
     {
-        element: (
-            <ProtectedRoute>
-                <CheckoutLayout />
-            </ProtectedRoute>
-        ),
+        element: <CheckoutLayout />,
         errorElement: <ErrorPage />,
         children: [{ path: "checkout", element: <CheckoutPage /> }],
     },

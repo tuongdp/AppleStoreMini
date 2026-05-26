@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { skipToken } from "@reduxjs/toolkit/query";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
 import { useGetMyPointsQuery } from "@/store/api/pointsApi";
@@ -9,10 +10,12 @@ import {
     selectCartSelectedStockIssues,
     selectCartSelectedTotal,
 } from "@/store/cartSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
 import { PAYMENT_METHODS } from "@/lib/constants";
 
 export function useCheckout() {
     const dispatch = useDispatch();
+    const isAuthenticated = useSelector(selectIsAuthenticated);
 
     const items = useSelector(selectCartSelectedItems);
     const total = useSelector(selectCartSelectedTotal);
@@ -34,7 +37,7 @@ export function useCheckout() {
 
     const [createOrder, { isLoading }] = useCreateOrderMutation();
     const [createPayment, { isLoading: isPaying }] = useCreatePaymentMutation();
-    const { data: pointsData } = useGetMyPointsQuery();
+    const { data: pointsData } = useGetMyPointsQuery(isAuthenticated ? undefined : skipToken);
 
     const shippingFee = 0;
 
@@ -164,6 +167,7 @@ export function useCheckout() {
         isLoading,
         isPaying,
         appliedCoupon,
+        isAuthenticated,
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,
