@@ -119,6 +119,11 @@ const cartSlice = createSlice({
             state.items = [];
         },
     },
+    extraReducers: (builder) => {
+        builder.addCase("auth/logout", (state) => {
+            state.items = [];
+        });
+    },
 });
 
 export const {

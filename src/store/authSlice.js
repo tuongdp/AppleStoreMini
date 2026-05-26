@@ -120,6 +120,7 @@ const authSlice = createSlice({
             state.refreshToken = null;
             state.isAuthenticated = false;
             state.rememberMe = false;
+            localStorage.removeItem("rememberMe");
         },
         updateUser: (state, action) => {
             state.user = { ...state.user, ...action.payload };
