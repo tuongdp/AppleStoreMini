@@ -4,6 +4,17 @@ const initialState = {
     items: [],
 };
 
+const getItemVariantId = (item) => item.variantId || item.product?.variantId || item.variant?.id;
+
+const isCartItemSelected = (item) => item.selected !== false;
+
+const getAvailableStock = (item) => {
+    const variant = item.variant;
+    const product = item.product || variant?.product;
+    if (variant?.inStock === false || product?.inStock === false) return 0;
+    return Number(variant?.stock ?? product?.stock ?? 99);
+};
+
 export const getEffectivePrice = (product, variant) => {
     const target = variant || product;
     if (!target) return 0;
@@ -29,19 +40,21 @@ const cartSlice = createSlice({
     reducers: {
         addToCart: (state, action) => {
             const newItem = action.payload;
-            const newVariantId = newItem.variantId || newItem.product?.variantId;
+            const newVariantId = getItemVariantId(newItem);
 
             const existingItem = state.items.find(
-                (item) => (item.variantId || item.product?.variantId) === newVariantId,
+                (item) => getItemVariantId(item) === newVariantId,
             );
 
             if (existingItem) {
                 existingItem.quantity += newItem.quantity ?? 1;
+                existingItem.selected = existingItem.selected !== false;
             } else {
                 state.items.push({
                     ...newItem,
                     variantId: newVariantId,
                     quantity: newItem.quantity ?? 1,
+                    selected: newItem.selected ?? true,
                 });
             }
         },
@@ -49,7 +62,7 @@ const cartSlice = createSlice({
         removeFromCart: (state, action) => {
             const { variantId } = action.payload;
             state.items = state.items.filter(
-                (item) => (item.variantId || item.product?.variantId) !== variantId,
+                (item) => getItemVariantId(item) !== variantId,
             );
         },
 
@@ -58,16 +71,34 @@ const cartSlice = createSlice({
 
             if (quantity <= 0) {
                 state.items = state.items.filter(
-                    (item) => (item.variantId || item.product?.variantId) !== variantId,
+                    (item) => getItemVariantId(item) !== variantId,
                 );
                 return;
             }
 
             const item = state.items.find(
-                (item) => (item.variantId || item.product?.variantId) === variantId,
+                (item) => getItemVariantId(item) === variantId,
             );
 
             if (item) item.quantity = quantity;
+        },
+
+        toggleCartItemSelected: (state, action) => {
+            const { variantId, selected } = action.payload;
+            const item = state.items.find((cartItem) => getItemVariantId(cartItem) === variantId);
+            if (item) item.selected = selected ?? !isCartItemSelected(item);
+        },
+
+        selectAllCartItems: (state, action) => {
+            const selected = action.payload ?? true;
+            state.items.forEach((item) => {
+                item.selected = selected;
+            });
+        },
+
+        removeCheckedOutItems: (state, action) => {
+            const checkedOutVariantIds = new Set(action.payload || []);
+            state.items = state.items.filter((item) => !checkedOutVariantIds.has(getItemVariantId(item)));
         },
 
         setCartFromServer: (state, action) => {
@@ -80,6 +111,7 @@ const cartSlice = createSlice({
                     images: item.variant?.images || item.product?.images || item.variant?.product?.images,
                 },
                 quantity: item.quantity,
+                selected: state.items.find((existing) => getItemVariantId(existing) === (item.variant?.id || item.variantId))?.selected ?? true,
             }));
         },
 
@@ -93,6 +125,9 @@ export const {
     addToCart,
     removeFromCart,
     updateQuantity,
+    toggleCartItemSelected,
+    selectAllCartItems,
+    removeCheckedOutItems,
     setCartFromServer,
     clearCart,
 } = cartSlice.actions;
@@ -101,8 +136,26 @@ export default cartSlice.reducer;
 
 export const selectCartItems = (state) => state.cart.items;
 
+export const selectCartSelectedItems = createSelector(
+    [selectCartItems],
+    (items) => items.filter(isCartItemSelected),
+);
+
 export const selectCartTotal = createSelector(
     [selectCartItems],
+    (items) =>
+        items.reduce(
+            (total, item) => {
+                const product = item.product || item.variant?.product;
+                const price = getEffectivePrice(product, item.variant);
+                return total + price * item.quantity;
+            },
+            0,
+        ),
+);
+
+export const selectCartSelectedTotal = createSelector(
+    [selectCartSelectedItems],
     (items) =>
         items.reduce(
             (total, item) => {
@@ -122,6 +175,38 @@ export const selectCartCount = createSelector(
 export const selectCartIsEmpty = createSelector(
     [selectCartItems],
     (items) => items.length === 0,
+);
+
+export const selectCartSelectedCount = createSelector(
+    [selectCartSelectedItems],
+    (items) => items.reduce((total, item) => total + item.quantity, 0),
+);
+
+export const selectCartStockIssues = createSelector(
+    [selectCartItems],
+    (items) =>
+        items
+            .map((item) => {
+                const variantId = getItemVariantId(item);
+                const product = item.product || item.variant?.product;
+                const available = getAvailableStock(item);
+                if (item.quantity <= available) return null;
+                return {
+                    variantId,
+                    requested: item.quantity,
+                    available,
+                    productName: product?.name || item.name || "",
+                };
+            })
+            .filter(Boolean),
+);
+
+export const selectCartSelectedStockIssues = createSelector(
+    [selectCartStockIssues, selectCartSelectedItems],
+    (issues, selectedItems) => {
+        const selectedVariantIds = new Set(selectedItems.map(getItemVariantId));
+        return issues.filter((issue) => selectedVariantIds.has(issue.variantId));
+    },
 );
 
 export const selectCartSavings = createSelector(

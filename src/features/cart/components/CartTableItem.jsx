@@ -2,9 +2,10 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import QuantityInput from "@/components/shared/QuantityInput";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { removeFromCart, updateQuantity, getEffectivePrice } from "@/store/cartSlice";
+import { removeFromCart, updateQuantity, getEffectivePrice, toggleCartItemSelected } from "@/store/cartSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
@@ -30,6 +31,9 @@ export default function CartTableItem({ item, isLast }) {
   const storage = variant?.storage || product?.storage || "";
   const ram = variant?.ram || product?.ram || "";
   const edition = variant?.edition || product?.edition || "";
+  const isSelected = item.selected !== false;
+  const availableStock = Number(variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99));
+  const hasStockIssue = item.quantity > availableStock;
 
   const handleRemove = async () => {
     dispatch(removeFromCart({ variantId }));
@@ -49,6 +53,10 @@ export default function CartTableItem({ item, isLast }) {
     }
   };
 
+  const handleToggleSelected = (checked) => {
+    dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
+  };
+
   const effectivePrice = getEffectivePrice(product, variant);
 
   const firstImage = getFirstImage(product?.images || variant?.images);
@@ -57,7 +65,14 @@ export default function CartTableItem({ item, isLast }) {
     <div data-testid="cart-line-item" data-variant-id={variantId}>
       <div className="grid grid-cols-12 gap-4">
         {/* Image + Info */}
-        <div className="col-span-12 flex gap-4 md:col-span-6">
+        <div className="col-span-12 flex gap-3 md:col-span-6">
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={handleToggleSelected}
+            className="mt-10"
+            aria-label={`Chọn ${product?.name || "sản phẩm"} để thanh toán`}
+            data-testid="cart-item-select"
+          />
           <Link
             to={ROUTES.PRODUCT_DETAIL(product?.slug)}
             className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
@@ -90,6 +105,11 @@ export default function CartTableItem({ item, isLast }) {
               <Trash2 className="h-3 w-3" />
               {"Xoá"}
             </button>
+            {hasStockIssue && (
+              <p className="mt-2 text-xs font-medium text-destructive" data-testid="cart-stock-warning">
+                {`Sản phẩm không đủ số lượng. Hiện cửa hàng còn ${availableStock} sản phẩm.`}
+              </p>
+            )}
           </div>
         </div>
 

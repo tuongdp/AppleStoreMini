@@ -5,17 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import CouponInput from "@/features/checkout/components/CouponInput";
-import { selectCartTotal } from "@/store/cartSlice";
+import { selectCartSelectedItems, selectCartSelectedStockIssues, selectCartSelectedTotal } from "@/store/cartSlice";
 import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function CartSummaryCard() {
-    const total = useSelector(selectCartTotal);
+    const total = useSelector(selectCartSelectedTotal);
+    const selectedItems = useSelector(selectCartSelectedItems);
+    const stockIssues = useSelector(selectCartSelectedStockIssues);
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
 
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
     const grandTotal = Math.max(0, total - discountAmount);
+    const canCheckout = selectedItems.length > 0 && stockIssues.length === 0;
 
     const handleApplyCoupon = (couponData) => {
         setAppliedCoupon(couponData);
@@ -79,8 +82,18 @@ export default function CartSummaryCard() {
                     {"Đã bao gồm VAT"}
                 </p>
 
-                <Button className="mt-6 w-full rounded-full" asChild>
-                    <Link to={ROUTES.CHECKOUT}>{"Tiến hành thanh toán"}</Link>
+                {stockIssues.length > 0 && (
+                    <p className="mt-4 text-xs font-medium text-destructive">
+                        {"Có sản phẩm đã chọn không đủ số lượng. Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm đó."}
+                    </p>
+                )}
+
+                <Button className="mt-6 w-full rounded-full" disabled={!canCheckout} asChild={canCheckout}>
+                    {canCheckout ? (
+                        <Link to={ROUTES.CHECKOUT}>{"Tiến hành thanh toán"}</Link>
+                    ) : (
+                        <span>{"Tiến hành thanh toán"}</span>
+                    )}
                 </Button>
 
                 <Button

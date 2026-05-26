@@ -3,14 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
 import { useGetMyPointsQuery } from "@/store/api/pointsApi";
-import { selectCartItems, selectCartTotal, clearCart } from "@/store/cartSlice";
+import {
+    removeCheckedOutItems,
+    selectCartSelectedItems,
+    selectCartSelectedStockIssues,
+    selectCartSelectedTotal,
+} from "@/store/cartSlice";
 import { PAYMENT_METHODS } from "@/lib/constants";
 
 export function useCheckout() {
     const dispatch = useDispatch();
 
-    const items = useSelector(selectCartItems);
-    const total = useSelector(selectCartTotal);
+    const items = useSelector(selectCartSelectedItems);
+    const total = useSelector(selectCartSelectedTotal);
+    const stockIssues = useSelector(selectCartSelectedStockIssues);
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -38,7 +44,7 @@ export function useCheckout() {
 
     const grandTotal = Math.max(0, total - discountAmount - pointsDiscount);
 
-    const canProceed = items.length > 0;
+    const canProceed = items.length > 0 && stockIssues.length === 0;
 
     const goNext = () => setCurrentStep((s) => Math.min(s + 1, 2));
     const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
@@ -81,6 +87,12 @@ export function useCheckout() {
             toast.error("Giỏ hàng trống");
             return;
         }
+        if (stockIssues.length > 0) {
+            toast.error("Có sản phẩm không đủ số lượng", {
+                description: "Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm không đủ tồn kho.",
+            });
+            return;
+        }
         if (!checkoutData.paymentMethod) {
             toast.error("Đặt hàng thất bại, vui lòng thử lại");
             return;
@@ -102,7 +114,7 @@ export function useCheckout() {
             }).unwrap();
 
             setCreatedOrder(order);
-            dispatch(clearCart());
+            dispatch(removeCheckedOutItems(items.map((item) => item.variantId || item.product?.variantId || item.variant?.id)));
 
             if (checkoutData.paymentMethod === PAYMENT_METHODS.MOMO) {
                 const redirected = await handleMoMoPayment(order.id);

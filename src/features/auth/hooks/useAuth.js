@@ -40,6 +40,14 @@ export function useAuth() {
         useGoogleLoginMutation();
     const [syncCart] = useSyncCartMutation();
 
+    const getSyncCartItems = useCallback(() =>
+        cartItems
+            .map((item) => ({
+                variantId: item.variantId || item.product?.variantId || item.variant?.id,
+                quantity: item.quantity,
+            }))
+            .filter((item) => item.variantId), [cartItems]);
+
     const login = async (credentials, redirectTo = ROUTES.HOME) => {
         try {
             const auth = await loginMutation(credentials).unwrap();
@@ -47,14 +55,7 @@ export function useAuth() {
 
             if (cartItems.length > 0) {
                 try {
-                    await syncCart(
-                        cartItems.map((item) => ({
-                            product: item.product._id || item.product.id,
-                            quantity: item.quantity,
-                            selectedColor: item.selectedColor,
-                            selectedStorage: item.selectedStorage,
-                        })),
-                    ).unwrap();
+                    await syncCart(getSyncCartItems()).unwrap();
                 } catch {
                     // Sync fail không ảnh hưởng login
                 }
@@ -82,14 +83,7 @@ export function useAuth() {
 
                 if (cartItems.length > 0) {
                     try {
-                        await syncCart(
-                            cartItems.map((item) => ({
-                                product: item.product._id || item.product.id,
-                                quantity: item.quantity,
-                                selectedColor: item.selectedColor,
-                                selectedStorage: item.selectedStorage,
-                            })),
-                        ).unwrap();
+                        await syncCart(getSyncCartItems()).unwrap();
                     } catch {
                         // Sync fail không ảnh hưởng login
                     }
@@ -101,7 +95,7 @@ export function useAuth() {
                 // Lỗi đã được xử lý trong mutation
             }
         },
-        [googleLoginMutation, cartItems, syncCart, navigate],
+        [googleLoginMutation, syncCart, navigate, getSyncCartItems, cartItems.length],
     );
 
     useEffect(() => {

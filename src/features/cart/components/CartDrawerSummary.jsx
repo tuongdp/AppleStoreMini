@@ -3,16 +3,18 @@ import { useSelector, useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { selectCartTotal } from "@/store/cartSlice";
+import { selectCartSelectedItems, selectCartSelectedTotal } from "@/store/cartSlice";
 import { toggleCartDrawer } from "@/store/uiSlice";
 import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function CartDrawerSummary() {
     const dispatch = useDispatch();
-    const total = useSelector(selectCartTotal);
+    const total = useSelector(selectCartSelectedTotal);
+    const selectedItems = useSelector(selectCartSelectedItems);
 
     const grandTotal = total;
+    const canCheckout = selectedItems.length > 0;
 
     const handleClose = () => dispatch(toggleCartDrawer(false));
 
@@ -53,10 +55,15 @@ export default function CartDrawerSummary() {
             <div className="flex flex-col gap-2">
                 <Button
                     className="w-full rounded-full"
-                    asChild
-                    onClick={handleClose}
+                    disabled={!canCheckout}
+                    asChild={canCheckout}
+                    onClick={canCheckout ? handleClose : undefined}
                 >
-                    <Link to={ROUTES.CHECKOUT}>{"Thanh toán"}</Link>
+                    {canCheckout ? (
+                        <Link to={ROUTES.CHECKOUT}>{"Thanh toán"}</Link>
+                    ) : (
+                        <span>{"Thanh toán"}</span>
+                    )}
                 </Button>
                 <Button
                     variant="outline"
