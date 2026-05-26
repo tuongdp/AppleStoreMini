@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CheckCircle2, Package, Wallet } from "lucide-react";
+import { CheckCircle2, XCircle, Package, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
@@ -7,20 +7,31 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, PAYMENT_METHODS } from "@/lib/constants";
 import { productPlaceholder } from "@/assets/images";
 
-export default function OrderSuccess({ order, onOnlinePayment, isPaying }) {
+export default function OrderSuccess({ order, onOnlinePayment, isPaying, paymentError }) {
     const isOnlinePayment = order?.paymentMethod?.toLowerCase() === PAYMENT_METHODS.VNPAY;
+    const isPaymentFailed = isOnlinePayment && !!paymentError;
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
-            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/30">
-                <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+            <div className={`mb-6 flex h-20 w-20 items-center justify-center rounded-full ${
+                isPaymentFailed
+                    ? "bg-red-100 dark:bg-red-950/30"
+                    : "bg-green-100 dark:bg-green-950/30"
+            }`}>
+                {isPaymentFailed ? (
+                    <XCircle className="h-10 w-10 text-red-600 dark:text-red-400" />
+                ) : (
+                    <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+                )}
             </div>
 
             <h1 className="mb-2 text-2xl font-semibold text-foreground">
-                {"Đặt hàng thành công!"}
+                {isPaymentFailed ? "Thanh toán thất bại" : "Đặt hàng thành công!"}
             </h1>
             <p className="mb-8 text-sm text-muted-foreground">
-                {"Cảm ơn bạn đã mua hàng"}
+                {isPaymentFailed
+                    ? paymentError
+                    : "Cảm ơn bạn đã mua hàng"}
             </p>
 
             <div className="mb-8 w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-left">
@@ -110,7 +121,7 @@ export default function OrderSuccess({ order, onOnlinePayment, isPaying }) {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-                {isOnlinePayment && (
+                {isOnlinePayment && !isPaymentFailed && (
                     <Button
                         className="rounded-full px-8"
                         onClick={() => onOnlinePayment(order?.id)}

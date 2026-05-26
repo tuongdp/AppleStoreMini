@@ -24,6 +24,7 @@ export function useCheckout() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSuccess, setIsSuccess] = useState(false);
     const [createdOrder, setCreatedOrder] = useState(null);
+    const [paymentError, setPaymentError] = useState(null);
     const [checkoutData, setCheckoutData] = useState({
         fullName: "",
         phone: "",
@@ -78,12 +79,15 @@ export function useCheckout() {
                 window.location.href = result.paymentUrl;
                 return true;
             }
+            throw new Error(result?.message || "Không thể khởi tạo thanh toán");
         } catch (error) {
+            const message = error?.data?.message || error?.message || "Không thể khởi tạo thanh toán";
+            setPaymentError(message);
             toast.error("Thanh toán thất bại", {
-                description: error?.data?.message,
+                description: message,
             });
+            return false;
         }
-        return false;
     };
 
     const handlePlaceOrder = async () => {
@@ -119,17 +123,18 @@ export function useCheckout() {
             }).unwrap();
 
             setCreatedOrder(order);
-            dispatch(removeCheckedOutItems(items.map((item) => item.variantId || item.product?.variantId || item.variant?.id)));
 
             if (checkoutData.paymentMethod === PAYMENT_METHODS.VNPAY) {
                 const redirected = await handleOnlinePayment(order.id);
                 if (redirected) return;
             }
 
-            setIsSuccess(true);
+            dispatch(removeCheckedOutItems(items.map((item) => item.variantId || item.product?.variantId || item.variant?.id)));
+
             if (checkoutData.paymentMethod === PAYMENT_METHODS.COD) {
                 toast.success("Đặt hàng thành công");
             }
+            setIsSuccess(true);
         } catch (error) {
             toast.error("Đặt hàng thất bại, vui lòng thử lại", {
                 description: error?.data?.message,
@@ -143,6 +148,7 @@ export function useCheckout() {
         setCreatedOrder(null);
         setAppliedCoupon(null);
         setUsePoints(false);
+        setPaymentError(null);
         setCheckoutData({
             fullName: "",
             phone: "",
@@ -171,6 +177,7 @@ export function useCheckout() {
         isPaying,
         appliedCoupon,
         isAuthenticated,
+        paymentError,
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,

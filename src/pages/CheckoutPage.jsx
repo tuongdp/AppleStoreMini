@@ -43,6 +43,7 @@ export default function CheckoutPage() {
         handleRemoveCoupon,
         setUsePoints,
         goBack,
+        paymentError,
     } = useCheckout();
 
     if (items.length === 0 && !isSuccess) {
@@ -60,7 +61,7 @@ export default function CheckoutPage() {
     }
 
     if (isSuccess && createdOrder) {
-        return <OrderSuccess order={createdOrder} onOnlinePayment={handleOnlinePayment} isPaying={isPaying} />;
+        return <OrderSuccess order={createdOrder} onOnlinePayment={handleOnlinePayment} isPaying={isPaying} paymentError={paymentError} />;
     }
 
     return (
