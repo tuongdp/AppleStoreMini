@@ -6,7 +6,7 @@ const initialState = {
 
 const getItemVariantId = (item) => item.variantId || item.product?.variantId || item.variant?.id;
 
-const isCartItemSelected = (item) => item.selected !== false;
+export const isCartItemSelected = (item) => item.selected !== false;
 
 const getAvailableStock = (item) => {
     const variant = item.variant;

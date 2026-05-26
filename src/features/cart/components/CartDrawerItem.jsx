@@ -1,9 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import QuantityInput from "@/components/shared/QuantityInput";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { removeFromCart, updateQuantity, getEffectivePrice } from "@/store/cartSlice";
+import { removeFromCart, updateQuantity, getEffectivePrice, toggleCartItemSelected } from "@/store/cartSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
@@ -31,6 +32,8 @@ export default function CartDrawerItem({ item }) {
   const ram = variant?.ram || product?.ram || "";
   const edition = variant?.edition || product?.edition || "";
 
+  const isSelected = item.selected !== false;
+
   const handleRemove = async () => {
     dispatch(removeFromCart({ variantId }));
     if (isAuthenticated && variantId) {
@@ -49,12 +52,22 @@ export default function CartDrawerItem({ item }) {
     }
   };
 
+  const handleToggleSelected = (checked) => {
+    dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
+  };
+
   const effectivePrice = getEffectivePrice(product, variant);
 
   const firstImage = getFirstImage(product?.images || variant?.images);
 
   return (
     <div className="flex gap-4">
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={handleToggleSelected}
+        className="mt-1 shrink-0"
+        aria-label={`Chọn ${product?.name || "sản phẩm"} để thanh toán`}
+      />
       <Link
         to={ROUTES.PRODUCT_DETAIL(product?.slug)}
         className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"

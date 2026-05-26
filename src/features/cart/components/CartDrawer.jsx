@@ -7,10 +7,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import CartDrawerItem from "./CartDrawerItem";
 import CartDrawerSummary from "./CartDrawerSummary";
 import CartEmpty from "./CartEmpty";
-import { selectCartItems, selectCartCount } from "@/store/cartSlice";
+import { selectCartItems, selectCartCount, selectAllCartItems, isCartItemSelected } from "@/store/cartSlice";
 import { toggleCartDrawer, selectCartDrawerOpen } from "@/store/uiSlice";
 
 export default function CartDrawer() {
@@ -18,6 +19,13 @@ export default function CartDrawer() {
   const isOpen = useSelector(selectCartDrawerOpen);
   const items = useSelector(selectCartItems);
   const count = useSelector(selectCartCount);
+
+  const allSelected = items.length > 0 && items.every(isCartItemSelected);
+  const someSelected = items.some(isCartItemSelected);
+
+  const handleSelectAll = (checked) => {
+    dispatch(selectAllCartItems(Boolean(checked)));
+  };
 
   return (
     <Sheet
@@ -35,6 +43,18 @@ export default function CartDrawer() {
               </span>
             )}
           </SheetTitle>
+          {items.length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <Checkbox
+                checked={someSelected && !allSelected ? "indeterminate" : allSelected}
+                onCheckedChange={handleSelectAll}
+                aria-label="Chọn tất cả sản phẩm"
+              />
+              <span className="text-xs text-muted-foreground">
+                {"Chọn tất cả"}
+              </span>
+            </div>
+          )}
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
