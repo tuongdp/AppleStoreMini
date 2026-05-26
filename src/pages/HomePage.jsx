@@ -54,7 +54,7 @@ const TRUST_BADGES = [
   {
     icon: CreditCard,
     title: "Thanh toán an toàn",
-    desc: "MoMo, Thanh toán khi nhận hàng",
+    desc: "VNPay, Thanh toán khi nhận hàng",
   },
 ];
 

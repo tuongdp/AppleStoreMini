@@ -8,7 +8,7 @@ import { PAYMENT_METHODS } from "@/lib/constants";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
-  "momo": "MoMo",
+  "vnpay": "VNPay",
   "paid": "Đã thanh toán",
   "refunded": "Đã hoàn tiền",
   "unknown": "Không xác định",

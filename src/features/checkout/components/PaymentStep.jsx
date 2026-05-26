@@ -13,10 +13,10 @@ const PAYMENT_OPTIONS = [
         bgColor: "bg-green-50 dark:bg-green-950/30",
     },
     {
-        id: PAYMENT_METHODS.MOMO,
+        id: PAYMENT_METHODS.VNPAY,
         icon: Wallet,
-        color: "text-pink-600",
-        bgColor: "bg-pink-50 dark:bg-pink-950/30",
+        color: "text-blue-600",
+        bgColor: "bg-blue-50 dark:bg-blue-950/30",
     },
 ];
 

@@ -172,7 +172,7 @@ export const checkoutSchema = z.object({
     address: z.string().min(10, { message: v("address.addressMinLength") }),
     email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
     paymentMethod: z.enum(
-        ["cod", "momo"],
+        ["cod", "vnpay"],
         { required_error: v("checkout.paymentRequired") },
     ),
     note: z.string().max(200).optional(),

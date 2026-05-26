@@ -122,7 +122,7 @@ export const RETURN_REQUEST_STATUS_COLOR = {
 // ── Payment methods ───────────────────────────────────
 export const PAYMENT_METHODS = {
     COD: "cod",
-    MOMO: "momo",
+    VNPAY: "vnpay",
 };
 
 // ── User roles ────────────────────────────────────────

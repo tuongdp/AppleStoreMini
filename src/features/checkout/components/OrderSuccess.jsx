@@ -7,8 +7,8 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, PAYMENT_METHODS } from "@/lib/constants";
 import { productPlaceholder } from "@/assets/images";
 
-export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
-    const isMoMo = order?.paymentMethod?.toLowerCase() === PAYMENT_METHODS.MOMO;
+export default function OrderSuccess({ order, onOnlinePayment, isPaying }) {
+    const isOnlinePayment = order?.paymentMethod?.toLowerCase() === PAYMENT_METHODS.VNPAY;
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
@@ -110,14 +110,14 @@ export default function OrderSuccess({ order, onMoMoPayment, isPaying }) {
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-                {isMoMo && (
+                {isOnlinePayment && (
                     <Button
                         className="rounded-full px-8"
-                        onClick={() => onMoMoPayment(order?.id)}
+                        onClick={() => onOnlinePayment(order?.id)}
                         disabled={isPaying}
                     >
                         <Wallet className="mr-2 h-4 w-4" />
-                        {isPaying ? "Đang đặt hàng..." : "Thanh toán MoMo"}
+                        {isPaying ? "Đang đặt hàng..." : "Thanh toán VNPay"}
                     </Button>
                 )}
                 <Button className="rounded-full px-8" asChild>

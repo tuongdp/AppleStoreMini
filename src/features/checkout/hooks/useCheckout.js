@@ -71,7 +71,7 @@ export function useCheckout() {
         setAppliedCoupon(null);
     };
 
-            const handleMoMoPayment = async (orderId) => {
+    const handleOnlinePayment = async (orderId) => {
         try {
             const result = await createPayment(orderId).unwrap();
             if (result?.paymentUrl) {
@@ -121,8 +121,8 @@ export function useCheckout() {
             setCreatedOrder(order);
             dispatch(removeCheckedOutItems(items.map((item) => item.variantId || item.product?.variantId || item.variant?.id)));
 
-            if (checkoutData.paymentMethod === PAYMENT_METHODS.MOMO) {
-                const redirected = await handleMoMoPayment(order.id);
+            if (checkoutData.paymentMethod === PAYMENT_METHODS.VNPAY) {
+                const redirected = await handleOnlinePayment(order.id);
                 if (redirected) return;
             }
 
@@ -174,7 +174,7 @@ export function useCheckout() {
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,
-        handleMoMoPayment,
+        handleOnlinePayment,
         handleApplyCoupon,
         handleRemoveCoupon,
         setUsePoints,

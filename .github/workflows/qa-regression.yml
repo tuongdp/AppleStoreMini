@@ -75,10 +75,9 @@ jobs:
           CLOUDINARY_API_SECRET: ${{ secrets.TEST_CLOUDINARY_API_SECRET }}
           GOOGLE_CLIENT_ID: ${{ secrets.TEST_GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.TEST_GOOGLE_CLIENT_SECRET }}
-          MOMO_PARTNER_CODE: ${{ secrets.TEST_MOMO_PARTNER_CODE }}
-          MOMO_ACCESS_KEY: ${{ secrets.TEST_MOMO_ACCESS_KEY }}
-          MOMO_SECRET_KEY: ${{ secrets.TEST_MOMO_SECRET_KEY }}
-          TEST_MOMO_ORDER_CODE: ${{ secrets.TEST_MOMO_ORDER_CODE }}
+          VNPAY_TMN_CODE: ${{ secrets.TEST_VNPAY_TMN_CODE }}
+          VNPAY_HASH_SECRET: ${{ secrets.TEST_VNPAY_HASH_SECRET }}
+          TEST_VNPAY_ORDER_CODE: ${{ secrets.TEST_VNPAY_ORDER_CODE }}
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

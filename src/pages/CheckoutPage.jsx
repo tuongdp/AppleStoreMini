@@ -38,7 +38,7 @@ export default function CheckoutPage() {
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,
-        handleMoMoPayment,
+        handleOnlinePayment,
         handleApplyCoupon,
         handleRemoveCoupon,
         setUsePoints,
@@ -60,7 +60,7 @@ export default function CheckoutPage() {
     }
 
     if (isSuccess && createdOrder) {
-        return <OrderSuccess order={createdOrder} onMoMoPayment={handleMoMoPayment} isPaying={isPaying} />;
+        return <OrderSuccess order={createdOrder} onOnlinePayment={handleOnlinePayment} isPaying={isPaying} />;
     }
 
     return (

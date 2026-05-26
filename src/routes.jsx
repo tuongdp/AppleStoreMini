@@ -111,6 +111,7 @@ export const router = createBrowserRouter([
             { path: "verify-email", element: <VerifyEmailPage /> },
             { path: "payment/success", element: <PaymentResult status="success" /> },
             { path: "payment/fail", element: <PaymentResult status="fail" /> },
+            { path: "payment/vnpay-return", element: <PaymentResult /> },
 
             {
                 path: "profile",

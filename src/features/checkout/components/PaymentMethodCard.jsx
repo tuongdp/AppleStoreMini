@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 
 const PAYMENT_LABELS = {
   cod: "Thanh toán khi nhận hàng",
-  momo: "MoMo",
+  vnpay: "VNPay",
 };
 
 const PAYMENT_DESCS = {
   cod: "Thanh toán bằng tiền mặt khi nhận hàng",
-  momo: "Thanh toán qua ví điện tử MoMo",
+  vnpay: "Thanh toán qua cổng VNPay (Internet Banking, thẻ ATM, Visa/Master)",
 };
 
 export default function PaymentMethodCard({ method, selected, onSelect }) {

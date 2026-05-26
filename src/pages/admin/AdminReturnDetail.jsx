@@ -224,7 +224,7 @@ export default function AdminReturnDetail() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Thanh toán</span>
-                <span>{order?.paymentMethod === "MOMO" ? "MoMo" : "COD"}</span>
+                <span>{order?.paymentMethod === "VNPAY" ? "VNPay" : order?.paymentMethod === "MOMO" ? "MoMo" : "COD"}</span>
               </div>
               {order?.isPaid && (
                 <div className="flex justify-between">

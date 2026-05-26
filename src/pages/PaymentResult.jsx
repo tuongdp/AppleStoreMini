@@ -1,16 +1,44 @@
-import { useSearchParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
 
 export default function PaymentResult({ status }) {
     const [searchParams] = useSearchParams();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(null);
 
-    const moMoResultCode = searchParams.get("resultCode");
-    const isSuccess = moMoResultCode !== null
-        ? moMoResultCode === "0"
-        : status === "success";
+    const vnpResponseCode = searchParams.get("vnp_ResponseCode");
+    const isVnpay = vnpResponseCode !== null;
+
+    useEffect(() => {
+        if (isVnpay) {
+            setIsLoading(true);
+            const params = new URLSearchParams(window.location.search);
+            fetch(`/api/payment/vnpay-return?${params.toString()}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setIsSuccess(data?.data?.isSuccess ?? data?.data?.isVerified ?? false);
+                })
+                .catch(() => {
+                    setIsSuccess(false);
+                })
+                .finally(() => setIsLoading(false));
+        } else {
+            const resultCode = searchParams.get("resultCode");
+            setIsSuccess(resultCode !== null ? resultCode === "0" : status === "success");
+        }
+    }, [isVnpay, searchParams, status]);
+
+    if (isLoading) {
+        return (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
+                <Loader2 className="mb-4 h-10 w-10 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Đang xác thực kết quả thanh toán...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">

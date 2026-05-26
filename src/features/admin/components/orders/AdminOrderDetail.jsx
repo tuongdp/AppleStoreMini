@@ -31,6 +31,7 @@ import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
+  "vnpay": "VNPay",
   "momo": "MoMo",
   "paid": "Đã thanh toán",
   "refunded": "Đã hoàn tiền",
@@ -72,7 +73,7 @@ export default function AdminOrderDetail({ order }) {
                 refunding: "Đang hoàn tiền", refunded: "Đã hoàn tiền",
             };
             const PAYMENT_LABELS = {
-                cod: "COD", COD: "COD", momo: "MoMo", MOMO: "MoMo",
+                cod: "COD", COD: "COD", vnpay: "VNPay", VNPAY: "VNPay", momo: "MoMo", MOMO: "MoMo",
             };
 
             const itemColumns = [
