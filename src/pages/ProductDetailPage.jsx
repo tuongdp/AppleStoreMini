@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     ShoppingCart,
     Heart,
-    Zap,
-    Clock,
 } from "lucide-react";
 import { useGetProductBySlugQuery, useGetProductsQuery } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
@@ -41,8 +39,6 @@ import {
 import { ROUTES } from "@/lib/constants";
 import AIComparePanel from "@/features/ai/AIComparePanel";
 import AIReviewSummary from "@/features/ai/AIReviewSummary";
-
-import CountdownTimer from "@/components/shared/CountdownTimer";
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -128,32 +124,9 @@ export default function ProductDetailPage() {
     const stock = selectedVariant?.stock ?? 0;
     const marketingBadge = getProductMarketingBadge(selectedVariant);
 
-    const flashSaleData = selectedVariant?.flashSale ?? null;
-    const [hasActiveFlashSale, setHasActiveFlashSale] = useState(false);
-
-    useEffect(() => {
-        if (!flashSaleData?.endTime || !flashSaleData?.salePrice) {
-            setHasActiveFlashSale(false);
-            return;
-        }
-        const check = () => {
-            setHasActiveFlashSale(
-                !!flashSaleData.salePrice &&
-                new Date(flashSaleData.endTime).getTime() > Date.now()
-            );
-        };
-        check();
-        const timer = setInterval(check, 1000);
-        return () => clearInterval(timer);
-    }, [flashSaleData?.endTime, flashSaleData?.salePrice]);
-
-    const displayOriginalPrice = (hasActiveFlashSale && flashSaleData) ? flashSaleData.originalPrice : selectedVariant?.price;
-    const displaySalePrice = (hasActiveFlashSale && flashSaleData) ? null : selectedVariant?.salePrice;
-    const flashSaleLimit = Number(flashSaleData?.quantityLimit) || 0;
-    const flashSaleSold = Math.max(0, Number(flashSaleData?.quantitySold) || 0);
-    const flashSaleRemaining = flashSaleLimit > 0 ? Math.max(0, flashSaleLimit - flashSaleSold) : null;
-    const isFlashSaleSoldOut = hasActiveFlashSale && flashSaleLimit > 0 && flashSaleRemaining <= 0;
-    const maxQuantity = isFlashSaleSoldOut ? 0 : Math.max(1, Math.min(stock || 99, flashSaleRemaining || stock || 99));
+    const displayOriginalPrice = selectedVariant?.price;
+    const displaySalePrice = selectedVariant?.salePrice;
+    const maxQuantity = Math.max(1, Math.min(stock || 99, stock || 99));
 
     const productImages = useMemo(() => {
         const variantImages = selectedVariant?.images || [];
@@ -194,7 +167,6 @@ export default function ProductDetailPage() {
 
     const handleAddToCart = async () => {
         if (!product || !selectedVariant?.id) return;
-        if (isFlashSaleSoldOut) return;
 
         dispatch(
             addToCart({
@@ -224,7 +196,6 @@ export default function ProductDetailPage() {
 
     const handleBuyNow = async () => {
         if (!product || !selectedVariant?.id) return;
-        if (isFlashSaleSoldOut) return;
         dispatch(
             addToCart({
                 product: { ...product, ...selectedVariant, variantId: selectedVariant.id, images: productImages },
@@ -262,9 +233,7 @@ export default function ProductDetailPage() {
     }
 
     const categoryDisplay = product.category?.slug || product.categorySlug || "";
-    const stickyPrice = hasActiveFlashSale && flashSaleData?.salePrice
-        ? flashSaleData.salePrice
-        : displaySalePrice || displayOriginalPrice;
+    const stickyPrice = displaySalePrice || displayOriginalPrice;
 
     return (
         <div className="section-padding pb-28 pt-8 md:py-12">
@@ -322,70 +291,13 @@ export default function ProductDetailPage() {
                         />
                     )}
 
-                    {hasActiveFlashSale && flashSaleData && (
-                        <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-amber-500/10 dark:from-amber-400/15 dark:via-amber-300/5 dark:to-amber-400/15 p-4">
-                            <div className="mb-3 flex items-center gap-2">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 dark:bg-amber-400/25">
-                                    <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                </div>
-                                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                                    FLASH SALE
-                                </span>
-                                <div className="ml-auto flex items-center gap-2 rounded-full border border-amber-500/20 bg-background/80 px-3 py-1 dark:border-amber-400/20">
-                                    <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                    <CountdownTimer endTime={flashSaleData.endTime} />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                                        {formatPrice(flashSaleData.salePrice)}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground line-through">
-                                        {formatPrice(flashSaleData.originalPrice)}
-                                    </span>
-                                    <Badge className="rounded-md bg-amber-500 text-white text-xs hover:bg-amber-500 dark:bg-amber-400 dark:text-black">
-                                        -{Math.round(((flashSaleData.originalPrice - flashSaleData.salePrice) / flashSaleData.originalPrice) * 100)}%
-                                    </Badge>
-                                </div>
-                            </div>
-                            {flashSaleData.quantityLimit > 0 && (
-                                <div className="mt-3">
-                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>Đã bán {flashSaleData.quantitySold || 0} / {flashSaleData.quantityLimit}</span>
-                                        <span className="font-medium">
-                                            {flashSaleData.quantityLimit > 0
-                                                ? Math.round(((flashSaleData.quantitySold || 0) / flashSaleData.quantityLimit) * 100)
-                                                : 0}%
-                                        </span>
-                                    </div>
-                                    <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-muted">
-                                        <div
-                                            className="h-full rounded-full bg-amber-500 transition-[width] dark:bg-amber-400"
-                                            style={{
-                                                width: `${Math.min(
-                                                    flashSaleData.quantityLimit > 0
-                                                        ? Math.round(((flashSaleData.quantitySold || 0) / flashSaleData.quantityLimit) * 100)
-                                                        : 0,
-                                                    100,
-                                                )}%`,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {!hasActiveFlashSale && (
-                        <PriceDisplay
-                            price={displayOriginalPrice}
-                            salePrice={displaySalePrice}
-                            size="xl"
-                            showBadge
-                            showSaved
-                        />
-                    )}
+                    <PriceDisplay
+                        price={displayOriginalPrice}
+                        salePrice={displaySalePrice}
+                        size="xl"
+                        showBadge
+                        showSaved
+                    />
 
                     <Separator />
 
@@ -581,7 +493,7 @@ export default function ProductDetailPage() {
                             min={1}
                             max={maxQuantity || 1}
                             onChange={setQuantity}
-                            disabled={!inStock || isFlashSaleSoldOut}
+                            disabled={!inStock}
                         />
                     </div>
 
@@ -591,7 +503,7 @@ export default function ProductDetailPage() {
                             <Button size="lg" className="flex-1 rounded-full text-base" disabled>
                                 {"Vui lòng chọn đầy đủ tuỳ chọn"}
                             </Button>
-                        ) : inStock && !isFlashSaleSoldOut ? (
+                        ) : inStock ? (
                             <Button
                                 size="lg"
                                 className="flex-1 rounded-full text-base"
@@ -606,7 +518,7 @@ export default function ProductDetailPage() {
                                 className="flex-1 rounded-full text-base"
                                 disabled
                             >
-                                {isFlashSaleSoldOut ? "Hết suất giảm sốc" : "Hết hàng"}
+                                {"Hết hàng"}
                             </Button>
                         )}
                         <Button
@@ -614,7 +526,7 @@ export default function ProductDetailPage() {
                             variant="outline"
                             className="flex-1 gap-2 rounded-full text-base"
                             onClick={handleAddToCart}
-                            disabled={!selectedVariant || !inStock || isFlashSaleSoldOut || isAddingToCart}
+                            disabled={!selectedVariant || !inStock || isAddingToCart}
                         >
                             <ShoppingCart className="h-5 w-5" />
                             {"Thêm vào giỏ hàng"}
@@ -672,7 +584,7 @@ export default function ProductDetailPage() {
                         size="sm"
                         className="rounded-full px-4"
                         onClick={handleBuyNow}
-                        disabled={!selectedVariant || !inStock || isFlashSaleSoldOut || isAddingToCart}
+                        disabled={!selectedVariant || !inStock || isAddingToCart}
                     >
                         Mua ngay
                     </Button>
@@ -681,7 +593,7 @@ export default function ProductDetailPage() {
                         variant="outline"
                         className="rounded-full"
                         onClick={handleAddToCart}
-                        disabled={!selectedVariant || !inStock || isFlashSaleSoldOut || isAddingToCart}
+                        disabled={!selectedVariant || !inStock || isAddingToCart}
                         aria-label="Thêm vào giỏ hàng"
                     >
                         <ShoppingCart className="h-4 w-4" />

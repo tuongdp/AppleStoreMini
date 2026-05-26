@@ -6,7 +6,6 @@ import {
     CheckCircle2,
     Clock,
     Coins,
-    Flame,
     Loader2,
     MessageSquareReply,
     Package,
@@ -15,7 +14,6 @@ import {
     Save,
     ShoppingBag,
     TicketPercent,
-    TrendingDown,
     TrendingUp,
     Users,
 } from "lucide-react";
@@ -175,13 +173,6 @@ export default function AdminDashboard() {
             tone: "warning",
         },
         {
-            title: "Giảm sốc đang chạy",
-            value: formatNumber(operations?.flashSale?.active || 0),
-            note: `${formatNumber(operations?.flashSale?.atRiskItems || 0)} sản phẩm sắp hết suất`,
-            icon: Flame,
-            tone: "danger",
-        },
-        {
             title: "Khách hàng mới",
             value: formatNumber(operations?.customers?.newToday || 0),
             note: `${formatNumber(operations?.customers?.unverified || 0)} tài khoản chưa xác thực`,
@@ -307,15 +298,7 @@ export default function AdminDashboard() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-3 p-4">
-                        <TrendingDown className="h-5 w-5 text-violet-500" />
-                        <div>
-                            <p className="text-xs text-muted-foreground">Doanh thu giảm sốc</p>
-                            <p className="text-lg font-semibold">{formatPrice(operations?.revenue?.flashSale || 0)}</p>
-                        </div>
-                    </CardContent>
-                </Card>
+
             </div>
 
             <Card className="border-border">

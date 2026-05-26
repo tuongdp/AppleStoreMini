@@ -19,14 +19,9 @@ export const getEffectivePrice = (product, variant) => {
     const target = variant || product;
     if (!target) return 0;
 
-    const flashSale = target.flashSale?.salePrice;
-    const flashOriginal = target.flashSale?.originalPrice || target.price;
-    if (flashSale && flashSale > 0 && flashSale < flashOriginal) {
-        return flashSale;
-    }
-
-    const sale = target.salePrice;
     const original = target.price ?? 0;
+    const sale = target.salePrice;
+
     if (sale && sale > 0 && sale < original) {
         return sale;
     }
@@ -223,21 +218,11 @@ export const selectCartSavings = createSelector(
             const target = variant || product;
             if (!target) return total;
 
-            const flashOriginal = target.flashSale?.originalPrice || target.price;
-            const flashSale = target.flashSale?.salePrice;
             const salePrice = target.salePrice;
             const original = target.price ?? 0;
 
-            const effectiveOriginal = flashSale && flashSale > 0 && flashSale < flashOriginal
-                ? flashOriginal
-                : original;
-
-            const effectiveSale = flashSale && flashSale > 0 && flashSale < flashOriginal
-                ? flashSale
-                : (salePrice && salePrice > 0 && salePrice < original ? salePrice : null);
-
-            if (effectiveSale && effectiveSale < effectiveOriginal) {
-                return total + (effectiveOriginal - effectiveSale) * item.quantity;
+            if (salePrice && salePrice > 0 && salePrice < original) {
+                return total + (original - salePrice) * item.quantity;
             }
             return total;
         }, 0),

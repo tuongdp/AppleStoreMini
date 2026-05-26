@@ -83,7 +83,6 @@ const AdminNewsPage = lazyPage(() => import("@/pages/admin/AdminNewsPage"));
 const AdminNewsCreate = lazyPage(() => import("@/pages/admin/AdminNewsCreate"));
 const AdminNewsEdit = lazyPage(() => import("@/pages/admin/AdminNewsEdit"));
 const AdminBannerPage = lazyPage(() => import("@/pages/admin/AdminBannerPage"));
-const AdminFlashSalePage = lazyPage(() => import("@/pages/admin/AdminFlashSalePage"));
 const AdminGlobalOptionsPage = lazyPage(() => import("@/pages/admin/AdminGlobalOptionsPage"));
 const AdminShopSettingsPage = lazyPage(() => import("@/pages/admin/AdminShopSettings"));
 const AdminReturnList = lazyPage(() => import("@/pages/admin/AdminReturnList"));
@@ -199,7 +198,6 @@ export const router = createBrowserRouter([
             { path: "news/create", element: <AdminPermissionRoute permission="news" action="create"><AdminNewsCreate /></AdminPermissionRoute> },
             { path: "news/:slug/edit", element: <AdminPermissionRoute permission="news" action="update"><AdminNewsEdit /></AdminPermissionRoute> },
             { path: "banners", element: <AdminPermissionRoute permission="banners"><AdminBannerPage /></AdminPermissionRoute> },
-            { path: "flash-sales", element: <AdminPermissionRoute permission="flashSales"><AdminFlashSalePage /></AdminPermissionRoute> },
             { path: "options", element: <AdminPermissionRoute adminOnly><AdminGlobalOptionsPage /></AdminPermissionRoute> },
             { path: "settings/shop", element: <AdminPermissionRoute adminOnly><AdminShopSettingsPage /></AdminPermissionRoute> },
         ],

@@ -13,13 +13,11 @@ import {
   useGetProductsByCategoryQuery,
   useGetRestockedProductsQuery,
 } from "@/store/api/productsApi";
-import { useGetActiveFlashSaleQuery } from "@/store/api/flashSalesApi";
 import { useGetBannersQuery } from "@/store/api/bannersApi";
 import { useGetCategoriesQuery } from "@/store/api/categoriesApi";
 
 import { Button } from "@/components/ui/button";
 import BannerSlider from "@/components/shared/BannerSlider";
-import FlashSaleBanner from "@/components/shared/FlashSaleBanner";
 import ProductSlider from "@/components/shared/ProductSlider";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import SectionTitle from "@/components/shared/SectionTitle";
@@ -88,8 +86,6 @@ function CategoryProductSlider({ slug, label }) {
 export default function HomePage() {
   const [showWelcome, setShowWelcome] = useState(() => !isWelcomeDismissed());
 
-  const { data: flashSale, isLoading: isFlashLoading } =
-    useGetActiveFlashSaleQuery();
   const { data: bannerData, isLoading: isBannerLoading } = useGetBannersQuery();
   const { data: categories = [] } = useGetCategoriesQuery();
   const { data: newReleaseProducts = [], isLoading: isNewReleaseLoading } =
@@ -117,8 +113,6 @@ export default function HomePage() {
       )}
 
       <BannerSlider slides={banners} isLoading={isBannerLoading} />
-
-      <FlashSaleBanner flashSale={flashSale} isLoading={isFlashLoading} />
 
       <section className="section-padding py-8 md:py-10 lg:py-14">
         <div className="mx-auto max-w-7xl">

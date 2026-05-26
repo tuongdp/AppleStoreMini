@@ -109,7 +109,7 @@ export const productsApi = baseApi.injectEndpoints({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["Products", "Product", "FlashSales"],
+            invalidatesTags: ["Products", "Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -128,7 +128,7 @@ export const productsApi = baseApi.injectEndpoints({
                 body: formData,
                 formData: true,
             }),
-            invalidatesTags: (_, __, { id }) => [{ type: "Product", id }, "FlashSales"],
+            invalidatesTags: (_, __, { id }) => [{ type: "Product", id }],
             transformResponse: (response) => response.data,
         }),
 
@@ -146,7 +146,7 @@ export const productsApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: data,
             }),
-            invalidatesTags: ["Product", "FlashSales"],
+            invalidatesTags: ["Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -156,7 +156,7 @@ export const productsApi = baseApi.injectEndpoints({
                 method: "PUT",
                 body: data,
             }),
-            invalidatesTags: ["Product", "FlashSales"],
+            invalidatesTags: ["Product"],
             transformResponse: (response) => response.data,
         }),
 
@@ -165,7 +165,7 @@ export const productsApi = baseApi.injectEndpoints({
                 url: `/admin/variants/${variantId}`,
                 method: "DELETE",
             }),
-            invalidatesTags: ["Product", "FlashSales"],
+            invalidatesTags: ["Product"],
         }),
 
         checkVariantOrders: builder.query({

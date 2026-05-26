@@ -55,40 +55,6 @@ export const testProducts = [
   },
 ];
 
-export const testFlashSales = [
-  {
-    id: "flash-e2e-active",
-    title: "Tet Flash Sale E2E",
-    description: "Limited campaign for e2e",
-    startTime: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-    isActive: true,
-    items: [
-      {
-        id: "flash-item-e2e-1",
-        flashSaleId: "flash-e2e-active",
-        variantId: "v1",
-        salePrice: 24990000,
-        quantityLimit: 10,
-        quantitySold: 2,
-        variant: {
-          ...testProducts[0].variants[0],
-          product: testProducts[0],
-        },
-      },
-    ],
-  },
-  {
-    id: "flash-e2e-upcoming",
-    title: "Back To School E2E",
-    description: "Upcoming campaign for e2e",
-    startTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-    endTime: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-    isActive: true,
-    items: [],
-  },
-];
-
 export const testNews = [
   {
     id: "news-iphone-buying-guide",

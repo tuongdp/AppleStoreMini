@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { apiEnvelope, makeOrder, testFlashSales, testNews, testProducts, testUsers } from "./mock-data";
+import { apiEnvelope, makeOrder, testNews, testProducts, testUsers } from "./mock-data";
 
 const json = (body: unknown, status = 200) => ({
   status,
@@ -76,11 +76,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    if (path === "/admin/flash-sales") {
-      await route.fulfill(json(apiEnvelope(testFlashSales)));
-      return;
-    }
-
     if (path === "/cart") {
       const body = route.request().postDataJSON?.() || {};
       if (body.quantity) serverCartQuantity = body.quantity;
@@ -147,8 +142,5 @@ export async function mockApi(page: Page) {
     await route.fulfill(json(apiEnvelope(makeOrder())));
   });
 
-  await page.route(/.*\/api\/admin\/flash-sales$/, async (route) => {
-    await route.fulfill(json(apiEnvelope(testFlashSales)));
-  });
-
 }
+

@@ -63,7 +63,7 @@ function matchesFamily(product, family) {
 }
 
 function getPrice(product) {
-  return Number(product?.price ?? product?.salePrice ?? product?.flashSale?.salePrice ?? 0);
+  return Number(product?.price ?? product?.salePrice ?? 0);
 }
 
 function formatPrice(value) {

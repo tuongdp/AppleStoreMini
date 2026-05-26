@@ -36,7 +36,6 @@ const SIDEBAR_MAP = {
     categories: "Danh mục",
     coupons: "Khuyến mãi",
     dashboard: "Tổng quan",
-    flashSales: "Giảm sốc",
     logout: "Đăng xuất",
     news: "Tin tức",
     options: "Tùy chọn",
@@ -79,7 +78,6 @@ const NAV_ITEMS = [
     },
     { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
     { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false },
-    { key: "flashSales", href: "/admin/flash-sales", icon: Zap, permission: "flashSales", end: false },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 

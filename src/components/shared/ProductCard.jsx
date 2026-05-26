@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, Flame } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useDispatch, useSelector } from "react-redux";
@@ -52,26 +52,16 @@ export default function ProductCard({ product }) {
         selectIsInWishlist(product._id || product.id),
     );
 
-    const hasFlashSale = !!product.flashSale?.salePrice;
-
-    const effectivePrice = hasFlashSale
-        ? product.flashSale.salePrice
-        : product.salePrice && product.salePrice < product.price
-            ? product.salePrice
-            : product.price;
-
-    const originalPrice = hasFlashSale
-        ? product.flashSale.originalPrice
+    const effectivePrice = product.salePrice && product.salePrice < product.price
+        ? product.salePrice
         : product.price;
 
-    const showDiscount = hasFlashSale
-        ? product.flashSale.salePrice < product.flashSale.originalPrice
-        : product.salePrice && product.salePrice < product.price;
-    const discountPercent = hasFlashSale && showDiscount
-        ? product.flashSale.discountPercent || calcDiscount(product.flashSale.originalPrice, product.flashSale.salePrice)
-        : showDiscount && product.price > effectivePrice
-            ? calcDiscount(product.price, effectivePrice)
-            : 0;
+    const originalPrice = product.price;
+
+    const showDiscount = product.salePrice && product.salePrice < product.price;
+    const discountPercent = showDiscount && product.price > effectivePrice
+        ? calcDiscount(product.price, effectivePrice)
+        : 0;
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
@@ -117,12 +107,6 @@ export default function ProductCard({ product }) {
                 >
                     {/* Badges */}
                     <div className="absolute left-3 top-3 z-10 flex flex-col gap-1">
-                        {hasFlashSale && (
-                            <Badge className="flex items-center gap-1 border-0 bg-foreground px-1.5 py-0.5 text-[10px] font-bold text-background shadow-sm">
-                                <Flame className="h-3 w-3" />
-                                {"FLASH SALE"}
-                            </Badge>
-                        )}
                         {isOutOfStock && (
                             <Badge
                                 variant="outline"
@@ -223,9 +207,9 @@ export default function ProductCard({ product }) {
                             )}>
                                 {formatPrice(effectivePrice)}
                             </span>
-                            {(!hasFlashSale ? product.price > effectivePrice : showDiscount) && (
+                            {product.price > effectivePrice && (
                                 <span className="text-xs text-muted-foreground line-through">
-                                    {formatPrice(hasFlashSale ? originalPrice : product.price)}
+                                    {formatPrice(product.price)}
                                 </span>
                             )}
                             {showDiscount && discountPercent > 0 && (

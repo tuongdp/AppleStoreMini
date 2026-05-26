@@ -97,7 +97,6 @@ export const baseApi = createApi({
     "News",
     "NewsItem",
     "Banners",
-    "FlashSales",
     "Series",
     "GlobalOptions",
     "GlobalOption",
