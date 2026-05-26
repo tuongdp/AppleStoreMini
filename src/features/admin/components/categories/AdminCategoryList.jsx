@@ -69,7 +69,7 @@ function CategoryForm({ category, onClose }) {
     const handleNameChange = (e) => {
         const name = e.target.value;
         form.setValue("name", name);
-        if (!isEditing) form.setValue("slug", slugify(name));
+        form.setValue("slug", slugify(name));
     };
 
     const handleImagePick = (e) => {
@@ -169,7 +169,7 @@ function CategoryForm({ category, onClose }) {
                                 <FormControl>
                                     <Input
                                         placeholder="VD: iphone"
-                                        disabled={isLoading || isEditing}
+                                        disabled={isLoading}
                                         {...field}
                                     />
                                 </FormControl>
