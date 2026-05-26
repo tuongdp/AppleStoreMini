@@ -40,7 +40,6 @@ import { ORDER_STATUS, RETURN_REASON_MAP } from "@/lib/constants";
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
   "vnpay": "VNPay",
-  "momo": "MoMo",
   "paid": "Đã thanh toán",
   "refunded": "Đã hoàn tiền",
   "unknown": "Không xác định",

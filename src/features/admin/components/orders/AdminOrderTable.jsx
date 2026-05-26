@@ -35,7 +35,6 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
   "vnpay": "VNPay",
-  "momo": "MoMo",
   "paid": "Đã thanh toán",
   "refunded": "Đã hoàn tiền",
   "unknown": "Không xác định",
@@ -132,7 +131,7 @@ export default function AdminOrderTable() {
   };
 
   const EXPORT_PAYMENT_LABELS = {
-    cod: "COD", COD: "COD", vnpay: "VNPay", VNPAY: "VNPay", momo: "MoMo", MOMO: "MoMo",
+    cod: "COD", COD: "COD", vnpay: "VNPay", VNPAY: "VNPay",
   };
 
   const orderColumns = [
