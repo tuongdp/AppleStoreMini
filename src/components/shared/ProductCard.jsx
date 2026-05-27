@@ -56,8 +56,6 @@ export default function ProductCard({ product }) {
         ? product.salePrice
         : product.price;
 
-    const originalPrice = product.price;
-
     const showDiscount = product.salePrice && product.salePrice < product.price;
     const discountPercent = showDiscount && product.price > effectivePrice
         ? calcDiscount(product.price, effectivePrice)

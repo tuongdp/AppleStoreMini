@@ -26,7 +26,7 @@ test.describe("admin dashboard", () => {
     await page.goto("/admin/dashboard");
 
     await expect(page.getByRole("link", { name: /tổng quan/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /sản phẩm/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Sản phẩm", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: /đơn hàng/i })).toBeVisible();
     await expect(page.getByRole("link", { name: /người dùng/i })).toHaveCount(0);
   });
@@ -44,8 +44,7 @@ test.describe("admin dashboard", () => {
     await seedAuthStorage(page, "staff", ["products"]);
     await page.addInitScript(() => {
       localStorage.setItem("app-welcome-dismissed", "1");
-  });
-});
+    });
     await page.goto("/");
 
     await page.getByRole("button", { name: /mở menu tài khoản/i }).click();
@@ -69,4 +68,5 @@ test.describe("admin dashboard", () => {
     await expect(breadcrumb.getByRole("link", { name: /sản phẩm/i })).toBeVisible();
     await expect(breadcrumb.getByText(/tạo mới/i)).toBeVisible();
   });
+});
 

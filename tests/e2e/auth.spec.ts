@@ -20,9 +20,9 @@ test.describe("authentication", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("protects checkout route for anonymous users", async ({ mockedPage: page }) => {
+  test("allows anonymous guest checkout access", async ({ mockedPage: page }) => {
     await page.goto("/checkout", { waitUntil: "domcontentloaded" });
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/checkout/);
   });
 
   test("allows protected route after token exists", async ({ mockedPage: page }) => {
