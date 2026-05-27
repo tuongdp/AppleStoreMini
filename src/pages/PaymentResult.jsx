@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
+import { clearCart } from "@/store/cartSlice";
 
 export default function PaymentResult({ status }) {
+    const dispatch = useDispatch();
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(null);
@@ -20,7 +23,11 @@ export default function PaymentResult({ status }) {
             fetch(`${apiBase}/payment/vnpay-return?${params.toString()}`)
                 .then((res) => res.json())
                 .then((data) => {
-                    setIsSuccess(data?.data?.isSuccess ?? data?.data?.isVerified ?? false);
+                    const success = data?.data?.isSuccess ?? data?.data?.isVerified ?? false;
+                    setIsSuccess(success);
+                    if (success) {
+                        dispatch(clearCart());
+                    }
                 })
                 .catch(() => {
                     setIsSuccess(false);
