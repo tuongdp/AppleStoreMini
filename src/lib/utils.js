@@ -84,6 +84,7 @@ export function sanitizeText(text) {
     if (!text) return "";
     return text
         .replace(/<[^>]*>/g, "")
+        .replace(/[^\u0020-\u007E\u00C0-\u024F\u1E00-\u1EFF\n]/gu, "")
         .replace(/\s+/g, " ")
         .trim();
 }
