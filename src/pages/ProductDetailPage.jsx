@@ -232,7 +232,7 @@ export default function ProductDetailPage() {
         );
     }
 
-    const categoryDisplay = product.category?.slug || product.categorySlug || "";
+    const categoryDisplay = product.category?.name || product.categorySlug || "";
     const stickyPrice = displaySalePrice || displayOriginalPrice;
 
     return (
