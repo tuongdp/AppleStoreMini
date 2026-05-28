@@ -87,7 +87,7 @@ export default function CartDrawerItem({ item }) {
           <div className="min-w-0">
             <Link
               to={ROUTES.PRODUCT_DETAIL(product?.slug)}
-              className="truncate text-sm font-medium text-foreground hover:text-apple-blue"
+              className="block truncate text-sm font-medium text-foreground hover:text-apple-blue"
             >
               {product?.name}
             </Link>
