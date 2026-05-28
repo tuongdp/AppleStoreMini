@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
     Search,
     Package,
@@ -74,8 +74,12 @@ function TimelineStep({ item, isLast }) {
 }
 
 export default function OrderLookupPage() {
-    const [code, setCode] = useState("");
-    const [searchParams, setSearchParams] = useState(null);
+    const [urlSearchParams] = useSearchParams();
+    const initialCode = (urlSearchParams.get("code") || "").toUpperCase();
+    const [code, setCode] = useState(initialCode);
+    const [searchParams, setSearchParams] = useState(
+        initialCode ? { code: initialCode } : null,
+    );
 
     const { data: order, isLoading, isError, error } = useLookupOrderQuery(
         searchParams,
