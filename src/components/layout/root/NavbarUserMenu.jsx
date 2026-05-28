@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { User, Package, Heart, Settings, LogOut, LogIn, Search } from "lucide-react";
+import { User, Package, Heart, Settings, LogOut, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -38,46 +38,25 @@ export default function NavbarUserMenu() {
 
     if (!isAuthenticated) {
         return (
-            <>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full"
-                    aria-label="Tra cứu đơn hàng"
-                    asChild
-                >
-                    <Link to={ROUTES.ORDER_LOOKUP}>
-                        <Search className="h-5 w-5" />
-                        <span className="sr-only">{"Tra cứu đơn hàng"}</span>
-                    </Link>
-                </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        {"Tra cứu đơn hàng"}
-                    </TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-full"
-                    aria-label="Đăng nhập"
-                    asChild
-                >
-                    <Link to={ROUTES.LOGIN}>
-                        <LogIn className="h-5 w-5" />
-                        <span className="sr-only">{"Đăng nhập"}</span>
-                    </Link>
-                </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        {"Đăng nhập"}
-                    </TooltipContent>
-                </Tooltip>
-            </>
+            <Tooltip>
+                <TooltipTrigger asChild>
+            <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                aria-label="Đăng nhập"
+                asChild
+            >
+                <Link to={ROUTES.LOGIN}>
+                    <LogIn className="h-5 w-5" />
+                    <span className="sr-only">{"Đăng nhập"}</span>
+                </Link>
+            </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    {"Đăng nhập"}
+                </TooltipContent>
+            </Tooltip>
         );
     }
 
