@@ -59,7 +59,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                         thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
                         navigation={{ prevEl: `#${prevId}`, nextEl: `#${nextId}` }}
                         pagination={{ clickable: true, dynamicBullets: true }}
-                        loop={images.length > 1}
+                        loop={images.length >= 4}
                         className="h-full w-full"
                     >
                         {images.map((img, i) => (
@@ -154,6 +154,7 @@ export default function ImageGallery({ images = [], productName = "" }) {
                 <DialogContent
                     className="border-none bg-black/95 p-0 max-w-[95vw] sm:max-w-[95vw] rounded-2xl"
                     showCloseButton={false}
+                    aria-describedby={undefined}
                 >
                     <div className="relative flex h-[85vh] w-full items-center justify-center">
                         <ResponsiveImage
