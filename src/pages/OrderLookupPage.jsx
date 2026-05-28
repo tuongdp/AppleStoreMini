@@ -48,26 +48,30 @@ function StatusBadge({ status }) {
 
 function TimelineStep({ item, isLast }) {
     return (
-        <div className="flex gap-3">
-            <div className="flex flex-col items-center">
-                <div className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-full border-2",
-                    "border-primary bg-card",
-                )}>
-                    <div className="h-2 w-2 rounded-full bg-primary" />
+        <div className="flex flex-1 items-stretch">
+            <div className="flex flex-1 flex-col items-center text-center">
+                <div className="flex w-full items-center">
+                    <div className="flex flex-1 items-center">
+                        <div className={cn(
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2",
+                            "border-primary bg-card",
+                        )}>
+                            <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+                        </div>
+                        {!isLast && <div className="h-0.5 flex-1 bg-primary/40" />}
+                    </div>
                 </div>
-                {!isLast && <div className="mt-1 w-0.5 flex-1 bg-border" />}
-            </div>
-            <div className="pb-5">
-                <p className="text-sm font-medium text-foreground">
-                    {STATUS_MAP[item.status]?.label || item.status}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                    {formatDateTime(item.createdAt)}
-                </p>
-                {item.note && (
-                    <p className="mt-0.5 text-xs text-muted-foreground">{item.note}</p>
-                )}
+                <div className="mt-2 px-1">
+                    <p className="text-xs font-medium text-foreground leading-tight">
+                        {STATUS_MAP[item.status]?.label || item.status}
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight">
+                        {formatDateTime(item.createdAt)}
+                    </p>
+                    {item.note && (
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">{item.note}</p>
+                    )}
+                </div>
             </div>
         </div>
     );
@@ -302,7 +306,7 @@ export default function OrderLookupPage() {
                                     <CardTitle className="text-base">Lịch sử trạng thái</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="space-y-1">
+                                    <div className="flex items-start overflow-x-auto">
                                         {order.statusHistory.map((step, i) => (
                                             <TimelineStep
                                                 key={i}
