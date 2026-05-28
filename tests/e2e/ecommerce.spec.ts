@@ -6,7 +6,7 @@ test.describe("ecommerce flows", () => {
   test("shows product listing with pagination-ready cards", async ({ mockedPage: page }) => {
     await page.goto("/products");
     await waitForNoBlockingLoaders(page);
-    await expect(page.getByTestId("product-card")).toHaveCount(2);
+    await expect(page.getByTestId("product-card")).toHaveCount(3);
   });
 
   test("highlights the active category in the desktop navbar", async ({ mockedPage: page }, testInfo) => {

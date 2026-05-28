@@ -37,7 +37,7 @@ export default function PaymentResult({ status }) {
             const resultCode = searchParams.get("resultCode");
             setIsSuccess(resultCode !== null ? resultCode === "0" : status === "success");
         }
-    }, [isVnpay, searchParams, status]);
+    }, [isVnpay, searchParams, status, dispatch]);
 
     if (isLoading) {
         return (

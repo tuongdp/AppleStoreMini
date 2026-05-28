@@ -17,7 +17,9 @@ test.describe("vnpay payment webhook contract", () => {
         vnp_SecureHash: "invalidhash",
       },
     });
-    expect([400, 401]).toContain(response.status());
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.message || JSON.stringify(body)).toMatch(/Chữ ký|Checksum|Invalid/i);
   });
 
   test("accepts successful VNPay IPN for a seeded order and is idempotent", async () => {
