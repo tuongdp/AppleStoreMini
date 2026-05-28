@@ -22,6 +22,15 @@ export const ordersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
+        // GET /orders/lookup?code= (public, no auth)
+        lookupOrder: builder.query({
+            query: ({ code }) => ({
+                url: "/orders/lookup",
+                params: { code },
+            }),
+            transformResponse: (response) => response.data,
+        }),
+
         // POST /orders
         // BE nhận: { items, addressId?, address?, paymentMethod, note?, couponCode? }
         // items: [{ productId, quantity, selectedColor?, selectedStorage? }]
@@ -259,6 +268,8 @@ export const ordersApi = baseApi.injectEndpoints({
 export const {
     useGetOrdersQuery,
     useGetOrderByIdQuery,
+    useLazyLookupOrderQuery,
+    useLookupOrderQuery,
     useCreateOrderMutation,
     useCreatePaymentMutation,
     useCancelOrderMutation,

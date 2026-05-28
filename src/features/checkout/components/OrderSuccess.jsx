@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { CheckCircle2, XCircle, Package, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -6,10 +7,16 @@ import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { ROUTES, PAYMENT_METHODS } from "@/lib/constants";
 import { productPlaceholder } from "@/assets/images";
+import { selectIsAuthenticated } from "@/store/authSlice";
 
 export default function OrderSuccess({ order, onOnlinePayment, isPaying, paymentError }) {
     const isOnlinePayment = order?.paymentMethod?.toLowerCase() === PAYMENT_METHODS.VNPAY;
     const isPaymentFailed = isOnlinePayment && !!paymentError;
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+
+    const trackLink = isAuthenticated
+        ? ROUTES.ORDER_DETAIL(order?.id)
+        : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(order?.code || "")}`;
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
@@ -132,7 +139,7 @@ export default function OrderSuccess({ order, onOnlinePayment, isPaying, payment
                     </Button>
                 )}
                 <Button className="rounded-full px-8" asChild>
-                    <Link to={ROUTES.ORDER_DETAIL(order?.id)}>
+                    <Link to={trackLink}>
                         {"Theo dõi đơn hàng"}
                     </Link>
                 </Button>

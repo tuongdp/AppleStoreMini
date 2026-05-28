@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
 import { clearCart } from "@/store/cartSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
 
 export default function PaymentResult({ status }) {
     const dispatch = useDispatch();
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(null);
+    const [orderCode, setOrderCode] = useState(null);
+    const isAuthenticated = useSelector(selectIsAuthenticated);
 
     const vnpResponseCode = searchParams.get("vnp_ResponseCode");
     const isVnpay = vnpResponseCode !== null;
@@ -25,6 +28,9 @@ export default function PaymentResult({ status }) {
                 .then((data) => {
                     const success = data?.data?.isSuccess ?? data?.data?.isVerified ?? false;
                     setIsSuccess(success);
+                    if (data?.data?.orderCode) {
+                        setOrderCode(data.data.orderCode);
+                    }
                     if (success) {
                         dispatch(clearCart());
                     }
@@ -48,6 +54,10 @@ export default function PaymentResult({ status }) {
         );
     }
 
+    const trackLink = isAuthenticated || !orderCode
+        ? ROUTES.ORDERS
+        : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}`;
+
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
             <div className={`mb-6 flex h-20 w-20 items-center justify-center rounded-full ${
@@ -67,7 +77,7 @@ export default function PaymentResult({ status }) {
             </p>
             <div className="flex gap-3">
                 <Button className="rounded-full px-8" asChild>
-                    <Link to={ROUTES.ORDERS}>{"Theo dõi đơn hàng"}</Link>
+                    <Link to={trackLink}>{"Theo dõi đơn hàng"}</Link>
                 </Button>
                 <Button variant="outline" className="rounded-full px-8" asChild>
                     <Link to={ROUTES.PRODUCTS}>{"Tiếp tục mua sắm"}</Link>

@@ -64,6 +64,7 @@ const OrderHistoryPage = lazyPage(() => import("@/pages/OrderHistoryPage"));
 const OrderDetailPage = lazyPage(() => import("@/pages/OrderDetailPage"));
 const PointsPage = lazyPage(() => import("@/pages/PointsPage"));
 const PaymentResult = lazyPage(() => import("@/pages/PaymentResult"));
+const OrderLookupPage = lazyPage(() => import("@/pages/OrderLookupPage"));
 
 // Pages — admin
 const AdminLoginPage = lazyPage(() => import("@/pages/admin/AdminLoginPage"));
@@ -112,6 +113,7 @@ export const router = createBrowserRouter([
             { path: "payment/success", element: <PaymentResult status="success" /> },
             { path: "payment/fail", element: <PaymentResult status="fail" /> },
             { path: "payment/vnpay-return", element: <PaymentResult /> },
+            { path: "order-lookup", element: <OrderLookupPage /> },
 
             {
                 path: "profile",

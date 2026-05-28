@@ -19,6 +19,7 @@ export const ROUTES = {
     WISHLIST: "/profile/wishlist",
     ORDERS: "/profile/orders",
     ORDER_DETAIL: (id) => `/profile/orders/${id}`,
+    ORDER_LOOKUP: "/order-lookup",
     ADDRESSES: "/profile/addresses",
     CHANGE_PASSWORD: "/profile/change-password",
     POINTS: "/profile/points",
