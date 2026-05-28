@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
     useGetCategoryRevenueQuery,
@@ -126,10 +127,12 @@ export default function AdminDashboard() {
     const { data: reviewRewardSetting, isLoading: isRewardLoading } = useGetReviewRewardSettingQuery();
     const [updateReviewReward, { isLoading: isUpdatingReward }] = useUpdateReviewRewardSettingMutation();
     const [rewardPoints, setRewardPoints] = useState("");
+    const [rewardType, setRewardType] = useState("FIXED");
 
     useEffect(() => {
         if (reviewRewardSetting?.points != null) setRewardPoints(String(reviewRewardSetting.points));
-    }, [reviewRewardSetting?.points]);
+        if (reviewRewardSetting?.type) setRewardType(reviewRewardSetting.type);
+    }, [reviewRewardSetting?.points, reviewRewardSetting?.type]);
 
     const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
@@ -194,9 +197,13 @@ export default function AdminDashboard() {
             toast.error("Điểm thưởng phải là số nguyên không âm");
             return;
         }
+        if (rewardType === "PERCENT" && points > 100) {
+            toast.error("Phần trăm không được vượt quá 100%");
+            return;
+        }
 
         try {
-            await updateReviewReward({ points }).unwrap();
+            await updateReviewReward({ points, type: rewardType }).unwrap();
             toast.success("Đã cập nhật điểm thưởng đánh giá");
         } catch (error) {
             toast.error(error?.data?.message || "Cập nhật điểm thưởng thất bại");
@@ -307,26 +314,45 @@ export default function AdminDashboard() {
                         <Coins className="h-4 w-4 text-amber-500" />
                         Điểm thưởng mỗi đánh giá
                     </CardTitle>
-                    <Badge variant="secondary">{formatNumber(Number(reviewRewardSetting?.points ?? 100000))} điểm</Badge>
+                    <Badge variant="secondary">{rewardType === "PERCENT" ? `${reviewRewardSetting?.points ?? 20}%` : `${formatNumber(Number(reviewRewardSetting?.points ?? 20000))} điểm`}</Badge>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                        <Input
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={rewardPoints}
-                            onChange={(event) => setRewardPoints(event.target.value)}
-                            disabled={isRewardLoading || isUpdatingReward}
-                            className="sm:max-w-xs"
-                        />
-                        <Button type="button" onClick={handleUpdateReviewReward} disabled={isRewardLoading || isUpdatingReward}>
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-3">
+                            <Select
+                                value={rewardType}
+                                onValueChange={setRewardType}
+                            >
+                                <SelectTrigger className="w-[160px]">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="FIXED">Số điểm cố định</SelectItem>
+                                    <SelectItem value="PERCENT">% giá sản phẩm</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <div className="flex items-center gap-1">
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={rewardPoints}
+                                    onChange={(event) => setRewardPoints(event.target.value)}
+                                    disabled={isRewardLoading || isUpdatingReward}
+                                    className="w-28"
+                                />
+                                <span className="text-xs text-muted-foreground">{rewardType === "PERCENT" ? "%" : "điểm"}</span>
+                            </div>
+                        </div>
+                        <Button type="button" size="sm" onClick={handleUpdateReviewReward} disabled={isRewardLoading || isUpdatingReward} className="w-fit">
                             {isUpdatingReward ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                            Lưu điểm
+                            Lưu
                         </Button>
                     </div>
                     <p className="mt-2 text-xs text-muted-foreground">
-                        Điểm này được cộng vào tài khoản khách hàng sau khi đánh giá sản phẩm hợp lệ.
+                        {rewardType === "PERCENT"
+                            ? "Điểm thưởng = % × giá đơn hàng. Chỉ áp dụng trong 7 ngày từ khi nhận hàng."
+                            : "Điểm cố định cho mỗi đánh giá. Chỉ áp dụng trong 7 ngày từ khi nhận hàng."}
                     </p>
                 </CardContent>
             </Card>

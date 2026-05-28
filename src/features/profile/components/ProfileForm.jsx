@@ -63,94 +63,95 @@ export default function ProfileForm({ user }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Họ và tên"}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={"Nhập họ và tên"}
-                  disabled={isLoading}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Email — read only */}
-        <FormItem>
-          <FormLabel>{"Email"}</FormLabel>
-          <Input
-            value={user?.email || ""}
-            disabled
-            className="cursor-not-allowed opacity-60"
-          />
-          <p className="text-xs text-muted-foreground">{"Email không thể thay đổi"}</p>
-        </FormItem>
-
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Số điện thoại"}</FormLabel>
-              <FormControl>
-                <Input
-                  type="tel"
-                  placeholder={"Nhập số điện thoại"}
-                  disabled={isLoading}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="birthday"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Ngày sinh"}</FormLabel>
-              <FormControl>
-                <Input type="date" disabled={isLoading} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Giới tính"}</FormLabel>
-              <Select
-                value={field.value}
-                onValueChange={field.onChange}
-                disabled={isLoading}
-              >
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{"Họ và tên"}</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={"Giới tính"} />
-                  </SelectTrigger>
+                  <Input
+                    placeholder={"Nhập họ và tên"}
+                    disabled={isLoading}
+                    {...field}
+                  />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value="male">{"Nam"}</SelectItem>
-                  <SelectItem value="female">{"Nữ"}</SelectItem>
-                  <SelectItem value="other">{"Khác"}</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{"Số điện thoại"}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="tel"
+                    placeholder={"Nhập số điện thoại"}
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormItem>
+            <FormLabel>{"Email"}</FormLabel>
+            <Input
+              value={user?.email || ""}
+              disabled
+              className="cursor-not-allowed opacity-60"
+            />
+            <p className="text-xs text-muted-foreground">{"Email không thể thay đổi"}</p>
+          </FormItem>
+
+          <FormField
+            control={form.control}
+            name="birthday"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{"Ngày sinh"}</FormLabel>
+                <FormControl>
+                  <Input type="date" disabled={isLoading} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{"Giới tính"}</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={isLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={"Giới tính"} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="male">{"Nam"}</SelectItem>
+                    <SelectItem value="female">{"Nữ"}</SelectItem>
+                    <SelectItem value="other">{"Khác"}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}

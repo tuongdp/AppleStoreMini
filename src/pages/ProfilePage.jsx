@@ -16,42 +16,28 @@ export default function ProfilePage() {
     if (isLoading && !profile) return <ProfilePageSkeleton />;
 
     return (
-        <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
+        <div className="space-y-5">
             {/* Points Card */}
-            <div className="mb-6">
-                <PointsCard points={profile?.points ?? 0} />
-            </div>
+            <PointsCard points={profile?.points ?? 0} />
 
-            <Separator className="mb-8" />
-            {/* Header */}
-            <div className="mb-6">
-                <h2 className="text-xl font-semibold text-foreground">
-                    {"Thông tin cá nhân"}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    {"Quản lý thông tin cá nhân của bạn"}
-                </p>
-            </div>
-
-            <Separator className="mb-8" />
-
-            {/* Avatar */}
-            <div className="mb-8 flex items-center gap-6">
-                <AvatarUpload user={profile} />
-                <div>
-                    <p className="text-sm font-medium text-foreground">
-                        {"Ảnh đại diện"}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                        {"JPG, PNG tối đa 5MB"}
-                    </p>
+            {/* Profile Info Card */}
+            <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
+                <div className="mb-8 flex flex-wrap items-center gap-6">
+                    <AvatarUpload user={profile} />
+                    <div className="min-w-0 flex-1">
+                        <h2 className="text-xl font-semibold text-foreground">
+                            {"Thông tin cá nhân"}
+                        </h2>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {"Quản lý thông tin cá nhân của bạn"}
+                        </p>
+                    </div>
                 </div>
+
+                <Separator className="mb-8" />
+
+                <ProfileForm user={profile} />
             </div>
-
-            <Separator className="mb-8" />
-
-            {/* Form */}
-            <ProfileForm user={profile} />
         </div>
     );
 }
