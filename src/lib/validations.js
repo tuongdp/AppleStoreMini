@@ -1,4 +1,5 @@
 import * as z from "zod";
+import { sanitizeText } from "@/lib/utils";
 
 const v = (key) => {
   const texts = {
@@ -55,7 +56,8 @@ export const registerSchema = z
         fullName: z
             .string()
             .min(2, { message: v("fullName.minLength") })
-            .max(50, { message: v("fullName.maxLength") }),
+            .max(50, { message: v("fullName.maxLength") })
+            .transform(sanitizeText),
         email: z
             .string()
             .min(1, { message: v("email.required") })
@@ -134,7 +136,8 @@ export const profileSchema = z.object({
     fullName: z
         .string()
         .min(2, { message: v("fullName.minLength") })
-        .max(50, { message: v("fullName.maxLength") }),
+        .max(50, { message: v("fullName.maxLength") })
+        .transform(sanitizeText),
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
@@ -143,39 +146,39 @@ export const profileSchema = z.object({
         }),
     birthday: z.string().optional(),
     gender: z.enum(["male", "female", "other"]).optional(),
-    address: z.string().optional(),
+    address: z.string().optional().transform((val) => (val ? sanitizeText(val) : val)),
 });
 
 // ── Address ───────────────────────────────────────────
 export const addressSchema = z.object({
-    fullName: z.string().min(2, { message: v("address.fullNameRequired") }),
+    fullName: z.string().min(2, { message: v("address.fullNameRequired") }).transform(sanitizeText),
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
         .regex(/^0[35789][0-9]{8}$/, {
             message: v("phone.invalid"),
         }),
-    address: z.string().min(10, { message: v("address.addressMinLength") }),
+    address: z.string().min(10, { message: v("address.addressMinLength") }).transform(sanitizeText),
     email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
-    note: z.string().max(200).optional(),
+    note: z.string().max(200).optional().transform((val) => (val ? sanitizeText(val) : val)),
 });
 
 // ── Checkout ──────────────────────────────────────────
 export const checkoutSchema = z.object({
-    fullName: z.string().min(2, { message: v("address.fullNameRequired") }),
+    fullName: z.string().min(2, { message: v("address.fullNameRequired") }).transform(sanitizeText),
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
         .regex(/^0[35789][0-9]{8}$/, {
             message: v("phone.invalid"),
         }),
-    address: z.string().min(10, { message: v("address.addressMinLength") }),
+    address: z.string().min(10, { message: v("address.addressMinLength") }).transform(sanitizeText),
     email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
     paymentMethod: z.enum(
         ["cod", "vnpay"],
         { required_error: v("checkout.paymentRequired") },
     ),
-    note: z.string().max(200).optional(),
+    note: z.string().max(200).optional().transform((val) => (val ? sanitizeText(val) : val)),
 });
 
 // ── Product ───────────────────────────────────────────
@@ -208,7 +211,8 @@ export const commentSchema = z.object({
     comment: z
         .string()
         .min(10, { message: v("comment.commentMinLength") })
-        .max(500, { message: v("comment.commentMaxLength") }),
+        .max(500, { message: v("comment.commentMaxLength") })
+        .transform(sanitizeText),
     images: z.array(z.string().min(1)).min(1, {
         message: "Vui lòng thêm ít nhất 1 hình ảnh/video về sản phẩm",
     }),
@@ -216,12 +220,12 @@ export const commentSchema = z.object({
 
 // ── Cancel order ──────────────────────────────────────
 export const cancelOrderSchema = z.object({
-    reason: z.string().min(10, { message: v("cancelReason.required") }),
+    reason: z.string().min(10, { message: v("cancelReason.required") }).transform(sanitizeText),
 });
 
 // ── Contact ───────────────────────────────────────────
 export const contactSchema = z.object({
-    name: z.string().min(2, { message: v("name.required") }),
+    name: z.string().min(2, { message: v("name.required") }).transform(sanitizeText),
     email: z
         .string()
         .min(1, { message: v("email.required") })
@@ -235,7 +239,8 @@ export const contactSchema = z.object({
     message: z
         .string()
         .min(10, { message: v("message.minLength") })
-        .max(1000),
+        .max(1000)
+        .transform(sanitizeText),
 });
 
 // ── Banner ────────────────────────────────────────────
@@ -249,7 +254,8 @@ export const newsCommentSchema = z.object({
     comment: z
         .string()
         .min(10, { message: v("comment.commentMinLength") })
-        .max(500, { message: v("comment.commentMaxLength") }),
+        .max(500, { message: v("comment.commentMaxLength") })
+        .transform(sanitizeText),
 });
 
 // ── Return / Refund ───────────────────────────────────
@@ -260,7 +266,8 @@ export const returnRequestSchema = z.object({
     description: z
         .string()
         .min(10, "Mô tả phải có ít nhất 10 ký tự")
-        .max(1000, "Mô tả không được vượt quá 1000 ký tự"),
+        .max(1000, "Mô tả không được vượt quá 1000 ký tự")
+        .transform(sanitizeText),
     items: z
         .array(
             z.object({

@@ -1,44 +1,23 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
-import { useGetReviewsQuery, useDeleteReviewMutation } from "@/store/api/productReviewApi";
-import { selectCurrentUser } from "@/store/authSlice";
+import { useGetReviewsQuery } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCommentSummary from "./ProductCommentSummary";
 import ProductCommentItem from "./ProductCommentItem";
-import ConfirmDialog from "@/components/shared/ConfirmDialog";
-import { toast } from "sonner";
 
 export default function ProductComments({ product }) {
     const productId = product?._id || product?.id;
-    const currentUser = useSelector(selectCurrentUser);
 
-    const [deleteId, setDeleteId] = useState(null);
     const [page, setPage] = useState(1);
 
     const { data, isLoading } = useGetReviewsQuery({
         productId,
         params: { page, limit: 5 },
     });
-    const [deleteReview, { isLoading: isDeleting }] = useDeleteReviewMutation();
 
     const comments = data ?? [];
     const pagination = {};
-
-    const handleDelete = async () => {
-        try {
-            await deleteReview({
-                productId,
-                reviewId: deleteId,
-            }).unwrap();
-            toast.success("Đã xoá bình luận");
-        } catch {
-            toast.error("Có lỗi xảy ra");
-        } finally {
-            setDeleteId(null);
-        }
-    };
 
     return (
         <div className="space-y-6">
@@ -89,10 +68,6 @@ export default function ProductComments({ product }) {
                         <div key={comment._id || comment.id}>
                             <ProductCommentItem
                                 comment={comment}
-                                currentUserId={
-                                    currentUser?._id || currentUser?.id
-                                }
-                                onDelete={setDeleteId}
                             />
                             {index < comments.length - 1 && (
                                 <Separator className="mt-6" />
@@ -128,16 +103,6 @@ export default function ProductComments({ product }) {
                     )}
                 </div>
             )}
-
-            {/* Confirm delete */}
-            <ConfirmDialog
-                open={!!deleteId}
-                onOpenChange={(open) => !open && setDeleteId(null)}
-                title={"Xoá bình luận"}
-                description={"Hành động này không thể hoàn tác."}
-                onConfirm={handleDelete}
-                isLoading={isDeleting}
-            />
         </div>
     );
 }

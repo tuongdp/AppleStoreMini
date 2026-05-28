@@ -80,6 +80,14 @@ export function timeAgo(date) {
 }
 
 // ── String ─────────────────────────────────────────────
+export function sanitizeText(text) {
+    if (!text) return "";
+    return text
+        .replace(/<[^>]*>/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
 export function slugify(text) {
     if (!text) return "";
     return text
