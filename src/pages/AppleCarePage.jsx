@@ -257,7 +257,7 @@ export default function AppleCarePage() {
                   style={{ width: 150, height: 150 }}
                 />
               </div>
-              <h3 className="mb-1 text-sm font-medium text-foreground">
+              <h3 className="mb-1 truncate text-sm font-medium text-foreground">
                 {item.name}
               </h3>
               <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">

@@ -262,7 +262,7 @@ export default function ProductDetailPage() {
                         {categoryDisplay}
                     </p>
 
-                    <h1 className="text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
+                    <h1 className="break-words text-3xl font-semibold tracking-tight text-foreground lg:text-4xl">
                         {product.name}
                     </h1>
 
@@ -278,7 +278,7 @@ export default function ProductDetailPage() {
                     )}
 
                     {(effectiveColor || effectiveStorage || effectiveRam) && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="truncate text-sm text-muted-foreground">
                             {[effectiveColor, effectiveStorage, effectiveRam].filter(Boolean).join(" · ")}
                         </p>
                     )}

@@ -169,7 +169,7 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
-                <span className="text-xs font-medium text-foreground md:text-sm">
+                <span className="truncate text-xs font-medium text-foreground md:text-sm">
                   {cat.name}
                 </span>
               </Link>

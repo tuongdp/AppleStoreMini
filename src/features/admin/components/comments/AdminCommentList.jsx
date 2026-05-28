@@ -126,7 +126,7 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                         <div className="flex items-center gap-3 rounded-lg border p-3">
                             {productImage && <img src={productImage} alt={review.product?.name} className="h-12 w-12 rounded-md object-contain" />}
                             <div className="min-w-0">
-                                <Link to={`/products/${review.product?.slug}`} className="font-medium text-blue-600 hover:underline">
+                                <Link to={`/products/${review.product?.slug}`} className="block truncate font-medium text-blue-600 hover:underline">
                                     {review.product?.name}
                                 </Link>
                                 <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">

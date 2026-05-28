@@ -91,7 +91,7 @@ export default function CartDrawerItem({ item }) {
             >
               {product?.name}
             </Link>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {[color, storage, ram, edition].filter(Boolean).join(" · ")}
             </p>
           </div>

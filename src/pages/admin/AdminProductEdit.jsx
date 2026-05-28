@@ -62,7 +62,7 @@ export default function AdminProductEdit() {
                     <h1 className="text-2xl font-semibold text-foreground">
                         {"Chỉnh sửa sản phẩm"}
                     </h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 truncate text-sm text-muted-foreground">
                         {product.name}
                     </p>
                 </div>

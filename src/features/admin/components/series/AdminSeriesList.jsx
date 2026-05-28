@@ -398,8 +398,8 @@ export default function AdminSeriesList() {
                                 return (
                                     <TableRow key={id}>
                                         <TableCell>
-                                            <p className="font-medium text-foreground">{item.name}</p>
-                                            <p className="text-xs text-muted-foreground">/{item.slug}</p>
+                                            <p className="truncate font-medium text-foreground">{item.name}</p>
+                                            <p className="truncate text-xs text-muted-foreground">/{item.slug}</p>
                                             {item.description && (
                                                 <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
                                                     {item.description}
@@ -411,7 +411,7 @@ export default function AdminSeriesList() {
                                                 {item.category?.name || "Không có danh mục"}
                                             </span>
                                             {item.category?.slug && (
-                                                <p className="text-xs text-muted-foreground">/{item.category.slug}</p>
+                                                <p className="truncate text-xs text-muted-foreground">/{item.category.slug}</p>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground">{item.order ?? 0}</TableCell>

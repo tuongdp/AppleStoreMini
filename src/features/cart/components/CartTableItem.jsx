@@ -93,7 +93,7 @@ export default function CartTableItem({ item, isLast }) {
             >
               {product?.name}
             </Link>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-1 truncate text-xs text-muted-foreground">
               {[color && `${"Màu"}: ${color}`, storage && `${"Dung lượng"}: ${storage}`, ram && `${"RAM"}: ${ram}`, edition && `${"Phiên bản"}: ${edition}`].filter(Boolean).join(" · ")}
             </p>
             <button
