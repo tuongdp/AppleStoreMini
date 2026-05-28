@@ -31,6 +31,8 @@ export default function CartDrawerItem({ item }) {
   const storage = variant?.storage || product?.storage || "";
   const ram = variant?.ram || product?.ram || "";
   const edition = variant?.edition || product?.edition || "";
+  const refreshRate = variant?.refreshRate || product?.refreshRate || "";
+  const ssd = variant?.ssd || product?.ssd || "";
 
   const isSelected = item.selected !== false;
 
@@ -92,7 +94,7 @@ export default function CartDrawerItem({ item }) {
               {product?.name}
             </Link>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              {[color, storage, ram, edition].filter(Boolean).join(" · ")}
+              {[color, storage, ram, edition, refreshRate, ssd].filter(Boolean).join(" · ")}
             </p>
           </div>
 

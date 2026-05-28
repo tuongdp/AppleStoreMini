@@ -29,6 +29,8 @@ export default function OrderItemRow({ item, isLast }) {
     const storage = item.storage || item.selectedStorage || item.variant?.storage || "";
     const ram = item.ram || item.selectedRam || item.variant?.ram || "";
     const edition = item.edition || item.selectedEdition || item.variant?.edition || "";
+    const refreshRate = item.refreshRate || item.variant?.refreshRate || "";
+    const ssd = item.ssd || item.variant?.ssd || "";
 
     return (
         <div>
@@ -67,7 +69,7 @@ export default function OrderItemRow({ item, isLast }) {
 
                     {/* Variant */}
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {[color, storage, ram, edition].filter(Boolean).join(" · ")}
+                        {[color, storage, ram, edition, refreshRate, ssd].filter(Boolean).join(" · ")}
                     </p>
 
                     {/* Price + Qty + Total */}

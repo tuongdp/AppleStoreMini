@@ -31,6 +31,8 @@ export default function CartTableItem({ item, isLast }) {
   const storage = variant?.storage || product?.storage || "";
   const ram = variant?.ram || product?.ram || "";
   const edition = variant?.edition || product?.edition || "";
+  const refreshRate = variant?.refreshRate || product?.refreshRate || "";
+  const ssd = variant?.ssd || product?.ssd || "";
   const isSelected = item.selected !== false;
   const availableStock = Number(variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99));
   const hasStockIssue = item.quantity > availableStock;
@@ -94,7 +96,7 @@ export default function CartTableItem({ item, isLast }) {
               {product?.name}
             </Link>
             <p className="mt-1 truncate text-xs text-muted-foreground">
-              {[color && `${"Màu"}: ${color}`, storage && `${"Dung lượng"}: ${storage}`, ram && `${"RAM"}: ${ram}`, edition && `${"Phiên bản"}: ${edition}`].filter(Boolean).join(" · ")}
+              {[color && `${"Màu"}: ${color}`, storage && `${"Dung lượng"}: ${storage}`, ram && `${"RAM"}: ${ram}`, edition && `${"Phiên bản"}: ${edition}`, refreshRate && `${"Tần số quét"}: ${refreshRate}`, ssd && `${"SSD"}: ${ssd}`].filter(Boolean).join(" · ")}
             </p>
             <button
               onClick={handleRemove}

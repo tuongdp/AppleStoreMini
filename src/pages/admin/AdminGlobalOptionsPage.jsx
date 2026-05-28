@@ -20,6 +20,8 @@ const OPTION_TYPES = [
     { value: "STORAGE", label: "Dung lượng" },
     { value: "RAM", label: "RAM" },
     { value: "EDITION", label: "Phiên bản" },
+    { value: "REFRESH_RATE", label: "Tần số quét" },
+    { value: "SSD", label: "SSD" },
 ];
 
 const HEX_PRESETS = [

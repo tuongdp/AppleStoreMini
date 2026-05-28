@@ -828,6 +828,8 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     const [storage, setStorage] = useState(initial?.storage || "");
     const [ram, setRam] = useState(initial?.ram || "");
     const [edition, setEdition] = useState(initial?.edition || "");
+    const [refreshRate, setRefreshRate] = useState(initial?.refreshRate || "");
+    const [ssd, setSsd] = useState(initial?.ssd || "");
     const [price, setPrice] = useState(initial?.price || "");
     const [salePrice, setSalePrice] = useState(initial?.salePrice || "");
     const [stock, setStock] = useState(initial?.stock ?? 0);
@@ -842,6 +844,8 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     const { data: globalStorages = [] } = useGetGlobalOptionsQuery("STORAGE");
     const { data: globalRams = [] } = useGetGlobalOptionsQuery("RAM");
     const { data: globalEditions = [] } = useGetGlobalOptionsQuery("EDITION");
+    const { data: globalRefreshRates = [] } = useGetGlobalOptionsQuery("REFRESH_RATE");
+    const { data: globalSsds = [] } = useGetGlobalOptionsQuery("SSD");
 
     const mapGlobalOptions = (global) =>
         global.map((o) => ({
@@ -854,6 +858,8 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     const allStorageOptions = mapGlobalOptions(globalStorages);
     const allRamOptions = mapGlobalOptions(globalRams);
     const allEditionOptions = mapGlobalOptions(globalEditions);
+    const allRefreshRateOptions = mapGlobalOptions(globalRefreshRates);
+    const allSsdOptions = mapGlobalOptions(globalSsds);
 
     useEffect(() => {
         vImagesRef.current = vImages;
@@ -904,7 +910,7 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
     const removeVImage = (idx) => setVImages((prev) => prev.filter((_, i) => i !== idx));
 
     const handleSave = () => {
-        onSave({ color, storage, ram, edition, price, salePrice, stock, arrivalType, arrivalDate, images: vImages });
+        onSave({ color, storage, ram, edition, refreshRate, ssd, price, salePrice, stock, arrivalType, arrivalDate, images: vImages });
     };
 
     return (
@@ -961,6 +967,32 @@ function VariantInlineForm({ initial, onSave, onCancel, uploadImage, isSaving })
                                 value={edition}
                                 onChange={setEdition}
                                 placeholder={"Chọn phiên bản"}
+                            />
+                        </div>
+                    </div>
+                )}
+                {allRefreshRateOptions.length > 0 && (
+                    <div>
+                        <Label className="text-xs">{"Tần số quét"}</Label>
+                        <div className="mt-1">
+                            <SearchableSelect
+                                options={allRefreshRateOptions}
+                                value={refreshRate}
+                                onChange={setRefreshRate}
+                                placeholder={"Chọn tần số quét"}
+                            />
+                        </div>
+                    </div>
+                )}
+                {allSsdOptions.length > 0 && (
+                    <div>
+                        <Label className="text-xs">{"SSD"}</Label>
+                        <div className="mt-1">
+                            <SearchableSelect
+                                options={allSsdOptions}
+                                value={ssd}
+                                onChange={setSsd}
+                                placeholder={"Chọn SSD"}
                             />
                         </div>
                     </div>

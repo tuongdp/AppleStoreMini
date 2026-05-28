@@ -110,6 +110,8 @@ export default function ProductDetailPage() {
     const effectiveStorage = selectedStorage || selectedVariant?.storage || "";
     const effectiveRam = selectedRam || selectedVariant?.ram || "";
     const effectiveEdition = selectedEdition || selectedVariant?.edition || "";
+    const effectiveRefreshRate = selectedVariant?.refreshRate || "";
+    const effectiveSsd = selectedVariant?.ssd || "";
 
     const effectiveSelection = useMemo(() => ({
         color: effectiveColor,
@@ -277,9 +279,9 @@ export default function ProductDetailPage() {
                         </div>
                     )}
 
-                    {(effectiveColor || effectiveStorage || effectiveRam) && (
+                    {(effectiveColor || effectiveStorage || effectiveRam || effectiveRefreshRate || effectiveSsd) && (
                         <p className="truncate text-sm text-muted-foreground">
-                            {[effectiveColor, effectiveStorage, effectiveRam].filter(Boolean).join(" · ")}
+                            {[effectiveColor, effectiveStorage, effectiveRam, effectiveRefreshRate, effectiveSsd].filter(Boolean).join(" · ")}
                         </p>
                     )}
 
