@@ -22,15 +22,16 @@ const FOOTER_LINKS = [
             { label: "Liên hệ", href: "/contact" },
         ],
     },
-    {
-        title: "Hỗ trợ",
-        links: [
-            { label: "Chính sách bảo hành", href: "/warranty" },
-            { label: "Chính sách đổi trả", href: "/return" },
-            { label: "Chính sách bảo mật", href: "/privacy" },
-            { label: "Điều khoản sử dụng", href: "/terms" },
-        ],
-    },
+        {
+            title: "Hỗ trợ",
+            links: [
+                { label: "Tra cứu đơn hàng", href: ROUTES.ORDER_LOOKUP },
+                { label: "Chính sách bảo hành", href: "/warranty" },
+                { label: "Chính sách đổi trả", href: "/return" },
+                { label: "Chính sách bảo mật", href: "/privacy" },
+                { label: "Điều khoản sử dụng", href: "/terms" },
+            ],
+        },
 ];
 
 const SOCIAL_LINKS = [
