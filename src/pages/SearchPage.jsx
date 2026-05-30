@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Newspaper, Search } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
@@ -89,6 +89,21 @@ export default function SearchPage() {
     const [aiMode, setAiMode] = useState(() => searchParams.get("ai") === "1");
     const [aiSearch, { isLoading: isAiLoading }] = useAiSearchMutation();
     const [aiProducts, setAiProducts] = useState(null);
+
+    useEffect(() => {
+        if (keyword && searchParams.get("ai") === "1" && !aiProducts) {
+            const runAiSearch = async () => {
+                try {
+                    const res = await aiSearch({ query: keyword }).unwrap();
+                    setAiProducts(res.products || []);
+                } catch {
+                    toast.error("Không thể kết nối AI, vui lòng thử lại");
+                }
+            };
+            runAiSearch();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const pagination = data?.pagination || {};
     const products = useMemo(
