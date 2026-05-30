@@ -19,6 +19,7 @@ import {
     ListFilter,
     RotateCcw,
     ListTree,
+    Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -78,6 +79,7 @@ const NAV_ITEMS = [
     },
     { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
     { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false },
+    { key: "settings", href: "/admin/settings/shop", icon: Settings, permission: null, end: false, adminOnly: true },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 
