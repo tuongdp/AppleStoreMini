@@ -24,8 +24,6 @@ export default function SentimentDashboard() {
     const totalWithSentiment = products.reduce((sum, p) => sum + p.positive + p.negative + p.neutral, 0);
     const allPositive = products.reduce((sum, p) => sum + p.positive, 0);
     const allNegative = products.reduce((sum, p) => sum + p.negative, 0);
-    const allNeutral = products.reduce((sum, p) => sum + p.neutral, 0);
-
     return (
         <div className="space-y-6">
             <div>

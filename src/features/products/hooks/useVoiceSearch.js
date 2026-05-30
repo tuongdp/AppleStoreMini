@@ -5,15 +5,15 @@ export function useVoiceSearch({ onResult, lang = "vi-VN" } = {}) {
     const [error, setError] = useState(null);
     const recognitionRef = useRef(null);
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const isSupported = !!SpeechRecognition;
+    const SpeechRecognition = useRef(window.SpeechRecognition || window.webkitSpeechRecognition);
+    const isSupported = !!SpeechRecognition.current;
 
     const startListening = useCallback(() => {
-        if (!isSupported) {
+        if (!SpeechRecognition.current) {
             setError("Trình duyệt không hỗ trợ nhập liệu bằng giọng nói");
             return;
         }
-        const recognition = new SpeechRecognition();
+        const recognition = new SpeechRecognition.current();
         recognition.lang = lang;
         recognition.continuous = false;
         recognition.interimResults = false;
@@ -48,7 +48,7 @@ export function useVoiceSearch({ onResult, lang = "vi-VN" } = {}) {
             setError("Không thể khởi động micro");
             setIsListening(false);
         }
-    }, [isSupported, lang, onResult]);
+    }, [lang, onResult]);
 
     const stopListening = useCallback(() => {
         recognitionRef.current?.stop();
