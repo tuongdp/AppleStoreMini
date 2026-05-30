@@ -102,6 +102,7 @@ export const baseApi = createApi({
     "GlobalOption",
     "Points",
     "Returns",
+    "ShopSettings",
   ],
   endpoints: () => ({}),
 });
