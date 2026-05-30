@@ -39,6 +39,7 @@ import {
 import { ROUTES } from "@/lib/constants";
 import AIComparePanel from "@/features/ai/AIComparePanel";
 import AIReviewSummary from "@/features/ai/AIReviewSummary";
+import PersonalizedRecommendations from "@/features/products/PersonalizedRecommendations";
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -568,6 +569,8 @@ export default function ProductDetailPage() {
             {/* Related */}
             <Separator className="my-12" />
             <RelatedProducts slug={slug} category={categoryDisplay} />
+
+            <PersonalizedRecommendations context="product-detail" />
 
             <div
                 data-testid="mobile-sticky-buy-bar"

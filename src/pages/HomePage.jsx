@@ -7,6 +7,7 @@ import {
   RefreshCw,
   CreditCard,
 } from "lucide-react";
+import PersonalizedRecommendations from "@/features/products/PersonalizedRecommendations";
 
 import {
   useGetNewReleaseProductsQuery,
@@ -185,7 +186,9 @@ export default function HomePage() {
           label={cat.label}
           subtitle={cat.subtitle}
         />
-      ))}
+        ))}
+
+      <PersonalizedRecommendations context="homepage" />
 
       <section className="section-padding border-t border-border bg-muted/20 py-12">
         <div className="mx-auto max-w-7xl">
