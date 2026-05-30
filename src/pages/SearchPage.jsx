@@ -86,7 +86,7 @@ export default function SearchPage() {
         { skip: !keyword },
     );
 
-    const [aiMode, setAiMode] = useState(false);
+    const [aiMode, setAiMode] = useState(() => searchParams.get("ai") === "1");
     const [aiSearch, { isLoading: isAiLoading }] = useAiSearchMutation();
     const [aiProducts, setAiProducts] = useState(null);
 

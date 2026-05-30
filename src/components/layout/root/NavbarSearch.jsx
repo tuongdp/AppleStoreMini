@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, X, Loader2, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
@@ -7,6 +8,7 @@ import { useVoiceSearch } from "@/features/products/hooks/useVoiceSearch";
 
 export default function NavbarSearch({ onClose }) {
     const inputRef = useRef(null);
+    const navigate = useNavigate();
 
     const {
         keyword,
@@ -25,6 +27,8 @@ export default function NavbarSearch({ onClose }) {
     const { isListening, startListening, stopListening, isSupported } = useVoiceSearch({
         onResult: (text) => {
             handleKeywordChange(text);
+            onClose?.();
+            navigate(`/search?q=${encodeURIComponent(text)}&ai=1`);
         },
     });
 

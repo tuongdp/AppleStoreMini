@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, X, Loader2, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 export default function SearchOverlay({ open, onClose }) {
     const inputRef = useRef(null);
+    const navigate = useNavigate();
 
     const {
         keyword,
@@ -41,6 +43,8 @@ export default function SearchOverlay({ open, onClose }) {
     const { isListening, startListening, stopListening, isSupported } = useVoiceSearch({
         onResult: (text) => {
             handleKeywordChange(text);
+            close();
+            navigate(`/search?q=${encodeURIComponent(text)}&ai=1`);
         },
     });
 
