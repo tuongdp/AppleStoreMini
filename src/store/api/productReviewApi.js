@@ -71,6 +71,11 @@ export const productReviewApi = baseApi.injectEndpoints({
       query: (reviewId) => ({ url: `/admin/reviews/${reviewId}`, method: "DELETE" }),
       invalidatesTags: ["Reviews"],
     }),
+
+    getSentimentStats: builder.query({
+      query: () => "/admin/reviews/sentiment",
+      transformResponse: (response) => response.data,
+    }),
   }),
 });
 
@@ -78,4 +83,5 @@ export const {
   useGetReviewsQuery, useCreateReviewMutation, useUploadReviewMediaMutation, useUpdateReviewMutation, useDeleteReviewMutation,
   useLikeReviewMutation, useCheckPurchasedQuery, useGetAllReviewsQuery,
   useGetAdminReviewQuery, useToggleReviewVisibilityMutation, useReplyReviewMutation, useAdminDeleteReviewMutation,
+  useGetSentimentStatsQuery,
 } = productReviewApi;
