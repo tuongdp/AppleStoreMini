@@ -570,7 +570,7 @@ export default function ProductDetailPage() {
             <Separator className="my-12" />
             <RelatedProducts slug={slug} category={categoryDisplay} />
 
-            <PersonalizedRecommendations context="product-detail" />
+            <PersonalizedRecommendations />
 
             <div
                 data-testid="mobile-sticky-buy-bar"
