@@ -37,13 +37,22 @@ export default function ChatWidget() {
         if (!text || isLoading) return;
 
         setMessage("");
+
+        const history = messages
+            .filter((m) => m.content && !m.products)
+            .slice(-20)
+            .map((m) => ({
+                role: m.senderType === "USER" ? "user" : "assistant",
+                content: m.content,
+            }));
+
         setMessages((prev) => [
             ...prev,
             { senderType: "USER", content: text, createdAt: new Date().toISOString() },
         ]);
 
         try {
-            const result = await sendMessage({ message: text }).unwrap();
+            const result = await sendMessage({ message: text, history }).unwrap();
             const reply = result?.reply || "Mình chưa có câu trả lời phù hợp. Bạn thử hỏi theo cách khác nhé.";
             const products = filterChatProductsByMessage(text, result?.products || []);
             const focusedReply = buildFocusedChatReply(text, reply, products);
