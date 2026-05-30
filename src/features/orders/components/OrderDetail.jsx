@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Package, MapPin, CreditCard, FileText, RotateCcw } from "lucide-react";
+import { Package, MapPin, CreditCard, FileText, RotateCcw, Loader2 } from "lucide-react";
 import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -31,6 +32,7 @@ import {
     useConfirmDeliveredMutation,
     useCreateReturnRequestMutation,
     useGetOrderReturnRequestQuery,
+    useUpdateReturnTrackingMutation,
 } from "@/store/api/ordersApi";
 import { cancelOrderSchema, returnRequestSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -56,6 +58,8 @@ export default function OrderDetail({ order }) {
     });
 
     const [createReturnRequest, { isLoading: isReturning }] = useCreateReturnRequestMutation();
+    const [updateTracking, { isLoading: isUpdatingTracking }] = useUpdateReturnTrackingMutation();
+    const [trackingNumber, setTrackingNumber] = useState("");
 
     const { data: returnRequestData } = useGetOrderReturnRequestQuery(order.id, {
         skip: !order.id || (order.status || "").toLowerCase() !== "delivered",
@@ -201,18 +205,56 @@ export default function OrderDetail({ order }) {
                             ? "border-yellow-400 bg-yellow-50 dark:bg-yellow-950/30"
                             : returnRequest.status === "APPROVED"
                             ? "border-blue-400 bg-blue-50 dark:bg-blue-950/30"
+                            : returnRequest.status === "RETURNING"
+                            ? "border-purple-400 bg-purple-50 dark:bg-purple-950/30"
+                            : returnRequest.status === "RECEIVED"
+                            ? "border-indigo-400 bg-indigo-50 dark:bg-indigo-950/30"
                             : "border-green-400 bg-green-50 dark:bg-green-950/30"
                     }`}>
                         <p className="text-sm font-medium">
                             {returnRequest.status === "PENDING"
                                 ? "Yêu cầu trả hàng đang được xem xét"
                                 : returnRequest.status === "APPROVED"
-                                ? "Đã duyệt, đang xử lý hoàn tiền"
+                                ? "Đã duyệt - Vui lòng gửi hàng về cửa hàng"
+                                : returnRequest.status === "RETURNING"
+                                ? "Đang gửi trả hàng"
+                                : returnRequest.status === "RECEIVED"
+                                ? "Cửa hàng đã nhận hàng - Đang kiểm tra"
                                 : "Đã hoàn tiền"}
                         </p>
                         {returnRequest.status === "PENDING" && (
                             <p className="mt-1 text-xs text-muted-foreground">
                                 Nhân viên sẽ phản hồi trong thời gian sớm nhất
+                            </p>
+                        )}
+                        {returnRequest.status === "APPROVED" && (
+                            <div className="mt-2 flex gap-2">
+                                <Input
+                                    placeholder="Nhập mã vận đơn gửi trả..."
+                                    value={trackingNumber}
+                                    onChange={(e) => setTrackingNumber(e.target.value)}
+                                    className="h-8 text-xs"
+                                />
+                                <Button
+                                    size="sm"
+                                    className="h-8 shrink-0"
+                                    disabled={!trackingNumber.trim() || isUpdatingTracking}
+                                    onClick={async () => {
+                                        try {
+                                            await updateTracking({ returnId: returnRequest.id, trackingNumber: trackingNumber.trim() }).unwrap();
+                                            toast.success("Đã cập nhật mã vận đơn");
+                                        } catch {
+                                            toast.error("Cập nhật thất bại");
+                                        }
+                                    }}
+                                >
+                                    {isUpdatingTracking ? <Loader2 className="h-3 w-3 animate-spin" /> : "Gửi"}
+                                </Button>
+                            </div>
+                        )}
+                        {returnRequest.status === "RETURNING" && returnRequest.trackingNumber && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Mã vận đơn: {returnRequest.trackingNumber}
                             </p>
                         )}
                     </div>

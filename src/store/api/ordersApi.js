@@ -124,6 +124,41 @@ export const ordersApi = baseApi.injectEndpoints({
                 { type: "Returns", id: returnId },
             ],
         }),
+        updateReturnTracking: builder.mutation({
+            query: ({ returnId, trackingNumber }) => ({
+                url: `/returns/${returnId}/tracking`,
+                method: "POST",
+                body: { trackingNumber },
+            }),
+            invalidatesTags: (result, error, { returnId }) => [
+                "Returns",
+                { type: "Returns", id: returnId },
+                { type: "Returns" },
+            ],
+        }),
+        receiveReturn: builder.mutation({
+            query: ({ returnId, condition }) => ({
+                url: `/admin/returns/${returnId}/receive`,
+                method: "POST",
+                body: { condition },
+            }),
+            invalidatesTags: (result, error, { returnId }) => [
+                "Returns",
+                { type: "Returns", id: returnId },
+            ],
+        }),
+        refundReturn: builder.mutation({
+            query: (returnId) => ({
+                url: `/admin/returns/${returnId}/refund`,
+                method: "POST",
+            }),
+            invalidatesTags: (result, error, returnId) => [
+                "Orders",
+                { type: "Order" },
+                "Returns",
+                { type: "Returns", id: returnId },
+            ],
+        }),
 
         // POST /orders/:id/confirm-delivered
         // Chỉ dùng được khi status === "SHIPPING"
@@ -300,4 +335,7 @@ export const {
     useGetAdminReturnByIdQuery,
     useApproveReturnMutation,
     useRejectReturnMutation,
+    useUpdateReturnTrackingMutation,
+    useReceiveReturnMutation,
+    useRefundReturnMutation,
 } = ordersApi;

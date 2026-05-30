@@ -9,6 +9,8 @@ import {
   useGetAdminReturnByIdQuery,
   useApproveReturnMutation,
   useRejectReturnMutation,
+  useReceiveReturnMutation,
+  useRefundReturnMutation,
 } from "@/store/api/ordersApi";
 import { RETURN_REASON_MAP, RETURN_REQUEST_STATUS_MAP, RETURN_REQUEST_STATUS_COLOR } from "@/lib/constants";
 import { formatPrice, formatDateTime } from "@/lib/utils";
@@ -21,10 +23,14 @@ export default function AdminReturnDetail() {
   const { returnId } = useParams();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [adminNote, setAdminNote] = useState("");
+  const [receiveOpen, setReceiveOpen] = useState(false);
+  const [condition, setCondition] = useState("");
 
   const { data, isLoading } = useGetAdminReturnByIdQuery(returnId);
   const [approveReturn, { isLoading: isApproving }] = useApproveReturnMutation();
   const [rejectReturn, { isLoading: isRejecting }] = useRejectReturnMutation();
+  const [receiveReturn, { isLoading: isReceiving }] = useReceiveReturnMutation();
+  const [refundReturn, { isLoading: isRefunding }] = useRefundReturnMutation();
 
   const returnReq = data?.data;
   const order = returnReq?.order;
@@ -40,7 +46,27 @@ export default function AdminReturnDetail() {
   const handleApprove = async () => {
     try {
       await approveReturn(returnReq.id).unwrap();
-      toast.success("Đã duyệt và xử lý hoàn tiền");
+      toast.success("Đã duyệt yêu cầu trả hàng");
+    } catch {
+      toast.error("Thao tác thất bại");
+    }
+  };
+
+  const handleReceive = async () => {
+    try {
+      await receiveReturn({ returnId: returnReq.id, condition: condition.trim() || undefined }).unwrap();
+      toast.success("Đã xác nhận nhận hàng");
+      setReceiveOpen(false);
+      setCondition("");
+    } catch {
+      toast.error("Thao tác thất bại");
+    }
+  };
+
+  const handleRefund = async () => {
+    try {
+      await refundReturn(returnReq.id).unwrap();
+      toast.success("Đã hoàn tiền thành công");
     } catch {
       toast.error("Thao tác thất bại");
     }
@@ -90,7 +116,7 @@ export default function AdminReturnDetail() {
                 disabled={isApproving}
               >
                 <Check className="mr-1.5 h-4 w-4" />
-                {isApproving ? "Đang xử lý..." : "Duyệt & Hoàn tiền"}
+                {isApproving ? "Đang xử lý..." : "Duyệt"}
               </Button>
               <Button
                 size="sm"
@@ -102,6 +128,27 @@ export default function AdminReturnDetail() {
                 Từ chối
               </Button>
             </>
+          )}
+          {returnReq.status === "RETURNING" && (
+            <Button
+              size="sm"
+              className="rounded-full bg-indigo-600 hover:bg-indigo-700"
+              onClick={() => setReceiveOpen(true)}
+            >
+              <Package className="mr-1.5 h-4 w-4" />
+              Xác nhận đã nhận hàng
+            </Button>
+          )}
+          {returnReq.status === "RECEIVED" && (
+            <Button
+              size="sm"
+              className="rounded-full bg-green-600 hover:bg-green-700"
+              onClick={handleRefund}
+              disabled={isRefunding}
+            >
+              <Check className="mr-1.5 h-4 w-4" />
+              {isRefunding ? "Đang xử lý..." : "Hoàn tiền"}
+            </Button>
           )}
         </div>
       </div>
@@ -169,6 +216,21 @@ export default function AdminReturnDetail() {
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
               {returnReq.description || "Không có mô tả"}
             </p>
+
+            {returnReq.trackingNumber && (
+              <div className="mt-3 rounded-lg border bg-muted/30 p-3">
+                <p className="text-xs text-muted-foreground">Mã vận đơn gửi trả</p>
+                <p className="text-sm font-mono font-medium">{returnReq.trackingNumber}</p>
+              </div>
+            )}
+
+            {returnReq.condition && (
+              <div className="mt-3 rounded-lg border bg-muted/30 p-3">
+                <p className="text-xs text-muted-foreground">Tình trạng hàng khi nhận</p>
+                <p className="text-sm whitespace-pre-wrap">{returnReq.condition}</p>
+              </div>
+            )}
+
             {returnReq.images?.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {returnReq.images.map((img, i) => (
@@ -284,6 +346,29 @@ export default function AdminReturnDetail() {
         confirmLabel="Xác nhận từ chối"
         onConfirm={handleReject}
         isLoading={isRejecting}
+      />
+
+      {/* Receive confirm dialog */}
+      <ConfirmDialog
+        open={receiveOpen}
+        onOpenChange={(open) => { if (!open) { setReceiveOpen(false); setCondition(""); } }}
+        title="Xác nhận đã nhận hàng trả về"
+        description={
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Xác nhận cửa hàng đã nhận được hàng trả về. Có thể ghi chú tình trạng hàng.
+            </p>
+            <Textarea
+              placeholder="Tình trạng hàng khi nhận (tùy chọn)..."
+              rows={3}
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+            />
+          </div>
+        }
+        confirmLabel="Xác nhận đã nhận"
+        onConfirm={handleReceive}
+        isLoading={isReceiving}
       />
     </div>
   );
