@@ -22,6 +22,10 @@ export const aiApi = baseApi.injectEndpoints({
       query: (body) => ({ url: "/chat/generate-description", method: "POST", body }),
       transformResponse: (response) => response.data,
     }),
+    personalizedRecommend: builder.mutation({
+      query: () => ({ url: "/chat/personalized", method: "POST", body: {} }),
+      transformResponse: (response) => response.data,
+    }),
   }),
 });
 
@@ -31,4 +35,5 @@ export const {
   useAiSearchMutation,
   useAiReviewSummaryMutation,
   useAiGenerateDescriptionMutation,
+  usePersonalizedRecommendMutation,
 } = aiApi;
