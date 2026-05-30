@@ -2,169 +2,182 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useGetShopSettingsQuery, useUpdateShopSettingsMutation } from "@/store/api/shopSettingsApi";
+import { useGetSettingsQuery, useUpdateSettingsMutation } from "@/store/api/shopSettingsApi";
+import { cacheSellerInfo } from "@/utils/invoiceUtils";
 
 const DEFAULTS = {
-    name: "AppleStore Mini",
-    taxCode: "",
-    address: "",
-    phone: "",
-    email: "",
+    shop: { name: "AppleStore Mini", taxCode: "", address: "", phone: "", email: "" },
+    shipping: { defaultFee: 30000, freeShippingMinOrder: 5000000 },
+    returnPolicy: { windowDays: 7 },
+    reviewReward: { points: 20000, type: "FIXED" },
+    payment: { codEnabled: true, vnpayEnabled: true },
 };
 
-export default function AdminShopSettings() {
-    const { data, isLoading } = useGetShopSettingsQuery();
-    const [update, { isLoading: isSaving }] = useUpdateShopSettingsMutation();
+function Section({ title, description, children }) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                {description && <CardDescription>{description}</CardDescription>}
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {children}
+            </CardContent>
+        </Card>
+    );
+}
 
-    const [fields, setFields] = useState(DEFAULTS);
-    const [savedFields, setSavedFields] = useState(DEFAULTS);
-    const [errors, setErrors] = useState({});
+export default function AdminShopSettings() {
+    const { data, isLoading } = useGetSettingsQuery();
+    const [update, { isLoading: isSaving }] = useUpdateSettingsMutation();
+
+    const [shop, setShop] = useState(DEFAULTS.shop);
+    const [shipping, setShipping] = useState(DEFAULTS.shipping);
+    const [returnPolicy, setReturnPolicy] = useState(DEFAULTS.returnPolicy);
+    const [reviewReward, setReviewReward] = useState(DEFAULTS.reviewReward);
+    const [payment, setPayment] = useState(DEFAULTS.payment);
+    const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
-        if (data) {
+        if (data && !initialized) {
             const merged = { ...DEFAULTS, ...data };
-            setFields(merged);
-            setSavedFields(merged);
+            setShop(merged.shop);
+            setShipping(merged.shipping);
+            setReturnPolicy(merged.returnPolicy);
+            setReviewReward(merged.reviewReward);
+            setPayment(merged.payment);
+            setInitialized(true);
         }
+    }, [data, initialized]);
+
+    useEffect(() => {
+        if (data?.shop) cacheSellerInfo(data.shop);
     }, [data]);
 
-    const isDirty = JSON.stringify(fields) !== JSON.stringify(savedFields);
-
-    useEffect(() => {
-        const handleBeforeUnload = (event) => {
-            if (!isDirty) return;
-            event.preventDefault();
-            event.returnValue = "";
-        };
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-    }, [isDirty]);
-
-    const handleChange = (key) => (e) => {
-        setFields((prev) => ({ ...prev, [key]: e.target.value }));
-        setErrors((prev) => ({ ...prev, [key]: undefined }));
-    };
-
     const handleSave = async () => {
-        const newErrors = {};
-        if (!fields.name.trim()) newErrors.name = "Tên cửa hàng không được để trống";
-        if (!fields.taxCode.trim()) newErrors.taxCode = "Mã số thuế không được để trống";
-        if (!fields.address.trim()) newErrors.address = "Địa chỉ không được để trống";
-        if (!fields.phone.trim()) newErrors.phone = "Số điện thoại không được để trống";
-        if (!fields.email.trim()) newErrors.email = "Email không được để trống";
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
         try {
-            await update(fields).unwrap();
-            setSavedFields(fields);
-            toast.success("Đã lưu thông tin cửa hàng");
+            const body = { shop, shipping, returnPolicy, reviewReward, payment };
+            await update(body).unwrap();
+            cacheSellerInfo(shop);
+            toast.success("Đã lưu cài đặt");
         } catch {
             toast.error("Không thể lưu, vui lòng thử lại");
         }
     };
 
-    const handleReset = () => {
-        setFields(savedFields);
-        setErrors({});
-    };
-
     if (isLoading) {
         return (
-            <div className="max-w-2xl space-y-6">
-                <Skeleton className="h-48 rounded-2xl" />
-                <Skeleton className="h-12 rounded-2xl" />
+            <div className="max-w-3xl space-y-6">
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-40 rounded-2xl" />
+                ))}
             </div>
         );
     }
 
     return (
-        <div className="max-w-2xl space-y-6">
-            <Card>
-                <CardHeader>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                        <CardTitle>Thông tin cửa hàng</CardTitle>
-                        {isDirty && (
-                            <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-                                Có thay đổi chưa lưu
-                            </span>
-                        )}
-                    </div>
-                    <CardDescription>
-                        Cấu hình thông tin người bán hiển thị trên hóa đơn GTGT.
-                        Dữ liệu được lưu trên máy chủ.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="shop-name">Tên cửa hàng</Label>
-                        <Input
-                            id="shop-name"
-                            value={fields.name}
-                            onChange={handleChange("name")}
-                            placeholder="Nhập tên cửa hàng"
-                        />
-                        {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="shop-taxCode">Mã số thuế</Label>
-                            <Input
-                                id="shop-taxCode"
-                                value={fields.taxCode}
-                                onChange={handleChange("taxCode")}
-                                placeholder="Mã số thuế"
-                            />
-                            {errors.taxCode && <p className="text-xs text-destructive">{errors.taxCode}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="shop-phone">Số điện thoại</Label>
-                            <Input
-                                id="shop-phone"
-                                value={fields.phone}
-                                onChange={handleChange("phone")}
-                                placeholder="Số điện thoại"
-                            />
-                            {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="shop-address">Địa chỉ</Label>
-                        <Input
-                            id="shop-address"
-                            value={fields.address}
-                            onChange={handleChange("address")}
-                            placeholder="Nhập địa chỉ cửa hàng"
-                        />
-                        {errors.address && <p className="text-xs text-destructive">{errors.address}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="shop-email">Email</Label>
-                        <Input
-                            id="shop-email"
-                            type="email"
-                            value={fields.email}
-                            onChange={handleChange("email")}
-                            placeholder="Email cửa hàng"
-                        />
-                        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
-                    </div>
-                </CardContent>
-            </Card>
-
-            <div className="flex flex-wrap items-center gap-2">
-                <Button onClick={handleSave} disabled={!isDirty || isSaving}>
-                    {isSaving ? "Đang lưu..." : "Lưu thông tin"}
+        <div className="max-w-3xl space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight">Cài đặt</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">Cấu hình cửa hàng, vận chuyển, thanh toán và đánh giá.</p>
+                </div>
+                <Button onClick={handleSave} disabled={isSaving} className="rounded-full">
+                    {isSaving ? "Đang lưu..." : "Lưu tất cả"}
                 </Button>
-                <Button type="button" variant="outline" onClick={handleReset} disabled={!isDirty}>
-                    Hoàn tác
+            </div>
+
+            <Section title="Thông tin cửa hàng" description="Hiển thị trên hóa đơn GTGT.">
+                <div className="space-y-2">
+                    <Label htmlFor="s-name">Tên cửa hàng</Label>
+                    <Input id="s-name" value={shop.name} onChange={(e) => setShop({ ...shop, name: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="s-taxCode">Mã số thuế</Label>
+                        <Input id="s-taxCode" value={shop.taxCode} onChange={(e) => setShop({ ...shop, taxCode: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-phone">Số điện thoại</Label>
+                        <Input id="s-phone" value={shop.phone} onChange={(e) => setShop({ ...shop, phone: e.target.value })} />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="s-address">Địa chỉ</Label>
+                    <Input id="s-address" value={shop.address} onChange={(e) => setShop({ ...shop, address: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="s-email">Email</Label>
+                    <Input id="s-email" type="email" value={shop.email} onChange={(e) => setShop({ ...shop, email: e.target.value })} />
+                </div>
+            </Section>
+
+            <Section title="Thanh toán" description="Bật/tắt phương thức thanh toán.">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <Label htmlFor="s-cod" className="text-sm font-medium">Thanh toán khi nhận hàng (COD)</Label>
+                        <p className="text-xs text-muted-foreground">Khách trả tiền mặt khi nhận hàng.</p>
+                    </div>
+                    <Switch id="s-cod" checked={payment.codEnabled} onCheckedChange={(v) => setPayment({ ...payment, codEnabled: v })} />
+                </div>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <Label htmlFor="s-vnpay" className="text-sm font-medium">VNPay</Label>
+                        <p className="text-xs text-muted-foreground">Thanh toán online qua cổng VNPay.</p>
+                    </div>
+                    <Switch id="s-vnpay" checked={payment.vnpayEnabled} onCheckedChange={(v) => setPayment({ ...payment, vnpayEnabled: v })} />
+                </div>
+            </Section>
+
+            <Section title="Vận chuyển" description="Cấu hình phí giao hàng mặc định.">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="s-ship-fee">Phí giao hàng mặc định (VNĐ)</Label>
+                        <Input id="s-ship-fee" type="number" min="0" value={shipping.defaultFee} onChange={(e) => setShipping({ ...shipping, defaultFee: Number(e.target.value) || 0 })} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-free-ship">Đơn tối thiểu miễn phí ship (VNĐ)</Label>
+                        <Input id="s-free-ship" type="number" min="0" value={shipping.freeShippingMinOrder} onChange={(e) => setShipping({ ...shipping, freeShippingMinOrder: Number(e.target.value) || 0 })} />
+                    </div>
+                </div>
+            </Section>
+
+            <Section title="Đổi trả" description="Số ngày khách được yêu cầu đổi/trả hàng.">
+                <div className="w-40 space-y-2">
+                    <Label htmlFor="s-return-days">Số ngày đổi trả</Label>
+                    <Input id="s-return-days" type="number" min="1" max="30" value={returnPolicy.windowDays} onChange={(e) => setReturnPolicy({ ...returnPolicy, windowDays: Number(e.target.value) || 7 })} />
+                </div>
+            </Section>
+
+            <Section title="Điểm thưởng đánh giá" description="Thưởng điểm cho khách khi viết đánh giá sản phẩm.">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="s-rw-points">Số điểm thưởng</Label>
+                        <Input id="s-rw-points" type="number" min="0" value={reviewReward.points} onChange={(e) => setReviewReward({ ...reviewReward, points: Number(e.target.value) || 0 })} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-rw-type">Loại thưởng</Label>
+                        <Select value={reviewReward.type} onValueChange={(v) => setReviewReward({ ...reviewReward, type: v })}>
+                            <SelectTrigger id="s-rw-type">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="FIXED">Cố định (VNĐ)</SelectItem>
+                                <SelectItem value="PERCENT">Phần trăm (%)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            </Section>
+
+            <div className="flex justify-end">
+                <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-full">
+                    {isSaving ? "Đang lưu..." : "Lưu tất cả"}
                 </Button>
             </div>
         </div>
