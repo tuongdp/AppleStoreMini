@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X, Loader2, Mic } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useProductSearch } from "@/features/products/hooks/useProductSearch";
 import ProductSearchSuggestions from "@/features/products/components/ProductSearchSuggestions";
+import { useVoiceSearch } from "@/features/products/hooks/useVoiceSearch";
 import { cn } from "@/lib/utils";
 
 export default function SearchOverlay({ open, onClose }) {
@@ -36,6 +37,12 @@ export default function SearchOverlay({ open, onClose }) {
             document.body.style.overflow = "";
         };
     }, [open, handleClear]);
+
+    const { isListening, startListening, stopListening, isSupported } = useVoiceSearch({
+        onResult: (text) => {
+            handleKeywordChange(text);
+        },
+    });
 
     const close = useCallback(() => {
         handleClear();
@@ -108,6 +115,24 @@ export default function SearchOverlay({ open, onClose }) {
                                             <Loader2 className="h-5 w-5 animate-spin" />
                                         ) : (
                                             <X className="h-5 w-5" />
+                                        )}
+                                    </button>
+                                )}
+                                {isSupported && (
+                                    <button
+                                        type="button"
+                                        onClick={isListening ? stopListening : startListening}
+                                        aria-label={isListening ? "Dừng nghe" : "Tìm kiếm bằng giọng nói"}
+                                        className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 ${isListening ? "text-red-500 hover:text-red-600" : ""}`}
+                                        style={{ right: keyword ? "2.75rem" : "0.75rem" }}
+                                    >
+                                        {isListening ? (
+                                            <span className="relative flex h-4 w-4">
+                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+                                                <span className="relative inline-flex h-4 w-4 rounded-full bg-red-500" />
+                                            </span>
+                                        ) : (
+                                            <Mic className="h-5 w-5" />
                                         )}
                                     </button>
                                 )}
