@@ -253,6 +253,21 @@ export default function AdminReturnDetail() {
             </div>
           )}
 
+          {/* Bank info (COD returns) */}
+          {returnReq.bankName && (
+            <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+              <h3 className="mb-2 text-sm font-medium text-foreground">Tài khoản nhận tiền hoàn</h3>
+              <div className="space-y-1 text-sm">
+                <p><span className="text-muted-foreground">Ngân hàng:</span> {returnReq.bankName}</p>
+                <p><span className="text-muted-foreground">Số TK:</span> <span className="font-mono">{returnReq.bankAccount}</span></p>
+                <p><span className="text-muted-foreground">Chủ TK:</span> {returnReq.bankOwner}</p>
+                <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                  Đơn COD - vui lòng chuyển khoản thủ công và xác nhận hoàn tiền
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Refund transaction */}
           {returnReq.refundTransactionId && (
             <div className="rounded-2xl border border-border bg-card p-5 md:p-6">

@@ -549,6 +549,48 @@ export default function OrderDetail({ order }) {
                                     </FormItem>
                                 )}
                             />
+
+                            {(order.paymentMethod || "").toUpperCase() === "COD" && (
+                                <div className="space-y-3 rounded-lg border p-3">
+                                    <p className="text-sm font-medium">Thông tin tài khoản nhận tiền hoàn</p>
+                                    <FormField
+                                        control={returnForm.control}
+                                        name="bankName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input placeholder="Tên ngân hàng (VD: Vietcombank)" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={returnForm.control}
+                                        name="bankAccount"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input placeholder="Số tài khoản" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={returnForm.control}
+                                        name="bankOwner"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input placeholder="Chủ tài khoản" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </Form>
                 }

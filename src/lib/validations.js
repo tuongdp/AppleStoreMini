@@ -276,4 +276,7 @@ export const returnRequestSchema = z.object({
             })
         )
         .min(1, "Vui lòng chọn ít nhất một sản phẩm để trả"),
+    bankName: z.string().optional(),
+    bankAccount: z.string().optional(),
+    bankOwner: z.string().optional(),
 });
