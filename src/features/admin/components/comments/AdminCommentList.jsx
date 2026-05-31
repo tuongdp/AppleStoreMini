@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, MessageSquareReply, Search, Star, Trash2 } from "lucide-react";
+import { Eye, EyeOff, MessageSquareReply, Search, Star, Trash2, AlertTriangle } from "lucide-react";
 import {
     useAdminDeleteReviewMutation,
     useGetAdminReviewQuery,
@@ -320,7 +320,12 @@ export default function AdminCommentList() {
                                         <TableCell><StarDisplay rating={review.rating} /></TableCell>
                                         <TableCell><p className="max-w-[200px] truncate text-sm text-muted-foreground">{review.content || "Không có nhận xét"}</p></TableCell>
                                         <TableCell>{review.adminReply ? <Badge variant="secondary">Đã phản hồi</Badge> : <Badge variant="outline">Chưa phản hồi</Badge>}</TableCell>
-                                        <TableCell><Badge className={review.isVisible !== false ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"}>{review.isVisible !== false ? "Hiển thị" : "Đã ẩn"}</Badge></TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {review.flagged && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 gap-1"><AlertTriangle className="h-3 w-3" />Cần xử lý</Badge>}
+                                                <Badge className={review.isVisible !== false ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"}>{review.isVisible !== false ? "Hiển thị" : "Đã ẩn"}</Badge>
+                                            </div>
+                                        </TableCell>
                                         <TableCell><span className="text-sm text-muted-foreground">{formatDateTime(review.createdAt)}</span></TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
