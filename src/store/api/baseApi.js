@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Mutex } from "async-mutex";
 import { setCredentials, logout } from "@/store/authSlice";
+import { toast } from "sonner";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -30,6 +31,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       try {
         const refreshToken = api.getState().auth.refreshToken;
         if (!refreshToken) {
+          toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
           api.dispatch(logout());
           api.dispatch(baseApi.util.resetApiState());
           release();
@@ -58,10 +60,12 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
           );
           result = await baseQuery(args, api, extraOptions);
         } else {
+          toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
           api.dispatch(logout());
           api.dispatch(baseApi.util.resetApiState());
         }
       } catch {
+        toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
         api.dispatch(logout());
         api.dispatch(baseApi.util.resetApiState());
       } finally {
