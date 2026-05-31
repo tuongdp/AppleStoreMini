@@ -23,12 +23,12 @@ import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const otpSchema = z.object({ code: z.string().length(6, "Vui long nhap du 6 ky tu") });
+const otpSchema = z.object({ code: z.string().length(6, "Vui lòng nhập đủ 6 ký tự") });
 
 export default function RegisterForm() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { register, registerSuccess, sendVerification, isRegisterLoading } = useAuth();
+    const { register, isRegisterLoading } = useAuth();
     const [verifyEmail, { isLoading: isVerifying }] = useVerifyEmailMutation();
     const [resendOtp, { isLoading: isResending }] = useSendVerificationMutation();
     const [showPassword, setShowPassword] = useState(false);
@@ -54,7 +54,7 @@ export default function RegisterForm() {
         const response = await checkEmail(normalizedEmail).unwrap();
         if (response?.data?.exists) {
             setEmailCheck("exists");
-            form.setError("email", { type: "manual", message: "Email nay da duoc su dung" });
+            form.setError("email", { type: "manual", message: "Email này đã được sử dụng" });
             return false;
         }
         setEmailCheck("available");
@@ -70,7 +70,7 @@ export default function RegisterForm() {
                 if (!isEmailAvailable) return;
             } catch {
                 setEmailCheck(null);
-                setServerError("Khong the kiem tra email. Vui long thu lai.");
+                setServerError("Không thể kiểm tra email. Vui lòng thử lại.");
                 return;
             }
         }
@@ -89,28 +89,28 @@ export default function RegisterForm() {
             const result = await verifyEmail({ code: values.code }).unwrap();
             const data = result?.data || result;
             dispatch(setCredentials({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken }));
-            toast.success("Xac thuc thanh cong");
+            toast.success("Xác thực thành công");
             setOtpOpen(false);
             navigate(ROUTES.HOME);
         } catch (err) {
-            setOtpError(err?.data?.message || "Ma xac thuc khong hop le hoac da het han");
+            setOtpError(err?.data?.message || "Mã xác thực không hợp lệ hoặc đã hết hạn");
         }
     };
 
     const handleResendOtp = async () => {
         try {
             await resendOtp({ email: registeredEmail }).unwrap();
-            toast.success("Da gui lai ma xac thuc");
+            toast.success("Đã gửi lại mã xác thực");
         } catch {
-            toast.error("Khong the gui lai ma");
+            toast.error("Không thể gửi lại mã");
         }
     };
 
     const password = form.watch("password") || "";
     const passwordRules = [
-        { label: "Toi thieu 8 ky tu", active: password.length >= 8 },
-        { label: "Co it nhat 1 chu hoa", active: /[A-Z]/.test(password) },
-        { label: "Co it nhat 1 ky tu dac biet", active: /[^A-Za-z0-9]/.test(password) },
+        { label: "Tối thiểu 8 ký tự", active: password.length >= 8 },
+        { label: "Có ít nhất 1 chữ hoa", active: /[A-Z]/.test(password) },
+        { label: "Có ít nhất 1 ký tự đặc biệt", active: /[^A-Za-z0-9]/.test(password) },
     ];
 
     const handleEmailBlur = async (email) => {
@@ -123,8 +123,8 @@ export default function RegisterForm() {
     return (
         <div className="w-full max-w-sm">
             <div className="mb-6 text-center">
-                <h1 className="text-2xl font-semibold text-foreground">Tao tai khoan</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Tham gia cung hang trieu khach hang Apple</p>
+                <h1 className="text-2xl font-semibold text-foreground">Tạo tài khoản</h1>
+                <p className="mt-1 text-sm text-muted-foreground">Tham gia cùng hàng triệu khách hàng Apple</p>
             </div>
 
             <Form {...form}>
@@ -133,8 +133,8 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="fullName" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Ho va ten</FormLabel>
-                            <FormControl><Input placeholder="Nhap ho va ten" autoComplete="name" disabled={isRegisterLoading} data-testid="register-full-name" {...field} /></FormControl>
+                            <FormLabel>Họ và tên</FormLabel>
+                            <FormControl><Input placeholder="Nhập họ và tên" autoComplete="name" disabled={isRegisterLoading} data-testid="register-full-name" {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
@@ -142,34 +142,34 @@ export default function RegisterForm() {
                     <FormField control={form.control} name="email" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Email</FormLabel>
-                            <FormControl><Input type="email" placeholder="Nhap dia chi email" autoComplete="email" disabled={isRegisterLoading || isCheckingEmail} data-testid="register-email" {...field} onChange={(e) => { field.onChange(e); setEmailCheck(null); }} onBlur={(e) => { field.onBlur(); handleEmailBlur(e.target.value); }} /></FormControl>
+                            <FormControl><Input type="email" placeholder="Nhập địa chỉ email" autoComplete="email" disabled={isRegisterLoading || isCheckingEmail} data-testid="register-email" {...field} onChange={(e) => { field.onChange(e); setEmailCheck(null); }} onBlur={(e) => { field.onBlur(); handleEmailBlur(e.target.value); }} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
 
                     {emailCheck === "available" && !form.formState.errors.email && (
-                        <p className="-mt-3 text-xs text-emerald-600">Email co the su dung</p>
+                        <p className="-mt-3 text-xs text-emerald-600">Email có thể sử dụng</p>
                     )}
 
                     <div className="-mt-2 flex gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
                         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        <p>Vui long su dung email that de nhan ma kich hoat tai khoan, thong bao don hang va uu dai tu cua hang. Tai khoan chua xac thuc email trong 24 gio se duoc tu dong xoa.</p>
+                        <p>Vui lòng sử dụng email thật để nhận mã kích hoạt tài khoản, thông báo đơn hàng và ưu đãi từ cửa hàng. Tài khoản chưa xác thực email trong 24 giờ sẽ được tự động xóa.</p>
                     </div>
 
                     <FormField control={form.control} name="phone" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>So dien thoai</FormLabel>
-                            <FormControl><Input type="tel" placeholder="Nhap so dien thoai" autoComplete="tel" disabled={isRegisterLoading} data-testid="register-phone" {...field} /></FormControl>
+                            <FormLabel>Số điện thoại</FormLabel>
+                            <FormControl><Input type="tel" placeholder="Nhập số điện thoại" autoComplete="tel" disabled={isRegisterLoading} data-testid="register-phone" {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
 
                     <FormField control={form.control} name="password" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Mat khau</FormLabel>
+                            <FormLabel>Mật khẩu</FormLabel>
                             <FormControl>
                                 <div className="relative">
-                                    <Input type={showPassword ? "text" : "password"} placeholder="Toi thieu 8 ky tu" autoComplete="new-password" disabled={isRegisterLoading} className="pr-10" data-testid="register-password" {...field} />
+                                    <Input type={showPassword ? "text" : "password"} placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" disabled={isRegisterLoading} className="pr-10" data-testid="register-password" {...field} />
                                     <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
@@ -187,10 +187,10 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="confirmPassword" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Xac nhan mat khau</FormLabel>
+                            <FormLabel>Xác nhận mật khẩu</FormLabel>
                             <FormControl>
                                 <div className="relative">
-                                    <Input type={showConfirmPassword ? "text" : "password"} placeholder="Nhap lai mat khau" autoComplete="new-password" disabled={isRegisterLoading} className="pr-10" data-testid="register-confirm-password" {...field} />
+                                    <Input type={showConfirmPassword ? "text" : "password"} placeholder="Nhập lại mật khẩu" autoComplete="new-password" disabled={isRegisterLoading} className="pr-10" data-testid="register-confirm-password" {...field} />
                                     <button type="button" onClick={() => setShowConfirmPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" tabIndex={-1}>
                                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
@@ -204,14 +204,14 @@ export default function RegisterForm() {
                         <FormItem className="flex items-start gap-2.5 space-y-0">
                             <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isRegisterLoading} /></FormControl>
                             <FormLabel className="inline text-sm font-normal leading-relaxed text-muted-foreground cursor-pointer">
-                                <span>Toi dong y voi <Link to="/terms" className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium" target="_blank">Dieu khoan su dung</Link> va <Link to="/privacy" className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium" target="_blank">Chinh sach bao mat</Link></span>
+                                <span>Tôi đồng ý với <Link to="/terms" className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium" target="_blank">Điều khoản sử dụng</Link> và <Link to="/privacy" className="text-apple-blue hover:opacity-70 underline underline-offset-2 font-medium" target="_blank">Chính sách bảo mật</Link></span>
                             </FormLabel>
                             <FormMessage />
                         </FormItem>
                     )} />
 
                     <Button type="submit" className="w-full rounded-full" disabled={isRegisterLoading || isCheckingEmail} data-testid="register-submit">
-                        {isRegisterLoading ? "Dang tao tai khoan..." : "Tao tai khoan"}
+                        {isRegisterLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
                     </Button>
                 </form>
             </Form>
@@ -220,7 +220,7 @@ export default function RegisterForm() {
             <SocialLoginButtons />
 
             <p className="text-center text-sm text-muted-foreground">
-                Da co tai khoan? <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">Dang nhap</Link>
+                Đã có tài khoản? <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">Đăng nhập</Link>
             </p>
 
             {/* OTP Modal */}
@@ -230,9 +230,9 @@ export default function RegisterForm() {
                         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
                             <MailCheck className="h-7 w-7 text-foreground" />
                         </div>
-                        <DialogTitle className="text-center">Xac thuc email</DialogTitle>
+                        <DialogTitle className="text-center">Xác thực email</DialogTitle>
                         <DialogDescription className="text-center">
-                            Ma xac thuc 6 so da duoc gui den<br /><strong>{registeredEmail}</strong>
+                            Mã xác thực 6 số đã được gửi đến<br /><strong>{registeredEmail}</strong>
                         </DialogDescription>
                     </DialogHeader>
 
@@ -251,11 +251,11 @@ export default function RegisterForm() {
 
                             <Button type="submit" className="w-full rounded-full" disabled={isVerifying}>
                                 {isVerifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Xac thuc
+                                Xác thực
                             </Button>
 
                             <Button type="button" variant="ghost" className="w-full text-sm" disabled={isResending} onClick={handleResendOtp}>
-                                {isResending ? "Dang gui..." : "Gui lai ma xac thuc"}
+                                {isResending ? "Đang gửi..." : "Gửi lại mã xác thực"}
                             </Button>
                         </form>
                     </Form>
