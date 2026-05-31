@@ -75,7 +75,7 @@ export default function NavbarSearch({ onClose }) {
                             )}
                         </button>
                     )}
-                    {isSupported && (
+                    {isSupported ? (
                         <button
                             type="button"
                             onClick={isListening ? stopListening : startListening}
@@ -92,6 +92,15 @@ export default function NavbarSearch({ onClose }) {
                                 <Mic className="h-4 w-4" />
                             )}
                         </button>
+                    ) : (
+                        <span
+                            className="absolute top-1/2 -translate-y-1/2 text-muted-foreground/40 cursor-not-allowed"
+                            style={{ right: keyword ? "2.25rem" : "0.75rem" }}
+                            title="Trình duyệt không hỗ trợ tìm kiếm giọng nói"
+                            aria-label="Tìm kiếm giọng nói không khả dụng"
+                        >
+                            <Mic className="h-4 w-4" />
+                        </span>
                     )}
                 </div>
             </form>

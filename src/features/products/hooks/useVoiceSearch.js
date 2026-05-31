@@ -5,15 +5,16 @@ export function useVoiceSearch({ onResult, lang = "vi-VN" } = {}) {
     const [error, setError] = useState(null);
     const recognitionRef = useRef(null);
 
-    const SpeechRecognition = useRef(window.SpeechRecognition || window.webkitSpeechRecognition);
-    const isSupported = !!SpeechRecognition.current;
+    const SpeechRecognition = typeof window !== "undefined" ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+    const isSupported = !!SpeechRecognition;
 
     const startListening = useCallback(() => {
-        if (!SpeechRecognition.current) {
+        const SR = typeof window !== "undefined" ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+        if (!SR) {
             setError("Trình duyệt không hỗ trợ nhập liệu bằng giọng nói");
             return;
         }
-        const recognition = new SpeechRecognition.current();
+        const recognition = new SR();
         recognition.lang = lang;
         recognition.continuous = false;
         recognition.interimResults = false;

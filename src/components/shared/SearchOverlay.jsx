@@ -122,7 +122,7 @@ export default function SearchOverlay({ open, onClose }) {
                                         )}
                                     </button>
                                 )}
-                                {isSupported && (
+                                {isSupported ? (
                                     <button
                                         type="button"
                                         onClick={isListening ? stopListening : startListening}
@@ -139,6 +139,15 @@ export default function SearchOverlay({ open, onClose }) {
                                             <Mic className="h-5 w-5" />
                                         )}
                                     </button>
+                                ) : (
+                                    <span
+                                        className="absolute top-1/2 -translate-y-1/2 text-muted-foreground/40 cursor-not-allowed"
+                                        style={{ right: keyword ? "2.75rem" : "0.75rem" }}
+                                        title="Trình duyệt không hỗ trợ tìm kiếm giọng nói"
+                                        aria-label="Tìm kiếm giọng nói không khả dụng"
+                                    >
+                                        <Mic className="h-5 w-5" />
+                                    </span>
                                 )}
                             </div>
                         </form>
