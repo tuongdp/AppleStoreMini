@@ -33,6 +33,7 @@ import {
     useCreateReturnRequestMutation,
     useGetOrderReturnRequestQuery,
     useUpdateReturnTrackingMutation,
+    useGetReturnWindowDaysQuery,
 } from "@/store/api/ordersApi";
 import { cancelOrderSchema, returnRequestSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -61,6 +62,9 @@ export default function OrderDetail({ order }) {
     const [updateTracking, { isLoading: isUpdatingTracking }] = useUpdateReturnTrackingMutation();
     const [trackingNumber, setTrackingNumber] = useState("");
 
+    const { data: returnWindowData } = useGetReturnWindowDaysQuery();
+    const returnWindowDays = returnWindowData?.windowDays ?? 7;
+
     const { data: returnRequestData } = useGetOrderReturnRequestQuery(order.id, {
         skip: !order.id || (order.status || "").toLowerCase() !== "delivered",
     });
@@ -70,11 +74,11 @@ export default function OrderDetail({ order }) {
     const canReturn =
         (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED &&
         order.deliveredAt &&
-        new Date(order.deliveredAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) &&
+        new Date(order.deliveredAt) > new Date(Date.now() - returnWindowDays * 24 * 60 * 60 * 1000) &&
         (!returnRequest || returnRequest.status === "REJECTED");
 
     const daysLeft = order.deliveredAt
-        ? Math.ceil((new Date(order.deliveredAt).getTime() + 7 * 24 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
+        ? Math.ceil((new Date(order.deliveredAt).getTime() + returnWindowDays * 24 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
         : 0;
 
     const cancelForm = useForm({

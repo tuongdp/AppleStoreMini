@@ -159,6 +159,10 @@ export const ordersApi = baseApi.injectEndpoints({
                 { type: "Returns", id: returnId },
             ],
         }),
+        getReturnWindowDays: builder.query({
+            query: () => "/settings/return-window",
+            transformResponse: (response) => response.data,
+        }),
 
         // POST /orders/:id/confirm-delivered
         // Chỉ dùng được khi status === "SHIPPING"
@@ -338,4 +342,5 @@ export const {
     useUpdateReturnTrackingMutation,
     useReceiveReturnMutation,
     useRefundReturnMutation,
+    useGetReturnWindowDaysQuery,
 } = ordersApi;
