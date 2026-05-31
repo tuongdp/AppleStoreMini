@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { User, Package, Heart, Settings, LogOut, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -33,7 +34,8 @@ export default function NavbarUserMenu() {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigate(ROUTES.HOME);
+        toast.success("Đã đăng xuất");
+        navigate(ROUTES.LOGIN);
     };
 
     if (!isAuthenticated) {

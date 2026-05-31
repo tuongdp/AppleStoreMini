@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import ProfileSidebarItem from "./ProfileSidebarItem";
 import { logout, selectCurrentUser } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
@@ -67,7 +68,8 @@ export default function ProfileSidebar({ onClose }) {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate(ROUTES.HOME);
+    toast.success("Đã đăng xuất");
+    navigate(ROUTES.LOGIN);
     onClose?.();
   };
 
