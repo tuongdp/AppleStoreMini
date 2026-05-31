@@ -65,6 +65,16 @@ export const ordersApi = baseApi.injectEndpoints({
             invalidatesTags: ["Orders", "Order"],
         }),
 
+        switchToCod: builder.mutation({
+            query: (id) => ({
+                url: `/orders/${id}/switch-to-cod`,
+                method: "POST",
+            }),
+            invalidatesTags: (result, error, id) => [
+                "Orders",
+                { type: "Order", id },
+            ],
+        }),
         // ── Return / Refund ───────────────────────────────────
         createReturnRequest: builder.mutation({
             query: ({ id, ...body }) => ({
@@ -343,4 +353,5 @@ export const {
     useReceiveReturnMutation,
     useRefundReturnMutation,
     useGetReturnWindowDaysQuery,
+    useSwitchToCodMutation,
 } = ordersApi;
