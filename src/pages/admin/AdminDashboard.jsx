@@ -132,6 +132,8 @@ export default function AdminDashboard() {
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
+    const returnRequestsCount = tasks.find((item) => item.key === "returnRequests")?.count || 0;
+    const reviewsCount = tasks.find((item) => item.key === "reviews")?.count || 0;
 
     const metricCards = useMemo(() => [
         {
@@ -273,27 +275,37 @@ export default function AdminDashboard() {
                 </Card>
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
-                <Card>
-                    <CardContent className="flex items-center gap-3 p-4">
-                        <RotateCcw className="h-5 w-5 text-red-500" />
-                        <div>
-                            <p className="text-xs text-muted-foreground">Yêu cầu trả hàng</p>
-                            <p className="text-lg font-semibold">{formatNumber(tasks.find((item) => item.key === "returnRequests")?.count || 0)}</p>
+            <Card className="border-border">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-medium">Chăm sóc khách hàng</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-1">
+                    <Link to="/admin/returns" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
+                        <div className="flex items-center gap-3">
+                            <RotateCcw className="h-4 w-4 text-red-500" />
+                            <span className="text-sm font-medium text-foreground">Yêu cầu trả hàng</span>
                         </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-3 p-4">
-                        <MessageSquareReply className="h-5 w-5 text-amber-500" />
-                        <div>
-                            <p className="text-xs text-muted-foreground">Đánh giá chưa phản hồi</p>
-                            <p className="text-lg font-semibold">{formatNumber(tasks.find((item) => item.key === "reviews")?.count || 0)}</p>
+                        <div className="flex items-center gap-2">
+                            <Badge variant={returnRequestsCount > 0 ? "destructive" : "secondary"}>
+                                {formatNumber(returnRequestsCount)}
+                            </Badge>
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                         </div>
-                    </CardContent>
-                </Card>
-
-            </div>
+                    </Link>
+                    <Link to="/admin/reviews" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
+                        <div className="flex items-center gap-3">
+                            <MessageSquareReply className="h-4 w-4 text-amber-500" />
+                            <span className="text-sm font-medium text-foreground">Đánh giá chưa phản hồi</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Badge variant={reviewsCount > 0 ? "destructive" : "secondary"}>
+                                {formatNumber(reviewsCount)}
+                            </Badge>
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                    </Link>
+                </CardContent>
+            </Card>
 
             <Card className="border-border">
                 <CardHeader className="flex flex-row items-center justify-between">
