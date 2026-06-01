@@ -1,5 +1,31 @@
+import { numberToWords } from "./numberToWords";
+
 const STORAGE_KEY_SHOP = "shop_settings";
 const STORAGE_KEY_COUNTER = "invoice_counter";
+
+const PAYMENT_LABELS = {
+  COD: "Thanh toán khi nhận hàng (COD)",
+  VNPAY: "Thanh toán qua VNPay",
+};
+
+function getNextInvoiceNumber() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_COUNTER);
+    let num = raw ? parseInt(raw, 10) : 0;
+    num += 1;
+    localStorage.setItem(STORAGE_KEY_COUNTER, String(num));
+    return String(num).padStart(7, "0");
+  } catch {
+    return String(Date.now()).slice(-7);
+  }
+}
+
+function generateInvoiceSymbol() {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  return `1C23T${yy}${mm}`;
+}
 
 async function loadPDFExporter() {
   const [{ jsPDF }, autoTableModule] = await Promise.all([

@@ -129,7 +129,7 @@ export default function AdminOrderDetail({ order }) {
                 head: [itemColumns.map((c) => c.label)],
                 body: itemRows.map((r) => itemColumns.map((c) => {
                     const v = r[c.key];
-                    return c.format === "currency" ? Number(v).toLocaleString("vi-VN") : (v ?? "—");
+                    return c.format === "currency" ? Number(v).toLocaleString("vi-VN") + " đ" : (v ?? "\u2014");
                 })),
                 headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: "bold", halign: "center", fontSize: 9 },
                 bodyStyles: { fontSize: 8, cellPadding: 2 },

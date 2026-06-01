@@ -37,6 +37,24 @@ function formatCellValue(value, format) {
     return value;
 }
 
+function formatPdfValue(value, format) {
+    if (value === null || value === undefined) return "\u2014";
+    if (format === "currency") {
+        if (value === "" || value === 0) return "0 đ";
+        return (Number(value) || 0).toLocaleString("vi-VN") + " đ";
+    }
+    if (format === "date") {
+        if (!value) return "";
+        const d = new Date(value);
+        if (isNaN(d.getTime())) return String(value);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+    }
+    return value;
+}
+
 function dateString() {
     return new Intl.DateTimeFormat(LOCALE, {
         day: "2-digit",
@@ -114,7 +132,7 @@ export async function exportToExcel({ sheets, filename = "export.xlsx" }) {
                 }
 
                 if (col?.format === "currency") {
-                    ws[addr].s.numFmt = "#,##0";
+                    ws[addr].s.numFmt = '#,##0 "đ"';
                     ws[addr].s.alignment = { horizontal: "right" };
                 } else if (col?.format === "date") {
                     ws[addr].s.numFmt = "dd/mm/yyyy";
@@ -172,10 +190,7 @@ export async function exportToPDF({
 
     // Build table body with formatted values
     const bodyRows = rows.map((row) =>
-        columns.map((c) => {
-            if (c.format === "currency") return formatCellValue(row[c.key], "currency");
-            return formatCellValue(row[c.key], c.format);
-        })
+        columns.map((c) => formatPdfValue(row[c.key], c.format))
     );
 
     // Determine column alignment config for autotable
@@ -271,10 +286,7 @@ export async function exportDashboardPDF({ sections, filename = "dashboard.pdf" 
         if (section.type === "table") {
             const headRow = section.columns.map((c) => c.label);
             const bodyRows = section.rows.map((row) =>
-                section.columns.map((c) => {
-                    if (c.format === "currency") return formatCellValue(row[c.key], "currency");
-                    return formatCellValue(row[c.key], c.format);
-                })
+                section.columns.map((c) => formatPdfValue(row[c.key], c.format))
             );
 
             const columnStyles = {};

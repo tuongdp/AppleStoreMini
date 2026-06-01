@@ -11,7 +11,7 @@ export function useExport() {
       await fn(config);
     } catch (err) {
       console.error("Export failed:", err);
-      toast.error("Xuất file thất bại");
+      toast.error(err?.message || "Xuất file thất bại, vui lòng thử lại");
     } finally {
       setIsExporting(false);
     }
