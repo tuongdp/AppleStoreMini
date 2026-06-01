@@ -107,6 +107,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [isCreatingProduct, setIsCreatingProduct] = useState(false);
     const [showImportSpecs, setShowImportSpecs] = useState(false);
     const [isUploadingProductImage, setIsUploadingProductImage] = useState(false);
+    const [descSheetOpen, setDescSheetOpen] = useState(false);
     const productImageFileRef = useRef(null);
 
     const [deleteVariant] = useDeleteVariantMutation();
@@ -545,7 +546,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         </FormItem>
                                     );
                                 }} />
-                                <FormField control={form.control} name="description" render={() => (
+                                <FormField control={form.control} name="description" render={({ field }) => (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
                                             <FormLabel>{"Mô tả sản phẩm"}</FormLabel>
@@ -556,19 +557,53 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                             />
                                         </div>
                                         <FormControl>
-                                            <Controller
-                                                name="description"
-                                                control={form.control}
-                                                render={({ field: { onChange, value } }) => (
-                                                    <RichTextEditor
-                                                        value={value}
-                                                        onChange={onChange}
-                                                        disabled={isLoading}
-                                                    />
+                                            <button
+                                                type="button"
+                                                className="group relative w-full cursor-text rounded-xl border border-border bg-muted/20 p-4 text-left transition-colors hover:border-primary/50 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                                                onClick={() => setDescSheetOpen(true)}
+                                                disabled={isLoading}
+                                            >
+                                                {field.value ? (
+                                                    <div className="pointer-events-none max-h-32 overflow-hidden">
+                                                        <div className="prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: field.value }} />
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-muted-foreground/60">{"Nhấn để soạn mô tả sản phẩm..."}</p>
                                                 )}
-                                            />
+                                                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/0 opacity-0 transition-opacity group-hover:bg-background/40 group-hover:opacity-100">
+                                                    <span className="rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background">{"Nhấn để soạn"}</span>
+                                                </div>
+                                            </button>
                                         </FormControl>
                                         <FormMessage />
+
+                                        <Sheet open={descSheetOpen} onOpenChange={setDescSheetOpen}>
+                                            <SheetContent side="right" className="flex w-full flex-col sm:max-w-2xl">
+                                                <SheetHeader>
+                                                    <SheetTitle>{"Soạn mô tả sản phẩm"}</SheetTitle>
+                                                </SheetHeader>
+                                                <div className="mt-2 flex items-center justify-end">
+                                                    <AIDescriptionButton
+                                                        productName={form.watch("name")}
+                                                        specs={JSON.stringify(form.watch("specifications"))}
+                                                        onDescriptionGenerated={(text) => form.setValue("description", text)}
+                                                    />
+                                                </div>
+                                                <div className="mt-4 flex-1 overflow-y-auto">
+                                                    <Controller
+                                                        name="description"
+                                                        control={form.control}
+                                                        render={({ field: { onChange, value } }) => (
+                                                            <RichTextEditor
+                                                                value={value}
+                                                                onChange={onChange}
+                                                                disabled={isLoading}
+                                                            />
+                                                        )}
+                                                    />
+                                                </div>
+                                            </SheetContent>
+                                        </Sheet>
                                     </FormItem>
                                 )} />
                                 </div>
