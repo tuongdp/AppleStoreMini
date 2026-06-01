@@ -193,7 +193,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-                <Card className="lg:col-span-2">
+                <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-sm font-medium">Việc cần xử lý hôm nay</CardTitle>
                         <Badge variant={tasks.length ? "destructive" : "secondary"}>
@@ -235,8 +235,6 @@ export default function AdminDashboard() {
                         )}
                     </CardContent>
                 </Card>
-            </div>
-
             <Card className="border-border">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-sm font-medium">Chăm sóc khách hàng</CardTitle>
@@ -268,6 +266,7 @@ export default function AdminDashboard() {
                     </Link>
                 </CardContent>
             </Card>
+            </div>
 
             <div className="grid gap-4 lg:grid-cols-7">
                 <Card className="lg:col-span-4">
