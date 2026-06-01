@@ -811,7 +811,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                 className="w-full rounded-full"
                                 disabled={isLoading || isCreatingProduct || !hasVariants}
                             >
-                                {isLoading || isCreatingProduct ? "Đang lưu..." : (
+                                {isLoading || isCreatingProduct ? (
+                                    <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> {"Đang lưu..."}</>
+                                ) : (
                                     <><Save className="mr-1.5 h-4 w-4" /> {"Lưu sản phẩm"}</>
                                 )}
                             </Button>

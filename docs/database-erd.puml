@@ -1,0 +1,397 @@
+@startuml
+!theme plain
+skinparam linetype ortho
+skinparam defaultFontSize 11
+
+' ===== USERS =====
+entity users {
+  * id <<PK>>
+  --
+  fullName
+  * email <<UK>>
+  phone
+  password
+  avatar
+  role
+  permissions
+  gender
+  birthday
+  isBlocked
+  isVerified
+  orderCount
+  totalSpent
+  points
+  refreshToken
+  resetPasswordToken
+  resetPasswordExpires
+  emailVerificationToken
+  emailVerificationExpires
+  changePasswordVerificationToken
+  changePasswordVerificationExpires
+  address
+  createdAt
+  updatedAt
+}
+
+' ===== CATEGORIES =====
+entity categories {
+  * id <<PK>>
+  --
+  name
+  * slug <<UK>>
+  description
+  image
+  sliderImages
+  isActive
+  order
+  createdAt
+  updatedAt
+}
+
+' ===== SERIES =====
+entity series {
+  * id <<PK>>
+  --
+  name
+  slug
+  * categoryId <<FK>>
+  description
+  isActive
+  order
+  createdAt
+  updatedAt
+}
+
+' ===== PRODUCTS =====
+entity products {
+  * id <<PK>>
+  --
+  name
+  * slug <<UK>>
+  * categoryId <<FK>>
+  seriesId <<FK>>
+  description
+  isActive
+  image
+  rating
+  reviewCount
+  specifications
+  ratingDistribution
+  createdAt
+  updatedAt
+}
+
+' ===== PRODUCT_SERIES =====
+entity product_series {
+  * productId <<PK FK>>
+  * seriesId <<PK FK>>
+  --
+  createdAt
+}
+
+' ===== PRODUCT_VARIANTS =====
+entity product_variants {
+  * id <<PK>>
+  --
+  * productId <<FK>>
+  color
+  storage
+  ram
+  edition
+  refreshRate
+  ssd
+  price
+  salePrice
+  stock
+  inStock
+  featured
+  soldCount
+  viewCount
+  images
+  arrivalType
+  arrivalDate
+  createdAt
+  updatedAt
+}
+
+' ===== GLOBAL_OPTIONS =====
+entity global_options {
+  * id <<PK>>
+  --
+  type
+  value
+  hex
+  sortOrder
+  createdAt
+  updatedAt
+}
+
+' ===== PRODUCT_VARIANT_OPTIONS =====
+entity product_variant_options {
+  * id <<PK>>
+  --
+  * variantId <<FK>>
+  * optionId <<FK>>
+}
+
+' ===== CARTS =====
+entity carts {
+  * id <<PK>>
+  --
+  * userId <<UK FK>>
+  createdAt
+  updatedAt
+}
+
+' ===== CART_ITEMS =====
+entity cart_items {
+  * id <<PK>>
+  --
+  * cartId <<FK>>
+  * variantId <<FK>>
+  quantity
+}
+
+' ===== ORDERS =====
+entity orders {
+  * id <<PK>>
+  --
+  * code <<UK>>
+  userId <<FK>>
+  couponId <<FK>>
+  couponCode
+  paymentMethod
+  isPaid
+  paidAt
+  paymentTransactionId
+  subtotal
+  shippingFee
+  discountAmount
+  totalAmount
+  status
+  note
+  cancelReason
+  cancelledAt
+  deliveredAt
+  shippingFullName
+  shippingPhone
+  shippingAddress
+  shippingEmail
+  createdAt
+  updatedAt
+}
+
+' ===== ORDER_ITEMS =====
+entity order_items {
+  * id <<PK>>
+  --
+  * orderId <<FK>>
+  * variantId <<FK>>
+  name
+  image
+  price
+  quantity
+  color
+  storage
+  ram
+  refreshRate
+  ssd
+  isReviewed
+}
+
+' ===== ORDER_STATUS_HISTORY =====
+entity order_status_history {
+  * id <<PK>>
+  --
+  * orderId <<FK>>
+  status
+  note
+  createdAt
+}
+
+' ===== PRODUCT_REVIEWS =====
+entity product_reviews {
+  * id <<PK>>
+  --
+  * productId <<FK>>
+  * userId <<FK>>
+  orderId <<FK>>
+  orderItemId <<FK>>
+  rating
+  content
+  images
+  sentiment
+  sentimentScore
+  isVisible
+  likes
+  adminReply
+  repliedById <<FK>>
+  repliedByName
+  repliedAt
+  flagged
+  flaggedReason
+  createdAt
+  updatedAt
+}
+
+' ===== RETURN_REQUESTS =====
+entity return_requests {
+  * id <<PK>>
+  --
+  * orderId <<FK>>
+  * userId <<FK>>
+  reason
+  description
+  images
+  adminNote
+  refundAmount
+  refundTransactionId
+  status
+  trackingNumber
+  condition
+  receivedAt
+  bankName
+  bankAccount
+  bankOwner
+  createdAt
+  updatedAt
+}
+
+' ===== RETURN_REQUEST_ITEMS =====
+entity return_request_items {
+  * id <<PK>>
+  --
+  * returnRequestId <<FK>>
+  * orderItemId <<FK>>
+  quantity
+  refundUnitPrice
+}
+
+' ===== COUPONS =====
+entity coupons {
+  * id <<PK>>
+  --
+  * code <<UK>>
+  description
+  discountType
+  discountValue
+  maxDiscountAmount
+  minOrderAmount
+  maxUsage
+  usedCount
+  expiresAt
+  isActive
+  createdById <<FK>>
+  createdAt
+  updatedAt
+}
+
+' ===== POINT_TRANSACTIONS =====
+entity point_transactions {
+  * id <<PK>>
+  --
+  * userId <<FK>>
+  orderId <<FK>>
+  type
+  points
+  description
+  createdAt
+}
+
+' ===== NEWS =====
+entity news {
+  * id <<PK>>
+  --
+  title
+  * slug <<UK>>
+  excerpt
+  content
+  thumbnail
+  category
+  author
+  authorId <<FK>>
+  readTime
+  isPublished
+  publishedAt
+  viewCount
+  createdAt
+  updatedAt
+}
+
+' ===== BANNERS =====
+entity banners {
+  * id <<PK>>
+  --
+  image
+  ctaLink
+  order
+  isActive
+  createdById <<FK>>
+  createdAt
+  updatedAt
+}
+
+' ===== APP_SETTINGS =====
+entity app_settings {
+  * id <<PK>>
+  --
+  * key <<UK>>
+  value
+  updatedById <<FK>>
+  createdAt
+  updatedAt
+}
+
+' ===== USER_ACTIVITY_LOGS =====
+entity user_activity_logs {
+  * id <<PK>>
+  --
+  * userId <<FK>>
+  actorId <<FK>>
+  type
+  title
+  description
+  metadata
+  createdAt
+}
+
+' =============================================
+' RELATIONSHIPS
+' =============================================
+users ||--o{ orders : ""
+users ||--|| carts : ""
+users ||--o{ product_reviews : ""
+users ||--o{ return_requests : ""
+users ||--o{ point_transactions : ""
+users ||--o{ news : ""
+users ||--o{ banners : ""
+users ||--o{ app_settings : ""
+users ||--o{ user_activity_logs : ""
+users ||--o{ user_activity_logs : "actor"
+
+categories ||--o{ products : ""
+categories ||--o{ series : ""
+series ||--o{ product_series : ""
+products ||--o{ product_series : ""
+products ||--o{ product_variants : ""
+products ||--o{ product_reviews : ""
+product_variants ||--o{ product_variant_options : ""
+global_options ||--o{ product_variant_options : ""
+product_variants ||--o{ order_items : ""
+product_variants ||--o{ cart_items : ""
+
+carts ||--o{ cart_items : ""
+
+orders ||--o{ order_items : ""
+orders ||--o{ order_status_history : ""
+orders ||--o{ product_reviews : ""
+orders ||--o{ return_requests : ""
+orders ||--o{ point_transactions : ""
+order_items ||--|| product_reviews : ""
+order_items ||--o{ return_request_items : ""
+
+return_requests ||--o{ return_request_items : ""
+
+coupons ||--o{ orders : ""
+
+@enduml

@@ -1,0 +1,85 @@
+@startuml AppleStoreMini_UseCase
+
+' ============================================
+' Use Case Tổng Quát - Apple Store Mini
+' Actors: Khách vãng lai, Khách hàng
+' ============================================
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Khách vãng lai" as Guest
+actor "Khách hàng" as Customer
+
+Customer --|> Guest
+
+rectangle "Apple Store Mini" {
+
+  ' ── Khách vãng lai ──
+  usecase "Xem danh sách sản phẩm" as UC_ViewProducts
+  usecase "Tìm kiếm sản phẩm" as UC_Search
+  usecase "Xem chi tiết sản phẩm" as UC_ViewDetail
+  usecase "Xem đánh giá sản phẩm" as UC_ViewReviews
+  usecase "Chat tư vấn AI" as UC_ChatAI
+  usecase "Đăng ký tài khoản" as UC_Register
+  usecase "Đăng nhập" as UC_Login
+  usecase "Xem tin tức & khuyến mãi" as UC_ViewNews
+
+  Guest --> UC_ViewProducts
+  Guest --> UC_Search
+  Guest --> UC_ViewDetail
+  Guest --> UC_ViewReviews
+  Guest --> UC_ChatAI
+  Guest --> UC_Register
+  Guest --> UC_Login
+  Guest --> UC_ViewNews
+
+  ' ── Khách hàng (kế thừa Guest) ──
+  usecase "Quản lý giỏ hàng" as UC_Cart
+  usecase "Đặt hàng" as UC_PlaceOrder
+  usecase "Thanh toán" as UC_Payment
+  usecase "Theo dõi đơn hàng" as UC_TrackOrder
+  usecase "Xem lịch sử mua hàng" as UC_OrderHistory
+  usecase "Hủy đơn hàng" as UC_CancelOrder
+  usecase "Yêu cầu đổi / trả hàng" as UC_Return
+  usecase "Viết đánh giá sản phẩm" as UC_WriteReview
+  usecase "Quản lý danh sách yêu thích" as UC_Wishlist
+  usecase "Quản lý hồ sơ cá nhân" as UC_Profile
+  usecase "Đổi mật khẩu" as UC_ChangePassword
+  usecase "Áp dụng mã giảm giá" as UC_Coupon
+  usecase "Tích điểm & đổi quà" as UC_Points
+  usecase "Nhận gợi ý cá nhân hóa" as UC_Personalized
+
+  Customer --> UC_Cart
+  Customer --> UC_PlaceOrder
+  Customer --> UC_Wishlist
+  Customer --> UC_Profile
+  Customer --> UC_OrderHistory
+  Customer --> UC_Points
+  Customer --> UC_Personalized
+
+  ' ── Quan hệ extends / includes ──
+  UC_PlaceOrder ..> UC_Payment : <<include>>
+  UC_PlaceOrder ..> UC_Coupon : <<extend>>
+  UC_PlaceOrder ..> UC_Cart : <<include>>
+  UC_TrackOrder ..> UC_PlaceOrder : <<extend>>
+  UC_CancelOrder ..> UC_PlaceOrder : <<extend>>
+  UC_Return ..> UC_PlaceOrder : <<extend>>
+  UC_WriteReview ..> UC_OrderHistory : <<extend>>
+  UC_Personalized ..> UC_OrderHistory : <<extend>>
+  UC_ViewDetail ..> UC_ViewReviews : <<include>>
+  UC_Search ..> UC_ViewDetail : <<extend>>
+  UC_ViewProducts ..> UC_Search : <<extend>>
+  UC_ChangePassword ..> UC_Profile : <<extend>>
+
+  ' ── Hệ thống ngoài ──
+  usecase "Xác thực người dùng" as UC_Auth
+  usecase "Gửi email thông báo" as UC_Email
+  usecase "Xử lý thanh toán" as UC_ProcessPayment
+  UC_Register ..> UC_Auth : <<include>>
+  UC_Login ..> UC_Auth : <<include>>
+  UC_PlaceOrder ..> UC_Email : <<extend>>
+  UC_Payment ..> UC_ProcessPayment : <<include>>
+}
+
+@enduml
