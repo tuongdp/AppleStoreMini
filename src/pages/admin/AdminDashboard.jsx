@@ -48,7 +48,6 @@ function MetricCard({ title, value, note, icon: Icon, tone = "default", loading 
         order: "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400",
         warning: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
         danger: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400",
-        purple: "bg-violet-100 text-violet-700 dark:bg-violet-950/30 dark:text-violet-400",
     }[tone];
 
     return (
@@ -119,7 +118,7 @@ export default function AdminDashboard() {
         pollingInterval: 30000,
     });
     const { data: lowStock = [] } = useGetLowStockQuery();
-    const { data: catRevenue = [] } = useGetCategoryRevenueQuery({ period: "month" });
+    const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
     const { data: reviewRewardSetting, isLoading: isRewardLoading } = useGetReviewRewardSettingQuery();
     const [updateReviewReward, { isLoading: isUpdatingReward }] = useUpdateReviewRewardSettingMutation();
     const [rewardPoints, setRewardPoints] = useState("");
