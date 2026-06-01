@@ -22,7 +22,7 @@ export default function PersonalizedRecommendations() {
     return (
         <section className="section-padding py-8 md:py-10 lg:py-14">
             <div className="mx-auto max-w-7xl">
-                <SectionTitle title="Có thể bạn thích..." className="mb-8" />
+                <SectionTitle title="Có thể bạn thích" className="mb-8" />
                 <ProductSlider
                     products={products}
                     isLoading={isLoading}
