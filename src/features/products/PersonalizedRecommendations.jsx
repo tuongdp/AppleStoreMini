@@ -20,18 +20,16 @@ export default function PersonalizedRecommendations() {
     if (isError || (!isLoading && products.length === 0)) return null;
 
     return (
-        <section className="section-padding py-8 md:py-10 lg:py-14">
-            <div className="mx-auto max-w-7xl">
-                <SectionTitle title="Có thể bạn thích" className="mb-8" />
-                <ProductSlider
-                    products={products}
-                    isLoading={isLoading}
-                    sliderId="personalized-recs"
-                    skeletonCount={4}
-                    autoplayDelay={5000}
-                    renderItem={(product) => <ProductCard product={product} />}
-                />
-            </div>
+        <section>
+            <SectionTitle title="Có thể bạn thích" className="mb-8" />
+            <ProductSlider
+                products={products}
+                isLoading={isLoading}
+                sliderId="personalized-recs"
+                skeletonCount={4}
+                autoplayDelay={5000}
+                renderItem={(product) => <ProductCard product={product} />}
+            />
         </section>
     );
 }
