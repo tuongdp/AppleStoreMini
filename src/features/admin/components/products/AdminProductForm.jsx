@@ -106,6 +106,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const [blockedVariant, setBlockedVariant] = useState(null);
     const [autoCreatedId, setAutoCreatedId] = useState(null);
     const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+    const [isSavingVariant, setIsSavingVariant] = useState(false);
     const [showImportSpecs, setShowImportSpecs] = useState(false);
     const [isUploadingProductImage, setIsUploadingProductImage] = useState(false);
     const [descSheetOpen, setDescSheetOpen] = useState(false);
@@ -255,6 +256,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     };
 
     const saveVariant = async (data) => {
+        setIsSavingVariant(true);
+        try {
         const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
         const marketingFields = normalizeMarketingBadgeFields(data);
         if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
@@ -357,6 +360,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         }
 
         cancelVariantForm();
+        } finally {
+            setIsSavingVariant(false);
+        }
     };
 
     const handleDeleteVariant = async (idx) => {
@@ -773,7 +779,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                 onSave={saveVariant}
                                                 onCancel={cancelVariantForm}
                                                 uploadImage={uploadImage}
-                                                isSaving={isCreatingProduct}
+                                                isSaving={isCreatingProduct || isSavingVariant}
                                             />
                                         </div>
                                     </SheetContent>
