@@ -9,6 +9,7 @@ import { removeFromCart, updateQuantity, getEffectivePrice, toggleCartItemSelect
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
 import { useRef, useCallback } from "react";
@@ -36,6 +37,7 @@ export default function CartTableItem({ item, isLast }) {
   const ssd = variant?.ssd || product?.ssd || "";
   const isSelected = item.selected !== false;
   const availableStock = Number(variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99));
+  const effectiveMax = Math.max(1, availableStock);
   const hasStockIssue = item.quantity > availableStock;
 
   const timerRef = useRef(null);
@@ -129,14 +131,21 @@ export default function CartTableItem({ item, isLast }) {
         </div>
 
         {/* Quantity */}
-        <div className="col-span-7 flex items-center md:col-span-2 md:justify-center">
+        <div className="col-span-7 flex flex-col items-center md:col-span-2 md:justify-center">
           <QuantityInput
             value={item.quantity}
             min={1}
-            max={variant?.stock ?? product?.stock ?? 99}
+            max={effectiveMax}
             size="sm"
             onChange={handleUpdateQty}
           />
+          {availableStock <= 5 && (
+            <p className={cn("mt-1 text-center text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
+              {hasStockIssue
+                ? `Không đủ — còn ${availableStock}`
+                : `Còn ${availableStock}`}
+            </p>
+          )}
         </div>
 
         {/* Total */}

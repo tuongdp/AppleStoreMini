@@ -8,6 +8,7 @@ import { removeFromCart, updateQuantity, getEffectivePrice, toggleCartItemSelect
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/api/cartApi";
 import { ROUTES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
@@ -36,6 +37,10 @@ export default function CartDrawerItem({ item }) {
   const ssd = variant?.ssd || product?.ssd || "";
 
   const isSelected = item.selected !== false;
+
+  const stockAvailable = variant?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99);
+  const effectiveMax = Math.max(1, stockAvailable);
+  const hasStockIssue = item.quantity > stockAvailable;
 
   const timerRef = useRef(null);
 
@@ -122,11 +127,18 @@ export default function CartDrawerItem({ item }) {
           <QuantityInput
             value={item.quantity}
             min={1}
-            max={variant?.stock ?? product?.stock ?? 99}
+            max={effectiveMax}
             size="sm"
             onChange={handleUpdateQty}
           />
         </div>
+        {stockAvailable <= 5 && (
+          <p className={cn("mt-1 text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
+            {hasStockIssue
+              ? `Không đủ hàng — chỉ còn ${stockAvailable} sản phẩm`
+              : `Còn ${stockAvailable} sản phẩm`}
+          </p>
+        )}
       </div>
     </div>
   );
