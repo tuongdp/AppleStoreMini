@@ -343,7 +343,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             salePrice: salePrice ? Number(salePrice) : null,
             stock: Number(stock) || 0,
             images,
-            inStock: Number(stock) > 0,
             ...marketingFields,
             id: savedId,
         };
@@ -395,8 +394,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         const variant = variants[idx];
         if (!variant.id) { setBlockedVariant(null); return; }
         try {
-            await updateVariantApi({ variantId: variant.id, inStock: false }).unwrap();
-            setVariants(variants.map((v, i) => i === idx ? { ...v, inStock: false } : v));
+            await updateVariantApi({ variantId: variant.id, stock: 0 }).unwrap();
+            setVariants(variants.map((v, i) => i === idx ? { ...v, stock: 0, inStock: false } : v));
             toast.success("Đã tắt trạng thái còn hàng");
         } catch {
             toast.error("Có lỗi xảy ra");
