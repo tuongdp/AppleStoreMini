@@ -17,6 +17,7 @@ import { getEffectivePrice } from "@/store/cartSlice";
 import { formatPrice, parseJsonField } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { productPlaceholder } from "@/assets/images";
+import SeoHead from "@/components/shared/SeoHead";
 
 export default function CheckoutPage() {
     const {
@@ -66,6 +67,8 @@ export default function CheckoutPage() {
 
     return (
         <div className="mx-auto max-w-5xl">
+            <SeoHead title="Thanh toán" url="/checkout" noindex />
+
             {/* Back to cart */}
             <Button
                 variant="ghost"

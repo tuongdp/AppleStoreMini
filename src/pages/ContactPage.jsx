@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,6 +72,12 @@ export default function ContactPage() {
   return (
       <div className="section-padding py-12">
         <div className="mx-auto max-w-7xl">
+          <SeoHead
+            title="Liên hệ"
+            description="Liên hệ Apple Store để được tư vấn sản phẩm Apple chính hãng. Hỗ trợ mua hàng, bảo hành, đổi trả."
+            url="/contact"
+          />
+
           <Breadcrumb items={[{ label: "Liên hệ" }]} className="mb-6" />
 
         <h1 className="mb-2 text-3xl font-semibold text-foreground">

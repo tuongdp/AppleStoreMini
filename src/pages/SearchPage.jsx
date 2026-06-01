@@ -15,6 +15,7 @@ import AISearchToggle from "@/features/ai/AISearchToggle";
 import { useAiSearchMutation } from "@/store/api/aiApi";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import SeoHead from "@/components/shared/SeoHead";
 import { getNewsHref, groupProductsByCategory } from "@/features/products/utils/searchResults";
 
 function getNewsImage(news) {
@@ -145,6 +146,12 @@ export default function SearchPage() {
 
     return (
         <div className="section-padding py-8 md:py-12">
+            <SeoHead
+                title="Tìm kiếm"
+                description="Tìm kiếm sản phẩm Apple - iPhone, iPad, MacBook, Apple Watch, AirPods và phụ kiện chính hãng."
+                url="/search"
+            />
+
             <Breadcrumb
                 items={[{ label: "Tìm kiếm" }]}
                 className="mb-6"

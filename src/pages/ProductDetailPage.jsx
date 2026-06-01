@@ -40,6 +40,9 @@ import { ROUTES } from "@/lib/constants";
 import AIComparePanel from "@/features/ai/AIComparePanel";
 import AIReviewSummary from "@/features/ai/AIReviewSummary";
 import PersonalizedRecommendations from "@/features/products/PersonalizedRecommendations";
+import SeoHead from "@/components/shared/SeoHead";
+import ProductStructuredData from "@/components/shared/ProductStructuredData";
+import BreadcrumbStructuredData from "@/components/shared/BreadcrumbStructuredData";
 
 export default function ProductDetailPage() {
     const { slug } = useParams();
@@ -240,6 +243,22 @@ export default function ProductDetailPage() {
 
     return (
         <div className="section-padding pb-28 pt-8 md:py-12">
+            <SeoHead
+                title={product.name}
+                description={product.description?.replace(/<[^>]*>/g, "").substring(0, 160) || product.name}
+                image={product.image || product.images?.[0]}
+                url={`/products/${product.slug}`}
+                type="product"
+            />
+            <ProductStructuredData product={product} variant={selectedVariant} />
+            <BreadcrumbStructuredData
+                items={[
+                    { name: "Trang chủ", url: "/" },
+                    { name: "Sản phẩm", url: "/products" },
+                    ...(categoryDisplay ? [{ name: categoryDisplay, url: `/products?category=${categoryDisplay}` }] : []),
+                    { name: product.name, url: `/products/${product.slug}` },
+                ]}
+            />
             <Breadcrumb
                 items={[
                     { label: "Sản phẩm", href: ROUTES.PRODUCTS },

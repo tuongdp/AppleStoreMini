@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import { formatPhone } from "@/lib/utils";
 import {
   Store,
@@ -63,6 +64,12 @@ export default function AboutPage() {
   return (
     <div className="section-padding py-12">
       <div className="mx-auto max-w-7xl">
+        <SeoHead
+          title="Giới thiệu"
+          description="Apple Store - Cửa hàng Apple chính hãng, cung cấp iPhone, iPad, MacBook, Apple Watch, AirPods chính hãng với giá tốt nhất."
+          url="/about"
+        />
+
         <Breadcrumb items={[{ label: "Về chúng tôi" }]} className="mb-6" />
 
         <h1 className="mb-2 text-3xl font-semibold text-foreground">

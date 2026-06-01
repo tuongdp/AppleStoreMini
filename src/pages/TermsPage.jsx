@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import { FileText } from "lucide-react";
 
 const TERMS_ITEMS = [
@@ -57,6 +58,8 @@ export default function TermsPage() {
     return (
         <div className="section-padding py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead title="Điều khoản sử dụng" url="/terms" noindex />
+
                 <Breadcrumb items={[{ label: "Điều khoản sử dụng" }]} className="mb-6" />
 
                 <div className="mb-8 flex items-center gap-3">

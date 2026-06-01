@@ -23,6 +23,8 @@ import ProductSlider from "@/components/shared/ProductSlider";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import SectionTitle from "@/components/shared/SectionTitle";
 import { ROUTES } from "@/lib/constants";
+import SeoHead from "@/components/shared/SeoHead";
+import StructuredData from "@/components/shared/StructuredData";
 
 const WelcomeModal = lazy(() => import("@/components/shared/WelcomeModal"));
 const WELCOME_STORAGE_KEY = "app-welcome-dismissed";
@@ -107,6 +109,8 @@ export default function HomePage() {
   return (
     <div className="flex flex-col">
       <h1 className="sr-only">Apple Store - Cửa hàng Apple chính hãng</h1>
+      <SeoHead title="Trang chủ" />
+      <StructuredData />
       {showWelcome && (
         <Suspense fallback={null}>
           <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />

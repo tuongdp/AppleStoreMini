@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import SeoHead from "@/components/shared/SeoHead";
 import {
     Select,
     SelectContent,
@@ -14,10 +15,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Clock, Search, TrendingUp } from "lucide-react";
-import { useDebounce } from "@/hooks/useDebounce";
-import { PAGINATION } from "@/lib/constants";
+import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+
 
 const ALL_CATEGORIES = [
     { value: "", label: "Tất cả" },
@@ -69,6 +69,12 @@ export default function NewsPage() {
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead
+                    title="Tin tức"
+                    description="Tin tức công nghệ, sản phẩm Apple mới nhất, đánh giá, thủ thuật và khuyến mãi."
+                    url="/news"
+                />
+
                 {/* Header */}
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>

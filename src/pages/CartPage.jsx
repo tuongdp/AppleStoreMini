@@ -4,6 +4,7 @@ import CartTable from "@/features/cart/components/CartTable";
 import CartSummaryCard from "@/features/cart/components/CartSummaryCard";
 import CartEmpty from "@/features/cart/components/CartEmpty";
 import { selectCartItems, selectCartCount } from "@/store/cartSlice";
+import SeoHead from "@/components/shared/SeoHead";
 
 export default function CartPage() {
     const items = useSelector(selectCartItems);
@@ -11,6 +12,8 @@ export default function CartPage() {
 
     return (
         <div className="section-padding py-8 md:py-12">
+            <SeoHead title="Giỏ hàng" url="/cart" noindex />
+
             {/* Breadcrumb */}
             <Breadcrumb items={[{ label: "Giỏ hàng" }]} className="mb-6" />
 

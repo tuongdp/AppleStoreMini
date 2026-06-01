@@ -8,6 +8,9 @@ import RichTextViewer from "@/components/shared/RichTextViewer";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import SeoHead from "@/components/shared/SeoHead";
+import ArticleStructuredData from "@/components/shared/ArticleStructuredData";
+import BreadcrumbStructuredData from "@/components/shared/BreadcrumbStructuredData";
 
 function SidebarNewsCard({ news, index }) {
     return (
@@ -149,6 +152,22 @@ export default function NewsDetailPage() {
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto w-full max-w-7xl">
+                <SeoHead
+                    title={news?.title}
+                    description={news?.excerpt?.substring(0, 160) || news?.title}
+                    image={news?.thumbnail}
+                    url={`/news/${news?.slug}`}
+                    type="article"
+                />
+                <ArticleStructuredData article={news} />
+                <BreadcrumbStructuredData
+                    items={[
+                        { name: "Trang chủ", url: "/" },
+                        { name: "Tin tức", url: "/news" },
+                        { name: news?.title || "", url: `/news/${news?.slug}` },
+                    ]}
+                />
+
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_280px]">
                     <div>
                         <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">

@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import { ShieldCheck } from "lucide-react";
 import { formatPhone } from "@/lib/utils";
 
@@ -45,6 +46,12 @@ export default function WarrantyPage() {
     return (
         <div className="section-padding py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead
+                    title="Chính sách bảo hành"
+                    description="Chính sách bảo hành sản phẩm Apple chính hãng tại Apple Store. Bảo hành 12 tháng, hỗ trợ đổi trả trong 30 ngày."
+                    url="/warranty"
+                />
+
                 <Breadcrumb items={[{ label: "Chính sách bảo hành" }]} className="mb-6" />
 
                 <div className="mb-8 flex items-center gap-3">

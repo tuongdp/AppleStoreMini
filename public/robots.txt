@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /profile
+Disallow: /payment/
+Disallow: /order-lookup
+
+Sitemap: https://www.apple-store-mini.io.vn/sitemap.xml

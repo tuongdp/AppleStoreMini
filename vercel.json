@@ -1,5 +1,16 @@
 {
-  "rewrites": [{ "source": "/((?!.*\\.).*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/products", "destination": "/products/index.html" },
+    { "source": "/news", "destination": "/news/index.html" },
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/contact", "destination": "/contact/index.html" },
+    { "source": "/warranty", "destination": "/warranty/index.html" },
+    { "source": "/return-policy", "destination": "/return-policy/index.html" },
+    { "source": "/applecare", "destination": "/applecare/index.html" },
+    { "source": "/privacy", "destination": "/privacy/index.html" },
+    { "source": "/terms", "destination": "/terms/index.html" },
+    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/sw.js",

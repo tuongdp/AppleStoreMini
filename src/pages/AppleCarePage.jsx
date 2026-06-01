@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import {
   Wrench,
   ShieldCheck,
@@ -147,6 +148,12 @@ export default function AppleCarePage() {
   return (
     <div className="section-padding py-8 md:py-12">
       <div className="mx-auto max-w-7xl">
+        <SeoHead
+          title="AppleCare & Dịch vụ sửa chữa"
+          description="Dịch vụ AppleCare, sửa chữa iPhone, iPad, MacBook, Apple Watch chính hãng. Bảo hành mở rộng, thay pin, thay màn hình."
+          url="/applecare"
+        />
+
         <Breadcrumb
           items={[{ label: "Dịch vụ sửa chữa AppleCare" }]}
           className="mb-6"

@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
+import { UnheadProvider } from "@unhead/react/client";
 import { store, persistor } from "./store";
 import AppProviders from "./providers/AppProviders";
 import { Toaster } from "@/components/ui/sonner";
@@ -17,13 +18,15 @@ registerServiceWorker();
 ReactDOM.createRoot(document.getElementById("root")).render(
     <Provider store={store}>
         <PersistGate loading={<LoadingScreen />} persistor={persistor}>
-            <AppProviders>
-                <ErrorBoundary>
-                    <App />
-                </ErrorBoundary>
-                <Toaster />
-                <NetworkStatusNotifier />
-            </AppProviders>
+            <UnheadProvider>
+                <AppProviders>
+                    <ErrorBoundary>
+                        <App />
+                    </ErrorBoundary>
+                    <Toaster />
+                    <NetworkStatusNotifier />
+                </AppProviders>
+            </UnheadProvider>
         </PersistGate>
     </Provider>,
 );

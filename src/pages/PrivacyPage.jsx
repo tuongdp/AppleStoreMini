@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import { Lock } from "lucide-react";
 
 const PRIVACY_ITEMS = [
@@ -53,6 +54,8 @@ export default function PrivacyPage() {
     return (
         <div className="section-padding py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead title="Chính sách bảo mật" url="/privacy" noindex />
+
                 <Breadcrumb items={[{ label: "Chính sách bảo mật" }]} className="mb-6" />
 
                 <div className="mb-8 flex items-center gap-3">

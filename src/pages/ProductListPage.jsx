@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/useCategories";
 import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import SeoHead from "@/components/shared/SeoHead";
 import {
     buildSeriesFilters,
     buildSeriesFiltersFromSeries,
@@ -171,6 +172,12 @@ export default function ProductListPage() {
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead
+                    title="Sản phẩm"
+                    description="Khám phá tất cả sản phẩm Apple chính hãng - iPhone, iPad, MacBook, Apple Watch, AirPods, phụ kiện. Giá tốt, bảo hành chính hãng."
+                    url="/products"
+                />
+
                 <Breadcrumb
                     items={[
                         { label: "Sản phẩm", href: ROUTES.PRODUCTS },

@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import { formatDateTime, cn } from "@/lib/utils";
@@ -102,6 +103,8 @@ export default function OrderLookupPage() {
 
     return (
         <div className="section-padding py-8 md:py-12">
+            <SeoHead title="Tra cứu đơn hàng" url="/order-lookup" noindex />
+
             <Breadcrumb items={[{ label: "Tra cứu đơn hàng" }]} className="mb-6" />
 
             <div className="mx-auto max-w-2xl">

@@ -1,4 +1,5 @@
 import Breadcrumb from "@/components/shared/Breadcrumb";
+import SeoHead from "@/components/shared/SeoHead";
 import { RotateCcw } from "lucide-react";
 import { formatPhone } from "@/lib/utils";
 
@@ -52,6 +53,12 @@ export default function ReturnPolicyPage() {
     return (
         <div className="section-padding py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead
+                    title="Chính sách đổi trả"
+                    description="Chính sách đổi trả sản phẩm tại Apple Store. Đổi trả miễn phí trong 30 ngày, hoàn tiền 100% nếu sản phẩm lỗi."
+                    url="/return-policy"
+                />
+
                 <Breadcrumb items={[{ label: "Chính sách đổi trả" }]} className="mb-6" />
 
                 <div className="mb-8 flex items-center gap-3">
