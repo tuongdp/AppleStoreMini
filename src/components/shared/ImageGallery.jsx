@@ -20,15 +20,18 @@ export default function ImageGallery({ images = [], productName = "" }) {
     const [zoomIndex, setZoomIndex] = useState(0);
 
     const prevImagesRef = useRef(images);
+
+    if (prevImagesRef.current !== images) {
+        prevImagesRef.current = images;
+        setActiveIndex(0);
+    }
+
     useEffect(() => {
-        if (prevImagesRef.current !== images) {
-            prevImagesRef.current = images;
-            setActiveIndex(0);
-            if (mainSwiper) {
-                mainSwiper.slideTo(0);
-            }
+        if (mainSwiper) {
+            mainSwiper.slideTo(0);
         }
-    }, [images, mainSwiper]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [images]);
 
     const openZoom = (index) => {
         setZoomIndex(index ?? activeIndex);

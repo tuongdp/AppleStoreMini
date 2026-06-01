@@ -583,7 +583,7 @@ export default function ProductDetailPage() {
             <ProductComments product={product} />
             <Separator className="my-12" />
             <AIComparePanel currentProduct={product} products={allProducts} />
-            <AIReviewSummary productSlug={slug} reviews={product.comments || product.reviews || []} />
+            <AIReviewSummary key={slug} productSlug={slug} reviews={product.comments || product.reviews || []} />
 
             {/* Related */}
             <Separator className="my-12" />

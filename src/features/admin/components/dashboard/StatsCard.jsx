@@ -6,6 +6,7 @@ export default function StatsCard({
     title,
     value,
     change,
+    Icon,
     iconColor,
     iconBg,
 }) {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,8 +26,6 @@ export default function AIReviewSummary({ productSlug, reviews }) {
       toast.error("Không thể kết nối AI, vui lòng thử lại");
     }
   };
-
-  useEffect(() => { setResult(null); }, [productSlug]);
 
   if (!hasReviews) return null;
 
