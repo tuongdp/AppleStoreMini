@@ -50,6 +50,10 @@ function startServer() {
 
 async function prerender() {
   const server = await startServer();
+
+  const indexPath = path.join(DIST, "index.html");
+  const originalIndex = fs.readFileSync(indexPath, "utf8");
+
   console.log("[prerender] Launching browser...");
 
   const isVercel = !!process.env.VERCEL;
@@ -107,6 +111,10 @@ async function prerender() {
 
   await browser.close();
   server.close();
+
+  fs.writeFileSync(indexPath, originalIndex, "utf8");
+  console.log("[prerender] Restored original index.html for SPA users");
+
   console.log("[prerender] Done");
 }
 
