@@ -9,11 +9,9 @@ import {
     Loader2,
     MessageSquareReply,
     Package,
-    Receipt,
     RotateCcw,
     Save,
     ShoppingBag,
-    TicketPercent,
     TrendingUp,
     Users,
 } from "lucide-react";
@@ -27,7 +25,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
     useGetCategoryRevenueQuery,
-    useGetCouponStatsQuery,
     useGetDashboardOperationsQuery,
     useGetDashboardStatsQuery,
     useGetLowStockQuery,
@@ -122,8 +119,7 @@ export default function AdminDashboard() {
         pollingInterval: 30000,
     });
     const { data: lowStock = [] } = useGetLowStockQuery();
-    const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
-    const { data: couponStats } = useGetCouponStatsQuery();
+    const { data: catRevenue = [] } = useGetCategoryRevenueQuery({ period: "month" });
     const { data: reviewRewardSetting, isLoading: isRewardLoading } = useGetReviewRewardSettingQuery();
     const [updateReviewReward, { isLoading: isUpdatingReward }] = useUpdateReviewRewardSettingMutation();
     const [rewardPoints, setRewardPoints] = useState("");
@@ -134,12 +130,18 @@ export default function AdminDashboard() {
         if (reviewRewardSetting?.type) setRewardType(reviewRewardSetting.type);
     }, [reviewRewardSetting?.points, reviewRewardSetting?.type]);
 
-    const aov = stats?.totalRevenue && stats?.totalOrders ? Math.round(stats.totalRevenue / stats.totalOrders) : 0;
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
 
     const metricCards = useMemo(() => [
+        {
+            title: "Đơn cần xử lý",
+            value: formatNumber((operations?.orders?.pending || 0) + (operations?.orders?.confirmed || 0)),
+            note: "Cần xác nhận / xử lý hôm nay",
+            icon: Clock,
+            tone: (operations?.orders?.pending || 0) > 0 ? "danger" : "order",
+        },
         {
             title: "Doanh thu hôm nay",
             value: formatPrice(operations?.revenue?.today ?? stats?.todayRevenue ?? 0),
@@ -148,11 +150,11 @@ export default function AdminDashboard() {
             tone: "revenue",
         },
         {
-            title: "Đơn cần xử lý",
-            value: formatNumber((operations?.orders?.pending || 0) + (operations?.orders?.confirmed || 0)),
-            note: `${formatNumber(operations?.orders?.today || 0)} đơn mới hôm nay`,
-            icon: Clock,
-            tone: (operations?.orders?.pending || 0) > 0 ? "danger" : "order",
+            title: "Đơn hàng hôm nay",
+            value: formatNumber(operations?.orders?.today || 0),
+            note: "Tổng đơn đặt trong ngày",
+            icon: ShoppingBag,
+            tone: "order",
         },
         {
             title: "Tỷ lệ giao thành công",
@@ -162,16 +164,9 @@ export default function AdminDashboard() {
             tone: "order",
         },
         {
-            title: "Giá trị đơn trung bình",
-            value: formatPrice(aov),
-            note: `${formatNumber(stats?.totalOrders ?? 0)} đơn toàn thời gian`,
-            icon: Receipt,
-            tone: "purple",
-        },
-        {
             title: "Tồn kho cần chú ý",
             value: formatNumber((operations?.inventory?.lowStockVariants || 0) + (operations?.inventory?.outOfStockVariants || 0)),
-            note: `${formatNumber(operations?.inventory?.outOfStockVariants || 0)} biến thể hết hàng`,
+            note: "Có sản phẩm sắp hết / đã hết hàng",
             icon: Package,
             tone: "warning",
         },
@@ -182,14 +177,7 @@ export default function AdminDashboard() {
             icon: Users,
             tone: "default",
         },
-        {
-            title: "Voucher đã dùng",
-            value: formatNumber(couponStats?.totalCouponOrders ?? 0),
-            note: `Đã giảm ${formatPrice(couponStats?.totalDiscountAmount ?? 0)}`,
-            icon: TicketPercent,
-            tone: "purple",
-        },
-    ], [aov, couponStats, operations, returnRate, stats]);
+    ], [operations, returnRate, stats]);
 
     const handleUpdateReviewReward = async () => {
         const points = Number(rewardPoints);
@@ -235,7 +223,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {metricCards.map((card) => (
                     <MetricCard key={card.title} {...card} loading={isStatsLoading || isOperationsLoading} />
                 ))}
