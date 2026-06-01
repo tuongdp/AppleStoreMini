@@ -77,6 +77,26 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     }
   }
 
+  if (result.error && result.error.status === 400 && result.error.data?.message === "Lỗi cơ sở dữ liệu") {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 800 * attempt));
+      result = await baseQuery(args, api, extraOptions);
+      if (!(result.error && result.error.status === 400 && result.error.data?.message === "Lỗi cơ sở dữ liệu")) {
+        break;
+      }
+    }
+  }
+
+  if (result.error && result.error.status === "FETCH_ERROR") {
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      result = await baseQuery(args, api, extraOptions);
+      if (result.error?.status !== "FETCH_ERROR") {
+        break;
+      }
+    }
+  }
+
   return result;
 };
 
