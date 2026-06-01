@@ -81,14 +81,22 @@ async function prerender() {
     const page = await browser.newPage();
     try {
       console.log(`[prerender] Rendering ${route.name}: ${route.path}`);
+
+      await page.evaluateOnNewDocument(() => {
+        localStorage.setItem("app-welcome-dismissed", "1");
+        localStorage.setItem("app-ui-theme", "light");
+      });
+
       await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "networkidle2", timeout: 60000 });
 
       const html = await page.content();
 
+      const cleanHtml = html.replace(/<div id="modal">[\s\S]*?<\/div>/g, '<div id="modal"></div>');
+
       const outDir = route.path === "/" ? DIST : path.join(DIST, route.path);
       if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-      fs.writeFileSync(path.join(outDir, "index.html"), html);
+      fs.writeFileSync(path.join(outDir, "index.html"), cleanHtml);
       console.log(`[prerender] Saved ${route.name} -> ${path.join(outDir, "index.html")}`);
     } catch (err) {
       console.error(`[prerender] Failed ${route.name}:`, err.message);
