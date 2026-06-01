@@ -1,5 +1,3 @@
-const puppeteer = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
@@ -52,54 +50,56 @@ function startServer() {
 
 async function prerender() {
   const server = await startServer();
-
   console.log("[prerender] Launching browser...");
 
   const isVercel = !!process.env.VERCEL;
 
-  let browser;
-  try {
-    browser = await puppeteer.launch(
-      isVercel
-        ? {
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-          }
-        : {
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
-            headless: true,
-            executablePath: process.platform === "win32"
-              ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-              : "/usr/bin/google-chrome",
-          }
-    );
-
-    for (const route of ROUTES) {
-      const page = await browser.newPage();
-      try {
-        console.log(`[prerender] Rendering ${route.name}: ${route.path}`);
-        await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "networkidle2", timeout: 60000 });
-
-        const html = await page.content();
-
-        const outDir = route.path === "/" ? DIST : path.join(DIST, route.path);
-        if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-
-        fs.writeFileSync(path.join(outDir, "index.html"), html);
-        console.log(`[prerender] Saved ${route.name} -> ${path.join(outDir, "index.html")}`);
-      } catch (err) {
-        console.error(`[prerender] Failed ${route.name}:`, err.message);
-      } finally {
-        await page.close();
-      }
+  let launchOpts;
+  if (isVercel) {
+    const Chromium = (await import("@sparticuz/chromium")).default;
+    launchOpts = {
+      args: Chromium.args,
+      defaultViewport: { width: 1280, height: 720 },
+      executablePath: await Chromium.executablePath(),
+      headless: true,
+    };
+  } else {
+    const puppeteer = require("puppeteer-core");
+    launchOpts = {
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    };
+    if (process.platform === "win32") {
+      launchOpts.executablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
     }
-  } finally {
-    if (browser) await browser.close();
-    server.close();
-    console.log("[prerender] Done");
   }
+
+  const puppeteer = require("puppeteer-core");
+  const browser = await puppeteer.launch(launchOpts);
+
+  for (const route of ROUTES) {
+    const page = await browser.newPage();
+    try {
+      console.log(`[prerender] Rendering ${route.name}: ${route.path}`);
+      await page.goto(`${BASE_URL}${route.path}`, { waitUntil: "networkidle2", timeout: 60000 });
+
+      const html = await page.content();
+
+      const outDir = route.path === "/" ? DIST : path.join(DIST, route.path);
+      if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+
+      fs.writeFileSync(path.join(outDir, "index.html"), html);
+      console.log(`[prerender] Saved ${route.name} -> ${path.join(outDir, "index.html")}`);
+    } catch (err) {
+      console.error(`[prerender] Failed ${route.name}:`, err.message);
+    } finally {
+      await page.close();
+    }
+  }
+
+  await browser.close();
+  server.close();
+  console.log("[prerender] Done");
 }
 
 prerender();
