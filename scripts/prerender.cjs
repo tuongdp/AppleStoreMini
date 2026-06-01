@@ -96,7 +96,7 @@ async function prerender() {
       const outDir = route.path === "/" ? DIST : path.join(DIST, route.path);
       if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-      fs.writeFileSync(path.join(outDir, "index.html"), cleanHtml);
+      fs.writeFileSync(path.join(outDir, "index.html"), cleanHtml, "utf8");
       console.log(`[prerender] Saved ${route.name} -> ${path.join(outDir, "index.html")}`);
     } catch (err) {
       console.error(`[prerender] Failed ${route.name}:`, err.message);
