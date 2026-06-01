@@ -32,6 +32,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
 import { useGetAdminSeriesQuery } from "@/store/api/seriesApi";
 import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput, parsePriceInput } from "@/lib/utils";
@@ -577,19 +578,19 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         </FormControl>
                                         <FormMessage />
 
-                                        <Sheet open={descSheetOpen} onOpenChange={setDescSheetOpen}>
-                                            <SheetContent side="right" className="flex w-full flex-col sm:max-w-2xl">
-                                                <SheetHeader>
-                                                    <SheetTitle>{"Soạn mô tả sản phẩm"}</SheetTitle>
-                                                </SheetHeader>
-                                                <div className="mt-2 flex items-center justify-end">
+                                        <Dialog open={descSheetOpen} onOpenChange={setDescSheetOpen}>
+                                            <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col" showCloseButton>
+                                                <DialogHeader>
+                                                    <DialogTitle>{"Soạn mô tả sản phẩm"}</DialogTitle>
+                                                </DialogHeader>
+                                                <div className="flex items-center justify-end">
                                                     <AIDescriptionButton
                                                         productName={form.watch("name")}
                                                         specs={JSON.stringify(form.watch("specifications"))}
                                                         onDescriptionGenerated={(text) => form.setValue("description", text)}
                                                     />
                                                 </div>
-                                                <div className="mt-4 flex-1 overflow-y-auto">
+                                                <div className="flex-1 overflow-y-auto pr-1">
                                                     <Controller
                                                         name="description"
                                                         control={form.control}
@@ -602,8 +603,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                         )}
                                                     />
                                                 </div>
-                                            </SheetContent>
-                                        </Sheet>
+                                            </DialogContent>
+                                        </Dialog>
                                     </FormItem>
                                 )} />
                                 </div>
