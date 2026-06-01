@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 const PERIODS = [
     { value: "week", label: "Tuần" },
@@ -78,7 +79,7 @@ export default function RevenueChart() {
         : "month";
     const [period, setPeriod] = useState(initialPeriod);
 
-    const { data, isLoading } = useGetRevenueStatsQuery({ period });
+    const { data, isLoading, isError, error } = useGetRevenueStatsQuery({ period });
 
     // ✅ getRevenueStatsQuery transformResponse → response.data trực tiếp
     // shape: { chart, totalRevenue, totalOrders, revenueChange }
@@ -95,7 +96,7 @@ export default function RevenueChart() {
     };
 
     const revenueColumns = [
-        { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
+        { key: "label", label: period === "week" ? "Ngày" : period === "year" ? "Năm" : "Tháng" },
         { key: "revenue", label: "Doanh thu", format: "currency" },
         { key: "orders", label: "Đơn hàng" },
     ];
@@ -109,6 +110,16 @@ export default function RevenueChart() {
         if (chartData.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
         exportPDF({ title: "Báo cáo doanh thu", columns: revenueColumns, rows: chartData, filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}` });
     };
+
+    if (isError) {
+        return (
+            <div className="flex h-[280px] items-center justify-center rounded-xl bg-muted/30">
+                <p className="text-sm text-destructive">
+                    {"Lỗi tải dữ liệu: "}{error?.data?.message || error?.error || "Không thể kết nối máy chủ"}
+                </p>
+            </div>
+        );
+    }
 
     if (isLoading) {
         return (
@@ -212,39 +223,54 @@ export default function RevenueChart() {
 
             {/* ✅ data là object trực tiếp sau transformResponse — không cần .data thêm */}
             {data && (
-                <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
-                    <div className="text-center">
-                        <p className="text-xs text-muted-foreground">
-                            {"Tổng doanh thu"}
-                        </p>
-                        <p className="mt-0.5 text-sm font-semibold text-foreground">
-                            {formatPrice(data.totalRevenue ?? 0)}
-                        </p>
+                <div className="space-y-2 border-t border-border pt-4">
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Doanh thu</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-foreground">{formatPrice(data.totalRevenue ?? 0)}</span>
+                            <span className={cn(
+                                "flex items-center gap-0.5 text-xs font-medium",
+                                (data.revenueChange ?? 0) >= 0 ? "text-green-600" : "text-red-500",
+                            )}>
+                                {(data.revenueChange ?? 0) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                                {(data.revenueChange ?? 0) >= 0 ? "+" : ""}{data.revenueChange ?? 0}%
+                            </span>
+                        </div>
                     </div>
-                    <div className="text-center">
-                        <p className="text-xs text-muted-foreground">
-                            {"Tổng đơn hàng"}
-                        </p>
-                        <p className="mt-0.5 text-sm font-semibold text-foreground">
-                            {formatNumber(data.totalOrders ?? 0)}
-                        </p>
-                    </div>
-                    <div className="text-center">
-                        <p className="text-xs text-muted-foreground">
-                            {period === "week" ? "so với tuần trước" : period === "year" ? "so với năm trước" : "so với tháng trước"}
-                        </p>
-                        <p
-                            className={cn(
-                                "mt-0.5 text-sm font-semibold",
-                                (data.revenueChange ?? 0) >= 0
-                                    ? "text-green-600 dark:text-green-400"
-                                    : "text-red-500",
+
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Đơn hàng</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-foreground">{formatNumber(data.totalOrders ?? 0)}</span>
+                            {data.orderChange != null && (
+                                <span className={cn(
+                                    "flex items-center gap-0.5 text-xs font-medium",
+                                    (data.orderChange ?? 0) >= 0 ? "text-green-600" : "text-red-500",
+                                )}>
+                                    {(data.orderChange ?? 0) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                                    {(data.orderChange ?? 0) >= 0 ? "+" : ""}{data.orderChange ?? 0}%
+                                </span>
                             )}
-                        >
-                            {(data.revenueChange ?? 0) >= 0 ? "+" : ""}
-                            {data.revenueChange ?? 0}%
-                        </p>
+                        </div>
                     </div>
+
+                    {data.avgOrderValue != null && data.avgOrderValue > 0 && (
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Giá trị trung bình đơn</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-semibold text-foreground">{formatPrice(data.avgOrderValue ?? 0)}</span>
+                                {data.avgOrderChange != null && (
+                                    <span className={cn(
+                                        "flex items-center gap-0.5 text-xs font-medium",
+                                        (data.avgOrderChange ?? 0) >= 0 ? "text-green-600" : "text-red-500",
+                                    )}>
+                                        {(data.avgOrderChange ?? 0) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                                        {(data.avgOrderChange ?? 0) >= 0 ? "+" : ""}{data.avgOrderChange ?? 0}%
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
