@@ -128,11 +128,12 @@ export default function ProductDetailPage() {
 
     const inStock = selectedVariant?.inStock ?? false;
     const stock = selectedVariant?.stock ?? 0;
+    const isLowStock = inStock && stock > 0 && stock <= 5;
     const marketingBadge = getProductMarketingBadge(selectedVariant);
 
     const displayOriginalPrice = selectedVariant?.price;
     const displaySalePrice = selectedVariant?.salePrice;
-    const maxQuantity = Math.max(1, Math.min(stock || 99, stock || 99));
+    const maxQuantity = Math.max(1, stock || 1);
 
     const productImages = useMemo(() => {
         const variantImages = selectedVariant?.images || [];
@@ -518,6 +519,12 @@ export default function ProductDetailPage() {
                             disabled={!inStock}
                         />
                     </div>
+
+                    {isLowStock && (
+                        <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                            {`Sắp hết hàng — chỉ còn ${stock} sản phẩm`}
+                        </p>
+                    )}
 
                     {/* Actions */}
                     <div className="flex gap-3">

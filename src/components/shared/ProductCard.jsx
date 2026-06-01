@@ -63,6 +63,7 @@ export default function ProductCard({ product }) {
 
     const stock = product.stock ?? null;
     const isOutOfStock = !product.inStock || stock === 0;
+    const isLowStock = !isOutOfStock && stock !== null && stock <= 5;
     const marketingBadge = getProductMarketingBadge(product);
     const variantSummary = getVariantSummary(product);
     const productDetailHref = getProductDetailHref(product);
@@ -111,6 +112,14 @@ export default function ProductCard({ product }) {
                                 className="border-red-200 bg-red-50 text-[10px] text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
                             >
                                 {"Hết hàng"}
+                            </Badge>
+                        )}
+                        {isLowStock && (
+                            <Badge
+                                variant="outline"
+                                className="border-amber-200 bg-amber-50 text-[10px] text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400"
+                            >
+                                {`Còn ${stock}`}
                             </Badge>
                         )}
                         {marketingBadge && (
