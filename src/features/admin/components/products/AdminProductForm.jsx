@@ -31,6 +31,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
 import { useGetAdminSeriesQuery } from "@/store/api/seriesApi";
 import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput, parsePriceInput } from "@/lib/utils";
@@ -431,7 +432,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         {/* ── Section 1: Basic Info ── */}
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <h3 className="mb-5 text-sm font-medium text-foreground">{"Thông tin cơ bản"}</h3>
-                            <div className="max-h-[55vh] overflow-y-auto space-y-4 pr-1">
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                                <div className="space-y-4 lg:col-span-2">
                                 <FormField control={form.control} name="name" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{"Tên sản phẩm"} <span className="text-destructive">*</span></FormLabel>
@@ -569,18 +571,22 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         <FormMessage />
                                     </FormItem>
                                 )} />
+                                </div>
+
+                                {/* Right column: product image */}
+                                <div className="lg:col-span-1">
                                 <FormField control={form.control} name="image" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{"Ảnh đại diện webshop"}</FormLabel>
-                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/30">
+                                        <FormLabel>{"Ảnh đại diện"}</FormLabel>
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/30">
                                                 {field.value ? (
-                                                    <img src={field.value} alt="" className="h-full w-full object-contain p-1.5" />
+                                                    <img src={field.value} alt="" className="h-full w-full object-contain p-3" />
                                                 ) : (
-                                                    <PackageOpen className="h-7 w-7 text-muted-foreground" />
+                                                    <PackageOpen className="h-10 w-10 text-muted-foreground" />
                                                 )}
                                             </div>
-                                            <div className="min-w-0 flex-1 space-y-2">
+                                            <div className="space-y-2">
                                                 <FormControl>
                                                     <Input placeholder={"https://..."} disabled={isLoading || isUploadingProductImage} {...field} />
                                                 </FormControl>
@@ -620,6 +626,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                         <FormMessage />
                                     </FormItem>
                                 )} />
+                                </div>
                             </div>
                         </div>
 
@@ -717,13 +724,24 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             )}
 
                             {showVariantForm && (
-                                <VariantInlineForm
-                                    initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
-                                    onSave={saveVariant}
-                                    onCancel={cancelVariantForm}
-                                    uploadImage={uploadImage}
-                                    isSaving={isCreatingProduct}
-                                />
+                                <Sheet open={showVariantForm} onOpenChange={setShowVariantForm}>
+                                    <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-lg">
+                                        <SheetHeader>
+                                            <SheetTitle>
+                                                {editingVariantIdx !== null ? "Sửa biến thể" : "Thêm biến thể mới"}
+                                            </SheetTitle>
+                                        </SheetHeader>
+                                        <div className="mt-6">
+                                            <VariantInlineForm
+                                                initial={editingVariantIdx !== null ? variants[editingVariantIdx] : null}
+                                                onSave={saveVariant}
+                                                onCancel={cancelVariantForm}
+                                                uploadImage={uploadImage}
+                                                isSaving={isCreatingProduct}
+                                            />
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
                             )}
                         </div>
 
