@@ -33,7 +33,6 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         if (!refreshToken) {
           toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
           api.dispatch(logout());
-          api.dispatch(baseApi.util.resetApiState());
           release();
           return result;
         }
@@ -62,12 +61,10 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         } else {
           toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
           api.dispatch(logout());
-          api.dispatch(baseApi.util.resetApiState());
         }
       } catch {
         toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
         api.dispatch(logout());
-        api.dispatch(baseApi.util.resetApiState());
       } finally {
         release();
       }
