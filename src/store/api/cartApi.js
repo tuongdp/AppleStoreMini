@@ -1,20 +1,18 @@
 import { baseApi } from "./baseApi";
 import { clearCart, setCartFromServer } from "@/store/cartSlice";
 
-const applyCartFromResponse = async (queryFulfilled, dispatch) => {
-    const { data } = await queryFulfilled;
-    dispatch(setCartFromServer(data.data));
-};
-
 export const cartApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getServerCart: builder.query({
             query: () => "/cart",
             providesTags: ["Cart"],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+            async onQueryStarted(_, { dispatch, queryFulfilled, getState }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(setCartFromServer(data.data));
+                    const storeItems = getState().cart.items;
+                    if (storeItems.length === 0) {
+                        dispatch(setCartFromServer(data.data));
+                    }
                 } catch { /* noop */ }
             },
         }),
@@ -26,11 +24,6 @@ export const cartApi = baseApi.injectEndpoints({
                 body: { items },
             }),
             invalidatesTags: ["Cart"],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    await applyCartFromResponse(queryFulfilled, dispatch);
-                } catch { /* noop */ }
-            },
         }),
 
         addToCart: builder.mutation({
@@ -40,11 +33,6 @@ export const cartApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Cart"],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    await applyCartFromResponse(queryFulfilled, dispatch);
-                } catch { /* noop */ }
-            },
         }),
 
         updateCartItem: builder.mutation({
@@ -54,11 +42,6 @@ export const cartApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Cart"],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    await applyCartFromResponse(queryFulfilled, dispatch);
-                } catch { /* noop */ }
-            },
         }),
 
         removeFromCart: builder.mutation({
@@ -68,11 +51,6 @@ export const cartApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["Cart"],
-            async onQueryStarted(_, { dispatch, queryFulfilled }) {
-                try {
-                    await applyCartFromResponse(queryFulfilled, dispatch);
-                } catch { /* noop */ }
-            },
         }),
 
         clearServerCart: builder.mutation({

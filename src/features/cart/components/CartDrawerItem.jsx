@@ -11,6 +11,7 @@ import { ROUTES } from "@/lib/constants";
 import { Link } from "react-router-dom";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
+import { useRef, useCallback } from "react";
 
 const getFirstImage = (images) => {
   if (!images) return null;
@@ -36,6 +37,8 @@ export default function CartDrawerItem({ item }) {
 
   const isSelected = item.selected !== false;
 
+  const timerRef = useRef(null);
+
   const handleRemove = async () => {
     dispatch(removeFromCart({ variantId }));
     if (isAuthenticated && variantId) {
@@ -45,14 +48,15 @@ export default function CartDrawerItem({ item }) {
     }
   };
 
-  const handleUpdateQty = async (quantity) => {
+  const handleUpdateQty = useCallback((quantity) => {
     dispatch(updateQuantity({ variantId, quantity }));
     if (isAuthenticated && variantId) {
-      try {
-        await updateServerCartItem({ variantId, quantity }).unwrap();
-      } catch { /* noop */ }
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        updateServerCartItem({ variantId, quantity });
+      }, 300);
     }
-  };
+  }, [dispatch, variantId, isAuthenticated, updateServerCartItem]);
 
   const handleToggleSelected = (checked) => {
     dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
@@ -118,7 +122,7 @@ export default function CartDrawerItem({ item }) {
           <QuantityInput
             value={item.quantity}
             min={1}
-            max={variant?.stock || product?.stock || 99}
+            max={variant?.stock ?? product?.stock ?? 99}
             size="sm"
             onChange={handleUpdateQty}
           />

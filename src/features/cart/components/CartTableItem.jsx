@@ -11,6 +11,7 @@ import { useRemoveFromCartMutation, useUpdateCartItemMutation } from "@/store/ap
 import { ROUTES } from "@/lib/constants";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
+import { useRef, useCallback } from "react";
 
 const getFirstImage = (images) => {
   if (!images) return null;
@@ -37,6 +38,8 @@ export default function CartTableItem({ item, isLast }) {
   const availableStock = Number(variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99));
   const hasStockIssue = item.quantity > availableStock;
 
+  const timerRef = useRef(null);
+
   const handleRemove = async () => {
     dispatch(removeFromCart({ variantId }));
     if (isAuthenticated && variantId) {
@@ -46,14 +49,15 @@ export default function CartTableItem({ item, isLast }) {
     }
   };
 
-  const handleUpdateQty = async (quantity) => {
+  const handleUpdateQty = useCallback((quantity) => {
     dispatch(updateQuantity({ variantId, quantity }));
     if (isAuthenticated && variantId) {
-      try {
-        await updateServerCartItem({ variantId, quantity }).unwrap();
-      } catch { /* noop */ }
+      clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => {
+        updateServerCartItem({ variantId, quantity });
+      }, 300);
     }
-  };
+  }, [dispatch, variantId, isAuthenticated, updateServerCartItem]);
 
   const handleToggleSelected = (checked) => {
     dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
@@ -129,7 +133,7 @@ export default function CartTableItem({ item, isLast }) {
           <QuantityInput
             value={item.quantity}
             min={1}
-            max={variant?.stock || product?.stock || 99}
+            max={variant?.stock ?? product?.stock ?? 99}
             size="sm"
             onChange={handleUpdateQty}
           />
