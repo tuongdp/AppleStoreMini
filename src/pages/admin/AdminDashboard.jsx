@@ -292,7 +292,7 @@ export default function AdminDashboard() {
                             <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                         </div>
                     </Link>
-                    <Link to="/admin/reviews" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
+                    <Link to="/admin/comments" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
                         <div className="flex items-center gap-3">
                             <MessageSquareReply className="h-4 w-4 text-amber-500" />
                             <span className="text-sm font-medium text-foreground">Đánh giá chưa phản hồi</span>
