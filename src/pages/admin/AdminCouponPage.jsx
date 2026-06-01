@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     useGetReviewRewardSettingQuery,
@@ -60,12 +61,14 @@ export default function AdminCouponPage() {
                         <Coins className="h-4 w-4 text-amber-500" />
                         Chính sách thưởng đánh giá
                     </CardTitle>
-                    <Badge variant="secondary">{rewardType === "PERCENT" ? `${reviewRewardSetting?.points ?? 20}%` : `${formatNumber(Number(reviewRewardSetting?.points ?? 20000))} điểm`}</Badge>
+                    {isRewardLoading ? <Skeleton className="h-5 w-20" /> : (
+                        <Badge variant="secondary">{rewardType === "PERCENT" ? `${reviewRewardSetting?.points ?? 20}%` : `${formatNumber(Number(reviewRewardSetting?.points ?? 20000))} điểm`}</Badge>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col gap-3">
                         <div className="flex items-center gap-3">
-                            <Select value={rewardType} onValueChange={setRewardType}>
+                            <Select value={rewardType} onValueChange={setRewardType} disabled={isRewardLoading || isUpdatingReward}>
                                 <SelectTrigger className="w-[160px]">
                                     <SelectValue />
                                 </SelectTrigger>
