@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { selectCartSelectedItems, selectCartSelectedTotal } from "@/store/cartSlice";
+import { selectCartSelectedItems, selectCartSelectedTotal, selectCartSelectedStockIssues } from "@/store/cartSlice";
 import { toggleCartDrawer } from "@/store/uiSlice";
 import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
@@ -12,9 +12,10 @@ export default function CartDrawerSummary() {
     const dispatch = useDispatch();
     const total = useSelector(selectCartSelectedTotal);
     const selectedItems = useSelector(selectCartSelectedItems);
+    const stockIssues = useSelector(selectCartSelectedStockIssues);
 
     const grandTotal = total;
-    const canCheckout = selectedItems.length > 0;
+    const canCheckout = selectedItems.length > 0 && stockIssues.length === 0;
 
     const handleClose = () => dispatch(toggleCartDrawer(false));
 
@@ -50,6 +51,12 @@ export default function CartDrawerSummary() {
             <p className="mb-4 text-right text-xs text-muted-foreground">
                 {"Đã bao gồm VAT"}
             </p>
+
+            {stockIssues.length > 0 && (
+                <p className="mb-3 text-xs font-medium text-destructive">
+                    {"Có sản phẩm đã chọn không đủ số lượng. Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm đó."}
+                </p>
+            )}
 
             {/* Buttons */}
             <div className="flex flex-col gap-2">
