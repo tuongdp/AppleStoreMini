@@ -269,25 +269,23 @@ export default function AdminOrderTable() {
                       {formatPrice(order.totalAmount)}
                     </span>
                   </TableCell>
-                   <TableCell>
-                    <span className="text-sm text-muted-foreground">
-                      {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
-                    </span>
-                    <p
-                      className={
-                        order.isPaid
-                          ? "text-xs text-green-600 dark:text-green-400"
-                          : order.paymentMethod === "vnpay" && order.status === "CANCELLED"
-                            ? "text-xs text-red-500"
-                            : "text-xs text-muted-foreground"
-                      }
-                    >
-                      {order.isPaid
-                        ? "Đã thanh toán"
-                        : order.paymentMethod === "vnpay"
-                          ? (order.status === "CANCELLED" ? "Thanh toán thất bại" : "Chờ thanh toán")
-                          : "Chưa thanh toán"}
-                    </p>
+                    <TableCell>
+                     <span className="text-sm text-muted-foreground">
+                       {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
+                     </span>
+                     {order.paymentMethod === "vnpay" ? (
+                       <p className={order.isPaid ? "text-xs text-green-600 dark:text-green-400" : order.status === "CANCELLED" || !order.user ? "text-xs text-red-500" : "text-xs text-muted-foreground"}>
+                         {order.isPaid
+                           ? "Đã thanh toán"
+                           : order.status === "CANCELLED" || !order.user
+                             ? "Thanh toán thất bại"
+                             : "Chờ thanh toán"}
+                       </p>
+                     ) : (
+                       <p className={order.isPaid ? "text-xs text-green-600 dark:text-green-400" : "text-xs text-muted-foreground"}>
+                         {order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
+                       </p>
+                     )}
                   </TableCell>
                   <TableCell>
                     <OrderStatusBadge status={order.status} />
