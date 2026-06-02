@@ -13,7 +13,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
-import OrderTimeline from "@/features/orders/components/OrderTimeline";
+import OrderHistoryTimeline from "@/features/orders/components/OrderHistoryTimeline";
 import OrderItemRow from "@/features/orders/components/OrderItemRow";
 import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
@@ -453,13 +453,13 @@ export default function AdminOrderDetail({ order }) {
                     )}
                 </div>
 
-                {/* ── Right — Timeline ── */}
+                {/* ── Right — Lịch sử đơn hàng ── */}
                 <div>
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">
-                            {"Trạng thái"}
+                            {"Lịch sử đơn hàng"}
                         </h3>
-                        <OrderTimeline order={order} />
+                        <OrderHistoryTimeline statusHistory={order.statusHistory} />
                     </div>
                 </div>
             </div>
