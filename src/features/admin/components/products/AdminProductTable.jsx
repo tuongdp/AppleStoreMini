@@ -320,7 +320,7 @@ export default function AdminProductTable() {
                           Biến thể ({product.variants.length})
                           <span className="h-px flex-1 bg-border" />
                         </div>
-                        <div className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_90px] gap-1.5 text-[10px] font-medium text-muted-foreground mb-1 px-1">
+                        <div className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_70px_90px] gap-1.5 text-[10px] font-medium text-muted-foreground mb-1 px-1">
                           <span></span>
                           <span>Màu</span>
                           <span>Dung lượng</span>
@@ -332,13 +332,14 @@ export default function AdminProductTable() {
                           <span className="text-right">Giá KM</span>
                           <span className="text-right">Tồn kho</span>
                           <span className="text-right">Đã bán</span>
+                          <span className="text-right">Lượt xem</span>
                           <span>Trạng thái</span>
                         </div>
                         {product.variants.map((v) => {
                           const vStock = v.stock ?? 0;
                           const vImg = Array.isArray(v.images) ? v.images[0] : null;
                           return (
-                            <div key={v.id || v._id} className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_90px] gap-1.5 items-center text-[11px] py-1.5 px-1 rounded hover:bg-muted/50">
+                            <div key={v.id || v._id} className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_70px_90px] gap-1.5 items-center text-[11px] py-1.5 px-1 rounded hover:bg-muted/50">
                               <div className="h-8 w-8 overflow-hidden rounded bg-muted/30 p-0.5">
                                 {vImg ? <img src={vImg} alt="" className="h-full w-full object-contain" /> : <div className="h-full w-full bg-muted/50 rounded" />}
                               </div>
@@ -354,6 +355,7 @@ export default function AdminProductTable() {
                               </span>
                               <span className={cn("text-right font-medium", stockColor(vStock))}>{formatNumber(vStock)}</span>
                               <span className="text-right text-muted-foreground">{formatNumber(v.soldCount || 0)}</span>
+                              <span className="text-right text-muted-foreground">{formatNumber(v.viewCount || 0)}</span>
                               <span>
                                 <Badge className={cn("text-[10px] px-1.5", v.inStock ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400")}>
                                   {v.inStock ? "Đang bán" : "Ngừng"}
