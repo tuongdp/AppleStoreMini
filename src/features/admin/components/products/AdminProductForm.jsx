@@ -672,38 +672,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             </div>
                         </div>
 
-                        {/* ── Section 2: Specifications ── */}
-                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                            <h3 className="mb-5 text-sm font-medium text-foreground">{"Thông số kỹ thuật"}</h3>
-                            <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-1">
-                                {specs.map((spec, idx) => (
-                                    <div key={idx} className="flex items-start gap-2">
-                                        <Input placeholder={"Tên thông số"} value={spec.key} onChange={(e) => updateSpec(idx, "key", e.target.value)} className="flex-1" />
-                                        <Input placeholder={"Giá trị"} value={spec.value} onChange={(e) => updateSpec(idx, "value", e.target.value)} className="flex-1" />
-                                        <Button type="button" variant="ghost" size="icon" className="mt-0.5 h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeSpec(idx)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
-                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
-                                    <Plus className="mr-1 h-3.5 w-3.5" /> {"Thêm thông số"}
-                                </Button>
-                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowImportSpecs(true)}>
-                                    <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {"Chọn file"}
-                                </Button>
-                            </div>
-                        </div>
-
-                        {showImportSpecs && (
-                            <ImportSpecsFromExcel
-                                onImport={handleImportSpecs}
-                                onCancel={() => setShowImportSpecs(false)}
-                            />
-                        )}
-
-                    {/* ── Section 3: Variants ── */}
+                        {/* ── Section 2: Variants ── */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <h3 className="mb-5 text-sm font-medium text-foreground">Biến thể</h3>
 
@@ -795,6 +764,37 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                             </div>
                         )}
                     </div>
+
+                        {/* ── Section 3: Specifications ── */}
+                        <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                            <h3 className="mb-5 text-sm font-medium text-foreground">{"Thông số kỹ thuật"}</h3>
+                            <div className="max-h-[40vh] overflow-y-auto space-y-3 pr-1">
+                                {specs.map((spec, idx) => (
+                                    <div key={idx} className="flex items-start gap-2">
+                                        <Input placeholder={"Tên thông số"} value={spec.key} onChange={(e) => updateSpec(idx, "key", e.target.value)} className="flex-1" />
+                                        <Input placeholder={"Giá trị"} value={spec.value} onChange={(e) => updateSpec(idx, "value", e.target.value)} className="flex-1" />
+                                        <Button type="button" variant="ghost" size="icon" className="mt-0.5 h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeSpec(idx)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2 border-t border-border pt-3">
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={addSpec}>
+                                    <Plus className="mr-1 h-3.5 w-3.5" /> {"Thêm thông số"}
+                                </Button>
+                                <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={() => setShowImportSpecs(true)}>
+                                    <FileSpreadsheet className="mr-1 h-3.5 w-3.5" /> {"Chọn file"}
+                                </Button>
+                            </div>
+                        </div>
+
+                        {showImportSpecs && (
+                            <ImportSpecsFromExcel
+                                onImport={handleImportSpecs}
+                                onCancel={() => setShowImportSpecs(false)}
+                            />
+                        )}
 
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <h3 className="mb-4 text-sm font-medium text-foreground">{"Trạng thái"}</h3>
