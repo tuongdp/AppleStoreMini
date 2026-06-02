@@ -90,9 +90,9 @@ export default function AdminProductTable() {
     sort: searchParams.get("sort") || "newest",
   };
 
-  if (stockFilter === "out") filters.inStock = "false";
-  if (stockFilter === "in") filters.inStock = "true";
-  if (stockFilter === "low") filters.inStock = "true";
+  if (stockFilter === "out") filters.stock = "out";
+  if (stockFilter === "low") filters.stock = "low";
+  if (stockFilter === "in") filters.stock = "in";
   if (statusFilter === "active") filters.isActive = "true";
   if (statusFilter === "inactive") filters.isActive = "false";
 
