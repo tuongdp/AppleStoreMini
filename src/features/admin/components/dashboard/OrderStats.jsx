@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { useGetOrderStatsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,11 @@ const PERIODS = [
     { value: "year", label: "Năm" },
 ];
 
+const CHART_MODES = [
+    { value: "revenue", label: "Doanh thu" },
+    { value: "orders", label: "Đơn hàng" },
+];
+
 const periodButtonClass = (active) =>
     cn(
         "rounded-full text-xs",
@@ -24,12 +30,49 @@ const periodButtonClass = (active) =>
             : "text-muted-foreground",
     );
 
+function TrendCell({ change }) {
+    if (change == null) return <span className="text-muted-foreground">—</span>;
+    const up = change >= 0;
+    return (
+        <span className={cn("inline-flex items-center gap-0.5", up ? "text-green-600" : "text-red-500")}>
+            {up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            {up ? "+" : ""}{change}%
+        </span>
+    );
+}
+
+function ChartTooltip({ active, payload, label, period, chartMode }) {
+    if (!active || !payload?.length) return null;
+    const d = payload[0].payload;
+    const periodLabel = period === "week" ? "tuần trước" : period === "month" ? "tháng trước" : "năm trước";
+    const change = chartMode === "revenue" ? d.revenueChange : d.orderChange;
+    return (
+        <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md">
+            <p className="mb-1 text-xs text-muted-foreground">{label}</p>
+            <p className="text-sm font-semibold text-foreground">
+                {chartMode === "revenue" ? formatPrice(d.revenue) : formatNumber(d.orders)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+                {chartMode === "revenue"
+                    ? `Đơn hàng: ${formatNumber(d.orders)}`
+                    : `Doanh thu: ${formatPrice(d.revenue)}`}
+            </p>
+            {change != null && (
+                <p className={cn("text-xs font-medium", change >= 0 ? "text-green-600" : "text-red-500")}>
+                    {change >= 0 ? "↑" : "↓"} {Math.abs(change)}% so với {periodLabel}
+                </p>
+            )}
+        </div>
+    );
+}
+
 export default function OrderStats() {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialPeriod = PERIODS.some((item) => item.value === searchParams.get("orderStatsPeriod"))
         ? searchParams.get("orderStatsPeriod")
         : "month";
     const [period, setPeriod] = useState(initialPeriod);
+    const [chartMode, setChartMode] = useState("revenue");
     const { data = [], isLoading } = useGetOrderStatsQuery({ period });
 
     const { exportExcel, exportPDF, isExporting } = useExport();
@@ -43,10 +86,9 @@ export default function OrderStats() {
     };
 
     const orderStatsColumns = [
-        { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
+        { key: "label", label: period === "year" ? "Năm" : period === "week" ? "Ngày" : "Tháng" },
         { key: "orders", label: "Đơn hàng" },
         { key: "revenue", label: "Doanh thu", format: "currency" },
-        { key: "avgPerDay", label: "TB/ngày", format: "currency" },
     ];
 
     const handleExportOrderStatsExcel = () => {
@@ -59,13 +101,24 @@ export default function OrderStats() {
         exportPDF({ title: "Thống kê đơn hàng", columns: orderStatsColumns, rows: data, filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}` });
     };
 
+    const yAxisTickFormatter = (v) =>
+        v >= 1_000_000_000 ? `${(v / 1_000_000_000).toFixed(1)}B`
+        : v >= 1_000_000 ? `${(v / 1_000_000).toFixed(0)}M`
+        : v >= 1_000 ? `${(v / 1_000).toFixed(0)}K`
+        : v;
+
+    const tableColLabel = period === "year" ? "Năm" : period === "week" ? "Ngày" : "Tháng";
+
     if (isLoading) {
         return (
             <div className="space-y-3">
                 <div className="flex gap-2">
-                    {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-8 w-16 rounded-full" />)}
+                    {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-8 w-16 rounded-full" />)}
                 </div>
-                <Skeleton className="h-[200px] w-full rounded-xl" />
+                <div className="grid gap-4 lg:grid-cols-5">
+                    <Skeleton className="lg:col-span-2 h-[220px] w-full rounded-xl" />
+                    <Skeleton className="lg:col-span-3 h-[220px] w-full rounded-xl" />
+                </div>
             </div>
         );
     }
@@ -74,17 +127,17 @@ export default function OrderStats() {
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-1.5">
                 <div className="flex gap-1.5">
-                {PERIODS.map((p) => (
-                    <Button
-                        key={p.value}
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handlePeriodChange(p.value)}
-                        className={periodButtonClass(period === p.value)}
-                    >
-                        {p.label}
-                    </Button>
-                ))}
+                    {PERIODS.map((p) => (
+                        <Button key={p.value} variant="ghost" size="sm" onClick={() => handlePeriodChange(p.value)} className={periodButtonClass(period === p.value)}>
+                            {p.label}
+                        </Button>
+                    ))}
+                    <span className="mx-1 w-px bg-border" />
+                    {CHART_MODES.map((m) => (
+                        <Button key={m.value} variant="ghost" size="sm" onClick={() => setChartMode(m.value)} className={periodButtonClass(chartMode === m.value)}>
+                            {m.label}
+                        </Button>
+                    ))}
                 </div>
                 <ExportButton onExportExcel={handleExportOrderStatsExcel} onExportPDF={handleExportOrderStatsPDF} loading={isExporting} />
             </div>
@@ -96,44 +149,50 @@ export default function OrderStats() {
                     </p>
                 </div>
             ) : (
-            <div className="grid gap-4 lg:grid-cols-5">
-                <div className="lg:col-span-2">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{period === "year" ? "Năm" : "Tháng"}</TableHead>
-                                <TableHead className="text-right">Đơn</TableHead>
-                                <TableHead className="text-right">Doanh thu</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {data.map((row) => (
-                                <TableRow key={row.label}>
-                                    <TableCell className="text-sm font-medium">{row.label}</TableCell>
-                                    <TableCell className="text-sm text-right">{formatNumber(row.orders)}</TableCell>
-                                    <TableCell className="text-sm text-right">{formatPrice(row.revenue)}</TableCell>
+                <div className="grid gap-4 lg:grid-cols-5">
+                    <div className="lg:col-span-2">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>{tableColLabel}</TableHead>
+                                    <TableHead className="text-right">Đơn</TableHead>
+                                    <TableHead className="text-right w-14"></TableHead>
+                                    <TableHead className="text-right">Doanh thu</TableHead>
+                                    <TableHead className="text-right w-14"></TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {data.map((row, i) => (
+                                    <TableRow key={row.label || i}>
+                                        <TableCell className="text-sm font-medium">{row.label}</TableCell>
+                                        <TableCell className="text-sm text-right">{formatNumber(row.orders)}</TableCell>
+                                        <TableCell className="text-right"><TrendCell change={row.orderChange} /></TableCell>
+                                        <TableCell className="text-sm text-right">{formatPrice(row.revenue)}</TableCell>
+                                        <TableCell className="text-right"><TrendCell change={row.revenueChange} /></TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <div className="lg:col-span-3 h-[220px]">
+                        <ResponsiveContainer key={period + chartMode} width="100%" height="100%">
+                            <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
+                                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground"
+                                    tickFormatter={yAxisTickFormatter}
+                                    width={50}
+                                />
+                                <Tooltip content={<ChartTooltip period={period} chartMode={chartMode} />} />
+                                <Bar
+                                    dataKey={chartMode}
+                                    fill="hsl(217,91%,60%)"
+                                    radius={[4, 4, 0, 0]}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
-                <div className="lg:col-span-3 h-[220px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
-                            <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground"
-                                tickFormatter={(v) => v >= 1_000_000_000 ? `${(v/1_000_000_000).toFixed(1)}B` : v >= 1_000_000 ? `${(v/1_000_000).toFixed(0)}M` : v >= 1_000 ? `${(v/1_000).toFixed(0)}K` : v}
-                                width={50}
-                            />
-                            <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid hsl(var(--border))", backgroundColor: "hsl(var(--popover))" }}
-                                formatter={(value) => [formatPrice(value), "Doanh thu"]}
-                            />
-                            <Bar dataKey="revenue" fill="hsl(217,91%,60%)" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
             )}
         </div>
     );
