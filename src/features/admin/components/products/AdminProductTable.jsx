@@ -52,16 +52,10 @@ const SORT_OPTIONS = [
 ];
 
 const stockColor = (stock) => {
-  if (stock === 0) return "text-red-600 dark:text-red-400 font-semibold";
-  if (stock <= 5) return "text-orange-500 dark:text-orange-400 font-semibold";
+  if (stock === 0) return "text-red-600 dark:text-red-400";
+  if (stock <= 5) return "text-orange-500 dark:text-orange-400";
   if (stock <= 20) return "text-amber-600 dark:text-amber-400";
   return "text-green-600 dark:text-green-400";
-};
-
-const stockWarning = (stock) => {
-  if (stock === 0) return "Hết hàng";
-  if (stock <= 5) return "Sắp hết hàng";
-  return null;
 };
 
 function relativeTime(dateStr) {
@@ -96,6 +90,8 @@ export default function AdminProductTable() {
   };
 
   if (stockFilter === "out") filters.inStock = "false";
+  if (stockFilter === "in") filters.inStock = "true";
+  if (stockFilter === "low") filters.inStock = "true";
   if (statusFilter === "active") filters.isActive = "true";
   if (statusFilter === "inactive") filters.isActive = "false";
 
@@ -245,7 +241,6 @@ export default function AdminProductTable() {
               products.map((product) => {
                 const productId = product._id || product.id;
                 const stock = product.stock ?? 0;
-                const warn = stockWarning(stock);
                 return (
                   <TableRow key={productId}>
                     <TableCell>
@@ -269,10 +264,9 @@ export default function AdminProductTable() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex flex-col items-end gap-0.5">
-                        <span className={cn("text-sm", stockColor(stock))}>{formatNumber(stock)}</span>
-                        {warn && <Badge className={cn("text-[10px] px-1.5 py-0", stock === 0 ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" : "bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400")}>{warn}</Badge>}
-                      </div>
+                      <span className={cn("text-sm font-medium", stockColor(stock))}>
+                        {stock === 0 ? "—" : formatNumber(stock)}
+                      </span>
                     </TableCell>
                     <TableCell><span className="text-sm text-muted-foreground">{formatNumber(getSafeSoldCount(product.soldCount))}</span></TableCell>
                     <TableCell>
