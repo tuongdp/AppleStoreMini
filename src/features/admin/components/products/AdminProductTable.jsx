@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { Plus, Edit, Trash2, MoreHorizontal, Search } from "lucide-react";
+import { Plus, Edit, Trash2, MoreHorizontal, Search, Copy, Eye, EyeOff, Package, Clock } from "lucide-react";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
@@ -10,51 +10,94 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { formatPrice, formatNumber, parseJsonField } from "@/lib/utils";
+import { formatPrice, formatNumber, parseJsonField, cn } from "@/lib/utils";
 import { ROUTES, CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
 
+const STOCK_FILTERS = [
+  { value: "all", label: "Tất cả tồn kho" },
+  { value: "in", label: "Còn hàng" },
+  { value: "low", label: "Sắp hết hàng" },
+  { value: "out", label: "Hết hàng" },
+];
+
+const STATUS_FILTERS = [
+  { value: "all", label: "Tất cả trạng thái" },
+  { value: "active", label: "Đang bán" },
+  { value: "hidden", label: "Ẩn sản phẩm" },
+  { value: "inactive", label: "Ngừng bán" },
+];
+
+const SORT_OPTIONS = [
+  { value: "newest", label: "Mới nhất" },
+  { value: "oldest", label: "Cũ nhất" },
+  { value: "price_asc", label: "Giá thấp → cao" },
+  { value: "price_desc", label: "Giá cao → thấp" },
+  { value: "stock_asc", label: "Tồn kho thấp → cao" },
+  { value: "stock_desc", label: "Tồn kho cao → thấp" },
+  { value: "best_seller", label: "Bán chạy nhất" },
+  { value: "updated_desc", label: "Mới cập nhật" },
+];
+
+const stockColor = (stock) => {
+  if (stock === 0) return "text-red-600 dark:text-red-400 font-semibold";
+  if (stock <= 5) return "text-orange-500 dark:text-orange-400 font-semibold";
+  if (stock <= 20) return "text-amber-600 dark:text-amber-400";
+  return "text-green-600 dark:text-green-400";
+};
+
+const stockWarning = (stock) => {
+  if (stock === 0) return "Hết hàng";
+  if (stock <= 5) return "Sắp hết hàng";
+  return null;
+};
+
+function relativeTime(dateStr) {
+  if (!dateStr) return null;
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  const hours = Math.floor(diffMs / 3600000);
+  const days = Math.floor(diffMs / 86400000);
+  if (mins < 60) return `${mins} phút trước`;
+  if (hours < 24) return `${hours} giờ trước`;
+  if (days === 1) return "Hôm qua";
+  if (days < 7) return `${days} ngày trước`;
+  return new Date(dateStr).toLocaleDateString("vi-VN");
+}
+
 export default function AdminProductTable() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [deleteId, setDeleteId] = useState(null);
-  const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") || "",
-  );
+  const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
 
   const debouncedSearch = useDebounce(searchInput, 400);
+
+  const stockFilter = searchParams.get("stock") || "all";
+  const statusFilter = searchParams.get("status") || "all";
 
   const filters = {
     page: Number(searchParams.get("page")) || 1,
     limit: PAGINATION.DEFAULT_LIMIT,
     category: searchParams.get("category") || undefined,
     search: debouncedSearch || undefined,
-    inStock: "false",
+    sort: searchParams.get("sort") || "newest",
   };
+
+  if (stockFilter === "out") filters.inStock = "false";
+  if (statusFilter === "active") filters.isActive = "true";
+  if (statusFilter === "inactive") filters.isActive = "false";
 
   const { data, isLoading } = useGetProductsQuery(filters);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
@@ -95,7 +138,6 @@ export default function AdminProductTable() {
     { key: "stock", label: "Tồn kho" },
     { key: "soldCount", label: "Đã bán" },
     { key: "status", label: "Trạng thái" },
-    { key: "variants", label: "Biến thể" },
   ];
 
   const getProductExportRows = () => products.map((p) => ({
@@ -106,10 +148,6 @@ export default function AdminProductTable() {
     stock: p.stock ?? 0,
     soldCount: getSafeSoldCount(p.soldCount),
     status: p.inStock ? "Đang bán" : "Ngừng bán",
-    variants: (p.variants || []).map((v) => {
-      const parts = [v.color, v.storage, v.ram].filter(Boolean);
-      return `${parts.join(" ")} (Tồn: ${v.stock})`;
-    }).join("; ") || "—",
   }));
 
   const handleExportProductsExcel = () => {
@@ -127,7 +165,6 @@ export default function AdminProductTable() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Search */}
           <div className="relative min-w-[200px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -139,37 +176,40 @@ export default function AdminProductTable() {
             />
           </div>
 
-          {/* Category filter */}
-          <Select
-            value={searchParams.get("category") || "all"}
-            onValueChange={(val) => updateParam("category", val)}
-          >
-            <SelectTrigger className="w-40 rounded-full">
-              <SelectValue placeholder={"Lọc theo danh mục"} />
-            </SelectTrigger>
+          <Select value={searchParams.get("category") || "all"} onValueChange={(val) => updateParam("category", val)}>
+            <SelectTrigger className="w-40 rounded-full"><SelectValue placeholder={"Lọc theo danh mục"} /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{"Tất cả"}</SelectItem>
-              {CATEGORIES.map((cat) => (
-                <SelectItem key={cat.value} value={cat.value}>
-                  {cat.label}
-                </SelectItem>
-              ))}
+              {CATEGORIES.map((cat) => <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={stockFilter} onValueChange={(val) => updateParam("stock", val)}>
+            <SelectTrigger className="w-36 rounded-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {STOCK_FILTERS.map((f) => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={(val) => updateParam("status", val)}>
+            <SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {STATUS_FILTERS.map((f) => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={searchParams.get("sort") || "newest"} onValueChange={(val) => updateParam("sort", val)}>
+            <SelectTrigger className="w-40 rounded-full"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((f) => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
 
         <div className="flex items-center gap-3">
-          <ExportButton
-            onExportExcel={handleExportProductsExcel}
-            onExportPDF={handleExportProductsPDF}
-            loading={isExporting}
-            disabled={isLoading}
-          />
+          <ExportButton onExportExcel={handleExportProductsExcel} onExportPDF={handleExportProductsPDF} loading={isExporting} disabled={isLoading} />
           <Button className="rounded-full" asChild>
-            <Link to={ROUTES.ADMIN_PRODUCT_CREATE}>
-              <Plus className="mr-1.5 h-4 w-4" />
-              {"Thêm sản phẩm"}
-            </Link>
+            <Link to={ROUTES.ADMIN_PRODUCT_CREATE}><Plus className="mr-1.5 h-4 w-4" />{"Thêm sản phẩm"}</Link>
           </Button>
         </div>
       </div>
@@ -179,13 +219,13 @@ export default function AdminProductTable() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-16">{"Hình ảnh sản phẩm"}</TableHead>
+              <TableHead className="w-16">{"Hình ảnh"}</TableHead>
               <TableHead>{"Tên sản phẩm"}</TableHead>
               <TableHead>{"Danh mục"}</TableHead>
-              <TableHead>{"Giá gốc"}</TableHead>
-              <TableHead>{"Giá sale"}</TableHead>
+              <TableHead>{"Giá bán"}</TableHead>
               <TableHead className="text-right">{"Tồn kho"}</TableHead>
               <TableHead>{"Đã bán"}</TableHead>
+              <TableHead>{"Cập nhật"}</TableHead>
               <TableHead>{"Trạng thái"}</TableHead>
               <TableHead className="text-right">{"Thao tác"}</TableHead>
             </TableRow>
@@ -194,140 +234,85 @@ export default function AdminProductTable() {
             {isLoading ? (
               [...Array(6)].map((_, i) => (
                 <TableRow key={i}>
-                  {[...Array(7)].map((_, j) => (
-                    <TableCell key={j}>
-                      <Skeleton className="h-5 w-full" />
-                    </TableCell>
-                  ))}
+                  {[...Array(9)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
                 </TableRow>
               ))
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={9}
-                  className="py-12 text-center text-muted-foreground"
-                >
-                  {"Không có dữ liệu"}
-                </TableCell>
+                <TableCell colSpan={9} className="py-12 text-center text-muted-foreground">{"Không có dữ liệu"}</TableCell>
               </TableRow>
             ) : (
               products.map((product) => {
                 const productId = product._id || product.id;
+                const stock = product.stock ?? 0;
+                const warn = stockWarning(stock);
                 return (
                   <TableRow key={productId}>
                     <TableCell>
                       <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
-                        <img
-                          src={
-                            product.image || parseJsonField(product.images)?.[0]
-                          }
-                          alt={product.name}
-                          className="h-full w-full object-contain"
-                        />
+                        <img src={product.image || parseJsonField(product.images)?.[0]} alt={product.name} className="h-full w-full object-contain" />
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="max-w-[200px] truncate text-sm font-medium text-foreground">
-                        {product.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {product.slug}
-                      </p>
+                      <p className="max-w-[200px] truncate text-sm font-medium text-foreground">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">{product.slug}</p>
                     </TableCell>
+                    <TableCell><span className="text-sm text-muted-foreground">{product.category}</span></TableCell>
                     <TableCell>
-                      <span className="text-sm text-muted-foreground">
-                        {product.category}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {product.salePrice &&
-                      product.salePrice < product.price ? (
-                        <span className="text-xs text-muted-foreground line-through">
-                          {formatPrice(product.price)}
-                        </span>
+                      {product.salePrice && product.salePrice < product.price ? (
+                        <div>
+                          <span className="text-sm font-medium text-green-600 dark:text-green-400">{formatPrice(product.salePrice)}</span>
+                          <p className="text-xs text-muted-foreground line-through">{formatPrice(product.price)}</p>
+                        </div>
                       ) : (
-                        <span className="text-sm font-medium text-foreground">
-                          {formatPrice(product.price)}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {product.salePrice &&
-                      product.salePrice < product.price ? (
-                        <>
-                          <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                            {formatPrice(product.salePrice)}
-                          </span>
-                          <p className="text-xs text-muted-foreground">
-                            -
-                            {Math.round(
-                              (1 - product.salePrice / product.price) * 100,
-                            )}
-                            %
-                          </p>
-                        </>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
+                        <span className="text-sm font-medium text-foreground">{formatPrice(product.price)}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span
-                        className={`text-sm font-medium ${
-                          product.stock > 10
-                            ? "text-foreground"
-                            : product.stock > 0
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        {formatNumber(product.stock ?? 0)}
-                      </span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className={cn("text-sm", stockColor(stock))}>{formatNumber(stock)}</span>
+                        {warn && <Badge className={cn("text-[10px] px-1.5 py-0", stock === 0 ? "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" : "bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400")}>{warn}</Badge>}
+                      </div>
+                    </TableCell>
+                    <TableCell><span className="text-sm text-muted-foreground">{formatNumber(getSafeSoldCount(product.soldCount))}</span></TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>{relativeTime(product.updatedAt) || "—"}</span>
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-sm text-muted-foreground">
-                        {formatNumber(getSafeSoldCount(product.soldCount))}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          product.inStock
-                            ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                            : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"
-                        }
-                      >
+                      <Badge className={product.inStock ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"}>
                         {product.inStock ? "Đang bán" : "Ngừng bán"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            aria-label={`Mở thao tác cho ${product.name}`}
-                          >
+                          <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Thao tác cho ${product.name}`}>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
-                            <Link
-                              to={ROUTES.ADMIN_PRODUCT_EDIT(productId)}
-                              className="flex items-center gap-2"
-                            >
-                              <Edit className="h-4 w-4" />
-                              {"Chỉnh sửa sản phẩm"}
+                            <Link to={ROUTES.ADMIN_PRODUCT_EDIT(productId)} className="flex items-center gap-2">
+                              <Eye className="h-4 w-4" />{"Xem chi tiết"}
                             </Link>
                           </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={ROUTES.ADMIN_PRODUCT_EDIT(productId)} className="flex items-center gap-2">
+                              <Edit className="h-4 w-4" />{"Chỉnh sửa"}
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2" onClick={() => toast.info("Sao chép sản phẩm — đang phát triển")}>
+                            <Copy className="h-4 w-4" />{"Sao chép"}
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="gap-2 text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(productId)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            {"Xoá"}
+                          <DropdownMenuItem className="gap-2" onClick={() => toast.info("Ẩn sản phẩm — đang phát triển")}>
+                            <EyeOff className="h-4 w-4" />{product.inStock ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive" onClick={() => setDeleteId(productId)}>
+                            <Trash2 className="h-4 w-4" />{"Xoá"}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -343,44 +328,16 @@ export default function AdminProductTable() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}
-          </p>
+          <p className="text-sm text-muted-foreground">{"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}</p>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full"
-              disabled={filters.page <= 1}
-              onClick={() => updateParam("page", filters.page - 1)}
-            >
-              {"Trước"}
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              {filters.page} {"trong"} {pagination.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full"
-              disabled={filters.page >= pagination.totalPages}
-              onClick={() => updateParam("page", filters.page + 1)}
-            >
-              {"Sau"}
-            </Button>
+            <Button variant="outline" size="sm" className="rounded-full" disabled={filters.page <= 1} onClick={() => updateParam("page", filters.page - 1)}>{"Trước"}</Button>
+            <span className="text-sm text-muted-foreground">{filters.page} / {pagination.totalPages}</span>
+            <Button variant="outline" size="sm" className="rounded-full" disabled={filters.page >= pagination.totalPages} onClick={() => updateParam("page", filters.page + 1)}>{"Sau"}</Button>
           </div>
         </div>
       )}
 
-      {/* Confirm delete */}
-      <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-        title={"Bạn có chắc muốn xoá sản phẩm này không?"}
-        description={"Hành động này không thể hoàn tác."}
-        onConfirm={handleDelete}
-        isLoading={isDeleting}
-      />
+      <ConfirmDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)} title={"Xoá sản phẩm?"} description={"Hành động này không thể hoàn tác."} onConfirm={handleDelete} isLoading={isDeleting} />
     </div>
   );
 }
