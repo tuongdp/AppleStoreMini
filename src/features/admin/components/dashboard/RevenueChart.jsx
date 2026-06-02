@@ -35,17 +35,12 @@ const periodButtonClass = (active) =>
 
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
+    const d = payload[0]?.payload;
     return (
         <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md">
             <p className="mb-1 text-xs text-muted-foreground">{label}</p>
-            <p className="text-sm font-semibold text-foreground">
-                {formatPrice(payload[0]?.value || 0)}
-            </p>
-            {payload[1] && (
-                <p className="text-xs text-muted-foreground">
-                    {payload[1].name}: {payload[1].value}
-                </p>
-            )}
+            <p className="text-sm font-semibold text-foreground">{formatPrice(d?.revenue || 0)}</p>
+            <p className="text-xs text-muted-foreground">Đơn hàng: {formatNumber(d?.orders || 0)}</p>
         </div>
     );
 }

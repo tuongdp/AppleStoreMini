@@ -24,7 +24,6 @@ import {
 import RevenueChart from "@/features/admin/components/dashboard/RevenueChart";
 import RecentOrders from "@/features/admin/components/dashboard/RecentOrders";
 import TopProducts from "@/features/admin/components/dashboard/TopProducts";
-import OrderStats from "@/features/admin/components/dashboard/OrderStats";
 import OrderStatusChart from "@/features/admin/components/dashboard/OrderStatusChart";
 import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
@@ -276,11 +275,6 @@ export default function AdminDashboard() {
                     <CardContent><CategoryPieChart /></CardContent>
                 </Card>
             </div>
-
-            <Card>
-                <CardHeader><CardTitle className="text-sm font-medium">Thống kê đơn hàng</CardTitle></CardHeader>
-                <CardContent><OrderStats /></CardContent>
-            </Card>
 
             <div className="grid gap-4 lg:grid-cols-2">
                 <Card>
