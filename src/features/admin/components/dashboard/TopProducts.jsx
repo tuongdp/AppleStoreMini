@@ -148,11 +148,11 @@ export default function TopProducts() {
                 <div className="space-y-1">
                     <div className="mb-2 grid grid-cols-12 gap-3 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                         <div className="col-span-1">#</div>
-                        <div className="col-span-4">Tên sản phẩm</div>
+                        <div className="col-span-3">Tên sản phẩm</div>
                         <div className="col-span-2 text-center">Đã bán</div>
                         <div className="col-span-2 text-right">Doanh thu</div>
                         <div className="col-span-2 text-center">Trạng thái</div>
-                        <div className="col-span-1 text-right">Giá</div>
+                        <div className="col-span-2 text-right">Giá</div>
                     </div>
                     {sorted.map((product, index) => (
                         <Link key={product.id} to={ROUTES.ADMIN_PRODUCT_EDIT(product.id)}
@@ -166,7 +166,7 @@ export default function TopProducts() {
                                     {index + 1}
                                 </span>
                             </div>
-                            <div className="col-span-4 flex items-center gap-3 min-w-0">
+                            <div className="col-span-3 flex items-center gap-3 min-w-0">
                                 <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted/30 p-1">
                                     <img src={getFirstImage(product.images)} alt={product.name} className="h-full w-full object-contain" />
                                 </div>
@@ -189,7 +189,7 @@ export default function TopProducts() {
                                     {product.inStock ? "Còn hàng" : "Ngừng bán"}
                                 </span>
                             </div>
-                            <div className="col-span-1 text-right">
+                            <div className="col-span-2 text-right">
                                 <span className="text-sm text-muted-foreground">{formatPrice(product.price)}</span>
                             </div>
                         </Link>
