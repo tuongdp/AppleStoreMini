@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useGetSlowProductsQuery } from "@/store/api/ordersApi";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatPrice, cn } from "@/lib/utils";
+import { formatPrice, formatNumber, cn } from "@/lib/utils";
 import { toast } from "sonner";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
@@ -14,6 +14,18 @@ const getFirstImage = (images) => {
     try { return JSON.parse(images)[0] || placeholderImg; } catch { return placeholderImg; }
 };
 
+const daysInStockColor = (days) => {
+    if (days < 30) return "text-green-600 dark:text-green-400";
+    if (days <= 60) return "text-amber-600 dark:text-amber-400";
+    return "text-red-500 dark:text-red-400";
+};
+
+const daysInStockLabel = (days) => {
+    if (days < 30) return `${days} ngày`;
+    if (days <= 60) return `${days} ngày ⚠`;
+    return `${days} ngày ⚠`;
+};
+
 export default function SlowProducts() {
     const { data = [], isLoading } = useGetSlowProductsQuery({ days: 30, limit: 5 });
 
@@ -22,17 +34,17 @@ export default function SlowProducts() {
     const slowProdColumns = [
         { key: "index", label: "#" },
         { key: "name", label: "Tên sản phẩm" },
-        { key: "price", label: "Giá", format: "currency" },
         { key: "totalStock", label: "Tồn kho" },
         { key: "soldCount", label: "Đã bán 30 ngày" },
+        { key: "daysInStock", label: "Tồn kho (ngày)" },
     ];
 
     const getSlowProdExportRows = () => data.map((p, i) => ({
         index: i + 1,
         name: p.name,
-        price: p.price || 0,
         totalStock: p.totalStock ?? 0,
         soldCount: p.soldCount ?? 0,
+        daysInStock: p.daysInStock ?? 0,
     }));
 
     const handleExportSlowProdExcel = () => {
@@ -58,6 +70,7 @@ export default function SlowProducts() {
                             <Skeleton className="h-4 w-36" />
                             <Skeleton className="h-3 w-20" />
                         </div>
+                        <Skeleton className="h-4 w-16" />
                         <Skeleton className="h-4 w-16" />
                     </div>
                 ))}
@@ -87,13 +100,18 @@ export default function SlowProducts() {
                     </div>
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">{product.name}</p>
-                        <p className="text-xs text-muted-foreground">{product.categorySlug} · Tồn: {product.totalStock}</p>
+                        <p className="text-xs text-muted-foreground">{product.categorySlug} · Tồn: {formatNumber(product.totalStock)}</p>
                     </div>
                     <div className="text-right shrink-0">
                         <span className={cn("text-sm font-medium", product.soldCount === 0 ? "text-red-500" : "text-muted-foreground")}>
-                            {product.soldCount === 0 ? "0 bán" : `${product.soldCount} bán`}
+                            {product.soldCount === 0 ? "0 bán" : `${formatNumber(product.soldCount)} bán`}
                         </span>
                         <p className="text-xs text-muted-foreground">{formatPrice(product.price)}</p>
+                    </div>
+                    <div className="text-right shrink-0 w-20">
+                        <span className={cn("text-xs font-medium", daysInStockColor(product.daysInStock || 0))}>
+                            {daysInStockLabel(product.daysInStock || 0)}
+                        </span>
                     </div>
                 </Link>
             ))}
