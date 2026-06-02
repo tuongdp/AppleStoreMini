@@ -19,8 +19,6 @@ const PERIODS = [
     { value: "year", label: "Năm" },
 ];
 
-const MEDALS = ["🥇", "🥈", "🥉"];
-
 function ChartTooltip({ active, payload }) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
@@ -193,8 +191,14 @@ export default function CategoryPieChart() {
                             to={`/admin/products?category=${encodeURIComponent(cat.categoryId || "")}`}
                             className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-muted"
                         >
-                            <span className="w-5 text-center shrink-0">
-                                {i < 3 ? MEDALS[i] : `${i + 1}.`}
+                            <span className={cn(
+                                "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0",
+                                i === 0 && "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400",
+                                i === 1 && "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+                                i === 2 && "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400",
+                                i > 2 && "bg-muted text-muted-foreground",
+                            )}>
+                                {i + 1}
                             </span>
                             <span className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: DONUT_COLORS[i % DONUT_COLORS.length] }} />
                             <span className="font-medium text-foreground truncate">{cat.label}</span>
