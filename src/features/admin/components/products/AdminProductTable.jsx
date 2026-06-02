@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { useState } from "react";
-import { Plus, Edit, Trash2, MoreHorizontal, Search, Copy, Eye, EyeOff, Package, Clock } from "lucide-react";
+import { useState, Fragment } from "react";
+import { Plus, Edit, Trash2, MoreHorizontal, Search, Copy, Eye, EyeOff, ChevronDown, ChevronRight, Clock } from "lucide-react";
 import {
   useGetProductsQuery,
   useDeleteProductMutation,
@@ -74,6 +74,7 @@ function relativeTime(dateStr) {
 export default function AdminProductTable() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [deleteId, setDeleteId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
   const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
 
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -242,7 +243,8 @@ export default function AdminProductTable() {
                 const productId = product._id || product.id;
                 const stock = product.stock ?? 0;
                 return (
-                  <TableRow key={productId}>
+                  <Fragment key={productId}>
+                    <TableRow>
                     <TableCell>
                       <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
                         <img src={product.image || parseJsonField(product.images)?.[0]} alt={product.name} className="h-full w-full object-contain" />
@@ -264,9 +266,20 @@ export default function AdminProductTable() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={cn("text-sm font-medium", stockColor(stock))}>
-                        {stock === 0 ? "—" : formatNumber(stock)}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setExpandedId(expandedId === productId ? null : productId)}
+                        className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
+                      >
+                        <span className={stockColor(stock)}>
+                          {stock === 0 ? "—" : formatNumber(stock)}
+                        </span>
+                        {product.variants?.length > 1 && (
+                          expandedId === productId
+                            ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                            : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                        )}
+                      </button>
                     </TableCell>
                     <TableCell><span className="text-sm text-muted-foreground">{formatNumber(getSafeSoldCount(product.soldCount))}</span></TableCell>
                     <TableCell>
@@ -312,6 +325,32 @@ export default function AdminProductTable() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
+                  {expandedId === productId && product.variants?.length > 1 && (
+                    <TableRow key={`${productId}-variants`} className="bg-muted/20 hover:bg-muted/30">
+                      <TableCell colSpan={9} className="py-2 px-4">
+                        <div className="grid grid-cols-1 gap-1">
+                          {product.variants.map((v) => {
+                            const parts = [v.color, v.storage, v.ram].filter(Boolean);
+                            const label = parts.length > 0 ? parts.join(" · ") : "Mặc định";
+                            return (
+                              <div key={v.id || v._id} className="flex items-center gap-4 text-xs py-1">
+                                <span className="w-4 shrink-0">
+                                  <span className={cn("inline-block h-2 w-2 rounded-full", v.stock > 0 ? "bg-green-500" : "bg-red-500")} />
+                                </span>
+                                <span className="w-48 text-muted-foreground truncate">{label}</span>
+                                <span className="w-24 text-muted-foreground">{formatPrice(v.price)}</span>
+                                <span className={cn("w-16 font-medium", stockColor(v.stock ?? 0))}>{formatNumber(v.stock ?? 0)}</span>
+                                <Badge className={v.stock > 0 ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400"}>
+                                  {v.stock > 0 ? "Còn hàng" : "Hết"}
+                                </Badge>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </Fragment>
                 );
               })
             )}
