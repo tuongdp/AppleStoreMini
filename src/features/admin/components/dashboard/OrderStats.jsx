@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp, TrendingDown } from "lucide-react";
@@ -15,11 +15,6 @@ const PERIODS = [
     { value: "week", label: "Tuần" },
     { value: "month", label: "Tháng" },
     { value: "year", label: "Năm" },
-];
-
-const CHART_MODES = [
-    { value: "revenue", label: "Doanh thu" },
-    { value: "orders", label: "Đơn hàng" },
 ];
 
 const periodButtonClass = (active) =>
@@ -41,25 +36,18 @@ function TrendCell({ change }) {
     );
 }
 
-function ChartTooltip({ active, payload, label, period, chartMode }) {
+function ChartTooltip({ active, payload, label, period }) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     const periodLabel = period === "week" ? "tuần trước" : period === "month" ? "tháng trước" : "năm trước";
-    const change = chartMode === "revenue" ? d.revenueChange : d.orderChange;
     return (
         <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md">
             <p className="mb-1 text-xs text-muted-foreground">{label}</p>
-            <p className="text-sm font-semibold text-foreground">
-                {chartMode === "revenue" ? formatPrice(d.revenue) : formatNumber(d.orders)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-                {chartMode === "revenue"
-                    ? `Đơn hàng: ${formatNumber(d.orders)}`
-                    : `Doanh thu: ${formatPrice(d.revenue)}`}
-            </p>
-            {change != null && (
-                <p className={cn("text-xs font-medium", change >= 0 ? "text-green-600" : "text-red-500")}>
-                    {change >= 0 ? "↑" : "↓"} {Math.abs(change)}% so với {periodLabel}
+            <p className="text-sm font-semibold text-foreground">{formatNumber(d.orders)} đơn</p>
+            <p className="text-xs text-muted-foreground">Doanh thu: {formatPrice(d.revenue)}</p>
+            {d.orderChange != null && (
+                <p className={cn("text-xs font-medium", d.orderChange >= 0 ? "text-green-600" : "text-red-500")}>
+                    {d.orderChange >= 0 ? "↑" : "↓"} {Math.abs(d.orderChange)}% so với {periodLabel}
                 </p>
             )}
         </div>
@@ -72,8 +60,18 @@ export default function OrderStats() {
         ? searchParams.get("orderStatsPeriod")
         : "month";
     const [period, setPeriod] = useState(initialPeriod);
-    const [chartMode, setChartMode] = useState("revenue");
     const { data = [], isLoading } = useGetOrderStatsQuery({ period });
+
+    const totalOrders = useMemo(() => data.reduce((s, d) => s + (d.orders || 0), 0), [data]);
+    const totalOrderChange = useMemo(() => {
+        const totalPrev = data.reduce((s, d) => {
+            if (d.orderChange == null) return s;
+            const prev = d.orders / (1 + d.orderChange / 100);
+            return s + prev;
+        }, 0);
+        if (totalPrev === 0) return null;
+        return Math.round(((totalOrders - totalPrev) / totalPrev) * 100);
+    }, [data, totalOrders]);
 
     const { exportExcel, exportPDF, isExporting } = useExport();
 
@@ -132,12 +130,6 @@ export default function OrderStats() {
                             {p.label}
                         </Button>
                     ))}
-                    <span className="mx-1 w-px bg-border" />
-                    {CHART_MODES.map((m) => (
-                        <Button key={m.value} variant="ghost" size="sm" onClick={() => setChartMode(m.value)} className={periodButtonClass(chartMode === m.value)}>
-                            {m.label}
-                        </Button>
-                    ))}
                 </div>
                 <ExportButton onExportExcel={handleExportOrderStatsExcel} onExportPDF={handleExportOrderStatsPDF} loading={isExporting} />
             </div>
@@ -174,23 +166,43 @@ export default function OrderStats() {
                             </TableBody>
                         </Table>
                     </div>
-                    <div className="lg:col-span-3 h-[220px]">
-                        <ResponsiveContainer key={period + chartMode} width="100%" height="100%">
-                            <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
-                                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground"
-                                    tickFormatter={yAxisTickFormatter}
-                                    width={50}
-                                />
-                                <Tooltip content={<ChartTooltip period={period} chartMode={chartMode} />} />
-                                <Bar
-                                    dataKey={chartMode}
-                                    fill="hsl(217,91%,60%)"
-                                    radius={[4, 4, 0, 0]}
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
+                    <div className="lg:col-span-3 space-y-4">
+                        <div className="h-[220px]">
+                            <ResponsiveContainer key={period} width="100%" height="100%">
+                                <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
+                                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} className="fill-muted-foreground"
+                                        tickFormatter={yAxisTickFormatter}
+                                        width={50}
+                                    />
+                                    <Tooltip content={<ChartTooltip period={period} />} />
+                                    <Bar
+                                        dataKey="orders"
+                                        fill="hsl(217,91%,60%)"
+                                        radius={[4, 4, 0, 0]}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                        {totalOrders > 0 && (
+                            <div className="grid grid-cols-2 gap-3 border-t border-border pt-4">
+                                <div className="text-center">
+                                    <p className="text-xs text-muted-foreground">Tổng đơn hàng</p>
+                                    <p className="mt-0.5 text-sm font-semibold text-foreground">{formatNumber(totalOrders)}</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-xs text-muted-foreground">{period === "week" ? "so với tuần trước" : period === "month" ? "so với tháng trước" : "so với năm trước"}</p>
+                                    {totalOrderChange != null ? (
+                                        <p className={cn("mt-0.5 text-sm font-semibold", totalOrderChange >= 0 ? "text-green-600" : "text-red-500")}>
+                                            {totalOrderChange >= 0 ? "+" : ""}{totalOrderChange}%
+                                        </p>
+                                    ) : (
+                                        <p className="mt-0.5 text-sm text-muted-foreground">—</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
