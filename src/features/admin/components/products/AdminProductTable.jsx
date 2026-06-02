@@ -272,14 +272,15 @@ export default function AdminProductTable() {
                         className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
                       >
                         <span className={stockColor(stock)}>
-                          {stock === 0 ? "—" : formatNumber(stock)}
+                          {formatNumber(stock)}
                         </span>
-                        {product.variants?.length > 1 && (
+                        {product.variants?.length > 0 && (
                           expandedId === productId
                             ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                             : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                         )}
                       </button>
+                      <p className="text-[10px] text-muted-foreground">{product.variants?.length || 0} biến thể</p>
                     </TableCell>
                     <TableCell><span className="text-sm text-muted-foreground">{formatNumber(getSafeSoldCount(product.soldCount))}</span></TableCell>
                     <TableCell>
@@ -325,23 +326,25 @@ export default function AdminProductTable() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                  {expandedId === productId && product.variants?.length > 1 && (
+                  {expandedId === productId && product.variants?.length > 0 && (
                     <TableRow key={`${productId}-variants`} className="bg-muted/20 hover:bg-muted/30">
                       <TableCell colSpan={9} className="py-2 px-4">
+                        <div className="text-xs mb-2 font-medium text-muted-foreground">Biến thể ({product.variants.length})</div>
                         <div className="grid grid-cols-1 gap-1">
                           {product.variants.map((v) => {
                             const parts = [v.color, v.storage, v.ram].filter(Boolean);
                             const label = parts.length > 0 ? parts.join(" · ") : "Mặc định";
                             return (
-                              <div key={v.id || v._id} className="flex items-center gap-4 text-xs py-1">
+                              <div key={v.id || v._id} className="flex items-center gap-4 text-xs py-1.5">
                                 <span className="w-4 shrink-0">
                                   <span className={cn("inline-block h-2 w-2 rounded-full", v.stock > 0 ? "bg-green-500" : "bg-red-500")} />
                                 </span>
-                                <span className="w-48 text-muted-foreground truncate">{label}</span>
-                                <span className="w-24 text-muted-foreground">{formatPrice(v.price)}</span>
-                                <span className={cn("w-16 font-medium", stockColor(v.stock ?? 0))}>{formatNumber(v.stock ?? 0)}</span>
-                                <Badge className={v.stock > 0 ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400"}>
-                                  {v.stock > 0 ? "Còn hàng" : "Hết"}
+                                <span className="w-48 text-foreground font-medium truncate">{label}</span>
+                                <span className="w-28 text-right">{formatPrice(v.salePrice && v.salePrice < v.price ? v.salePrice : v.price)}</span>
+                                <span className={cn("w-20 text-right font-medium", stockColor(v.stock ?? 0))}>{formatNumber(v.stock ?? 0)}</span>
+                                <span className="w-16 text-right text-muted-foreground">{formatNumber(v.soldCount || 0)} bán</span>
+                                <Badge className={v.inStock ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400"}>
+                                  {v.inStock ? "Đang bán" : "Ngừng bán"}
                                 </Badge>
                               </div>
                             );
