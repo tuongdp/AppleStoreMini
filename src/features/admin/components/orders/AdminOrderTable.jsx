@@ -252,12 +252,12 @@ export default function AdminOrderTable() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm font-medium text-foreground">
-                      {order.user?.fullName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {order.user?.email}
-                    </p>
+                                <p className="text-sm font-medium text-foreground">
+                                    {order.user?.fullName || "Khách vãng lai"}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                    {order.user?.email || ""}
+                                </p>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground">
@@ -269,7 +269,7 @@ export default function AdminOrderTable() {
                       {formatPrice(order.totalAmount)}
                     </span>
                   </TableCell>
-                  <TableCell>
+                   <TableCell>
                     <span className="text-sm text-muted-foreground">
                       {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
                     </span>
@@ -277,12 +277,16 @@ export default function AdminOrderTable() {
                       className={
                         order.isPaid
                           ? "text-xs text-green-600 dark:text-green-400"
-                          : "text-xs text-muted-foreground"
+                          : order.paymentMethod === "vnpay" && order.status === "CANCELLED"
+                            ? "text-xs text-red-500"
+                            : "text-xs text-muted-foreground"
                       }
                     >
                       {order.isPaid
                         ? "Đã thanh toán"
-                        : "Chưa thanh toán"}
+                        : order.paymentMethod === "vnpay"
+                          ? (order.status === "CANCELLED" ? "Thanh toán thất bại" : "Chờ thanh toán")
+                          : "Chưa thanh toán"}
                     </p>
                   </TableCell>
                   <TableCell>
