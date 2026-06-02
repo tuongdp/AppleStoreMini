@@ -321,13 +321,14 @@ export default function AdminDashboard() {
                                         <TableHead>Màu</TableHead>
                                         <TableHead>Dung lượng</TableHead>
                                         <TableHead className="text-right">Tồn kho</TableHead>
+                                        <TableHead className="text-right">Đã bán 30 ngày</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {lowStock.map((variant) => (
                                         <TableRow key={variant.id}>
                                             <TableCell>
-                                                <Link to={`/admin/products/${variant.productId}/edit`} className="line-clamp-1 max-w-[180px] text-sm text-blue-600 hover:underline">
+                                                <Link to={`/admin/products/${variant.productId}/edit`} className="line-clamp-1 max-w-[160px] text-sm text-blue-600 hover:underline">
                                                     {variant.product?.name}
                                                 </Link>
                                             </TableCell>
@@ -335,6 +336,9 @@ export default function AdminDashboard() {
                                             <TableCell className="text-sm text-muted-foreground">{variant.storage || "-"}</TableCell>
                                             <TableCell className="text-right">
                                                 <Badge className={variant.stock === 0 ? "bg-red-500 text-white" : "bg-amber-500 text-white"}>{variant.stock}</Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right text-sm text-muted-foreground">
+                                                {formatNumber(variant.recentSales || 0)}
                                             </TableCell>
                                         </TableRow>
                                     ))}
