@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Label } from "recharts";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +25,7 @@ function ChartTooltip({ active, payload }) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-        <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md z-10 relative">
+        <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md">
             <p className="text-xs font-medium text-foreground">{d.label}</p>
             <p className="text-sm font-semibold text-foreground">{formatPrice(d.value)}</p>
             <p className="text-xs text-muted-foreground">{d.pct.toFixed(1)}%</p>
@@ -138,7 +138,7 @@ export default function CategoryPieChart() {
             </div>
 
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="relative h-48 w-48 shrink-0 mx-auto sm:mx-0">
+                <div className="h-48 w-48 shrink-0 mx-auto sm:mx-0">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
@@ -154,14 +154,36 @@ export default function CategoryPieChart() {
                                 {chartData.map((_, index) => (
                                     <Cell key={index} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
                                 ))}
+                                <Label
+                                    content={({ viewBox: { cx, cy } }) => (
+                                        <g>
+                                            <text
+                                                x={cx}
+                                                y={cy - 4}
+                                                textAnchor="middle"
+                                                dominantBaseline="middle"
+                                                className="fill-foreground text-sm font-bold"
+                                                style={{ fontSize: 14, fontWeight: 700 }}
+                                            >
+                                                {formatPrice(total)}
+                                            </text>
+                                            <text
+                                                x={cx}
+                                                y={cy + 14}
+                                                textAnchor="middle"
+                                                dominantBaseline="middle"
+                                                className="fill-muted-foreground"
+                                                style={{ fontSize: 10 }}
+                                            >
+                                                Tổng doanh thu
+                                            </text>
+                                        </g>
+                                    )}
+                                />
                             </Pie>
                             <Tooltip content={<ChartTooltip />} />
                         </PieChart>
                     </ResponsiveContainer>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-sm font-bold text-foreground">{formatPrice(total)}</span>
-                        <span className="text-[10px] text-muted-foreground">{"Tổng doanh thu"}</span>
-                    </div>
                 </div>
 
                 <div className="flex-1 min-w-0 space-y-1.5">
