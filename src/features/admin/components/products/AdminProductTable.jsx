@@ -130,8 +130,6 @@ export default function AdminProductTable() {
   const productColumns = [
     { key: "name", label: "Tên sản phẩm" },
     { key: "category", label: "Danh mục" },
-    { key: "price", label: "Giá gốc", format: "currency" },
-    { key: "salePrice", label: "Giá KM", format: "currency" },
     { key: "stock", label: "Tồn kho" },
     { key: "soldCount", label: "Đã bán" },
     { key: "status", label: "Trạng thái" },
@@ -140,8 +138,6 @@ export default function AdminProductTable() {
   const getProductExportRows = () => products.map((p) => ({
     name: p.name,
     category: p.category || "—",
-    price: p.price || 0,
-    salePrice: p.salePrice && p.salePrice < p.price ? p.salePrice : null,
     stock: p.stock ?? 0,
     soldCount: getSafeSoldCount(p.soldCount),
     status: p.inStock ? "Đang bán" : "Ngừng bán",
@@ -219,7 +215,6 @@ export default function AdminProductTable() {
               <TableHead className="w-16">{"Hình ảnh"}</TableHead>
               <TableHead>{"Tên sản phẩm"}</TableHead>
               <TableHead>{"Danh mục"}</TableHead>
-              <TableHead>{"Giá bán"}</TableHead>
               <TableHead className="text-right">{"Tồn kho"}</TableHead>
               <TableHead>{"Đã bán"}</TableHead>
               <TableHead>{"Cập nhật"}</TableHead>
@@ -231,12 +226,12 @@ export default function AdminProductTable() {
             {isLoading ? (
               [...Array(6)].map((_, i) => (
                 <TableRow key={i}>
-                  {[...Array(9)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
+                  {[...Array(8)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
                 </TableRow>
               ))
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-12 text-center text-muted-foreground">{"Không có dữ liệu"}</TableCell>
+                <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">{"Không có dữ liệu"}</TableCell>
               </TableRow>
             ) : (
               products.map((product) => {
@@ -255,16 +250,6 @@ export default function AdminProductTable() {
                       <p className="text-xs text-muted-foreground">{product.slug}</p>
                     </TableCell>
                     <TableCell><span className="text-sm text-muted-foreground">{product.category}</span></TableCell>
-                    <TableCell>
-                      {product.salePrice && product.salePrice < product.price ? (
-                        <div>
-                          <span className="text-sm font-medium text-green-600 dark:text-green-400">{formatPrice(product.salePrice)}</span>
-                          <p className="text-xs text-muted-foreground line-through">{formatPrice(product.price)}</p>
-                        </div>
-                      ) : (
-                        <span className="text-sm font-medium text-foreground">{formatPrice(product.price)}</span>
-                      )}
-                    </TableCell>
                     <TableCell className="text-right">
                       <button
                         type="button"
@@ -328,7 +313,7 @@ export default function AdminProductTable() {
                   </TableRow>
                   {expandedId === productId && product.variants?.length > 0 && (
                     <TableRow key={`${productId}-variants`} className="bg-muted/20 hover:bg-muted/30">
-                      <TableCell colSpan={9} className="py-3 px-4">
+                      <TableCell colSpan={8} className="py-3 px-4">
                         <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
                           Biến thể ({product.variants.length})
                           <span className="h-px flex-1 bg-border" />
