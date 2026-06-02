@@ -15,9 +15,11 @@ import {
 import { RETURN_REASON_MAP, RETURN_REQUEST_STATUS_MAP, RETURN_REQUEST_STATUS_COLOR } from "@/lib/constants";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { toast } from "sonner";
-import { Check, X, Package, MapPin } from "lucide-react";
+import { Check, X, Package, MapPin, Image as ImageIcon, Video } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import PriceDisplay from "@/components/shared/PriceDisplay";
+import ImageLightbox from "@/components/shared/ImageLightbox";
+import ReturnHistoryTimeline from "@/features/orders/components/ReturnHistoryTimeline";
 
 export default function AdminReturnDetail() {
   const { returnId } = useParams();
@@ -25,6 +27,8 @@ export default function AdminReturnDetail() {
   const [adminNote, setAdminNote] = useState("");
   const [receiveOpen, setReceiveOpen] = useState(false);
   const [condition, setCondition] = useState("");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const { data, isLoading } = useGetAdminReturnByIdQuery(returnId);
   const [approveReturn, { isLoading: isApproving }] = useApproveReturnMutation();
@@ -210,46 +214,89 @@ export default function AdminReturnDetail() {
             </div>
           </div>
 
-          {/* Description + images */}
+          {/* Description */}
           <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <h3 className="mb-3 text-sm font-medium text-foreground">Mô tả của khách hàng</h3>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">
               {returnReq.description || "Không có mô tả"}
             </p>
-
-            {returnReq.trackingNumber && (
-              <div className="mt-3 rounded-lg border bg-muted/30 p-3">
-                <p className="text-xs text-muted-foreground">Mã vận đơn gửi trả</p>
-                <p className="text-sm font-mono font-medium">{returnReq.trackingNumber}</p>
-              </div>
-            )}
-
-            {returnReq.condition && (
-              <div className="mt-3 rounded-lg border bg-muted/30 p-3">
-                <p className="text-xs text-muted-foreground">Tình trạng hàng khi nhận</p>
-                <p className="text-sm whitespace-pre-wrap">{returnReq.condition}</p>
-              </div>
-            )}
-
-            {returnReq.images?.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {returnReq.images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    alt={`Ảnh ${i + 1}`}
-                    className="h-20 w-20 rounded-lg object-cover border"
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Admin note (if rejected) */}
-          {returnReq.adminNote && (
+          {/* Evidence */}
+          {(returnReq.images?.length > 0 || returnReq.video) && (
             <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-              <h3 className="mb-2 text-sm font-medium text-foreground">Ghi chú của admin</h3>
-              <p className="text-sm text-muted-foreground">{returnReq.adminNote}</p>
+              <h3 className="mb-4 text-sm font-medium text-foreground">Bằng chứng khách hàng</h3>
+
+              {returnReq.images?.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Hình ảnh ({returnReq.images.length})</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {returnReq.images.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt={`Ảnh ${i + 1}`}
+                        className="aspect-square cursor-pointer rounded-lg object-cover border hover:ring-2 hover:ring-primary/50 transition-shadow"
+                        onClick={() => { setLightboxIndex(i); setLightboxOpen(true); }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {returnReq.video && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Video className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Video</span>
+                  </div>
+                  <video controls className="w-full rounded-lg max-h-[400px] border">
+                    <source src={returnReq.video} />
+                    Trình duyệt không hỗ trợ phát video.
+                  </video>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tracking */}
+          {returnReq.trackingNumber && (
+            <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+              <h3 className="mb-2 text-sm font-medium text-foreground">Mã vận đơn gửi trả</h3>
+              <p className="text-sm font-mono font-medium">{returnReq.trackingNumber}</p>
+            </div>
+          )}
+
+          {/* Condition */}
+          {returnReq.condition && (
+            <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+              <h3 className="mb-2 text-sm font-medium text-foreground">Tình trạng hàng khi nhận</h3>
+              <p className="text-sm whitespace-pre-wrap">{returnReq.condition}</p>
+            </div>
+          )}
+
+          {/* Timeline */}
+          <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+            <h3 className="mb-4 text-sm font-medium text-foreground">Lịch sử xử lý</h3>
+            <ReturnHistoryTimeline statusHistory={returnReq.statusHistory} />
+          </div>
+
+          {/* Rejected reason */}
+          {returnReq.status === "REJECTED" && returnReq.adminNote && (
+            <div className="rounded-2xl border-l-4 border-red-500 bg-red-50 p-5 dark:bg-red-950/30">
+              <h3 className="mb-1 text-sm font-semibold text-red-700 dark:text-red-400">Lý do từ chối</h3>
+              <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-wrap">{returnReq.adminNote}</p>
+            </div>
+          )}
+
+          {/* Approved banner */}
+          {returnReq.status === "APPROVED" && (
+            <div className="rounded-2xl border-l-4 border-blue-500 bg-blue-50 p-5 dark:bg-blue-950/30">
+              <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-400">Đã duyệt yêu cầu trả hàng</h3>
+              <p className="text-sm text-blue-600 dark:text-blue-300">Vui lòng chờ khách hàng gửi hàng về</p>
             </div>
           )}
 
@@ -384,6 +431,13 @@ export default function AdminReturnDetail() {
         confirmLabel="Xác nhận đã nhận"
         onConfirm={handleReceive}
         isLoading={isReceiving}
+      />
+
+      <ImageLightbox
+        images={returnReq.images}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        initialIndex={lightboxIndex}
       />
     </div>
   );
