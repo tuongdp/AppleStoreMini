@@ -228,13 +228,15 @@ export default function RevenueChart() {
                         <span className="text-sm text-muted-foreground">Doanh thu</span>
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold text-foreground">{formatPrice(data.totalRevenue ?? 0)}</span>
-                            <span className={cn(
-                                "flex items-center gap-0.5 text-xs font-medium",
-                                (data.revenueChange ?? 0) >= 0 ? "text-green-600" : "text-red-500",
-                            )}>
-                                {(data.revenueChange ?? 0) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                                {(data.revenueChange ?? 0) >= 0 ? "+" : ""}{data.revenueChange ?? 0}%
-                            </span>
+                            {data.revenueChange != null && (
+                                <span className={cn(
+                                    "flex items-center gap-0.5 text-xs font-medium",
+                                    (data.revenueChange ?? 0) >= 0 ? "text-green-600" : "text-red-500",
+                                )}>
+                                    {(data.revenueChange ?? 0) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                                    {(data.revenueChange ?? 0) >= 0 ? "+" : ""}{data.revenueChange ?? 0}%
+                                </span>
+                            )}
                         </div>
                     </div>
 
