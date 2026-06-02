@@ -93,8 +93,9 @@ export default function AdminProductTable() {
   if (stockFilter === "out") filters.stock = "out";
   if (stockFilter === "low") filters.stock = "low";
   if (stockFilter === "in") filters.stock = "in";
-  if (statusFilter === "active") filters.isActive = "true";
-  if (statusFilter === "inactive") filters.isActive = "false";
+  if (statusFilter === "active") filters.vstatus = "active";
+  if (statusFilter === "inactive") filters.vstatus = "inactive";
+  if (statusFilter === "hidden") filters.isActive = "false";
 
   const { data, isLoading } = useGetProductsQuery(filters);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
