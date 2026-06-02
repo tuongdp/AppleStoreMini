@@ -52,13 +52,12 @@ export default function RecentOrders() {
                 >
                     {/* Avatar placeholder */}
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                        {order.user?.fullName?.charAt(0)?.toUpperCase() || "?"}
+                        {order.user?.fullName?.charAt(0)?.toUpperCase() || "V"}
                     </div>
 
-                    {/* Info */}
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">
-                            {order.user?.fullName || "Khách hàng"}
+                            {order.user?.fullName || "Khách vãng lai"}
                         </p>
                         <p className="text-xs text-muted-foreground">
                             #{order.code} · {formatDateTime(order.createdAt)}
