@@ -96,7 +96,7 @@ export default function RevenueChart() {
     };
 
     const revenueColumns = [
-        { key: "label", label: period === "week" ? "Ngày" : period === "year" ? "Năm" : "Tháng" },
+        { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
         { key: "revenue", label: "Doanh thu", format: "currency" },
         { key: "orders", label: "Đơn hàng" },
     ];
