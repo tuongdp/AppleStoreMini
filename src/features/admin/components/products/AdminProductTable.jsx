@@ -246,26 +246,25 @@ export default function AdminProductTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="max-w-[200px] truncate text-sm font-medium text-foreground">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">{product.slug}</p>
-                    </TableCell>
-                    <TableCell><span className="text-sm text-muted-foreground">{product.category}</span></TableCell>
-                    <TableCell className="text-right">
                       <button
                         type="button"
                         onClick={() => setExpandedId(expandedId === productId ? null : productId)}
-                        className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
+                        className="text-left hover:underline w-full min-w-0"
                       >
-                        <span className={stockColor(stock)}>
-                          {formatNumber(stock)}
-                        </span>
-                        {product.variants?.length > 0 && (
-                          expandedId === productId
-                            ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-                            : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                        )}
+                        <p className="max-w-[200px] truncate text-sm font-medium text-foreground inline-flex items-center gap-1">
+                          {product.name}
+                          {product.variants?.length > 0 && (
+                            expandedId === productId
+                              ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{product.slug}{product.variants?.length > 0 ? ` · ${product.variants.length} biến thể` : ""}</p>
                       </button>
-                      <p className="text-[10px] text-muted-foreground">{product.variants?.length || 0} biến thể</p>
+                    </TableCell>
+                    <TableCell><span className="text-sm text-muted-foreground">{product.category}</span></TableCell>
+                    <TableCell className="text-right">
+                      <span className={cn("text-sm font-medium", stockColor(stock))}>{formatNumber(stock)}</span>
                     </TableCell>
                     <TableCell><span className="text-sm text-muted-foreground">{formatNumber(getSafeSoldCount(product.soldCount))}</span></TableCell>
                     <TableCell>
@@ -313,14 +312,19 @@ export default function AdminProductTable() {
                   </TableRow>
                   {expandedId === productId && product.variants?.length > 0 && (
                     <TableRow key={`${productId}-variants`} className="bg-muted/20 hover:bg-muted/30">
-                      <TableCell colSpan={8} className="py-3 px-4">
+                      <TableCell colSpan={8} className="py-3 px-4 overflow-x-auto">
                         <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
                           Biến thể ({product.variants.length})
                           <span className="h-px flex-1 bg-border" />
                         </div>
-                        <div className="grid grid-cols-[44px_1fr_100px_100px_80px_70px_90px] gap-2 text-[11px] font-medium text-muted-foreground mb-1 px-1">
+                        <div className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_90px] gap-1.5 text-[10px] font-medium text-muted-foreground mb-1 px-1">
                           <span></span>
-                          <span>Thông số</span>
+                          <span>Màu</span>
+                          <span>Dung lượng</span>
+                          <span>RAM</span>
+                          <span>Phiên bản</span>
+                          <span>Tần số quét</span>
+                          <span>SSD</span>
                           <span className="text-right">Giá</span>
                           <span className="text-right">Giá KM</span>
                           <span className="text-right">Tồn kho</span>
@@ -331,18 +335,19 @@ export default function AdminProductTable() {
                           const vStock = v.stock ?? 0;
                           const vImg = Array.isArray(v.images) ? v.images[0] : null;
                           return (
-                            <div key={v.id || v._id} className="grid grid-cols-[44px_1fr_100px_100px_80px_70px_90px] gap-2 items-center text-xs py-1.5 px-1 rounded hover:bg-muted/50">
+                            <div key={v.id || v._id} className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_90px] gap-1.5 items-center text-[11px] py-1.5 px-1 rounded hover:bg-muted/50">
                               <div className="h-8 w-8 overflow-hidden rounded bg-muted/30 p-0.5">
                                 {vImg ? <img src={vImg} alt="" className="h-full w-full object-contain" /> : <div className="h-full w-full bg-muted/50 rounded" />}
                               </div>
-                              <div className="min-w-0">
-                                <p className="font-medium text-foreground truncate">
-                                  {[v.color || "—", v.storage || "—", v.ram || "—"].filter(Boolean).join(" · ")}
-                                </p>
-                              </div>
-                              <span className="text-right">{formatPrice(v.price)}</span>
+                              <span className="truncate text-muted-foreground">{v.color || "—"}</span>
+                              <span className="truncate text-muted-foreground">{v.storage || "—"}</span>
+                              <span className="truncate text-muted-foreground">{v.ram || "—"}</span>
+                              <span className="truncate text-muted-foreground">{v.edition || "—"}</span>
+                              <span className="truncate text-muted-foreground">{v.refreshRate || "—"}</span>
+                              <span className="truncate text-muted-foreground">{v.ssd || "—"}</span>
+                              <span className="text-right font-medium">{v.price ? formatPrice(Number(v.price)) : "—"}</span>
                               <span className="text-right text-green-600 dark:text-green-400">
-                                {v.salePrice && Number(v.salePrice) < Number(v.price) ? formatPrice(v.salePrice) : "—"}
+                                {v.salePrice && Number(v.salePrice) < Number(v.price) ? formatPrice(Number(v.salePrice)) : "—"}
                               </span>
                               <span className={cn("text-right font-medium", stockColor(vStock))}>{formatNumber(vStock)}</span>
                               <span className="text-right text-muted-foreground">{formatNumber(v.soldCount || 0)}</span>
