@@ -320,7 +320,7 @@ export default function AdminProductTable() {
                           Biến thể ({product.variants.length})
                           <span className="h-px flex-1 bg-border" />
                         </div>
-                        <div className="grid grid-cols-[40px_repeat(6,1fr)_100px_90px_80px_80px_80px_100px] gap-2 text-[10px] font-medium text-muted-foreground mb-1 px-1">
+                        <div className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_70px_90px] gap-1.5 text-[10px] font-medium text-muted-foreground mb-1 px-1">
                           <span></span>
                           <span>Màu</span>
                           <span>Dung lượng</span>
@@ -339,7 +339,7 @@ export default function AdminProductTable() {
                           const vStock = v.stock ?? 0;
                           const vImg = Array.isArray(v.images) ? v.images[0] : null;
                           return (
-                            <div key={v.id || v._id} className="grid grid-cols-[40px_repeat(6,1fr)_100px_90px_80px_80px_80px_100px] gap-2 items-center text-[11px] py-1.5 px-1 rounded hover:bg-muted/50">
+                            <div key={v.id || v._id} className="grid grid-cols-[40px_repeat(6,1fr)_90px_90px_80px_70px_70px_90px] gap-1.5 items-center text-[11px] py-1.5 px-1 rounded hover:bg-muted/50">
                               <div className="h-8 w-8 overflow-hidden rounded bg-muted/30 p-0.5">
                                 {vImg ? <img src={vImg} alt="" className="h-full w-full object-contain" /> : <div className="h-full w-full bg-muted/50 rounded" />}
                               </div>
