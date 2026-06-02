@@ -182,6 +182,13 @@ export const productsApi = baseApi.injectEndpoints({
             }),
             transformResponse: (response) => response.data,
         }),
+
+        incrementVariantView: builder.mutation({
+            query: (variantId) => ({
+                url: `/products/variants/${variantId}/view`,
+                method: "POST",
+            }),
+        }),
     }),
 });
 
@@ -207,4 +214,5 @@ export const {
     useCheckVariantOrdersQuery,
     useLazyCheckVariantOrdersQuery,
     useUploadEditorImageMutation,
+    useIncrementVariantViewMutation,
 } = productsApi;

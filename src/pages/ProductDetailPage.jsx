@@ -5,7 +5,7 @@ import {
     ShoppingCart,
     Heart,
 } from "lucide-react";
-import { useGetProductBySlugQuery, useGetProductsQuery } from "@/store/api/productsApi";
+import { useGetProductBySlugQuery, useGetProductsQuery, useIncrementVariantViewMutation } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
 import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
@@ -109,6 +109,13 @@ export default function ProductDetailPage() {
     const selectedVariant = useMemo(() => {
         return getSelectedVariant(variants, currentSelection);
     }, [variants, currentSelection]);
+
+    const [incrementView] = useIncrementVariantViewMutation();
+    useEffect(() => {
+        if (selectedVariant?.id) {
+            incrementView(selectedVariant.id);
+        }
+    }, [selectedVariant?.id]);
 
     const effectiveColor = selectedColor || selectedVariant?.color || "";
     const effectiveStorage = selectedStorage || selectedVariant?.storage || "";
@@ -596,6 +603,7 @@ export default function ProductDetailPage() {
             <Separator className="my-12" />
             <RelatedProducts slug={slug} category={categoryDisplay} />
 
+            <Separator className="my-12" />
             <PersonalizedRecommendations />
 
             <div
