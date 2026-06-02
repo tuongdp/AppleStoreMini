@@ -218,6 +218,7 @@ export default function AdminProductTable() {
               <TableHead>{"Danh mục"}</TableHead>
               <TableHead className="text-right">{"Tồn kho"}</TableHead>
               <TableHead>{"Đã bán"}</TableHead>
+              <TableHead>{"Lượt xem"}</TableHead>
               <TableHead>{"Cập nhật"}</TableHead>
               <TableHead>{"Trạng thái"}</TableHead>
               <TableHead className="text-right">{"Thao tác"}</TableHead>
@@ -227,12 +228,12 @@ export default function AdminProductTable() {
             {isLoading ? (
               [...Array(6)].map((_, i) => (
                 <TableRow key={i}>
-                  {[...Array(8)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
+                  {[...Array(9)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
                 </TableRow>
               ))
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">{"Không có dữ liệu"}</TableCell>
+                <TableCell colSpan={9} className="py-12 text-center text-muted-foreground">{"Không có dữ liệu"}</TableCell>
               </TableRow>
             ) : (
               products.map((product) => {
@@ -268,6 +269,7 @@ export default function AdminProductTable() {
                       <span className={cn("text-sm font-medium", stockColor(stock))}>{formatNumber(stock)}</span>
                     </TableCell>
                     <TableCell><span className="text-sm text-muted-foreground">{formatNumber(getSafeSoldCount(product.soldCount))}</span></TableCell>
+                    <TableCell><span className="text-sm text-muted-foreground">{formatNumber(product.viewCount || 0)}</span></TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
@@ -313,7 +315,7 @@ export default function AdminProductTable() {
                   </TableRow>
                   {expandedId === productId && product.variants?.length > 0 && (
                     <TableRow key={`${productId}-variants`} className="bg-muted/20 hover:bg-muted/30">
-                      <TableCell colSpan={8} className="py-3 px-4 overflow-x-auto">
+                      <TableCell colSpan={9} className="py-3 px-4 overflow-x-auto">
                         <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
                           Biến thể ({product.variants.length})
                           <span className="h-px flex-1 bg-border" />
