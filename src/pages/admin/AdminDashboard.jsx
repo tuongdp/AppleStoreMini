@@ -318,30 +318,39 @@ export default function AdminDashboard() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Sản phẩm</TableHead>
-                                        <TableHead>Màu</TableHead>
-                                        <TableHead>Dung lượng</TableHead>
                                         <TableHead className="text-right">Tồn kho</TableHead>
                                         <TableHead className="text-right">Đã bán 30 ngày</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {lowStock.map((variant) => (
-                                        <TableRow key={variant.id}>
-                                            <TableCell>
-                                                <Link to={`/admin/products/${variant.productId}/edit`} className="line-clamp-1 max-w-[160px] text-sm text-blue-600 hover:underline">
-                                                    {variant.product?.name}
-                                                </Link>
-                                            </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{variant.color || "-"}</TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{variant.storage || "-"}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Badge className={variant.stock === 0 ? "bg-red-500 text-white" : "bg-amber-500 text-white"}>{variant.stock}</Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right text-sm text-muted-foreground">
-                                                {formatNumber(variant.recentSales || 0)}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {lowStock.map((variant) => {
+                                        const specs = [
+                                            variant.color,
+                                            variant.storage,
+                                            variant.ram,
+                                            variant.ssd,
+                                            variant.edition,
+                                            variant.refreshRate,
+                                        ].filter(Boolean);
+                                        return (
+                                            <TableRow key={variant.id}>
+                                                <TableCell className="max-w-[280px]">
+                                                    <Link to={`/admin/products/${variant.productId}/edit`} className="line-clamp-1 text-sm text-blue-600 hover:underline">
+                                                        {variant.product?.name}
+                                                    </Link>
+                                                    {specs.length > 0 && (
+                                                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{specs.join(" · ")}</p>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Badge className={variant.stock === 0 ? "bg-red-500 text-white" : "bg-amber-500 text-white"}>{variant.stock}</Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right text-sm text-muted-foreground">
+                                                    {formatNumber(variant.recentSales || 0)}
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
                                 </TableBody>
                             </Table>
                         )}
