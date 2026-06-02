@@ -256,7 +256,7 @@ export default function RevenueChart() {
                         </div>
                     </div>
 
-                    {data.avgOrderValue != null && data.avgOrderValue > 0 && (
+                    {data.avgOrderValue != null && (
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-muted-foreground">Giá trị trung bình đơn</span>
                             <div className="flex items-center gap-2">
