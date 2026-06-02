@@ -6,6 +6,22 @@ import { toast } from "sonner";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
 
+function relativeTime(dateStr) {
+    if (!dateStr) return null;
+    const now = Date.now();
+    const then = new Date(dateStr).getTime();
+    const diffMs = now - then;
+    const mins = Math.floor(diffMs / 60000);
+    const hours = Math.floor(diffMs / 3600000);
+    const days = Math.floor(diffMs / 86400000);
+    if (mins < 60) return `${mins} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    if (days < 30) return `${days} ngày trước`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} tháng trước`;
+    return `${Math.floor(months / 12)} năm trước`;
+}
+
 export default function TopCustomers() {
     const { data = [], isLoading } = useGetTopCustomersQuery({ limit: 5 });
 
@@ -17,14 +33,16 @@ export default function TopCustomers() {
         { key: "email", label: "Email" },
         { key: "totalSpent", label: "Tổng chi tiêu", format: "currency" },
         { key: "orderCount", label: "Số đơn" },
+        { key: "lastOrder", label: "Mua gần nhất" },
     ];
 
     const getCustExportRows = () => data.map((c, i) => ({
         index: i + 1,
-        fullName: c.fullName || "—",
+        fullName: c.fullName || "Khách vãng lai",
         email: c.email || "—",
         totalSpent: c.totalSpent || 0,
         orderCount: c.orderCount || 0,
+        lastOrder: c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString("vi-VN") : "—",
     }));
 
     const handleExportCustExcel = () => {
@@ -69,7 +87,7 @@ export default function TopCustomers() {
             </div>
             <div className="space-y-3">
             {data.map((cust, index) => {
-                const initials = (cust.fullName || "U")
+                const initials = (cust.fullName || "V")
                     .split(" ")
                     .map((w) => w[0])
                     .join("")
@@ -77,7 +95,7 @@ export default function TopCustomers() {
                     .toUpperCase();
 
                 return (
-                    <div key={cust.id} className="flex items-center gap-3">
+                    <div key={cust.id || `guest-${index}`} className="flex items-center gap-3">
                         <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0",
                             index === 0 && "bg-amber-100 text-amber-700",
                             index === 1 && "bg-slate-100 text-slate-600",
@@ -87,15 +105,21 @@ export default function TopCustomers() {
                         </span>
                         <div className={cn("flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium shrink-0",
                             index === 0 ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground")}>
-                            {initials}
+                            {cust.fullName ? initials : "?"}
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium text-foreground">{cust.fullName}</p>
-                            <p className="truncate text-xs text-muted-foreground">{cust.email}</p>
+                            <p className="truncate text-sm font-medium text-foreground">
+                                {cust.fullName || "Khách vãng lai"}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                                {cust.email || (cust.fullName ? "" : "Không đăng nhập")}
+                            </p>
                         </div>
                         <div className="text-right shrink-0">
                             <p className="text-sm font-semibold text-foreground">{formatPrice(cust.totalSpent)}</p>
-                            <p className="text-xs text-muted-foreground">{cust.orderCount} đơn</p>
+                            <p className="text-xs text-muted-foreground">
+                                {cust.orderCount} đơn{cust.lastOrderDate ? ` · ${relativeTime(cust.lastOrderDate)}` : ""}
+                            </p>
                         </div>
                     </div>
                 );
