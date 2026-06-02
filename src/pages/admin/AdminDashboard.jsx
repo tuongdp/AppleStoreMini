@@ -17,7 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-    useGetCategoryRevenueQuery,
     useGetDashboardOperationsQuery,
     useGetDashboardStatsQuery,
     useGetLowStockQuery,
@@ -109,7 +108,6 @@ export default function AdminDashboard() {
         pollingInterval: 30000,
     });
     const { data: lowStock = [] } = useGetLowStockQuery();
-    const { data: catRevenue = [] } = useGetCategoryRevenueQuery();
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
@@ -275,7 +273,7 @@ export default function AdminDashboard() {
                 </Card>
                 <Card className="lg:col-span-3">
                     <CardHeader><CardTitle className="text-sm font-medium">Doanh thu theo danh mục</CardTitle></CardHeader>
-                    <CardContent><CategoryPieChart data={catRevenue} /></CardContent>
+                    <CardContent><CategoryPieChart /></CardContent>
                 </Card>
             </div>
 
