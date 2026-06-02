@@ -328,28 +328,36 @@ export default function AdminProductTable() {
                   </TableRow>
                   {expandedId === productId && product.variants?.length > 0 && (
                     <TableRow key={`${productId}-variants`} className="bg-muted/20 hover:bg-muted/30">
-                      <TableCell colSpan={9} className="py-2 px-4">
-                        <div className="text-xs mb-2 font-medium text-muted-foreground">Biến thể ({product.variants.length})</div>
-                        <div className="grid grid-cols-1 gap-1">
-                          {product.variants.map((v) => {
-                            const parts = [v.color, v.storage, v.ram].filter(Boolean);
-                            const label = parts.length > 0 ? parts.join(" · ") : "Mặc định";
-                            return (
-                              <div key={v.id || v._id} className="flex items-center gap-4 text-xs py-1.5">
-                                <span className="w-4 shrink-0">
-                                  <span className={cn("inline-block h-2 w-2 rounded-full", v.stock > 0 ? "bg-green-500" : "bg-red-500")} />
-                                </span>
-                                <span className="w-48 text-foreground font-medium truncate">{label}</span>
-                                <span className="w-28 text-right">{formatPrice(v.salePrice && v.salePrice < v.price ? v.salePrice : v.price)}</span>
-                                <span className={cn("w-20 text-right font-medium", stockColor(v.stock ?? 0))}>{formatNumber(v.stock ?? 0)}</span>
-                                <span className="w-16 text-right text-muted-foreground">{formatNumber(v.soldCount || 0)} bán</span>
-                                <Badge className={v.inStock ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400"}>
-                                  {v.inStock ? "Đang bán" : "Ngừng bán"}
-                                </Badge>
-                              </div>
-                            );
-                          })}
+                      <TableCell colSpan={9} className="py-3 px-4">
+                        <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                          Biến thể ({product.variants.length})
+                          <span className="h-px flex-1 bg-border" />
                         </div>
+                        <div className="grid grid-cols-[1fr_120px_80px_70px_90px] gap-2 text-[11px] font-medium text-muted-foreground mb-1 px-1">
+                          <span>Thông số</span>
+                          <span className="text-right">Giá</span>
+                          <span className="text-right">Tồn kho</span>
+                          <span className="text-right">Đã bán</span>
+                          <span>Trạng thái</span>
+                        </div>
+                        {product.variants.map((v) => {
+                          const parts = [v.color, v.storage, v.ram].filter(Boolean);
+                          const label = parts.length > 0 ? parts.join(" · ") : "Mặc định";
+                          const vStock = v.stock ?? 0;
+                          return (
+                            <div key={v.id || v._id} className="grid grid-cols-[1fr_120px_80px_70px_90px] gap-2 items-center text-xs py-1.5 px-1 rounded hover:bg-muted/50">
+                              <span className="font-medium text-foreground truncate">{label}</span>
+                              <span className="text-right">{formatPrice(v.salePrice && v.salePrice < v.price ? v.salePrice : v.price)}</span>
+                              <span className={cn("text-right font-medium", stockColor(vStock))}>{formatNumber(vStock)}</span>
+                              <span className="text-right text-muted-foreground">{formatNumber(v.soldCount || 0)}</span>
+                              <span>
+                                <Badge className={cn("text-[10px] px-1.5", v.inStock ? "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400")}>
+                                  {v.inStock ? "Đang bán" : "Ngừng"}
+                                </Badge>
+                              </span>
+                            </div>
+                          );
+                        })}
                       </TableCell>
                     </TableRow>
                   )}
