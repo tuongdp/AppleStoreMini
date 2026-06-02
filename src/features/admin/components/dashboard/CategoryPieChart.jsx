@@ -25,7 +25,7 @@ function ChartTooltip({ active, payload }) {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-        <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md">
+        <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-md z-10 relative">
             <p className="text-xs font-medium text-foreground">{d.label}</p>
             <p className="text-sm font-semibold text-foreground">{formatPrice(d.value)}</p>
             <p className="text-xs text-muted-foreground">{d.pct.toFixed(1)}%</p>
@@ -65,7 +65,9 @@ export default function CategoryPieChart() {
     const { data = [], isLoading, isError, error } = useGetCategoryRevenueQuery({ period });
 
     const total = data.reduce((s, d) => s + (d.value || 0), 0);
-    const chartData = data.map((d) => ({ ...d, pct: total > 0 ? (d.value / total) * 100 : 0 }));
+    const chartData = data
+        .map((d) => ({ ...d, pct: total > 0 ? (d.value / total) * 100 : 0 }))
+        .sort((a, b) => b.value - a.value);
 
     // Insights
     const topCategory = chartData.length > 0 ? chartData[0] : null;
