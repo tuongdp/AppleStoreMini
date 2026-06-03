@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,11 +12,12 @@ import { useGetSettingsQuery, useUpdateSettingsMutation } from "@/store/api/shop
 import { cacheSellerInfo } from "@/utils/invoiceUtils";
 
 const DEFAULTS = {
-    shop: { name: "AppleStore Mini", taxCode: "", address: "", phone: "", email: "" },
+    shop: { name: "AppleStore Mini", logo: "", taxCode: "", address: "", phone: "", email: "", facebook: "", zalo: "", tiktok: "", youtube: "" },
     shipping: { defaultFee: 30000, freeShippingMinOrder: 5000000 },
     returnPolicy: { windowDays: 7 },
     reviewReward: { points: 20000, type: "FIXED" },
     payment: { codEnabled: true, vnpayEnabled: true },
+    seo: { title: "", description: "" },
 };
 
 function Section({ title, description, children }) {
@@ -41,16 +43,18 @@ export default function AdminShopSettings() {
     const [returnPolicy, setReturnPolicy] = useState(DEFAULTS.returnPolicy);
     const [reviewReward, setReviewReward] = useState(DEFAULTS.reviewReward);
     const [payment, setPayment] = useState(DEFAULTS.payment);
+    const [seo, setSeo] = useState(DEFAULTS.seo);
     const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
         if (data && !initialized) {
             const merged = { ...DEFAULTS, ...data };
-            setShop(merged.shop);
+            setShop({ ...DEFAULTS.shop, ...data?.shop });
             setShipping(merged.shipping);
             setReturnPolicy(merged.returnPolicy);
             setReviewReward(merged.reviewReward);
             setPayment(merged.payment);
+            setSeo({ ...DEFAULTS.seo, ...data?.seo });
             setInitialized(true);
         }
     }, [data, initialized]);
@@ -61,7 +65,7 @@ export default function AdminShopSettings() {
 
     const handleSave = async () => {
         try {
-            const body = { shop, shipping, returnPolicy, reviewReward, payment };
+            const body = { shop, shipping, returnPolicy, reviewReward, payment, seo };
             await update(body).unwrap();
             cacheSellerInfo(shop);
             toast.success("Đã lưu cài đặt");
@@ -80,6 +84,12 @@ export default function AdminShopSettings() {
         );
     }
 
+    const SaveButton = ({ size }) => (
+        <Button onClick={handleSave} disabled={isSaving} size={size} className="rounded-full">
+            {isSaving ? "Đang lưu..." : "Lưu tất cả"}
+        </Button>
+    );
+
     return (
         <div className="max-w-3xl space-y-6">
             <div className="flex items-center justify-between">
@@ -87,15 +97,18 @@ export default function AdminShopSettings() {
                     <h1 className="text-2xl font-semibold tracking-tight">Cài đặt</h1>
                     <p className="mt-1 text-sm text-muted-foreground">Cấu hình cửa hàng, vận chuyển, thanh toán và đánh giá.</p>
                 </div>
-                <Button onClick={handleSave} disabled={isSaving} className="rounded-full">
-                    {isSaving ? "Đang lưu..." : "Lưu tất cả"}
-                </Button>
             </div>
 
-            <Section title="Thông tin cửa hàng" description="Hiển thị trên hóa đơn GTGT.">
-                <div className="space-y-2">
-                    <Label htmlFor="s-name">Tên cửa hàng</Label>
-                    <Input id="s-name" value={shop.name} onChange={(e) => setShop({ ...shop, name: e.target.value })} />
+            <Section title="Thông tin cửa hàng" description="Hiển thị trên hóa đơn và footer website.">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="s-name">Tên cửa hàng</Label>
+                        <Input id="s-name" value={shop.name} onChange={(e) => setShop({ ...shop, name: e.target.value })} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-logo">Logo (URL)</Label>
+                        <Input id="s-logo" value={shop.logo} onChange={(e) => setShop({ ...shop, logo: e.target.value })} placeholder="https://..." />
+                    </div>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -114,6 +127,27 @@ export default function AdminShopSettings() {
                 <div className="space-y-2">
                     <Label htmlFor="s-email">Email</Label>
                     <Input id="s-email" type="email" value={shop.email} onChange={(e) => setShop({ ...shop, email: e.target.value })} />
+                </div>
+            </Section>
+
+            <Section title="Mạng xã hội" description="Link hiển thị ở footer website.">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="s-fb">Facebook</Label>
+                        <Input id="s-fb" value={shop.facebook} onChange={(e) => setShop({ ...shop, facebook: e.target.value })} placeholder="https://facebook.com/..." />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-zalo">Zalo</Label>
+                        <Input id="s-zalo" value={shop.zalo} onChange={(e) => setShop({ ...shop, zalo: e.target.value })} placeholder="https://zalo.me/..." />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-tiktok">TikTok</Label>
+                        <Input id="s-tiktok" value={shop.tiktok} onChange={(e) => setShop({ ...shop, tiktok: e.target.value })} placeholder="https://tiktok.com/..." />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="s-yt">YouTube</Label>
+                        <Input id="s-yt" value={shop.youtube} onChange={(e) => setShop({ ...shop, youtube: e.target.value })} placeholder="https://youtube.com/..." />
+                    </div>
                 </div>
             </Section>
 
@@ -175,7 +209,18 @@ export default function AdminShopSettings() {
                 </div>
             </Section>
 
-            <div className="flex justify-end">
+            <Section title="SEO" description="Tiêu đề và mô tả mặc định cho toàn website.">
+                <div className="space-y-2">
+                    <Label htmlFor="s-seo-title">Meta title</Label>
+                    <Input id="s-seo-title" value={seo.title} onChange={(e) => setSeo({ ...seo, title: e.target.value })} placeholder="AppleStore Mini - ..." />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="s-seo-desc">Meta description</Label>
+                    <Textarea id="s-seo-desc" value={seo.description} onChange={(e) => setSeo({ ...seo, description: e.target.value })} placeholder="Mô tả website..." rows={3} />
+                </div>
+            </Section>
+
+            <div className="sticky bottom-4 flex justify-end rounded-2xl border border-border bg-card/95 p-4 backdrop-blur">
                 <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-full">
                     {isSaving ? "Đang lưu..." : "Lưu tất cả"}
                 </Button>
