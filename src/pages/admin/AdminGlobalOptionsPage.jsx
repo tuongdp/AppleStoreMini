@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Check, Filter, Palette, Plus, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
+import { Check, Eye, EyeOff, Filter, Palette, Plus, Search, SlidersHorizontal, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -146,6 +146,14 @@ export default function AdminGlobalOptionsPage() {
             cancelEdit();
         } catch (err) {
             toast.error(err?.data?.message || "Không thể cập nhật");
+        }
+    };
+
+    const handleToggleActive = async (option) => {
+        try {
+            await updateOption({ id: option.id, isActive: !option.isActive }).unwrap();
+        } catch {
+            toast.error("Không thể cập nhật trạng thái");
         }
     };
 
@@ -306,6 +314,7 @@ export default function AdminGlobalOptionsPage() {
                                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
                                     <th className="px-4 py-3 font-medium">{activeTab === "COLOR" ? "Xem trước" : "Loại"}</th>
                                     <th className="px-4 py-3 font-medium">Giá trị</th>
+                                    <th className="px-4 py-3 font-medium">Thứ tự</th>
                                     <th className="px-4 py-3 text-right font-medium">Hành động</th>
                                 </tr>
                             </thead>
@@ -340,8 +349,13 @@ export default function AdminGlobalOptionsPage() {
                                                         className="h-8 max-w-xs text-xs"
                                                     />
                                                 ) : (
-                                                    option.value
+                                                    <span className={!option.isActive ? "text-muted-foreground line-through" : ""}>
+                                                        {option.value}
+                                                    </span>
                                                 )}
+                                            </td>
+                                            <td className="px-4 py-2 text-sm text-muted-foreground">
+                                                {option.sortOrder ?? 0}
                                             </td>
                                             <td className="px-4 py-2 text-right">
                                                 <div className="flex justify-end gap-1">
@@ -375,6 +389,20 @@ export default function AdminGlobalOptionsPage() {
                                                             Sửa
                                                         </Button>
                                                     )}
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                                                            disabled={isUpdating}
+                                                            onClick={() => handleToggleActive(option)}
+                                                            aria-label={option.isActive ? `Ẩn ${option.value}` : `Hiện ${option.value}`}
+                                                        >
+                                                            {option.isActive ? (
+                                                                <Eye className="h-3.5 w-3.5" />
+                                                            ) : (
+                                                                <EyeOff className="h-3.5 w-3.5" />
+                                                            )}
+                                                        </Button>
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
