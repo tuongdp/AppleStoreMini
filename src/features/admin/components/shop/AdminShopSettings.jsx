@@ -220,7 +220,7 @@ export default function AdminShopSettings() {
                 </div>
             </Section>
 
-            <div className="sticky bottom-4 flex justify-end rounded-2xl border border-border bg-card/95 p-4 backdrop-blur">
+            <div className="flex justify-end">
                 <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-full">
                     {isSaving ? "Đang lưu..." : "Lưu tất cả"}
                 </Button>
