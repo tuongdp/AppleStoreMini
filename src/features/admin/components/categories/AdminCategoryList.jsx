@@ -35,9 +35,10 @@ const categorySchema = z.object({
     name: z.string().min(1, "Tên danh mục không được để trống"),
     slug: z.string().min(1, "Slug không được để trống"),
     description: z.string().optional(),
+    order: z.coerce.number().int().min(0).optional(),
 });
 
-function CategoryForm({ category, onClose }) {
+function CategoryForm({ category, categories, onClose }) {
     const isEditing = !!category;
     const [createCategory, { isLoading: isCreating }] =
         useCreateCategoryMutation();
@@ -57,12 +58,17 @@ function CategoryForm({ category, onClose }) {
     const [sliderUrl, setSliderUrl] = useState("");
     const [isUploadingSlider, setIsUploadingSlider] = useState(false);
 
+    const nextOrder = isEditing
+        ? category.order
+        : (categories?.length > 0 ? Math.max(...categories.map((c) => c.order || 0)) + 1 : 0);
+
     const form = useForm({
         resolver: zodResolver(categorySchema),
         defaultValues: {
             name: category?.name || "",
             slug: category?.slug || "",
             description: category?.description || "",
+            order: nextOrder ?? 0,
         },
     });
 
@@ -141,7 +147,7 @@ function CategoryForm({ category, onClose }) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <FormField
                         control={form.control}
                         name="name"
@@ -171,6 +177,25 @@ function CategoryForm({ category, onClose }) {
                                         placeholder="VD: iphone"
                                         disabled={isLoading}
                                         {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="order"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Thứ tự</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        disabled={isLoading}
+                                        {...field}
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -404,6 +429,7 @@ export default function AdminCategoryList() {
                     </h3>
                     <CategoryForm
                         category={editingCategory}
+                        categories={categories}
                         onClose={handleFormClose}
                     />
                 </div>
