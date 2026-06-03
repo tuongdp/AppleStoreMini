@@ -470,6 +470,13 @@ export default function AdminCategoryList() {
                                                         ·{" "}
                                                         {category.productCount}{" "}
                                                         sản phẩm
+                                                        {category.seriesCount > 0 && (
+                                                            <span>
+                                                                {" · "}
+                                                                {category.seriesCount}{" "}
+                                                                series
+                                                            </span>
+                                                        )}
                                                     </span>
                                                 )}
                                             </p>
