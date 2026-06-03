@@ -251,11 +251,13 @@ export default function AdminSeriesList() {
     };
 
     const { data: seriesResult, isLoading, isFetching } = useGetAdminSeriesQuery(queryParams);
+    const { data: allSeriesResult } = useGetAdminSeriesQuery({ limit: 1000 });
     const { data: categoryData, isLoading: isLoadingCategories } = useGetAdminCategoriesQuery();
     const [deleteSeries, { isLoading: isDeleting }] = useDeleteSeriesMutation();
     const [updateSeries, { isLoading: isUpdating }] = useUpdateSeriesMutation();
 
     const series = Array.isArray(seriesResult) ? seriesResult : seriesResult?.data || [];
+    const allSeries = Array.isArray(allSeriesResult) ? allSeriesResult : allSeriesResult?.data || [];
     const pagination = Array.isArray(seriesResult) ? {} : seriesResult?.pagination || {};
     const totalPages = pagination.totalPages || 1;
     const total = pagination.total ?? series.length;
@@ -374,7 +376,7 @@ export default function AdminSeriesList() {
                     <SeriesForm
                         key={getSeriesId(editingSeries) || "new-series"}
                         series={editingSeries}
-                        allSeries={series}
+                        allSeries={allSeries}
                         categories={categories}
                         onClose={handleFormClose}
                     />
