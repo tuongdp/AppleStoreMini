@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import ImageLightbox from "@/components/shared/ImageLightbox";
 import { toast } from "sonner";
 import { cn, formatDateTime, formatPrice, parseJsonField } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -67,6 +68,8 @@ const variantText = (item) => {
 
 function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
     const [replyById, setReplyById] = useState({});
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
     const { data: review, isFetching } = useGetAdminReviewQuery(reviewId, { skip: !reviewId || !open });
     const [replyReview, { isLoading: isReplying }] = useReplyReviewMutation();
     const reply = replyById[reviewId] ?? review?.adminReply ?? "";
@@ -176,10 +179,24 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                         </div>
 
                         {images.length > 0 && (
-                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                                {images.map((src, index) => (
-                                    <img key={`${src}-${index}`} src={src} alt={`review-${index + 1}`} className="aspect-square rounded-md border object-cover" />
+                            <div className="flex flex-wrap gap-2">
+                                {images.slice(0, 5).map((src, index) => (
+                                    <img
+                                        key={`${src}-${index}`}
+                                        src={src}
+                                        alt={`review-${index + 1}`}
+                                        className="h-16 w-16 cursor-pointer rounded-md border object-cover hover:ring-2 hover:ring-primary/50 transition-shadow"
+                                        onClick={() => { setLightboxIndex(index); setLightboxOpen(true); }}
+                                    />
                                 ))}
+                                {images.length > 5 && (
+                                    <div
+                                        className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-md border bg-muted text-xs text-muted-foreground hover:ring-2 hover:ring-primary/50"
+                                        onClick={() => { setLightboxIndex(0); setLightboxOpen(true); }}
+                                    >
+                                        +{images.length - 5}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -207,6 +224,13 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                         {isReplying ? "Đang gửi..." : "Gửi phản hồi"}
                     </Button>
                 </DialogFooter>
+
+                <ImageLightbox
+                    images={images}
+                    open={lightboxOpen}
+                    onClose={() => setLightboxOpen(false)}
+                    initialIndex={lightboxIndex}
+                />
             </DialogContent>
         </Dialog>
     );
