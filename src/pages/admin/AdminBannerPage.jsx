@@ -365,12 +365,10 @@ export default function AdminBannerPage() {
 
                                         {/* Info */}
                                         <div className="min-w-0 flex-1">
-                                            {banner.title && (
-                                                <p className="text-sm font-medium text-foreground">
-                                                    {banner.title}
-                                                </p>
-                                            )}
-                                            <p className={cn("text-xs text-muted-foreground", banner.title && "mt-0.5")}>
+                                            <p className="text-sm font-medium text-foreground">
+                                                {banner.title || `Banner #${banner.order}`}
+                                            </p>
+                                            <p className="mt-0.5 text-xs text-muted-foreground">
                                                 Thứ tự #{banner.order}
                                                 {banner.startDate && ` · ${new Date(banner.startDate).toLocaleDateString("vi-VN")}`}
                                                 {banner.endDate && ` — ${new Date(banner.endDate).toLocaleDateString("vi-VN")}`}
