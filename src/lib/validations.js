@@ -245,8 +245,11 @@ export const contactSchema = z.object({
 
 // ── Banner ────────────────────────────────────────────
 export const bannerSchema = z.object({
+    title: z.string().optional(),
     order: z.coerce.number().int().min(0),
     ctaLink: z.string().min(1, "Vui lòng nhập link liên kết"),
+    startDate: z.string().optional(),
+    endDate: z.string().optional(),
 });
 
 // ── News Comment ───────────────────────────────────────

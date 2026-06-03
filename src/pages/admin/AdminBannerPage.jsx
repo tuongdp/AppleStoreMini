@@ -42,8 +42,11 @@ function BannerForm({ banner, onClose }) {
     const form = useForm({
         resolver: zodResolver(bannerSchema),
         defaultValues: {
+            title: banner?.title || "",
             order: banner?.order ?? 0,
             ctaLink: banner?.ctaLink || "/products",
+            startDate: banner?.startDate ? banner.startDate.slice(0, 10) : "",
+            endDate: banner?.endDate ? banner.endDate.slice(0, 10) : "",
         },
     });
 
@@ -69,8 +72,11 @@ function BannerForm({ banner, onClose }) {
         }
         try {
             const formData = new FormData();
+            if (values.title) formData.append("title", values.title);
             formData.append("order", String(values.order));
             formData.append("ctaLink", values.ctaLink);
+            if (values.startDate) formData.append("startDate", values.startDate);
+            if (values.endDate) formData.append("endDate", values.endDate);
             if (imageFile) formData.append("image", imageFile);
 
             if (isEditing) {
@@ -122,40 +128,80 @@ function BannerForm({ banner, onClose }) {
 
                 <FormField
                     control={form.control}
-                    name="order"
+                    name="title"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>{"Thứ tự hiển thị"}</FormLabel>
+                            <FormLabel>{"Tên banner"}</FormLabel>
                             <FormControl>
-                                <Input
-                                    type="number"
-                                    min={0}
-                                    className="w-24"
-                                    {...field}
-                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                />
+                                <Input placeholder="VD: Sale hè 2026" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
-                <FormField
-                    control={form.control}
-                    name="ctaLink"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{"Link liên kết"}</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="/products?category=iphone"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="order"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{"Thứ tự"}</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        {...field}
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="ctaLink"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{"Link"}</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="/products?category=iphone" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="startDate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{"Ngày bắt đầu"}</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="endDate"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{"Ngày kết thúc"}</FormLabel>
+                                <FormControl>
+                                    <Input type="date" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 <div className="flex justify-end gap-2 pt-2">
                     <Button
@@ -293,6 +339,16 @@ export default function AdminBannerPage() {
                     <div>
                         {banners.map((banner, index) => {
                             const bannerId = banner._id || banner.id;
+                            const now = new Date();
+                            const isUpcoming = banner.startDate && new Date(banner.startDate) > now;
+                            const isExpired = banner.endDate && new Date(banner.endDate) < now;
+                            const statusBadge = isExpired
+                                ? { label: "Hết hạn", color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" }
+                                : isUpcoming
+                                    ? { label: "Sắp hiển thị", color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" }
+                                    : banner.isActive
+                                        ? { label: "Đang hiển thị", color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" }
+                                        : { label: "Đã ẩn", color: "bg-muted text-muted-foreground" };
                             return (
                                 <div key={bannerId}>
                                     <div className="flex items-center gap-4 p-4">
@@ -309,23 +365,21 @@ export default function AdminBannerPage() {
 
                                         {/* Info */}
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm text-muted-foreground">
-                                                #{banner.order}
+                                            {banner.title && (
+                                                <p className="text-sm font-medium text-foreground">
+                                                    {banner.title}
+                                                </p>
+                                            )}
+                                            <p className={cn("text-xs text-muted-foreground", banner.title && "mt-0.5")}>
+                                                Thứ tự #{banner.order}
+                                                {banner.startDate && ` · ${new Date(banner.startDate).toLocaleDateString("vi-VN")}`}
+                                                {banner.endDate && ` — ${new Date(banner.endDate).toLocaleDateString("vi-VN")}`}
                                             </p>
                                         </div>
 
                                         {/* Status */}
-                                        <Badge
-                                            className={cn(
-                                                "text-xs",
-                                                banner.isActive
-                                                    ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                                                    : "bg-muted text-muted-foreground hover:bg-muted",
-                                            )}
-                                        >
-                                            {banner.isActive
-                                                ? "Hiển thị"
-                                                : "Đã ẩn"}
+                                        <Badge className={cn("text-xs", statusBadge.color)}>
+                                            {statusBadge.label}
                                         </Badge>
 
                                         {/* Toggle */}
