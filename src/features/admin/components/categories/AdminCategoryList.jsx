@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Plus, Pencil, Trash2, GripVertical, ImagePlus, ImageUp, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, ImagePlus, ImageUp, Loader2, X } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 import {
     Form,
     FormControl,
@@ -23,6 +22,14 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -436,151 +443,122 @@ export default function AdminCategoryList() {
             )}
 
             {/* Category list */}
-            <div className="overflow-hidden rounded-xl border border-border bg-card">
-                {isLoading ? (
-                    <div className="space-y-0">
-                        {[...Array(5)].map((_, i) => (
-                            <div
-                                key={i}
-                                className="flex items-center gap-4 border-b border-border p-4 last:border-0"
-                            >
-                                <Skeleton className="h-10 w-10 rounded-lg" />
-                                <div className="flex-1 space-y-1.5">
-                                    <Skeleton className="h-4 w-32" />
-                                    <Skeleton className="h-3 w-20" />
-                                </div>
-                                <Skeleton className="h-6 w-16 rounded-full" />
-                                <Skeleton className="h-8 w-20" />
-                            </div>
-                        ))}
-                    </div>
-                ) : categories.length === 0 ? (
-                    <div className="flex h-40 items-center justify-center">
-                        <p className="text-sm text-muted-foreground">
-                            Chưa có danh mục nào
-                        </p>
-                    </div>
-                ) : (
-                    <div>
-                        {/* Table header */}
-                        <div className="flex items-center gap-4 border-b border-border bg-muted/50 px-4 py-2">
-                            <span className="w-4 shrink-0" />
-                            <span className="w-10 shrink-0" />
-                            <span className="w-8 shrink-0 text-xs font-medium text-muted-foreground">STT</span>
-                            <span className="min-w-0 flex-1 text-xs font-medium text-muted-foreground">Danh mục</span>
-                            <span className="text-xs font-medium text-muted-foreground">Trạng thái</span>
-                            <span className="w-20 shrink-0" />
-                        </div>
-                        {categories.map((category, index) => {
-                            const catId = category._id || category.id;
-                            return (
-                                <div key={catId}>
-                                    <div className="flex items-center gap-4 p-4">
-                                        {/* Drag handle */}
-                                        <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-muted-foreground/40" />
-
-                                        {/* Image */}
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30">
-                                            {category.image ? (
-                                                <img
-                                                    src={category.image}
-                                                    alt={category.name}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                <ImagePlus className="h-4 w-4 text-muted-foreground/40" />
-                                            )}
+            <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                <Table>
+                    <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                            <TableHead className="w-12">STT</TableHead>
+                            <TableHead>Danh mục</TableHead>
+                            <TableHead>Trạng thái</TableHead>
+                            <TableHead className="text-right">Thao tác</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            [...Array(5)].map((_, i) => (
+                                <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-3">
+                                            <Skeleton className="h-10 w-10 rounded-lg" />
+                                            <div className="space-y-1.5">
+                                                <Skeleton className="h-4 w-32" />
+                                                <Skeleton className="h-3 w-20" />
+                                            </div>
                                         </div>
-
-                                        {/* Order */}
-                                        <span className="w-8 shrink-0 text-center text-sm text-muted-foreground">
+                                    </TableCell>
+                                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                    <TableCell className="text-right"><Skeleton className="ml-auto h-8 w-20" /></TableCell>
+                                </TableRow>
+                            ))
+                        ) : categories.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={4} className="py-12 text-center text-muted-foreground">
+                                    Chưa có danh mục nào
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            categories.map((category) => {
+                                const catId = category._id || category.id;
+                                return (
+                                    <TableRow key={catId}>
+                                        <TableCell className="text-sm text-muted-foreground">
                                             {category.order ?? 0}
-                                        </span>
-
-                                        {/* Info */}
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-medium text-foreground">
-                                                {category.name}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                /{category.slug}
-                                                {category.productCount !=
-                                                    null && (
-                                                    <span className="ml-2">
-                                                        ·{" "}
-                                                        {category.productCount}{" "}
-                                                        sản phẩm
-                                                        {category.seriesCount > 0 && (
-                                                            <span>
-                                                                {" · "}
-                                                                {category.seriesCount}{" "}
-                                                                series
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30">
+                                                    {category.image ? (
+                                                        <img
+                                                            src={category.image}
+                                                            alt={category.name}
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <ImagePlus className="h-4 w-4 text-muted-foreground/40" />
+                                                    )}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="truncate text-sm font-medium text-foreground">
+                                                        {category.name}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        /{category.slug}
+                                                        {category.productCount != null && (
+                                                            <span className="ml-2">
+                                                                · {category.productCount} sản phẩm
+                                                                {category.seriesCount > 0 && (
+                                                                    <span> · {category.seriesCount} series</span>
+                                                                )}
                                                             </span>
                                                         )}
-                                                    </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                className={cn(
+                                                    "text-xs",
+                                                    category.isActive !== false
+                                                        ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
+                                                        : "bg-muted text-muted-foreground hover:bg-muted",
                                                 )}
-                                            </p>
-                                        </div>
-
-                                        {/* Status badge */}
-                                        <Badge
-                                            className={cn(
-                                                "text-xs",
-                                                category.isActive !== false
-                                                    ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400"
-                                                    : "bg-muted text-muted-foreground hover:bg-muted",
-                                            )}
-                                        >
-                                            {category.isActive !== false
-                                                ? "Hiển thị"
-                                                : "Đã ẩn"}
-                                        </Badge>
-
-                                        {/* Toggle */}
-                                        <Switch
-                                            checked={
-                                                category.isActive !== false
-                                            }
-                                            onCheckedChange={() =>
-                                                handleToggle(category)
-                                            }
-                                            disabled={isToggling}
-                                        />
-
-                                        {/* Actions */}
-                                        <div className="flex items-center gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                                                onClick={() =>
-                                                    handleEdit(category)
-                                                }
-                                                aria-label={`Sửa danh mục ${category.name}`}
                                             >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                onClick={() =>
-                                                    setDeleteId(catId)
-                                                }
-                                                aria-label={`Xóa danh mục ${category.name}`}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    {index < categories.length - 1 && (
-                                        <Separator />
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                                                {category.isActive !== false ? "Hiển thị" : "Đã ẩn"}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Switch
+                                                    checked={category.isActive !== false}
+                                                    onCheckedChange={() => handleToggle(category)}
+                                                    disabled={isToggling}
+                                                />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                    onClick={() => handleEdit(category)}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                    onClick={() => setDeleteId(catId)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        )}
+                    </TableBody>
+                </Table>
             </div>
 
             {/* Confirm delete */}
