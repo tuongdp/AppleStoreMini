@@ -22,6 +22,8 @@ export default function BannerSlider({ slides = [] }) {
       <Swiper
         modules={[Autoplay, Pagination, EffectFade]}
         effect="fade"
+        fadeEffect={{ crossFade: true }}
+        speed={800}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         pagination={{ clickable: true }}
         loop

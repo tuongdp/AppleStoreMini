@@ -1,4 +1,5 @@
 import { numberToWords } from "./numberToWords";
+import { createPdfDoc } from "./pdfFont";
 
 const STORAGE_KEY_SHOP = "shop_settings";
 const STORAGE_KEY_COUNTER = "invoice_counter";
@@ -23,19 +24,16 @@ function getNextInvoiceNumber() {
 function generateInvoiceSymbol() {
   const now = new Date();
   const yy = String(now.getFullYear()).slice(-2);
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  return `1C23T${yy}${mm}`;
+  return `AS/${yy}E`;
 }
 
-async function loadPDFExporter() {
-  const [{ jsPDF }, autoTableModule] = await Promise.all([
-    import("jspdf"),
-    import("jspdf-autotable"),
-  ]);
-  return {
-    jsPDF,
-    autoTable: autoTableModule.default,
-  };
+function generateFormNumber() {
+  return "01GTKT3/001";
+}
+
+async function loadAutoTable() {
+  const mod = await import("jspdf-autotable");
+  return mod.default;
 }
 
 const DEFAULT_SELLER = {
@@ -63,38 +61,40 @@ export function cacheSellerInfo(info) {
 export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInfo }) {
   if (!order || !buyerInfo) throw new Error("Thiếu dữ liệu đơn hàng hoặc thông tin người mua");
 
-  const { jsPDF, autoTable } = await loadPDFExporter();
+  const autoTable = await loadAutoTable();
   const seller = sellerInfo || getSellerInfo();
   const invoiceNumber = getNextInvoiceNumber();
   const invoiceSymbol = generateInvoiceSymbol();
+  const formNumber = generateFormNumber();
   const today = new Date().toLocaleDateString("vi-VN");
 
-  const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+  const doc = await createPdfDoc({ orientation: "p" });
   const pw = doc.internal.pageSize.getWidth();
   const m = 15;
-  let y = 12;
+  let y = 10;
 
   // Header: Seller info (left)
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setTextColor(30, 64, 175);
   doc.text(seller.name || "AppleStore Mini", m, y);
   doc.setTextColor(80);
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   y += 4;
-  if (seller.taxCode) { doc.text(`MST: ${seller.taxCode}`, m, y); y += 4; }
-  if (seller.address) { doc.text(`${seller.address}`, m, y); y += 4; }
-  if (seller.phone) { doc.text(`SĐT: ${seller.phone}`, m, y); y += 4; }
-  if (seller.email) { doc.text(`Email: ${seller.email}`, m, y); y += 4; }
+  if (seller.taxCode) { doc.text(`MST: ${seller.taxCode}`, m, y); y += 3.5; }
+  if (seller.address) { doc.text(`${seller.address}`, m, y); y += 3.5; }
+  if (seller.phone) { doc.text(`SĐT: ${seller.phone}`, m, y); y += 3.5; }
+  if (seller.email) { doc.text(`Email: ${seller.email}`, m, y); y += 3.5; }
 
-  // Header: Invoice symbol/number (right)
-  doc.setFontSize(8);
+  // Header: Form number, symbol, number (right)
+  doc.setFontSize(7);
   doc.setTextColor(128);
   const rightX = pw - m;
-  doc.text(`Ký hiệu: ${invoiceSymbol}`, rightX, 12, { align: "right" });
-  doc.text(`Số: ${invoiceNumber}`, rightX, 16, { align: "right" });
-  doc.text(`Ngày: ${today}`, rightX, 20, { align: "right" });
+  doc.text(`Mẫu số: ${formNumber}`, rightX, 10, { align: "right" });
+  doc.text(`Ký hiệu: ${invoiceSymbol}`, rightX, 14, { align: "right" });
+  doc.text(`Số: ${invoiceNumber}`, rightX, 18, { align: "right" });
+  doc.text(`Ngày: ${today}`, rightX, 22, { align: "right" });
 
-  y = Math.max(y, 28);
+  y = Math.max(y, 30);
   y += 2;
 
   // Separator line
@@ -106,12 +106,16 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   doc.setFontSize(14);
   doc.setTextColor(30, 64, 175);
   doc.text("HÓA ĐƠN GIÁ TRỊ GIA TĂNG", pw / 2, y, { align: "center" });
-  y += 10;
+  y += 6;
+  doc.setFontSize(8);
+  doc.setTextColor(128);
+  doc.text(`(Bản thể hiện của hóa đơn điện tử)`, pw / 2, y, { align: "center" });
+  y += 8;
 
   // Buyer info
   doc.setFontSize(10);
   doc.setTextColor(80);
-  doc.text("NGƯỜI MUA:", m, y);
+  doc.text("NGƯỜI MUA HÀNG:", m, y);
   y += 5;
   doc.setFontSize(9);
   doc.text(`Tên đơn vị: ${buyerInfo.companyName || order.user?.fullName || "—"}`, m + 5, y);
@@ -135,11 +139,11 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
 
   // Items table
   const items = order.items || [];
-  const tableHead = [["STT", "Tên sản phẩm", "ĐVT", "Số lượng", "Đơn giá (đ)", "Thành tiền (đ)"]];
+  const tableHead = [["STT", "Tên sản phẩm", "ĐVT", "SL", "Đơn giá (VNĐ)", "Thành tiền (VNĐ)"]];
   const tableBody = items.map((it, idx) => [
     String(idx + 1),
     it.name || "—",
-    "Chiếc",
+    it.unit || "Chiếc",
     String(it.quantity || 1),
     (it.price || 0).toLocaleString("vi-VN"),
     ((it.price || 0) * (it.quantity || 1)).toLocaleString("vi-VN"),
@@ -164,14 +168,15 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   y = doc.lastAutoTable.finalY + 6;
 
   // Tax calculation
-  const subtotal = order.totalAmount || 0;
+  const itemsTotal = items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 1), 0);
   const discount = order.discountAmount || 0;
-  const taxableAmount = subtotal;
+  const afterDiscount = Math.max(0, itemsTotal - discount);
   const vatRateNumber = Number(vatRate) || 0;
   const priceBeforeTax = vatRateNumber > 0
-    ? Math.round(taxableAmount / (1 + vatRateNumber / 100))
-    : taxableAmount;
-  const vatAmount = taxableAmount - priceBeforeTax;
+    ? Math.round(afterDiscount / (1 + vatRateNumber / 100))
+    : afterDiscount;
+  const vatAmount = afterDiscount - priceBeforeTax;
+  const grandTotal = afterDiscount;
 
   doc.setFontSize(9);
   doc.setTextColor(80);
@@ -186,13 +191,16 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
     y += 5;
   }
 
-  drawRight("Cộng tiền hàng:", priceBeforeTax.toLocaleString("vi-VN"), false);
+  drawRight("Tổng tiền hàng:", itemsTotal.toLocaleString("vi-VN"), false);
   if (discount > 0) {
     doc.setTextColor(200, 0, 0);
     drawRight("Chiết khấu:", `-${discount.toLocaleString("vi-VN")}`, false);
     doc.setTextColor(80);
   }
-  drawRight(`Thuế GTGT (${vatRate}%):`, vatAmount.toLocaleString("vi-VN"), false);
+  if (vatRateNumber > 0) {
+    drawRight(`Tiền trước thuế:`, priceBeforeTax.toLocaleString("vi-VN"), false);
+    drawRight(`Thuế GTGT (${vatRate}%):`, vatAmount.toLocaleString("vi-VN"), false);
+  }
   y += 1;
   doc.setDrawColor(30, 64, 175);
   doc.line(rStart, y, rEnd, y);
@@ -201,7 +209,7 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   doc.setTextColor(30, 64, 175);
   doc.setFont("helvetica", "bold");
   doc.text("Tổng tiền thanh toán:", rStart, y);
-  doc.text(subtotal.toLocaleString("vi-VN"), rEnd, y, { align: "right" });
+  doc.text(grandTotal.toLocaleString("vi-VN"), rEnd, y, { align: "right" });
   doc.setTextColor(80);
 
   y += 8;
@@ -210,7 +218,7 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(80);
-  doc.text(`Số tiền bằng chữ: ${numberToWords(subtotal)}`, m, y);
+  doc.text(`Số tiền bằng chữ: ${numberToWords(grandTotal)} đồng`, m, y);
   y += 8;
 
   // Payment method
@@ -219,11 +227,12 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   y += 12;
 
   // Signature blocks
-  doc.text("NGƯỜI MUA", m, y, { align: "center", maxWidth: 60 });
-  doc.text("(Ký, ghi rõ họ tên)", m, y + 4, { align: "center", maxWidth: 60 });
-  doc.text("NGƯỜI BÁN", pw - m, y, { align: "center", maxWidth: 60 });
-  doc.text("(Ký, ghi rõ họ tên)", pw - m, y + 4, { align: "center", maxWidth: 60 });
+  doc.setFontSize(9);
+  doc.text("NGƯỜI MUA HÀNG", m + 15, y, { align: "center", maxWidth: 60 });
+  doc.text("(Ký, ghi rõ họ tên)", m + 15, y + 4, { align: "center", maxWidth: 60 });
+  doc.text("NGƯỜI BÁN HÀNG", pw - m - 15, y, { align: "center", maxWidth: 60 });
+  doc.text("(Ký, đóng dấu, ghi rõ họ tên)", pw - m - 15, y + 4, { align: "center", maxWidth: 60 });
 
   const safeCode = String(orderCode).replace(/[^a-zA-Z0-9_-]/g, "_");
-  doc.save(`HoaDonGTGT_${safeCode}.pdf`);
+  doc.save(`HoaDonGTGT_${invoiceNumber}_${safeCode}.pdf`);
 }

@@ -213,9 +213,7 @@ export const commentSchema = z.object({
         .min(10, { message: v("comment.commentMinLength") })
         .max(500, { message: v("comment.commentMaxLength") })
         .transform(sanitizeText),
-    images: z.array(z.string().min(1)).min(1, {
-        message: "Vui lòng thêm ít nhất 1 hình ảnh/video về sản phẩm",
-    }),
+    images: z.array(z.string().min(1)),
 });
 
 // ── Cancel order ──────────────────────────────────────

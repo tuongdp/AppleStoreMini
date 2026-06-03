@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/lib/constants";
-import { useGetSettingsQuery } from "@/store/api/shopSettingsApi";
+import { usePublicSettings } from "@/hooks/usePublicSettings";
 
 const FOOTER_LINKS = [
     {
@@ -42,7 +42,7 @@ const FALLBACK_SOCIAL = [
 ];
 
 export default function Footer() {
-    const { data: settings } = useGetSettingsQuery();
+    const { data: settings } = usePublicSettings();
     const shop = settings?.shop || {};
     const shopName = shop.name || "Apple Store";
 

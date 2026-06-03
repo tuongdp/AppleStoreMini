@@ -8,6 +8,7 @@ export default function QuantityInput({
     min = 1,
     max = 99,
     onChange,
+    onExceedMax,
     disabled = false,
     size = "md",
     className,
@@ -38,7 +39,11 @@ export default function QuantityInput({
     };
 
     const handleIncrease = () => {
-        if (value < max) onChange(value + 1);
+        if (value < max) {
+            onChange(value + 1);
+        } else {
+            onExceedMax?.();
+        }
     };
 
     const handleInputChange = (e) => {
@@ -49,6 +54,7 @@ export default function QuantityInput({
             return;
         }
         if (newValue > max) {
+            onExceedMax?.();
             onChange(max);
             return;
         }
@@ -111,7 +117,7 @@ export default function QuantityInput({
                 type="button"
                 variant="ghost"
                 onClick={handleIncrease}
-                disabled={disabled || value >= max}
+                disabled={disabled || (value >= max && !onExceedMax)}
                 aria-label="Tăng số lượng"
                 data-testid="quantity-increase"
                 className={cn(

@@ -1,5 +1,5 @@
 import { useHead } from "@unhead/react";
-import { useGetSettingsQuery } from "@/store/api/shopSettingsApi";
+import { usePublicSettings } from "@/hooks/usePublicSettings";
 
 const SITE_URL = "https://www.apple-store-mini.io.vn";
 const DEFAULT_IMAGE = "https://www.apple-store-mini.io.vn/og-image.jpg";
@@ -15,7 +15,7 @@ export default function SeoHead({
   type = "website",
   noindex = false,
 }) {
-  const { data: settings } = useGetSettingsQuery();
+  const { data: settings } = usePublicSettings();
   const siteName = settings?.shop?.name || FALLBACK_SITE_NAME;
   const defaultDescription = settings?.seo?.description || FALLBACK_DESCRIPTION;
   const resolvedDescription = description || defaultDescription;

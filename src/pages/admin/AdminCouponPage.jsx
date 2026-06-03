@@ -62,7 +62,7 @@ export default function AdminCouponPage() {
                         Chính sách thưởng đánh giá
                     </CardTitle>
                     {isRewardLoading ? <Skeleton className="h-5 w-20" /> : (
-                        <Badge variant="secondary">{rewardType === "PERCENT" ? `${reviewRewardSetting?.points ?? 20}%` : `${formatNumber(Number(reviewRewardSetting?.points ?? 20000))} điểm`}</Badge>
+                        <Badge variant="secondary">{rewardType === "PERCENT" ? `${formatNumber(Number(reviewRewardSetting?.points ?? 20))}%` : `${formatNumber(Number(reviewRewardSetting?.points ?? 20000))} điểm`}</Badge>
                     )}
                 </CardHeader>
                 <CardContent>

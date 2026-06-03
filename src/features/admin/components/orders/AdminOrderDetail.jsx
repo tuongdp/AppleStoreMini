@@ -24,8 +24,7 @@ import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
 import { ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import { createPdfDoc } from "@/utils/pdfFont";
 import ExportButton from "@/components/ui/export-button";
 import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 
@@ -61,10 +60,11 @@ export default function AdminOrderDetail({ order }) {
         }
     };
 
-    const handleExportOrderPDF = () => {
+    const handleExportOrderPDF = async () => {
         if (!order) return;
         setIsExportingPDF(true);
         try {
+            const autoTable = (await import("jspdf-autotable")).default;
             const items = order.items || [];
             const STATUS_LABELS = {
                 pending: "Chờ xác nhận", confirmed: "Đã xác nhận", processing: "Đang xử lý",
@@ -94,7 +94,7 @@ export default function AdminOrderDetail({ order }) {
                 };
             });
 
-            const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+            const doc = await createPdfDoc({ orientation: "p" });
             const pw = doc.internal.pageSize.getWidth();
             const m = 15;
             let y = 12;
@@ -102,7 +102,10 @@ export default function AdminOrderDetail({ order }) {
             doc.setFontSize(9); doc.setTextColor(128);
             doc.text("AppleStore Mini", m, y);
             doc.text(new Date().toLocaleDateString("vi-VN"), pw - m, y, { align: "right" });
-            y += 10;
+            y += 4;
+            doc.setFontSize(7); doc.setTextColor(150);
+            doc.text("SĐT: 1800 1234 | Email: support@applestore.vn", m, y);
+            y += 8;
 
             doc.setFontSize(16); doc.setTextColor(30, 64, 175);
             doc.text(`Đơn hàng #${order.code}`, pw / 2, y, { align: "center" });
@@ -139,7 +142,7 @@ export default function AdminOrderDetail({ order }) {
             y = doc.lastAutoTable.finalY + 8;
 
             doc.setFontSize(10); doc.setTextColor(80);
-            doc.text(`Tạm tính: ${(order.subtotal || 0).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" }); y += 5;
+            doc.text(`Tổng tiền hàng: ${(order.subtotal || 0).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" }); y += 5;
             if (order.discountAmount) {
                 doc.setTextColor(200, 0, 0);
                 doc.text(`Giảm giá: -${(order.discountAmount).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" }); y += 5;

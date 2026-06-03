@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useState } from "react";
 import {
     useCreateCouponMutation,
     useUpdateCouponMutation,
@@ -24,6 +25,25 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { formatPriceInput, parsePriceInput } from "@/lib/utils";
+
+function PriceInput({ value, onChange, ...props }) {
+    const [focused, setFocused] = useState(false);
+    const display = focused ? (value || "") : formatPriceInput(value);
+
+    return (
+        <Input
+            {...props}
+            value={display}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            onChange={(e) => {
+                const raw = parsePriceInput(e.target.value);
+                onChange?.(raw);
+            }}
+        />
+    );
+}
 
 const couponSchema = z.object({
     code: z
@@ -173,7 +193,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                     </FormControl>
                                     <SelectContent>
                                         <SelectItem value="percent">Phần trăm (%)</SelectItem>
-                                        <SelectItem value="fixed">Số tiền cố định (đ)</SelectItem>
+                                        <SelectItem value="fixed">Số tiền cố định (₫)</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -187,18 +207,27 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Giá trị giảm {watchDiscountType === "percent" ? "(%)" : "(đ)"}
+                                    Giá trị giảm {watchDiscountType === "percent" ? "(%)" : "(₫)"}
                                 </FormLabel>
                                 <FormControl>
-                                    <Input
-                                        type="number"
-                                        min={1}
-                                        max={watchDiscountType === "percent" ? 100 : undefined}
-                                        placeholder={watchDiscountType === "percent" ? "20" : "50000"}
-                                        disabled={isLoading}
-                                        {...field}
-                                        onChange={(e) => field.onChange(Number(e.target.value))}
-                                    />
+                                    {watchDiscountType === "percent" ? (
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            max={100}
+                                            placeholder="20"
+                                            disabled={isLoading}
+                                            {...field}
+                                            onChange={(e) => field.onChange(Number(e.target.value))}
+                                        />
+                                    ) : (
+                                        <PriceInput
+                                            placeholder="50.000"
+                                            disabled={isLoading}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                        />
+                                    )}
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -210,29 +239,27 @@ export default function AdminCouponForm({ coupon, onClose }) {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {watchDiscountType === "percent" && (
-                        <FormField
-                            control={form.control}
-                            name="maxDiscountAmount"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        Giảm tối đa (đ){" "}
-                                        <span className="text-muted-foreground">(tùy chọn)</span>
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            min={0}
-                                            placeholder="VD: 200000"
-                                            disabled={isLoading}
-                                            value={field.value ?? ""}
-                                            onChange={(e) => field.onChange(emptyToNumber(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="maxDiscountAmount"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>
+                                            Giảm tối đa (₫){" "}
+                                            <span className="text-muted-foreground">(tùy chọn)</span>
+                                        </FormLabel>
+                                        <FormControl>
+                                            <PriceInput
+                                                placeholder="200.000"
+                                                disabled={isLoading}
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                     )}
 
                     <FormField
@@ -241,17 +268,15 @@ export default function AdminCouponForm({ coupon, onClose }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>
-                                    Đơn tối thiểu (đ){" "}
+                                    Đơn tối thiểu (₫){" "}
                                     <span className="text-muted-foreground">(tùy chọn)</span>
                                 </FormLabel>
                                 <FormControl>
-                                    <Input
-                                        type="number"
-                                        min={0}
-                                        placeholder="VD: 1000000"
+                                    <PriceInput
+                                        placeholder="1.000.000"
                                         disabled={isLoading}
-                                        value={field.value ?? ""}
-                                        onChange={(e) => field.onChange(emptyToNumber(e.target.value))}
+                                        value={field.value}
+                                        onChange={field.onChange}
                                     />
                                 </FormControl>
                                 <FormMessage />

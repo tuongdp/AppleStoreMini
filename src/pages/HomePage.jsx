@@ -192,7 +192,11 @@ export default function HomePage() {
         />
         ))}
 
-      <PersonalizedRecommendations />
+      <section className="section-padding py-8 md:py-10 lg:py-14">
+        <div className="mx-auto max-w-7xl">
+          <PersonalizedRecommendations />
+        </div>
+      </section>
 
       <section className="section-padding border-t border-border bg-muted/20 py-12">
         <div className="mx-auto max-w-7xl">

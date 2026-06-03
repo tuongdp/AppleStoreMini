@@ -8,12 +8,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PointsPage() {
     const [showHistory, setShowHistory] = useState(true);
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
 
     const { data: pointsData, isLoading: pointsLoading } = useGetMyPointsQuery();
-    const { data: historyData, isLoading: historyLoading } = useGetPointsHistoryQuery(undefined, { skip: !showHistory });
+    const { data: historyData, isLoading: historyLoading } = useGetPointsHistoryQuery(
+        { page, limit: PAGE_SIZE },
+        { skip: !showHistory },
+    );
 
     const points = pointsData?.points ?? 0;
     const transactions = historyData?.transactions || [];
+    const pagination = historyData?.pagination || {};
 
     if (pointsLoading) {
         return (
@@ -107,6 +113,32 @@ export default function PointsPage() {
                         )}
                     </CardContent>
                 </Card>
+            )}
+
+            {showHistory && !historyLoading && pagination.totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => p - 1)}
+                    >
+                        Trước
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                        Trang {page} trong {pagination.totalPages}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full"
+                        disabled={page >= pagination.totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                    >
+                        Sau
+                    </Button>
+                </div>
             )}
         </div>
     );

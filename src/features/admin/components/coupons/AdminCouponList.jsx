@@ -65,7 +65,7 @@ export default function AdminCouponList() {
         { key: "isActive", label: "Trạng thái" },
     ];
 
-    const DISCOUNT_TYPE_LABELS = { PERCENT: "%", FIXED: "VNĐ" };
+    const DISCOUNT_TYPE_LABELS = { PERCENT: "%", FIXED: "₫" };
 
     const getCouponExportRows = () =>
         coupons.map((c) => ({
@@ -74,8 +74,8 @@ export default function AdminCouponList() {
             discountType: DISCOUNT_TYPE_LABELS[c.discountType] || c.discountType,
             discountValue:
                 c.discountType === "PERCENT"
-                    ? `${c.discountValue}% (tối đa ${(c.maxDiscountAmount || 0).toLocaleString("vi-VN")}đ)`
-                    : `${(c.discountValue || 0).toLocaleString("vi-VN")}đ`,
+                    ? `${c.discountValue}% (tối đa ${(c.maxDiscountAmount || 0).toLocaleString("vi-VN")}₫)`
+                    : `${(c.discountValue || 0).toLocaleString("vi-VN")}₫`,
             minOrderAmount: c.minOrderAmount || 0,
             usedCount: `${c.usedCount || 0} / ${c.maxUsage || "∞"}`,
             expiresAt: c.expiresAt,
@@ -276,7 +276,7 @@ export default function AdminCouponList() {
                                             <span className="text-sm font-medium text-foreground">
                                                 {coupon.discountType ===
                                                 "PERCENT"
-                                                    ? `${coupon.discountValue}%`
+                                                    ? `${formatNumber(coupon.discountValue)}%`
                                                     : formatPrice(
                                                           coupon.discountValue,
                                                       )}

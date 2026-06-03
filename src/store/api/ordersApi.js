@@ -248,7 +248,7 @@ export const ordersApi = baseApi.injectEndpoints({
 
         // GET /admin/dashboard/category-revenue
         getCategoryRevenue: builder.query({
-            query: () => "/admin/dashboard/category-revenue",
+            query: (params) => ({ url: "/admin/dashboard/category-revenue", params }),
             transformResponse: (response) => response.data,
         }),
 

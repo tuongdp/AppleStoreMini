@@ -1,3 +1,5 @@
+import { createPdfDoc } from "./pdfFont";
+
 const BLUE = "#1e40af";
 const STRIPE = "#f3f4f6";
 const LOCALE = "vi-VN";
@@ -77,8 +79,10 @@ function autoWidth(rows, cols, max = 40) {
         let w = col.label ? col.label.length : 8;
         for (const row of rows) {
             const v = row[col.key];
-            const display = formatCellValue(v, col.format);
-            const len = String(display || "").length;
+            const display = col.format === "currency"
+                ? String(Number(v) || 0).length + 4
+                : formatCellValue(v, col.format);
+            const len = typeof display === "string" ? display.length : String(display || "").length;
             if (len > w) w = len;
         }
         return { wch: Math.min(w + 4, max) };
@@ -164,8 +168,8 @@ export async function exportToPDF({
     filename = "export.pdf",
     orientation = "portrait",
 }) {
-    const { jsPDF, autoTable } = await loadPDFExporter();
-    const doc = new jsPDF({ orientation, unit: "mm", format: "a4" });
+    const { autoTable } = await loadPDFExporter();
+    const doc = await createPdfDoc({ orientation });
     const pageW = doc.internal.pageSize.getWidth();
 
     // Header bar
@@ -251,8 +255,8 @@ export async function exportToPDF({
 // ── exportDashboardPDF ───────────────────────────────────
 
 export async function exportDashboardPDF({ sections, filename = "dashboard.pdf" }) {
-    const { jsPDF, autoTable } = await loadPDFExporter();
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const { autoTable } = await loadPDFExporter();
+    const doc = await createPdfDoc({ orientation: "portrait" });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
     const marginX = 14;

@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { exportVATInvoicePDF, cacheSellerInfo, getSellerInfo } from "@/utils/invoiceUtils";
-import { useGetSettingsQuery } from "@/store/api/shopSettingsApi";
+import { usePublicSettings } from "@/hooks/usePublicSettings";
 import { toast } from "sonner";
 
 const VAT_RATE_OPTIONS = [
@@ -36,7 +36,7 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const { data: settingsData } = useGetSettingsQuery();
+  const { data: settingsData } = usePublicSettings();
 
   useEffect(() => {
     if (settingsData?.shop) {

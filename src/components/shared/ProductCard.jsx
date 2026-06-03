@@ -1,14 +1,18 @@
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
-import { toggleAuthModal } from "@/store/uiSlice";
+import { toggleAuthModal, toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
+import { addToCart } from "@/store/cartSlice";
+import { useAddToCartMutation } from "@/store/api/cartApi";
 import { formatPrice, cn, parseJsonField, calcDiscount } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
+import { useNavigate } from "react-router-dom";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import {
     getProductMarketingBadge,
@@ -46,11 +50,16 @@ function getProductDetailHref(product) {
 
 export default function ProductCard({ product }) {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const isInWishlist = useSelector(
         selectIsInWishlist(product._id || product.id),
     );
+
+    const [addToCartApi] = useAddToCartMutation();
+
+    const variantId = product.variantId || product._id || product.id;
 
     const effectivePrice = product.salePrice && product.salePrice < product.price
         ? product.salePrice
@@ -77,6 +86,46 @@ export default function ProductCard({ product }) {
         dispatch(toggleWishlist(product));
     };
 
+    const handleAddToCart = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch(
+            addToCart({
+                product: {
+                    ...product,
+                    variantId,
+                    images: parseJsonField(product.images) || product.images,
+                },
+                variantId,
+                quantity: 1,
+            }),
+        );
+        dispatch(toggleCartDrawer(true));
+        if (isAuthenticated && variantId) {
+            addToCartApi({ variantId, quantity: 1 });
+        }
+    };
+
+    const handleBuyNow = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dispatch(
+            addToCart({
+                product: {
+                    ...product,
+                    variantId,
+                    images: parseJsonField(product.images) || product.images,
+                },
+                variantId,
+                quantity: 1,
+            }),
+        );
+        if (isAuthenticated && variantId) {
+            addToCartApi({ variantId, quantity: 1 });
+        }
+        navigate(ROUTES.CHECKOUT);
+    };
+
     const prefetchProductDetail = () => {
         if (!product.slug) return;
         dispatch(
@@ -88,7 +137,7 @@ export default function ProductCard({ product }) {
 
     return (
         <Card
-            className="group overflow-hidden border-transparent bg-muted/30 transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-md"
+            className="group cursor-pointer overflow-hidden border-transparent bg-muted/30 transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-md"
             data-testid="product-card"
             data-product-id={product._id || product.id}
             data-product-slug={product.slug}
@@ -151,6 +200,28 @@ export default function ProductCard({ product }) {
                             )}
                         />
                     </button>
+
+                    {/* Hover action buttons */}
+                    {!isOutOfStock && (
+                        <div className="absolute bottom-0 left-0 right-0 z-10 flex translate-y-full gap-2 bg-gradient-to-t from-black/20 to-transparent p-3 pt-8 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-8 flex-1 rounded-full text-xs"
+                                onClick={handleAddToCart}
+                            >
+                                <ShoppingCart className="mr-1 h-3 w-3" />
+                                Thêm vào giỏ
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="h-8 flex-1 rounded-full text-xs"
+                                onClick={handleBuyNow}
+                            >
+                                Mua ngay
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Overlay mờ khi hết hàng */}
                     {isOutOfStock && (

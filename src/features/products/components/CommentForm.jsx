@@ -98,15 +98,22 @@ export default function CommentForm({
                     ...values,
                 }).unwrap();
             } else {
-                await createReview({
+                const result = await createReview({
                     productId,
                     ...(orderId && { orderId }),
                     ...(orderItemId && { orderItemId }),
                     ...values,
                 }).unwrap();
+                toast.success(
+                    result.pointsAwarded
+                        ? `Đánh giá thành công, bạn đã nhận ${result.reviewRewardPoints?.toLocaleString("vi-VN") || 0} điểm thưởng`
+                        : "Đánh giá thành công",
+                );
             }
 
-            toast.success(isEditing ? "Đã cập nhật đánh giá" : "Đánh giá thành công, bạn đã nhận điểm thưởng");
+            if (isEditing) {
+                toast.success("Đã cập nhật đánh giá");
+            }
             form.reset();
             onSuccess?.(values);
         } catch (error) {
@@ -141,7 +148,7 @@ export default function CommentForm({
                     name="images"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Thêm ít nhất 1 hình ảnh/video về sản phẩm</FormLabel>
+                            <FormLabel>Hình ảnh / video sản phẩm</FormLabel>
                             <div className="space-y-3">
                                 <div>
                                     <FormControl>
@@ -185,9 +192,11 @@ export default function CommentForm({
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
-                                        <ImagePlus className="h-4 w-4" />
-                                        <span>Thêm media để nhận điểm thưởng sau khi đánh giá</span>
+                                    <div className="flex flex-col gap-1 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+                                        <div className="flex items-center gap-2">
+                                            <ImagePlus className="h-4 w-4" />
+                                            <span>Gửi ít nhất 2 ảnh và 1 video để nhận điểm thưởng</span>
+                                        </div>
                                     </div>
                                 )}
                             </div>

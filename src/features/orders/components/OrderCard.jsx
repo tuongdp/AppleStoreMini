@@ -74,7 +74,9 @@ export default function OrderCard({ order }) {
     const visibleItems = order.items?.slice(0, 3) || [];
     const remainCount = (order.items?.length || 0) - visibleItems.length;
     const isDelivered = (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED;
-    const deliveredItems = isDelivered ? order.items || [] : [];
+    const REVIEW_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+    const canReview = isDelivered && order.deliveredAt && (new Date(order.deliveredAt).getTime() + REVIEW_WINDOW_MS > Date.now());
+    const deliveredItems = canReview ? order.items || [] : [];
 
     // Chưa bình luận = chưa có isReviewed từ server VÀ chưa bình luận trong session
     const unreviewedItems = deliveredItems.filter((item) => {

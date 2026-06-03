@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import QuantityInput from "@/components/shared/QuantityInput";
@@ -38,7 +39,7 @@ export default function CartDrawerItem({ item }) {
 
   const isSelected = item.selected !== false;
 
-  const stockAvailable = variant?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99);
+  const stockAvailable = variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99);
   const effectiveMax = Math.max(1, stockAvailable);
   const hasStockIssue = item.quantity > stockAvailable;
 
@@ -62,6 +63,10 @@ export default function CartDrawerItem({ item }) {
       }, 300);
     }
   }, [dispatch, variantId, isAuthenticated, updateServerCartItem]);
+
+  const handleExceedMax = useCallback(() => {
+    toast.warning(`Chỉ còn ${stockAvailable} sản phẩm trong kho`);
+  }, [stockAvailable]);
 
   const handleToggleSelected = (checked) => {
     dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
@@ -130,9 +135,10 @@ export default function CartDrawerItem({ item }) {
             max={effectiveMax}
             size="sm"
             onChange={handleUpdateQty}
+            onExceedMax={handleExceedMax}
           />
         </div>
-        {stockAvailable <= 5 && (
+        {(stockAvailable <= 5 || hasStockIssue) && (
           <p className={cn("mt-1 text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
             {hasStockIssue
               ? `Không đủ hàng — chỉ còn ${stockAvailable} sản phẩm`

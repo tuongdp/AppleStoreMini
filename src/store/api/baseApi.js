@@ -29,7 +29,11 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
       const release = await mutex.acquire();
 
       try {
-        const refreshToken = api.getState().auth.refreshToken;
+        const { refreshToken, accessToken } = api.getState().auth;
+        if (!accessToken && !refreshToken) {
+          release();
+          return result;
+        }
         if (!refreshToken) {
           toast.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
           api.dispatch(logout());

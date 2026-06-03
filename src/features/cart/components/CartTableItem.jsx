@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import QuantityInput from "@/components/shared/QuantityInput";
@@ -60,6 +61,10 @@ export default function CartTableItem({ item, isLast }) {
       }, 300);
     }
   }, [dispatch, variantId, isAuthenticated, updateServerCartItem]);
+
+  const handleExceedMax = useCallback(() => {
+    toast.warning(`Chỉ còn ${availableStock} sản phẩm trong kho`);
+  }, [availableStock]);
 
   const handleToggleSelected = (checked) => {
     dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
@@ -138,8 +143,9 @@ export default function CartTableItem({ item, isLast }) {
             max={effectiveMax}
             size="sm"
             onChange={handleUpdateQty}
+            onExceedMax={handleExceedMax}
           />
-          {availableStock <= 5 && (
+          {(availableStock <= 5 || hasStockIssue) && (
             <p className={cn("mt-1 text-center text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
               {hasStockIssue
                 ? `Không đủ — còn ${availableStock}`
