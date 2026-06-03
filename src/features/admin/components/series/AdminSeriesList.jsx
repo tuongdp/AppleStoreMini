@@ -57,11 +57,15 @@ function getSeriesId(series) {
     return series?._id || series?.id;
 }
 
-function SeriesForm({ series, categories, onClose }) {
+function SeriesForm({ series, categories, allSeries, onClose }) {
     const isEditing = !!series;
     const [createSeries, { isLoading: isCreating }] = useCreateSeriesMutation();
     const [updateSeries, { isLoading: isUpdating }] = useUpdateSeriesMutation();
     const isLoading = isCreating || isUpdating;
+
+    const nextOrder = isEditing
+        ? series.order
+        : (allSeries?.length > 0 ? Math.max(...allSeries.map((s) => s.order || 0)) + 1 : 0);
 
     const form = useForm({
         resolver: zodResolver(seriesSchema),
@@ -70,7 +74,7 @@ function SeriesForm({ series, categories, onClose }) {
             slug: series?.slug || "",
             category: series?.category?.slug || "",
             description: series?.description || "",
-            order: series?.order ?? 0,
+            order: nextOrder ?? 0,
         },
     });
 
@@ -357,6 +361,7 @@ export default function AdminSeriesList() {
                     <SeriesForm
                         key={getSeriesId(editingSeries) || "new-series"}
                         series={editingSeries}
+                        allSeries={series}
                         categories={categories}
                         onClose={handleFormClose}
                     />
