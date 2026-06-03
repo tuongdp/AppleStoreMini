@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Search, X } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -82,14 +82,6 @@ function SeriesForm({ series, categories, allSeries, onClose }) {
             order: isEditing ? series.order : getCategoryOrder(initialCategory),
         },
     });
-
-    const watchedCategory = form.watch("category");
-
-    useEffect(() => {
-        if (!isEditing && watchedCategory) {
-            form.setValue("order", getCategoryOrder(watchedCategory));
-        }
-    }, [watchedCategory, isEditing]);
 
     const handleNameChange = (event) => {
         const name = event.target.value;
