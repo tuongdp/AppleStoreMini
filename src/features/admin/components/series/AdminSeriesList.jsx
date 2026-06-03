@@ -370,7 +370,8 @@ export default function AdminSeriesList() {
                             <TableHead>Series</TableHead>
                             <TableHead>Danh mục</TableHead>
                             <TableHead>Thứ tự</TableHead>
-                            <TableHead>Trạng thái</TableHead>
+                            <TableHead>Số sản phẩm</TableHead>
+                            <TableHead>Hiển thị</TableHead>
                             <TableHead className="text-right">Thao tác</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -378,7 +379,7 @@ export default function AdminSeriesList() {
                         {isLoading ? (
                             [...Array(5)].map((_, index) => (
                                 <TableRow key={index}>
-                                    {[...Array(5)].map((__, cellIndex) => (
+                                    {[...Array(6)].map((__, cellIndex) => (
                                         <TableCell key={cellIndex}>
                                             <Skeleton className="h-5 w-full" />
                                         </TableCell>
@@ -387,7 +388,7 @@ export default function AdminSeriesList() {
                             ))
                         ) : series.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
+                                <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
                                     {hasFilters ? "Không tìm thấy series phù hợp" : "Chưa có series nào"}
                                 </TableCell>
                             </TableRow>
@@ -415,6 +416,11 @@ export default function AdminSeriesList() {
                                             )}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground">{item.order ?? 0}</TableCell>
+                                        <TableCell>
+                                            <span className="text-sm text-muted-foreground">
+                                                {item._count?.products ?? 0}
+                                            </span>
+                                        </TableCell>
                                         <TableCell>
                                             <Badge
                                                 className={cn(
