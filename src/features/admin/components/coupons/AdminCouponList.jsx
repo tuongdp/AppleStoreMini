@@ -34,7 +34,7 @@ export default function AdminCouponList() {
 
     const status = searchParams.get("status") || "";
 
-    const { data, isLoading } = useGetAllCouponsQuery(status ? { status } : undefined);
+    const { data, isLoading } = useGetAllCouponsQuery(status && status !== "all" ? { status } : undefined);
     const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCouponStatusMutation();
@@ -150,10 +150,10 @@ export default function AdminCouponList() {
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                     <Select
-                        value={status}
+                        value={status || "all"}
                         onValueChange={(val) => {
                             const params = new URLSearchParams(searchParams);
-                            if (val) params.set("status", val);
+                            if (val && val !== "all") params.set("status", val);
                             else params.delete("status");
                             setSearchParams(params);
                         }}
@@ -162,7 +162,7 @@ export default function AdminCouponList() {
                             <SelectValue placeholder="Tất cả" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="">Tất cả</SelectItem>
+                            <SelectItem value="all">Tất cả</SelectItem>
                             <SelectItem value="active">Đang hoạt động</SelectItem>
                             <SelectItem value="expiring">Sắp hết hạn</SelectItem>
                             <SelectItem value="expired">Hết hạn</SelectItem>
