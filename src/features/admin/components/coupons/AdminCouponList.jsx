@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import {
     useGetAllCouponsQuery,
@@ -17,6 +18,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminCouponForm from "./AdminCouponForm";
 import { toast } from "sonner";
 import { formatPrice, formatDate, formatNumber } from "@/lib/utils";
@@ -25,11 +27,14 @@ import { useExport } from "@/hooks/useExport";
 import { cn } from "@/lib/utils";
 
 export default function AdminCouponList() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [deleteId, setDeleteId] = useState(null);
     const [editingCoupon, setEditingCoupon] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const { data, isLoading } = useGetAllCouponsQuery();
+    const status = searchParams.get("status") || "";
+
+    const { data, isLoading } = useGetAllCouponsQuery(status ? { status } : undefined);
     const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCouponStatusMutation();
@@ -143,9 +148,31 @@ export default function AdminCouponList() {
         <div className="space-y-4">
             {/* Toolbar */}
             <div className="flex items-center justify-between gap-3">
-                <p className="text-sm text-muted-foreground">
-                    {coupons.length} mã giảm giá
-                </p>
+                <div className="flex items-center gap-3">
+                    <Select
+                        value={status}
+                        onValueChange={(val) => {
+                            const params = new URLSearchParams(searchParams);
+                            if (val) params.set("status", val);
+                            else params.delete("status");
+                            setSearchParams(params);
+                        }}
+                    >
+                        <SelectTrigger className="w-40 rounded-full">
+                            <SelectValue placeholder="Tất cả" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Tất cả</SelectItem>
+                            <SelectItem value="active">Đang hoạt động</SelectItem>
+                            <SelectItem value="expiring">Sắp hết hạn</SelectItem>
+                            <SelectItem value="expired">Hết hạn</SelectItem>
+                            <SelectItem value="used_up">Đã dùng hết</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground">
+                        {coupons.length} mã giảm giá
+                    </p>
+                </div>
                 <div className="flex items-center gap-3">
                     <ExportButton
                         onExportExcel={handleExportCouponsExcel}
