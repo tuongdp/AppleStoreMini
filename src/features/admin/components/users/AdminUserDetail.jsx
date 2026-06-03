@@ -15,6 +15,7 @@ import {
     DollarSign,
     Hash,
     Clock,
+    Copy,
     KeyRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -251,6 +252,8 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const [updateRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
     const [toggleStatus, { isLoading: isTogglingStatus }] = useToggleUserStatusMutation();
     const [resetPassword, { isLoading: isResetting }] = useResetUserPasswordMutation();
+    const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+    const [resetResult, setResetResult] = useState(null);
 
     const roleConfig = ROLE_CONFIG[user.role] || ROLE_CONFIG.user;
     const isSelf = String(user.id) === String(currentUser?.id);
@@ -357,9 +360,11 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const handleResetPassword = async () => {
         try {
             const result = await resetPassword(user.id).unwrap();
-            toast.success(`Mật khẩu mới: ${result.newPassword}`, { duration: 10000 });
+            setResetResult(result.newPassword);
+            setResetConfirmOpen(false);
         } catch {
             toast.error("Đặt lại mật khẩu thất bại");
+            setResetConfirmOpen(false);
         }
     };
 
@@ -663,7 +668,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     size="sm"
                                     className="justify-start rounded-lg"
                                     disabled={isResetting}
-                                    onClick={handleResetPassword}
+                                    onClick={() => setResetConfirmOpen(true)}
                                 >
                                     <KeyRound className="mr-2 h-4 w-4" />
                                     Đặt lại mật khẩu
@@ -763,6 +768,49 @@ export default function AdminUserDetail({ user, orders = [] }) {
                 onConfirm={handleConfirmAction}
                 isLoading={isUpdatingRole || isTogglingStatus}
             />
+
+            <ConfirmDialog
+                open={resetConfirmOpen}
+                onOpenChange={(open) => { if (!open) setResetConfirmOpen(false); }}
+                title="Đặt lại mật khẩu"
+                description={`Bạn có chắc chắn muốn đặt lại mật khẩu cho ${user.fullName || user.email}? Mật khẩu mới sẽ được gửi qua email cho người dùng.`}
+                confirmLabel="Xác nhận đặt lại"
+                variant="default"
+                onConfirm={handleResetPassword}
+                isLoading={isResetting}
+            />
+
+            {resetResult && (
+                <ConfirmDialog
+                    open={!!resetResult}
+                    onOpenChange={() => setResetResult(null)}
+                    title="Đã đặt lại mật khẩu"
+                    description={
+                        <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground">
+                                Mật khẩu mới đã được gửi qua email. Vui lòng lưu lại:
+                            </p>
+                            <div className="flex items-center gap-2 rounded-lg border bg-muted/50 p-3">
+                                <code className="flex-1 text-sm font-bold text-foreground select-all">{resetResult}</code>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="shrink-0 rounded-full"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(resetResult);
+                                        toast.success("Đã sao chép mật khẩu");
+                                    }}
+                                >
+                                    <Copy className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
+                        </div>
+                    }
+                    confirmLabel="Đóng"
+                    variant="default"
+                    onConfirm={() => setResetResult(null)}
+                />
+            )}
         </div>
     );
 }
