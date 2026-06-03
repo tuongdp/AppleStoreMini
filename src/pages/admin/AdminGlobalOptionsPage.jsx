@@ -314,7 +314,6 @@ export default function AdminGlobalOptionsPage() {
                                 <tr className="border-b border-border text-left text-xs text-muted-foreground">
                                     <th className="px-4 py-3 font-medium">{activeTab === "COLOR" ? "Xem trước" : "Loại"}</th>
                                     <th className="px-4 py-3 font-medium">Giá trị</th>
-                                    <th className="px-4 py-3 font-medium">Thứ tự</th>
                                     <th className="px-4 py-3 text-right font-medium">Hành động</th>
                                 </tr>
                             </thead>
@@ -353,9 +352,6 @@ export default function AdminGlobalOptionsPage() {
                                                         {option.value}
                                                     </span>
                                                 )}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm text-muted-foreground">
-                                                {option.sortOrder ?? 0}
                                             </td>
                                             <td className="px-4 py-2 text-right">
                                                 <div className="flex justify-end gap-1">
