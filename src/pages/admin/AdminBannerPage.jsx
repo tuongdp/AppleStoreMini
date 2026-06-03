@@ -34,16 +34,20 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { bannerSchema } from "@/lib/validations";
 
-function BannerForm({ banner, onClose }) {
+function BannerForm({ banner, banners, onClose }) {
     const isEditing = !!banner;
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(banner?.image || null);
+
+    const nextOrder = isEditing
+        ? banner?.order
+        : (banners?.length > 0 ? Math.max(...banners.map((b) => b.order || 0)) + 1 : 0);
 
     const form = useForm({
         resolver: zodResolver(bannerSchema),
         defaultValues: {
             title: banner?.title || "",
-            order: banner?.order ?? 0,
+            order: nextOrder ?? 0,
             ctaLink: banner?.ctaLink || "/products",
             startDate: banner?.startDate ? banner.startDate.slice(0, 10) : "",
             endDate: banner?.endDate ? banner.endDate.slice(0, 10) : "",
@@ -307,6 +311,7 @@ export default function AdminBannerPage() {
                     </h3>
                     <BannerForm
                         banner={editingBanner}
+                        banners={banners}
                         onClose={handleFormClose}
                     />
                 </div>
