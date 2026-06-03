@@ -15,6 +15,7 @@ import {
     DollarSign,
     Hash,
     Clock,
+    KeyRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ import {
     useToggleUserStatusMutation,
     useUpdateUserPermissionsMutation,
     useUpdateUserRoleMutation,
+    useResetUserPasswordMutation,
 } from "@/store/api/usersApi";
 import { PERMISSION_ACTIONS, normalizePermissions, selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
 import {
@@ -34,6 +36,7 @@ import {
     formatDateTime,
     formatNumber,
     formatPhone,
+    timeAgo,
 } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
@@ -247,6 +250,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
         useUpdateUserPermissionsMutation();
     const [updateRole, { isLoading: isUpdatingRole }] = useUpdateUserRoleMutation();
     const [toggleStatus, { isLoading: isTogglingStatus }] = useToggleUserStatusMutation();
+    const [resetPassword, { isLoading: isResetting }] = useResetUserPasswordMutation();
 
     const roleConfig = ROLE_CONFIG[user.role] || ROLE_CONFIG.user;
     const isSelf = String(user.id) === String(currentUser?.id);
@@ -350,6 +354,15 @@ export default function AdminUserDetail({ user, orders = [] }) {
         }
     };
 
+    const handleResetPassword = async () => {
+        try {
+            const result = await resetPassword(user.id).unwrap();
+            toast.success(`Mật khẩu mới: ${result.newPassword}`, { duration: 10000 });
+        } catch {
+            toast.error("Đặt lại mật khẩu thất bại");
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* ── Header Banner ── */}
@@ -404,6 +417,12 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     <Clock className="h-3.5 w-3.5" />
                                     Tham gia {formatDate(user.createdAt)}
                                 </span>
+                                {user.lastLoginAt && (
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <Clock className="h-3.5 w-3.5" />
+                                        Đăng nhập {timeAgo(user.lastLoginAt)}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -637,6 +656,17 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                 >
                                     <ShieldOff className="mr-2 h-4 w-4" />
                                     {user.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+                                </Button>
+                                <Separator className="my-1" />
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="justify-start rounded-lg"
+                                    disabled={isResetting}
+                                    onClick={handleResetPassword}
+                                >
+                                    <KeyRound className="mr-2 h-4 w-4" />
+                                    Đặt lại mật khẩu
                                 </Button>
                             </div>
                             {isSelf && (

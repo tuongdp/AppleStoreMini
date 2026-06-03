@@ -115,6 +115,14 @@ export const usersApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: ["Users"],
         }),
+
+        resetUserPassword: builder.mutation({
+            query: (id) => ({
+                url: `/admin/users/${id}/reset-password`,
+                method: "POST",
+            }),
+            transformResponse: (response) => response.data,
+        }),
     }),
 });
 
@@ -129,4 +137,5 @@ export const {
     useUpdateUserPermissionsMutation,
     useToggleUserStatusMutation,
     useDeleteUserMutation,
+    useResetUserPasswordMutation,
 } = usersApi;

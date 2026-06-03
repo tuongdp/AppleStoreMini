@@ -52,7 +52,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { formatDate, formatNumber, formatPhone } from "@/lib/utils";
+import { formatDate, formatNumber, formatPhone, formatPrice, timeAgo } from "@/lib/utils";
 import { ROUTES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import ExportButton from "@/components/ui/export-button";
@@ -363,7 +363,7 @@ export default function AdminUserTable() {
 
             {/* Table */}
             <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                <Table className="min-w-[900px]">
+                <Table className="min-w-[1100px]">
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
                             <TableHead>{"Họ và tên"}</TableHead>
@@ -372,6 +372,8 @@ export default function AdminUserTable() {
                             <TableHead>{"Trạng thái"}</TableHead>
                             <TableHead>{"Ngày tham gia"}</TableHead>
                             <TableHead>{"Số đơn hàng"}</TableHead>
+                            <TableHead>{"Tổng chi tiêu"}</TableHead>
+                            <TableHead>{"Lần hoạt động"}</TableHead>
                             <TableHead className="text-right">
                                 {"Thao tác"}
                             </TableHead>
@@ -381,7 +383,7 @@ export default function AdminUserTable() {
                         {isLoading ? (
                             [...Array(6)].map((_, i) => (
                                 <TableRow key={i}>
-                                    {[...Array(7)].map((_, j) => (
+                                    {[...Array(9)].map((_, j) => (
                                         <TableCell key={j}>
                                             <Skeleton className="h-5 w-full" />
                                         </TableCell>
@@ -391,7 +393,7 @@ export default function AdminUserTable() {
                         ) : users.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={7}
+                                    colSpan={9}
                                     className="py-12 text-center text-muted-foreground"
                                 >
                                     <div className="flex flex-col items-center gap-3">
@@ -502,6 +504,20 @@ export default function AdminUserTable() {
                                     <TableCell>
                                         <span className="text-sm text-muted-foreground">
                                             {formatNumber(user.orderCount ?? 0)}
+                                        </span>
+                                    </TableCell>
+
+                                    {/* Total spent */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {user.totalSpent ? formatPrice(user.totalSpent) : "0đ"}
+                                        </span>
+                                    </TableCell>
+
+                                    {/* Last active */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {timeAgo(user.lastLoginAt) || "—"}
                                         </span>
                                     </TableCell>
 
