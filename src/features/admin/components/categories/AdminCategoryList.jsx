@@ -462,6 +462,15 @@ export default function AdminCategoryList() {
                     </div>
                 ) : (
                     <div>
+                        {/* Table header */}
+                        <div className="flex items-center gap-4 border-b border-border bg-muted/50 px-4 py-2">
+                            <span className="w-4 shrink-0" />
+                            <span className="w-10 shrink-0" />
+                            <span className="w-8 shrink-0 text-xs font-medium text-muted-foreground">STT</span>
+                            <span className="min-w-0 flex-1 text-xs font-medium text-muted-foreground">Danh mục</span>
+                            <span className="text-xs font-medium text-muted-foreground">Trạng thái</span>
+                            <span className="w-20 shrink-0" />
+                        </div>
                         {categories.map((category, index) => {
                             const catId = category._id || category.id;
                             return (
@@ -482,6 +491,11 @@ export default function AdminCategoryList() {
                                                 <ImagePlus className="h-4 w-4 text-muted-foreground/40" />
                                             )}
                                         </div>
+
+                                        {/* Order */}
+                                        <span className="w-8 shrink-0 text-center text-sm text-muted-foreground">
+                                            {category.order ?? 0}
+                                        </span>
 
                                         {/* Info */}
                                         <div className="min-w-0 flex-1">
