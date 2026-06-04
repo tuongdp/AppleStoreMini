@@ -98,6 +98,30 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
     }
   }
 
+  if (result.error) {
+    const status = result.error.status;
+    const shouldRetry =
+      (typeof status === "number" && status >= 500) ||
+      status === "TIMEOUT_ERROR" ||
+      status === 429;
+
+    if (shouldRetry) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+        result = await baseQuery(args, api, extraOptions);
+        const stillError = result.error;
+        const stillStatus = stillError?.status;
+        const stillShouldRetry =
+          (typeof stillStatus === "number" && stillStatus >= 500) ||
+          stillStatus === "TIMEOUT_ERROR" ||
+          stillStatus === 429;
+        if (!stillShouldRetry) {
+          break;
+        }
+      }
+    }
+  }
+
   return result;
 };
 
