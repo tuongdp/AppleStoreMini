@@ -17,7 +17,7 @@ dist-ssr
 !.vscode/extensions.json
 !.vscode/mcp.json
 !.vscode/settings.json
-.cursor/local.json
+.cursor/
 .idea
 .DS_Store
 *.suo
@@ -36,3 +36,12 @@ test-results
 playwright-report
 blob-report
 coverage
+
+# Local documents and design exports
+*.docx
+*.mwb
+*.mwb.bak
+DATN_content.txt
+
+# Local planning/audit output
+docs/
