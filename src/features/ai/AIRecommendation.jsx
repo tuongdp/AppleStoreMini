@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Lightbulb, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,7 +59,7 @@ export default function AIRecommendation() {
     <Card className="my-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-apple-blue" />
+          <Lightbulb className="h-5 w-5 text-apple-blue" />
           AI Tư vấn sản phẩm
         </CardTitle>
         <CardDescription>
@@ -111,7 +111,7 @@ export default function AIRecommendation() {
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
+                <Lightbulb className="mr-2 h-4 w-4" />
                 Tư vấn ngay
               </>
             )}

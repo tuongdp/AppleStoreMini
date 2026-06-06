@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import {
-    useGetProductByIdQuery,
+    useGetAdminProductByIdQuery,
     useUpdateProductMutation,
 } from "@/store/api/productsApi";
 import AdminProductForm from "@/features/admin/components/products/AdminProductForm";
@@ -16,7 +16,7 @@ export default function AdminProductEdit() {
     const navigate = useNavigate();
     const [isSaving, setIsSaving] = useState(false);
 
-    const { data: product, isLoading, isError } = useGetProductByIdQuery(id);
+    const { data: product, isLoading, isError } = useGetAdminProductByIdQuery(id);
     const [updateProduct] = useUpdateProductMutation();
 
     const handleSubmit = async (values) => {
@@ -52,7 +52,7 @@ export default function AdminProductEdit() {
         <div className="space-y-6">
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_PRODUCTS}>
-                    <ChevronLeft className="mr-1 h-4 w-4" />
+                    <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                     {"Quản lý sản phẩm"}
                 </Link>
             </Button>

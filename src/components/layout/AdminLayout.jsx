@@ -27,6 +27,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ThemeToggle from "@/components/shared/ThemeToggle";
+import SeoHead from "@/components/shared/SeoHead";
 import AdminBreadcrumb from "@/components/layout/admin/AdminBreadcrumb";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
@@ -216,45 +217,48 @@ export default function AdminLayout() {
     const pageTitle = getAdminPageTitle(location.pathname);
 
     return (
-        <div className="flex min-h-screen bg-muted/40">
-            <aside className="hidden w-64 shrink-0 border-r border-border bg-background md:flex md:flex-col">
-                <SidebarContent />
-            </aside>
+        <>
+            <SeoHead title={pageTitle} url={location.pathname} noindex />
+            <div className="flex min-h-screen bg-muted/40">
+                <aside className="hidden w-64 shrink-0 border-r border-border bg-background md:flex md:flex-col">
+                    <SidebarContent />
+                </aside>
 
-            <div className="flex min-w-0 flex-1 flex-col">
-                <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
-                    <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                        <SheetTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="md:hidden"
-                                aria-label="Mở menu quản trị"
-                            >
-                                <Menu className="h-5 w-5" />
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-64 p-0">
-                            <SidebarContent
-                                onClose={() => setMobileOpen(false)}
-                            />
-                        </SheetContent>
-                    </Sheet>
+                <div className="flex min-w-0 flex-1 flex-col">
+                    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md md:px-6">
+                        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                            <SheetTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="md:hidden"
+                                    aria-label="Mở menu quản trị"
+                                >
+                                    <Menu className="h-5 w-5" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="w-64 p-0">
+                                <SidebarContent
+                                    onClose={() => setMobileOpen(false)}
+                                />
+                            </SheetContent>
+                        </Sheet>
 
-                    <div className="hidden min-w-0 md:block">
-                        <AdminBreadcrumb className="mb-1" />
-                        <h2 className="truncate text-sm font-medium text-foreground">{pageTitle}</h2>
-                    </div>
+                        <div className="hidden min-w-0 md:block">
+                            <AdminBreadcrumb className="mb-1" />
+                            <h2 className="truncate text-sm font-medium text-foreground">{pageTitle}</h2>
+                        </div>
 
-                    <div className="flex items-center gap-1">
-                        <ThemeToggle />
-                    </div>
-                </header>
+                        <div className="flex items-center gap-1">
+                            <ThemeToggle />
+                        </div>
+                    </header>
 
-                <main className="flex-1 p-4 md:p-6">
-                    <Outlet />
-                </main>
+                    <main className="flex-1 p-4 md:p-6">
+                        <Outlet />
+                    </main>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

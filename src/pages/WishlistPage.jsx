@@ -31,7 +31,7 @@ export default function WishlistPage() {
             {items.length === 0 ? (
                 <EmptyState
                     icon={HeartOff}
-                    title={"wishlist"}
+                    title={"Chưa có sản phẩm yêu thích"}
                     description={"Lưu những sản phẩm bạn yêu thích để mua sau"}
                     actionLabel={"Tiếp tục mua sắm"}
                     actionHref={ROUTES.PRODUCTS}

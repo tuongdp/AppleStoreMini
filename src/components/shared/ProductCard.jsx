@@ -137,17 +137,16 @@ export default function ProductCard({ product }) {
 
     return (
         <Card
-            className="group cursor-pointer overflow-hidden border-transparent bg-muted/30 transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-md"
+            className="group overflow-hidden border-transparent bg-muted/30 transition-[border-color,box-shadow] duration-200 hover:border-border hover:shadow-md"
             data-testid="product-card"
             data-product-id={product._id || product.id}
             data-product-slug={product.slug}
         >
             {/* Image */}
-            <Link
-                to={productDetailHref}
+            <div
                 onMouseEnter={prefetchProductDetail}
                 onFocus={prefetchProductDetail}
-                data-testid="product-card-link"
+                data-testid="product-card-media"
             >
                 <div
                     className="relative overflow-hidden bg-white p-4 dark:bg-muted/10"
@@ -186,8 +185,9 @@ export default function ProductCard({ product }) {
 
                     {/* Wishlist button */}
                     <button
+                        type="button"
                         onClick={handleToggleWishlist}
-                        className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-background/80 opacity-0 backdrop-blur-sm transition-[opacity,transform] group-hover:opacity-100 hover:scale-110 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                        className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/85 opacity-100 backdrop-blur-sm transition-[opacity,transform] hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:h-7 md:w-7 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
                         aria-label="Thêm vào yêu thích"
                         data-testid="wishlist-toggle"
                     >
@@ -203,17 +203,19 @@ export default function ProductCard({ product }) {
 
                     {/* Hover action buttons */}
                     {!isOutOfStock && (
-                        <div className="absolute bottom-0 left-0 right-0 z-10 flex translate-y-full gap-2 bg-gradient-to-t from-black/20 to-transparent p-3 pt-8 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+                        <div className="absolute bottom-0 left-0 right-0 z-20 flex translate-y-0 gap-2 bg-gradient-to-t from-black/20 to-transparent p-3 pt-8 opacity-100 transition-[opacity,transform] duration-200 md:translate-y-full md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-within:translate-y-0 md:group-focus-within:opacity-100">
                             <Button
+                                type="button"
                                 size="sm"
                                 variant="secondary"
                                 className="h-8 flex-1 rounded-full text-xs"
                                 onClick={handleAddToCart}
                             >
-                                <ShoppingCart className="mr-1 h-3 w-3" />
+                                <ShoppingCart className="mr-1 h-3 w-3" aria-hidden="true" />
                                 Thêm vào giỏ
                             </Button>
                             <Button
+                                type="button"
                                 size="sm"
                                 className="h-8 flex-1 rounded-full text-xs"
                                 onClick={handleBuyNow}
@@ -229,25 +231,32 @@ export default function ProductCard({ product }) {
                     )}
 
                     {/* Product image */}
-                    <ResponsiveImage
-                        src={
-                            product.image ||
-                            parseJsonField(product.images)?.[0] ||
-                            productPlaceholder
-                        }
-                        fallbackSrc={productPlaceholder}
-                        alt={product.name}
-                        width={400}
-                        height={300}
-                        className={cn(
-                            "h-full w-full object-contain transition-transform duration-500",
-                            !isOutOfStock && "group-hover:scale-105",
-                            isOutOfStock && "opacity-60",
-                        )}
-                        loading="lazy"
-                    />
+                    <Link
+                        to={productDetailHref}
+                        className="block h-full w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                        data-testid="product-card-link"
+                        aria-label={`Xem chi tiết ${product.name}`}
+                    >
+                        <ResponsiveImage
+                            src={
+                                product.image ||
+                                parseJsonField(product.images)?.[0] ||
+                                productPlaceholder
+                            }
+                            fallbackSrc={productPlaceholder}
+                            alt={product.name}
+                            width={400}
+                            height={300}
+                            className={cn(
+                                "h-full w-full object-contain transition-transform duration-500",
+                                !isOutOfStock && "group-hover:scale-105",
+                                isOutOfStock && "opacity-60",
+                            )}
+                            loading="lazy"
+                        />
+                    </Link>
                 </div>
-            </Link>
+            </div>
 
             {/* Info */}
             <CardContent className="p-3 text-center">

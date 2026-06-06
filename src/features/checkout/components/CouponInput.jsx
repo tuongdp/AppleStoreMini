@@ -102,6 +102,7 @@ export default function CouponInput({
                         className="pl-9 uppercase"
                         disabled={isLoading}
                         aria-invalid={!!error}
+                        data-testid="coupon-code-input"
                     />
                 </div>
                 <Button
@@ -110,6 +111,7 @@ export default function CouponInput({
                     className="shrink-0 rounded-full px-5"
                     onClick={handleApply}
                     disabled={isLoading}
+                    data-testid="coupon-apply-button"
                 >
                     {isLoading ? (
                         <Loader2 className="h-4 w-4 animate-spin" />

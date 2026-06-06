@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Coins, ChevronRight, History, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Coins, History, Sparkles } from "lucide-react";
 import { useGetMyPointsQuery, useGetPointsHistoryQuery } from "@/store/api/pointsApi";
 import { formatDateTime, formatNumber, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -39,19 +39,19 @@ export default function PointsPage() {
                 </p>
             </div>
 
-            <div className="rounded-xl text-white" style={{ background: "linear-gradient(to bottom right, #f59e0b, #ea580c)" }}>
+            <div className="rounded-lg bg-foreground text-background">
                 <div className="p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-white/80">Số dư điểm</p>
+                            <p className="text-sm text-background/80">Số dư điểm</p>
                             <p className="mt-1 text-4xl font-bold">{formatNumber(points)}</p>
-                            <p className="mt-1 text-sm text-white/70">Tương đương {formatPrice(points)}</p>
+                            <p className="mt-1 text-sm text-background/70">Tương đương {formatPrice(points)}</p>
                         </div>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-background/15">
                             <Coins className="h-8 w-8" />
                         </div>
                     </div>
-                    <div className="mt-4 rounded-xl bg-white/10 px-4 py-2.5 text-xs text-white/80">
+                    <div className="mt-4 rounded-lg bg-background/10 px-4 py-2.5 text-xs text-background/80">
                         <Sparkles className="mr-1 inline h-3.5 w-3.5" />
                         Nhận điểm thưởng cho mỗi đánh giá sản phẩm hợp lệ.
                     </div>
@@ -124,6 +124,7 @@ export default function PointsPage() {
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
                     >
+                        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                         Trước
                     </Button>
                     <span className="text-sm text-muted-foreground">
@@ -137,6 +138,7 @@ export default function PointsPage() {
                         onClick={() => setPage((p) => p + 1)}
                     >
                         Sau
+                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </Button>
                 </div>
             )}

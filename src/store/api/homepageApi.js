@@ -1,0 +1,32 @@
+import { baseApi } from "./baseApi";
+import { parseProduct } from "./helpers";
+
+export const homepageApi = baseApi.injectEndpoints({
+    endpoints: (builder) => ({
+        getHomepage: builder.query({
+            query: ({ sections, limit = 10 } = {}) => ({
+                url: "/homepage",
+                params: {
+                    limit,
+                    ...(sections?.length ? { sections: sections.join(",") } : {}),
+                },
+            }),
+            providesTags: ["Products", "Categories", "Banners"],
+            transformResponse: (response) => {
+                const data = response.data || {};
+                return {
+                    banners: data.banners || [],
+                    categories: data.categories || [],
+                    newReleaseProducts: (data.newReleaseProducts || []).map(parseProduct),
+                    restockedProducts: (data.restockedProducts || []).map(parseProduct),
+                    categorySections: (data.categorySections || []).map((section) => ({
+                        ...section,
+                        products: (section.products || []).map(parseProduct),
+                    })),
+                };
+            },
+        }),
+    }),
+});
+
+export const { useGetHomepageQuery } = homepageApi;

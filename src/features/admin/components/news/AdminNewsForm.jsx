@@ -31,6 +31,7 @@ import { slugify } from "@/lib/utils";
 import { toast } from "sonner";
 
 const NEWS_CATEGORIES = [
+    { value: "_none", label: "Không chọn" },
     { value: "iPhone", label: "iPhone" },
     { value: "Mac", label: "Mac" },
     { value: "iPad", label: "iPad" },
@@ -38,6 +39,8 @@ const NEWS_CATEGORIES = [
     { value: "Âm thanh", label: "Âm thanh" },
     { value: "Phụ kiện", label: "Phụ kiện" },
     { value: "Dịch vụ", label: "Dịch vụ" },
+    { value: "Tư vấn", label: "Tư vấn" },
+    { value: "Thủ thuật", label: "Thủ thuật" },
 ];
 
 const calcReadTime = (text) => {
@@ -243,18 +246,19 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                                 className="shrink-0"
                                                 disabled={isLoading || isUploading}
                                                 onClick={() => fileInputRef.current?.click()}
+                                                aria-label="Tải ảnh thumbnail lên"
                                             >
                                                 {isUploading ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                                                 ) : (
-                                                    <Upload className="h-4 w-4" />
+                                                    <Upload className="h-4 w-4" aria-hidden="true" />
                                                 )}
                                             </Button>
                                         </div>
                                         {thumbnailPreview && (
                                             <img
                                                 src={thumbnailPreview}
-                                                alt="thumbnail"
+                                                alt={form.getValues("title") ? `Thumbnail bài viết ${form.getValues("title")}` : "Thumbnail bài viết"}
                                                 className="mt-2 h-40 w-full rounded-lg object-cover"
                                                 onError={(e) => {
                                                     e.target.style.display = "none";
@@ -301,6 +305,7 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                                 checked={field.value}
                                                 onCheckedChange={field.onChange}
                                                 disabled={isLoading}
+                                                aria-label="Xuất bản bài viết"
                                             />
                                         </FormControl>
                                     </FormItem>
@@ -319,12 +324,12 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                             </span>
                                         </FormLabel>
                                         <Select
-                                            value={field.value}
-                                            onValueChange={field.onChange}
+                                            value={field.value || "_none"}
+                                            onValueChange={(value) => field.onChange(value === "_none" ? "" : value)}
                                             disabled={isLoading}
                                         >
                                             <FormControl>
-                                                <SelectTrigger>
+                                                <SelectTrigger aria-label="Chọn danh mục bài viết">
                                                     <SelectValue placeholder="Chọn danh mục..." />
                                                 </SelectTrigger>
                                             </FormControl>

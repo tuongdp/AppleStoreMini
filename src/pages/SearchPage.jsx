@@ -92,6 +92,10 @@ export default function SearchPage() {
     const [aiProducts, setAiProducts] = useState(null);
 
     useEffect(() => {
+        setInputValue(keyword);
+    }, [keyword]);
+
+    useEffect(() => {
         if (keyword && searchParams.get("ai") === "1" && !aiProducts) {
             const runAiSearch = async () => {
                 try {
@@ -127,6 +131,7 @@ export default function SearchPage() {
                 setAiProducts(res.products || []);
                 const params = new URLSearchParams();
                 params.set("q", nextKeyword);
+                params.set("ai", "1");
                 setSearchParams(params);
             } catch {
                 toast.error("Không thể kết nối AI, vui lòng thử lại");

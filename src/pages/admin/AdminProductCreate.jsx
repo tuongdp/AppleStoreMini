@@ -60,7 +60,7 @@ export default function AdminProductCreate() {
         <div className="space-y-6">
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_PRODUCTS}>
-                    <ChevronLeft className="mr-1 h-4 w-4" />
+                    <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                     {"Quản lý sản phẩm"}
                 </Link>
             </Button>

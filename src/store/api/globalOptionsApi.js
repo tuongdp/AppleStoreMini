@@ -1,5 +1,43 @@
 import { baseApi } from "./baseApi";
 
+const LEGACY_OPTION_TYPES = {
+    colors: "COLOR",
+    storages: "STORAGE",
+    rams: "RAM",
+    editions: "EDITION",
+    refreshRates: "REFRESH_RATE",
+    ssds: "SSD",
+};
+
+const normalizeOption = (option, fallbackType) => {
+    if (typeof option === "string") {
+        return {
+            id: `${fallbackType}-${option}`,
+            type: fallbackType,
+            value: option,
+            isActive: true,
+        };
+    }
+
+    return {
+        id: option?._id || option?.id || `${option?.type || fallbackType}-${option?.value}`,
+        type: option?.type || fallbackType,
+        value: option?.value || option?.label || "",
+        hex: option?.hex || option?.color || null,
+        isActive: option?.isActive !== false,
+        ...option,
+    };
+};
+
+const normalizeOptions = (response) => {
+    const data = response?.data || [];
+    if (Array.isArray(data)) return data.map((option) => normalizeOption(option));
+
+    return Object.entries(LEGACY_OPTION_TYPES).flatMap(([key, type]) =>
+        (data[key] || []).map((option) => normalizeOption(option, type)),
+    );
+};
+
 export const globalOptionsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getGlobalOptions: builder.query({
@@ -11,7 +49,10 @@ export const globalOptionsApi = baseApi.injectEndpoints({
                 result
                     ? [...result.map(({ id }) => ({ type: "GlobalOption", id })), "GlobalOptions"]
                     : ["GlobalOptions"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response, _, type) => {
+                const options = normalizeOptions(response);
+                return type ? options.filter((option) => option.type === type) : options;
+            },
         }),
 
         createGlobalOption: builder.mutation({
@@ -21,7 +62,7 @@ export const globalOptionsApi = baseApi.injectEndpoints({
                 body: data,
             }),
             invalidatesTags: ["GlobalOptions"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => normalizeOption(response?.data),
         }),
 
         updateGlobalOption: builder.mutation({
@@ -34,7 +75,7 @@ export const globalOptionsApi = baseApi.injectEndpoints({
                 { type: "GlobalOption", id },
                 "GlobalOptions",
             ],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => normalizeOption(response?.data),
         }),
 
         deleteGlobalOption: builder.mutation({

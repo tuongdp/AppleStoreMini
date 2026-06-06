@@ -5,7 +5,6 @@ import {
   Loader2,
   Scale,
   ShoppingBag,
-  Sparkles,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -149,7 +148,7 @@ export default function AIComparePanel({ currentProduct, products }) {
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Sparkles className="mr-2 h-4 w-4" />
+              <Scale className="mr-2 h-4 w-4" />
             )}
             {isLoading ? "Đang so sánh..." : "So sánh"}
           </Button>

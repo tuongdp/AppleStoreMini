@@ -16,6 +16,11 @@ export default function CartDrawerSummary() {
 
     const grandTotal = total;
     const canCheckout = selectedItems.length > 0 && stockIssues.length === 0;
+    const disabledReason = selectedItems.length === 0
+        ? "Vui lòng chọn ít nhất một sản phẩm để thanh toán."
+        : stockIssues.length > 0
+            ? "Có sản phẩm đã chọn không đủ số lượng. Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm đó."
+            : "";
 
     const handleClose = () => dispatch(toggleCartDrawer(false));
 
@@ -55,6 +60,12 @@ export default function CartDrawerSummary() {
             {stockIssues.length > 0 && (
                 <p className="mb-3 text-xs font-medium text-destructive">
                     {"Có sản phẩm đã chọn không đủ số lượng. Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm đó."}
+                </p>
+            )}
+
+            {!canCheckout && disabledReason && selectedItems.length === 0 && (
+                <p className="mb-3 text-xs text-muted-foreground" role="status">
+                    {disabledReason}
                 </p>
             )}
 

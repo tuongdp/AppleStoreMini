@@ -56,6 +56,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     <FormControl>
                                         <Input
                                             placeholder={"Nguyễn Văn A"}
+                                            data-testid="checkout-full-name"
                                             {...field}
                                         />
                                     </FormControl>
@@ -75,6 +76,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                         <Input
                                             type="tel"
                                             placeholder={"0901234567"}
+                                            data-testid="checkout-phone"
                                             {...field}
                                         />
                                     </FormControl>
@@ -97,6 +99,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     <Input
                                         type="email"
                                         placeholder={"email@example.com"}
+                                        data-testid="checkout-email"
                                         {...field}
                                     />
                                 </FormControl>
@@ -117,6 +120,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     <Textarea
                                         placeholder={"Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"}
                                         rows={3}
+                                        data-testid="checkout-address"
                                         {...field}
                                     />
                                 </FormControl>
@@ -137,6 +141,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     <Textarea
                                         placeholder={"Ghi chú thêm (tuỳ chọn)"}
                                         rows={2}
+                                        data-testid="checkout-note"
                                         {...field}
                                     />
                                 </FormControl>
@@ -151,6 +156,7 @@ export default function AddressStep({ defaultData, onNext }) {
                 <Button
                     onClick={handleNext}
                     className="rounded-full px-8"
+                    data-testid="checkout-address-next"
                 >
                     {"Tiếp tục"}
                 </Button>

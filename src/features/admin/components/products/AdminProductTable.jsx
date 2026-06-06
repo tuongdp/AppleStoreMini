@@ -1,8 +1,8 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState, Fragment } from "react";
-import { Plus, Edit, Trash2, MoreHorizontal, Search, Copy, Eye, EyeOff, ChevronDown, ChevronRight, Clock } from "lucide-react";
+import { Plus, Edit, Trash2, MoreHorizontal, Search, Copy, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import {
-  useGetProductsQuery,
+  useGetAdminProductsQuery,
   useDeleteProductMutation,
 } from "@/store/api/productsApi";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import { ROUTES, CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
+import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
 
 const STOCK_FILTERS = [
   { value: "all", label: "Tất cả tồn kho" },
@@ -60,7 +61,9 @@ const stockColor = (stock) => {
 
 function relativeTime(dateStr) {
   if (!dateStr) return null;
-  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const timestamp = new Date(dateStr).getTime();
+  if (Number.isNaN(timestamp)) return null;
+  const diffMs = Math.max(0, Date.now() - timestamp);
   const mins = Math.floor(diffMs / 60000);
   const hours = Math.floor(diffMs / 3600000);
   const days = Math.floor(diffMs / 86400000);
@@ -97,7 +100,7 @@ export default function AdminProductTable() {
   if (statusFilter === "inactive") filters.vstatus = "inactive";
   if (statusFilter === "hidden") filters.isActive = "false";
 
-  const { data, isLoading } = useGetProductsQuery(filters);
+  const { data, isLoading, isFetching } = useGetAdminProductsQuery(filters);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   const products = data?.products || [];
@@ -160,7 +163,7 @@ export default function AdminProductTable() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
               aria-label="Tìm kiếm sản phẩm"
               placeholder={"Tìm kiếm sản phẩm..."}
@@ -201,9 +204,9 @@ export default function AdminProductTable() {
         </div>
 
         <div className="flex items-center gap-3">
-          <ExportButton onExportExcel={handleExportProductsExcel} onExportPDF={handleExportProductsPDF} loading={isExporting} disabled={isLoading} />
+          <ExportButton onExportExcel={handleExportProductsExcel} onExportPDF={handleExportProductsPDF} loading={isExporting} disabled={isLoading || isFetching} />
           <Button className="rounded-full" asChild>
-            <Link to={ROUTES.ADMIN_PRODUCT_CREATE}><Plus className="mr-1.5 h-4 w-4" />{"Thêm sản phẩm"}</Link>
+            <Link to={ROUTES.ADMIN_PRODUCT_CREATE}><Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />{"Thêm sản phẩm"}</Link>
           </Button>
         </div>
       </div>
@@ -225,7 +228,7 @@ export default function AdminProductTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {isLoading || isFetching ? (
               [...Array(6)].map((_, i) => (
                 <TableRow key={i}>
                   {[...Array(9)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
@@ -244,7 +247,7 @@ export default function AdminProductTable() {
                     <TableRow>
                     <TableCell>
                       <div className="h-11 w-11 overflow-hidden rounded-lg bg-muted/30 p-1">
-                        <img src={product.image || parseJsonField(product.images)?.[0]} alt={product.name} className="h-full w-full object-contain" />
+                        <img src={product.image || parseJsonField(product.images)?.[0] || placeholderImg} alt={product.name} className="h-full w-full object-contain" />
                       </div>
                     </TableCell>
                     <TableCell>
@@ -257,8 +260,8 @@ export default function AdminProductTable() {
                           {product.name}
                           {product.variants?.length > 0 && (
                             expandedId === productId
-                              ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                              : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                              : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
                           )}
                         </p>
                         <p className="text-xs text-muted-foreground">{product.slug}{product.variants?.length > 0 ? ` · ${product.variants.length} biến thể` : ""}</p>
@@ -272,7 +275,7 @@ export default function AdminProductTable() {
                     <TableCell><span className="text-sm text-muted-foreground">{formatNumber(product.viewCount || 0)}</span></TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
+                        <Clock className="h-3 w-3" aria-hidden="true" />
                         <span>{relativeTime(product.updatedAt) || "—"}</span>
                       </div>
                     </TableCell>
@@ -285,29 +288,29 @@ export default function AdminProductTable() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Thao tác cho ${product.name}`}>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
                             <Link to={ROUTES.ADMIN_PRODUCT_EDIT(productId)} className="flex items-center gap-2">
-                              <Eye className="h-4 w-4" />{"Xem chi tiết"}
+                              <Eye className="h-4 w-4" aria-hidden="true" />{"Xem chi tiết"}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
                             <Link to={ROUTES.ADMIN_PRODUCT_EDIT(productId)} className="flex items-center gap-2">
-                              <Edit className="h-4 w-4" />{"Chỉnh sửa"}
+                              <Edit className="h-4 w-4" aria-hidden="true" />{"Chỉnh sửa"}
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2" onClick={() => toast.info("Sao chép sản phẩm — đang phát triển")}>
-                            <Copy className="h-4 w-4" />{"Sao chép"}
+                            <Copy className="h-4 w-4" aria-hidden="true" />{"Sao chép"}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="gap-2" onClick={() => toast.info("Ẩn sản phẩm — đang phát triển")}>
-                            <EyeOff className="h-4 w-4" />{product.inStock ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
+                            <EyeOff className="h-4 w-4" aria-hidden="true" />{product.inStock ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
                           </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive" onClick={() => setDeleteId(productId)}>
-                            <Trash2 className="h-4 w-4" />{"Xoá"}
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />{"Xoá"}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -380,9 +383,13 @@ export default function AdminProductTable() {
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">{"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}</p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="rounded-full" disabled={filters.page <= 1} onClick={() => updateParam("page", filters.page - 1)}>{"Trước"}</Button>
+            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" disabled={filters.page <= 1} onClick={() => updateParam("page", filters.page - 1)} aria-label="Trang trước">
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            </Button>
             <span className="text-sm text-muted-foreground">{filters.page} / {pagination.totalPages}</span>
-            <Button variant="outline" size="sm" className="rounded-full" disabled={filters.page >= pagination.totalPages} onClick={() => updateParam("page", filters.page + 1)}>{"Sau"}</Button>
+            <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" disabled={filters.page >= pagination.totalPages} onClick={() => updateParam("page", filters.page + 1)} aria-label="Trang sau">
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </Button>
           </div>
         </div>
       )}

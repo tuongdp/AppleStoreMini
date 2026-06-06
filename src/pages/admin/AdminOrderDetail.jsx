@@ -48,7 +48,7 @@ export default function AdminOrderDetailPage() {
         <div className="space-y-6">
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to={ROUTES.ADMIN_ORDERS}>
-                    <ChevronLeft className="mr-1 h-4 w-4" />
+                    <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                     {"Quản lý đơn hàng"}
                 </Link>
             </Button>

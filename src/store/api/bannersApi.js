@@ -30,12 +30,15 @@ export const bannersApi = baseApi.injectEndpoints({
 
         // PUT /admin/banners/:id — multipart/form-data
         updateBanner: builder.mutation({
-            query: ({ id, ...rest }) => ({
-                url: `/admin/banners/${id}`,
-                method: "PUT",
-                body: rest,
-                formData: true,
-            }),
+            query: ({ id, body, ...rest }) => {
+                const payload = body || rest;
+                return {
+                    url: `/admin/banners/${id}`,
+                    method: "PUT",
+                    body: payload,
+                    formData: payload instanceof FormData,
+                };
+            },
             invalidatesTags: ["Banners"],
             transformResponse: (response) => response.data,
         }),

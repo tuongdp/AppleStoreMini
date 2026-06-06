@@ -52,13 +52,15 @@ const NEWS_CATEGORIES = [
     { value: "Âm thanh", label: "Âm thanh" },
     { value: "Phụ kiện", label: "Phụ kiện" },
     { value: "Dịch vụ", label: "Dịch vụ" },
+    { value: "Tư vấn", label: "Tư vấn" },
+    { value: "Thủ thuật", label: "Thủ thuật" },
 ];
 
 const SummaryCard = ({ icon: Icon, label, value, className }) => (
     <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${className}`}>
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
                 <p className="text-xs text-muted-foreground">{label}</p>
@@ -85,7 +87,7 @@ export default function AdminNewsList() {
         sort: searchParams.get("sort") || undefined,
     };
 
-    const { data, isLoading } = useGetAllNewsQuery(filters);
+    const { data, isLoading, isFetching } = useGetAllNewsQuery(filters);
     const { data: stats } = useGetNewsStatsQuery();
     const [deleteNews, { isLoading: isDeleting }] = useDeleteNewsMutation();
     const [toggleStatus, { isLoading: isToggling }] =
@@ -151,8 +153,10 @@ export default function AdminNewsList() {
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="relative max-w-xs min-w-[200px] flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                     <Input
+                        name="admin-news-search"
+                        autoComplete="off"
                         aria-label="Tìm kiếm bài viết"
                         placeholder="Tìm bài viết..."
                         value={searchInput}
@@ -164,7 +168,7 @@ export default function AdminNewsList() {
                     value={searchParams.get("status") || "all"}
                     onValueChange={(val) => updateParam("status", val === "all" ? "" : val)}
                 >
-                    <SelectTrigger className="w-40 rounded-full">
+                    <SelectTrigger className="w-40 rounded-full" aria-label="Lọc trạng thái bài viết">
                         <SelectValue placeholder="Trạng thái" />
                     </SelectTrigger>
                     <SelectContent>
@@ -179,7 +183,7 @@ export default function AdminNewsList() {
                     value={searchParams.get("category") || "all"}
                     onValueChange={(val) => updateParam("category", val === "all" ? "" : val)}
                 >
-                    <SelectTrigger className="w-44 rounded-full">
+                    <SelectTrigger className="w-44 rounded-full" aria-label="Lọc danh mục bài viết">
                         <SelectValue placeholder="Danh mục" />
                     </SelectTrigger>
                     <SelectContent>
@@ -194,7 +198,7 @@ export default function AdminNewsList() {
                     value={searchParams.get("sort") || "newest"}
                     onValueChange={(val) => updateParam("sort", val === "newest" ? "" : val)}
                 >
-                    <SelectTrigger className="w-40 rounded-full">
+                    <SelectTrigger className="w-40 rounded-full" aria-label="Sắp xếp bài viết">
                         <SelectValue placeholder="Sắp xếp" />
                     </SelectTrigger>
                     <SelectContent>
@@ -207,7 +211,7 @@ export default function AdminNewsList() {
                 </Select>
                 <Button className="rounded-full" asChild>
                     <Link to={ROUTES.ADMIN_NEWS_CREATE ?? "/admin/news/create"}>
-                        <Plus className="mr-1.5 h-4 w-4" />
+                        <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                         Thêm bài viết
                     </Link>
                 </Button>
@@ -226,7 +230,7 @@ export default function AdminNewsList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             [...Array(5)].map((_, i) => (
                                 <TableRow key={i}>
                                     {[...Array(6)].map((_, j) => (
@@ -316,9 +320,9 @@ export default function AdminNewsList() {
                                                 aria-label={item.isPublished ? `Ẩn bài viết ${item.title}` : `Xuất bản bài viết ${item.title}`}
                                             >
                                                 {item.isPublished ? (
-                                                    <EyeOff className="h-4 w-4" />
+                                                    <EyeOff className="h-4 w-4" aria-hidden="true" />
                                                 ) : (
-                                                    <Eye className="h-4 w-4" />
+                                                    <Eye className="h-4 w-4" aria-hidden="true" />
                                                 )}
                                             </Button>
                                             <Button
@@ -331,7 +335,7 @@ export default function AdminNewsList() {
                                                 <Link
                                                     to={`/admin/news/${item.slug}/edit`}
                                                 >
-                                                    <Edit className="h-4 w-4" />
+                                                    <Edit className="h-4 w-4" aria-hidden="true" />
                                                 </Link>
                                             </Button>
                                             <Button
@@ -343,7 +347,7 @@ export default function AdminNewsList() {
                                                 }
                                                 aria-label={`Xóa bài viết ${item.title}`}
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                <Trash2 className="h-4 w-4" aria-hidden="true" />
                                             </Button>
                                         </div>
                                     </TableCell>
@@ -354,7 +358,7 @@ export default function AdminNewsList() {
                 </Table>
             </div>
 
-            {!isLoading && pagination.totalPages > 1 && (
+            {!isLoading && !isFetching && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
                         {"Hàng mỗi trang"} {PAGINATION.DEFAULT_LIMIT}

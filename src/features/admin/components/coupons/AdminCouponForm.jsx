@@ -57,6 +57,7 @@ const couponSchema = z.object({
     maxDiscountAmount: z.number().optional(),
     minOrderAmount: z.number().optional(),
     maxUsage: z.number().optional(),
+    maxUsagePerUser: z.number().optional(),
     expiresAt: z.string().optional(),
 });
 
@@ -72,6 +73,7 @@ const buildDefaultValues = (coupon) => {
             maxDiscountAmount: undefined,
             minOrderAmount: undefined,
             maxUsage: undefined,
+            maxUsagePerUser: 1,
             expiresAt: "",
         };
     }
@@ -81,11 +83,12 @@ const buildDefaultValues = (coupon) => {
         description: coupon.description || "",
         discountType: String(coupon.discountType || "percent").toLowerCase(),
         discountValue: coupon.discountValue || 10,
-        maxDiscountAmount: coupon.maxDiscountAmount || undefined,
-        minOrderAmount: coupon.minOrderAmount || undefined,
-        maxUsage: coupon.maxUsage || undefined,
-        expiresAt: coupon.expiresAt
-            ? new Date(coupon.expiresAt).toISOString().split("T")[0]
+        maxDiscountAmount: coupon.maxDiscountAmount ?? coupon.maxDiscount ?? undefined,
+        minOrderAmount: coupon.minOrderAmount ?? coupon.minOrderValue ?? undefined,
+        maxUsage: coupon.maxUsage ?? coupon.usageLimit ?? undefined,
+        maxUsagePerUser: coupon.maxUsagePerUser ?? 1,
+        expiresAt: (coupon.expiresAt || coupon.endDate)
+            ? new Date(coupon.expiresAt || coupon.endDate).toISOString().split("T")[0]
             : "",
     };
 };
@@ -107,10 +110,11 @@ export default function AdminCouponForm({ coupon, onClose }) {
         const payload = {
             ...values,
             code: values.code.toUpperCase(),
-            discountType: values.discountType,
+            discountType: values.discountType.toUpperCase(),
             ...(values.maxDiscountAmount ? { maxDiscountAmount: Number(values.maxDiscountAmount) } : {}),
             ...(values.minOrderAmount ? { minOrderAmount: Number(values.minOrderAmount) } : {}),
             ...(values.maxUsage ? { maxUsage: Number(values.maxUsage) } : {}),
+            ...(values.maxUsagePerUser ? { maxUsagePerUser: Number(values.maxUsagePerUser) } : {}),
             expiresAt: values.expiresAt || null,
         };
 
@@ -240,7 +244,7 @@ export default function AdminCouponForm({ coupon, onClose }) {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {watchDiscountType === "percent" && (
                             <FormField
-                                control={form.control}
+                        control={form.control}
                                 name="maxDiscountAmount"
                                 render={({ field }) => (
                                     <FormItem>
@@ -300,6 +304,32 @@ export default function AdminCouponForm({ coupon, onClose }) {
                                         type="number"
                                         min={1}
                                         placeholder="VD: 100"
+                                        disabled={isLoading}
+                                        value={field.value ?? ""}
+                                        onChange={(e) => field.onChange(emptyToNumber(e.target.value))}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="maxUsagePerUser"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>
+                                    Số lần / user{" "}
+                                    <span className="text-muted-foreground">
+                                        (mặc định 1, để trống = không giới hạn)
+                                    </span>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        min={1}
+                                        placeholder="VD: 1"
                                         disabled={isLoading}
                                         value={field.value ?? ""}
                                         onChange={(e) => field.onChange(emptyToNumber(e.target.value))}

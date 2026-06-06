@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function ImageLightbox({ images, open, onClose, initialIndex = 0 }) {
+export default function ImageLightbox({ images = [], open, onClose, initialIndex = 0 }) {
   const [index, setIndex] = useState(initialIndex);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, MessageSquareReply, Search, Star, Trash2, AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquareReply, Search, Star, Trash2 } from "lucide-react";
 import {
     useAdminDeleteReviewMutation,
     useGetAdminReviewQuery,
@@ -37,7 +37,7 @@ function StarDisplay({ rating }) {
     return (
         <div className="flex items-center gap-0.5">
             {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className={cn("h-3.5 w-3.5", star <= rating ? "fill-amber-400 text-amber-400" : "fill-muted text-muted")} />
+                <Star key={star} className={cn("h-3.5 w-3.5", star <= rating ? "fill-amber-400 text-amber-400" : "fill-muted text-muted")} aria-hidden="true" />
             ))}
         </div>
     );
@@ -55,6 +55,8 @@ const firstImage = (...sources) => {
     }
     return "";
 };
+
+const reviewContent = (review) => review?.content || review?.comment || "";
 
 const variantText = (item) => {
     const variant = item?.variant || {};
@@ -75,6 +77,7 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
     const reply = replyById[reviewId] ?? review?.adminReply ?? "";
 
     const handleReply = async () => {
+        if (!reviewId) return;
         try {
             await replyReview({ reviewId, content: reply }).unwrap();
             toast.success("Đã phản hồi bình luận");
@@ -84,7 +87,7 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
     };
 
     const images = parseJsonField(review?.images) || [];
-    const productImage = parseJsonField(review?.product?.images)?.[0];
+    const productImage = parseJsonField(review?.product?.images)?.[0] || review?.product?.image;
     const purchasedItem = review?.purchasedItem;
     const purchasedImage = firstImage(
         purchasedItem?.image,
@@ -113,12 +116,12 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                         <div className="flex items-start justify-between gap-3 rounded-lg border p-3">
                             <div className="flex min-w-0 items-center gap-3">
                                 <Avatar className="h-10 w-10">
-                                    <AvatarImage src={review.user?.avatar} alt={review.user?.fullName} />
+                                    <AvatarImage src={review.user?.avatar} alt={review.user?.fullName || review.user?.email || "Người dùng"} />
                                     <AvatarFallback>{review.user?.fullName?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
                                 </Avatar>
                                 <div className="min-w-0">
-                                    <p className="font-medium">{review.user?.fullName}</p>
-                                    <p className="truncate text-xs text-muted-foreground">{review.user?.email}</p>
+                                    <p className="font-medium">{review.user?.fullName || "Người dùng chưa cập nhật tên"}</p>
+                                    <p className="truncate text-xs text-muted-foreground">{review.user?.email || "—"}</p>
                                 </div>
                             </div>
                             <Badge variant={review.isVisible !== false ? "secondary" : "outline"}>
@@ -127,10 +130,10 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                         </div>
 
                         <div className="flex items-center gap-3 rounded-lg border p-3">
-                            {productImage && <img src={productImage} alt={review.product?.name} className="h-12 w-12 rounded-md object-contain" />}
+                            {productImage && <img src={productImage} alt={review.product?.name || "Sản phẩm"} className="h-12 w-12 rounded-md object-contain" />}
                             <div className="min-w-0">
-                                <Link to={`/products/${review.product?.slug}`} className="block truncate font-medium text-blue-600 hover:underline">
-                                    {review.product?.name}
+                                <Link to={review.product?.slug ? `/products/${review.product.slug}` : "#"} className="block truncate font-medium text-blue-600 hover:underline">
+                                    {review.product?.name || "Sản phẩm không xác định"}
                                 </Link>
                                 <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                                     <StarDisplay rating={review.rating} />
@@ -150,11 +153,11 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                                 <div className="flex gap-3">
                                     <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted p-1">
                                         {purchasedImage && (
-                                            <img src={purchasedImage} alt={purchasedItem.name} className="h-full w-full object-contain" />
+                                            <img src={purchasedImage} alt={purchasedItem.name || "Sản phẩm đã mua"} className="h-full w-full object-contain" />
                                         )}
                                     </div>
                                     <div className="min-w-0 flex-1 space-y-1 text-sm">
-                                        <p className="font-medium text-foreground">{purchasedItem.name}</p>
+                                        <p className="font-medium text-foreground">{purchasedItem.name || "Sản phẩm đã mua"}</p>
                                         {purchasedVariantText && (
                                             <p className="text-muted-foreground">Variant: {purchasedVariantText}</p>
                                         )}
@@ -175,7 +178,7 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
 
                         <div className="space-y-2">
                             <p className="text-sm font-medium">Nội dung bình luận</p>
-                            <p className="rounded-lg bg-muted/50 p-3 text-sm">{review.content || "Không có nhận xét"}</p>
+                            <p className="rounded-lg bg-muted/50 p-3 text-sm">{reviewContent(review) || "Không có nhận xét"}</p>
                         </div>
 
                         {images.length > 0 && (
@@ -250,7 +253,7 @@ export default function AdminCommentList() {
         search: debouncedSearch || undefined,
     };
 
-    const { data, isLoading } = useGetAllReviewsQuery(filters);
+    const { data, isLoading, isFetching } = useGetAllReviewsQuery(filters);
     const [deleteReview, { isLoading: isDeleting }] = useAdminDeleteReviewMutation();
     const [toggleVisibility, { isLoading: isToggling }] = useToggleReviewVisibilityMutation();
     const reviews = data?.reviews ?? [];
@@ -288,8 +291,8 @@ export default function AdminCommentList() {
         <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
                 <div className="relative max-w-xs min-w-[200px] flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Tìm sản phẩm hoặc người dùng..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="rounded-full pl-9" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                    <Input aria-label="Tìm bình luận sản phẩm" name="admin-review-search" autoComplete="off" placeholder="Tìm sản phẩm hoặc người dùng..." value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="rounded-full pl-9" />
                 </div>
                 <Select value={searchParams.get("rating") || "all"} onValueChange={(val) => updateParam("rating", val)}>
                     <SelectTrigger className="w-36 rounded-full"><SelectValue placeholder="Lọc sao" /></SelectTrigger>
@@ -312,7 +315,7 @@ export default function AdminCommentList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             [...Array(6)].map((_, i) => (
                                 <TableRow key={i}>{[...Array(8)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}</TableRow>
                             ))
@@ -326,41 +329,41 @@ export default function AdminCommentList() {
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <Avatar className="h-7 w-7">
-                                                    <AvatarImage src={review.user?.avatar} alt={review.user?.fullName} />
+                                                    <AvatarImage src={review.user?.avatar} alt={review.user?.fullName || review.user?.email || "Người dùng"} />
                                                     <AvatarFallback className="text-xs">{review.user?.fullName?.charAt(0)?.toUpperCase() || "U"}</AvatarFallback>
                                                 </Avatar>
                                                 <div className="min-w-0">
-                                                    <p className="truncate text-sm font-medium">{review.user?.fullName}</p>
-                                                    <p className="truncate text-xs text-muted-foreground">{review.user?.email}</p>
+                                                    <p className="truncate text-sm font-medium">{review.user?.fullName || "Người dùng chưa cập nhật tên"}</p>
+                                                    <p className="truncate text-xs text-muted-foreground">{review.user?.email || "—"}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
-                                                {img && <img src={img} alt={review.product?.name} className="h-8 w-8 rounded-lg object-contain" />}
-                                                <p className="max-w-[140px] truncate text-sm">{review.product?.name}</p>
+                                                {img && <img src={img} alt={review.product?.name || "Sản phẩm"} className="h-8 w-8 rounded-lg object-contain" />}
+                                                <p className="max-w-[140px] truncate text-sm">{review.product?.name || "Sản phẩm không xác định"}</p>
                                             </div>
                                         </TableCell>
                                         <TableCell><StarDisplay rating={review.rating} /></TableCell>
-                                        <TableCell><p className="max-w-[200px] truncate text-sm text-muted-foreground">{review.content || "Không có nhận xét"}</p></TableCell>
+                                        <TableCell><p className="max-w-[200px] truncate text-sm text-muted-foreground">{reviewContent(review) || "Không có nhận xét"}</p></TableCell>
                                         <TableCell>{review.adminReply ? <Badge variant="secondary">Đã phản hồi</Badge> : <Badge variant="outline">Chưa phản hồi</Badge>}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1">
-                                                {review.flagged && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 gap-1"><AlertTriangle className="h-3 w-3" />Cần xử lý</Badge>}
+                                                {review.flagged && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 gap-1"><AlertTriangle className="h-3 w-3" aria-hidden="true" />Cần xử lý</Badge>}
                                                 <Badge className={review.isVisible !== false ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"}>{review.isVisible !== false ? "Hiển thị" : "Đã ẩn"}</Badge>
                                             </div>
                                         </TableCell>
                                         <TableCell><span className="text-sm text-muted-foreground">{formatDateTime(review.createdAt)}</span></TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailId(review.id)} title="Xem chi tiết và phản hồi">
-                                                    <MessageSquareReply className="h-4 w-4" />
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailId(review.id)} aria-label="Xem chi tiết và phản hồi">
+                                                    <MessageSquareReply className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isToggling} onClick={() => handleToggleVisibility(review)} title={review.isVisible !== false ? "Ẩn bình luận" : "Hiện bình luận"}>
-                                                    {review.isVisible !== false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isToggling} onClick={() => handleToggleVisibility(review)} aria-label={review.isVisible !== false ? "Ẩn bình luận" : "Hiện bình luận"}>
+                                                    {review.isVisible !== false ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                                                 </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(review.id)}>
-                                                    <Trash2 className="h-4 w-4" />
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(review.id)} aria-label="Xóa bình luận">
+                                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -376,9 +379,13 @@ export default function AdminCommentList() {
                 <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">Hàng mỗi trang {PAGINATION.DEFAULT_LIMIT}</p>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" className="rounded-full" disabled={filters.page <= 1} onClick={() => updateParam("page", filters.page - 1)}>Trước</Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang trước" disabled={filters.page <= 1} onClick={() => updateParam("page", filters.page - 1)}>
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                        </Button>
                         <span className="text-sm text-muted-foreground">{filters.page} trong {pagination.totalPages}</span>
-                        <Button variant="outline" size="sm" className="rounded-full" disabled={filters.page >= pagination.totalPages} onClick={() => updateParam("page", filters.page + 1)}>Sau</Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang sau" disabled={filters.page >= pagination.totalPages} onClick={() => updateParam("page", filters.page + 1)}>
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                        </Button>
                     </div>
                 </div>
             )}

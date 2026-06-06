@@ -36,6 +36,9 @@ const PAYMENT_MAP = {
   "unknown": "Không xác định",
   "unpaid": "Chưa thanh toán"
 };
+
+const normalizePaymentMethod = (method) => (method || "").toLowerCase();
+
 export default function AdminOrderDetail({ order }) {
     const returnRequest = order.returnRequest || order.returnRequests?.[0];
 
@@ -229,12 +232,12 @@ export default function AdminOrderDetail({ order }) {
                             className="rounded-full text-destructive hover:text-destructive"
                             onClick={() => setCancelOpen(true)}
                         >
-                            <XCircle className="mr-1.5 h-4 w-4" />
+                            <XCircle className="mr-1.5 h-4 w-4" aria-hidden="true" />
                             {"Huỷ đơn hàng"}
                         </Button>
                     )}
                     <AdminOrderStatusUpdate
-                        orderId={order.id}
+                        orderId={order.id || order._id}
                         currentStatus={order.status}
                     />
                     <ExportButton
@@ -309,7 +312,7 @@ export default function AdminOrderDetail({ order }) {
                     {/* Items */}
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <div className="mb-4 flex items-center gap-2">
-                            <Package className="h-4 w-4 text-muted-foreground" />
+                            <Package className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                             <h3 className="text-sm font-medium text-foreground">
                                 {"Mã đơn hàng"} —{" "}
                                 {order.items?.length ?? 0}{" "}
@@ -381,10 +384,10 @@ export default function AdminOrderDetail({ order }) {
                             </h3>
                             <div className="space-y-1 text-sm">
                                 <p className="font-medium text-foreground">
-                                    {order.user?.fullName}
+                                    {order.user?.fullName || order.shippingFullName || "Khách vãng lai"}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {order.user?.email}
+                                    {order.user?.email || order.shippingEmail || "—"}
                                 </p>
                                 <p className="text-muted-foreground">
                                     {order.user?.phone ? formatPhone(order.user.phone) : "—"}
@@ -395,20 +398,20 @@ export default function AdminOrderDetail({ order }) {
                         {/* ✅ Dùng flat fields từ BE */}
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <div className="mb-3 flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-muted-foreground" />
+                                <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                                 <h3 className="text-sm font-medium text-foreground">
                                     {"Địa chỉ giao hàng"}
                                 </h3>
                             </div>
                             <div className="space-y-0.5 text-sm">
                                 <p className="font-medium text-foreground">
-                                    {shippingInfo.fullName}
+                                    {shippingInfo.fullName || "—"}
                                 </p>
                                 <p className="text-muted-foreground">
-                                    {formatPhone(shippingInfo.phone)}
+                                    {shippingInfo.phone ? formatPhone(shippingInfo.phone) : "—"}
                                 </p>
-                            <p className="text-muted-foreground">
-                                    {shippingInfo.address}
+                                <p className="text-muted-foreground">
+                                    {shippingInfo.address || "—"}
                                 </p>
                             </div>
                         </div>
@@ -417,14 +420,14 @@ export default function AdminOrderDetail({ order }) {
                     {/* Payment */}
                     <div className="rounded-2xl border border-border bg-card p-5">
                         <div className="mb-3 flex items-center gap-2">
-                            <CreditCard className="h-4 w-4 text-muted-foreground" />
+                            <CreditCard className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                             <h3 className="text-sm font-medium text-foreground">
                                 {"Phương thức thanh toán"}
                             </h3>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                             <span className="text-foreground">
-                                {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
+                                {(PAYMENT_MAP[normalizePaymentMethod(order.paymentMethod)] || order.paymentMethod)}
                             </span>
                             <span
                                 className={
@@ -444,7 +447,7 @@ export default function AdminOrderDetail({ order }) {
                     {order.note && (
                         <div className="rounded-2xl border border-border bg-card p-5">
                             <div className="mb-3 flex items-center gap-2">
-                                <StickyNote className="h-4 w-4 text-muted-foreground" />
+                                <StickyNote className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                                 <h3 className="text-sm font-medium text-foreground">
                                     Ghi chú đơn hàng
                                 </h3>

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { SearchX } from "lucide-react";
+import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
 import { useGetSeriesQuery } from "@/store/api/seriesApi";
 import ProductGrid from "@/features/products/components/ProductGrid";
@@ -98,6 +98,14 @@ export default function ProductListPage() {
     const currentCategory = categories.find((category) => category.slug === filters.category);
     const fallbackCategory = CATEGORIES.find((category) => category.value === filters.category);
     const categoryLabel = currentCategory?.label || fallbackCategory?.label || "Tất cả sản phẩm";
+    const searchKeyword = searchParams.get("search")?.trim();
+    const pageTitle = searchKeyword
+        ? `Tìm kiếm ${searchKeyword}`
+        : categoryLabel;
+    const seoDescription = filters.category
+        ? `Khám phá ${categoryLabel} chính hãng tại Apple Store Mini. Sắp xếp theo nhu cầu, lọc theo series và xem giá mới nhất.`
+        : "Khám phá tất cả sản phẩm Apple chính hãng - iPhone, iPad, MacBook, Apple Watch, AirPods, phụ kiện. Giá tốt, bảo hành chính hãng.";
+    const canonicalPath = `${ROUTES.PRODUCTS}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
     const categorySliderImages = getCategorySliderImages(currentCategory);
     const categorySlides = categorySliderImages.map((image, index) => ({
         id: `${currentCategory?.slug || "category"}-${index}`,
@@ -173,9 +181,9 @@ export default function ProductListPage() {
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
                 <SeoHead
-                    title="Sản phẩm"
-                    description="Khám phá tất cả sản phẩm Apple chính hãng - iPhone, iPad, MacBook, Apple Watch, AirPods, phụ kiện. Giá tốt, bảo hành chính hãng."
-                    url="/products"
+                    title={pageTitle}
+                    description={seoDescription}
+                    url={canonicalPath}
                 />
 
                 <Breadcrumb
@@ -281,7 +289,7 @@ export default function ProductListPage() {
                                     onClick={() => updatePage(currentPage - 1)}
                                     aria-label="Trang trước"
                                 >
-                                    {"<"}
+                                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                                 </Button>
                                 {getPageNumbers().map((page, index) =>
                                     page === "..." ? (
@@ -307,7 +315,7 @@ export default function ProductListPage() {
                                     onClick={() => updatePage(currentPage + 1)}
                                     aria-label="Trang tiếp theo"
                                 >
-                                    {">"}
+                                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
                                 </Button>
                             </div>
                         )}

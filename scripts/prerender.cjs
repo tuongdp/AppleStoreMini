@@ -13,8 +13,8 @@ const ROUTES = [
   { path: "/about", name: "About" },
   { path: "/contact", name: "Contact" },
   { path: "/warranty", name: "Warranty" },
-  { path: "/return-policy", name: "ReturnPolicy" },
-  { path: "/applecare", name: "AppleCare" },
+  { path: "/return", name: "ReturnPolicy" },
+  { path: "/apple-care", name: "AppleCare" },
   { path: "/privacy", name: "Privacy" },
   { path: "/terms", name: "Terms" },
 ];

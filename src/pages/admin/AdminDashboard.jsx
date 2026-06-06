@@ -43,7 +43,7 @@ function MetricCard({ title, value, note, icon: Icon, tone = "default", loading 
         <Card className="border-border">
             <CardContent className="flex items-start gap-3 p-4">
                 <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", toneClass)}>
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-muted-foreground">{title}</p>
@@ -70,7 +70,7 @@ function WorkItem({ item }) {
             </div>
             <div className="flex items-center gap-2">
                 <Badge className={cn("border", toneClass)}>{formatNumber(item.count)}</Badge>
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
             </div>
         </Link>
     );
@@ -87,12 +87,12 @@ function AlertItem({ alert }) {
         <Link to={alert.href} className="block rounded-lg border border-border p-3 transition-colors hover:bg-muted">
             <div className="flex items-start gap-3">
                 <div className={cn("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", severityClass)}>
-                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
                         <p className="text-sm font-medium text-foreground">{alert.title}</p>
-                        <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                     </div>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">{alert.message}</p>
                 </div>
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
     const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery(undefined, {
         pollingInterval: 30000,
     });
-    const { data: lowStock = [] } = useGetLowStockQuery();
+    const { data: lowStock = [], isLoading: isLowStockLoading } = useGetLowStockQuery();
     const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
@@ -169,15 +169,15 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="gap-1.5">
-                        <ShoppingBag className="h-3.5 w-3.5" />
+                        <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
                         {formatNumber(stats?.totalOrders ?? 0)} đơn
                     </Badge>
                     <Badge variant="secondary" className="gap-1.5">
-                        <Package className="h-3.5 w-3.5" />
+                        <Package className="h-3.5 w-3.5" aria-hidden="true" />
                         {formatNumber(stats?.totalProducts ?? 0)} sản phẩm
                     </Badge>
                     <Badge variant="secondary" className="gap-1.5">
-                        <Users className="h-3.5 w-3.5" />
+                        <Users className="h-3.5 w-3.5" aria-hidden="true" />
                         {formatNumber(stats?.totalUsers ?? 0)} người dùng
                     </Badge>
                 </div>
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
                             Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-14 rounded-lg" />)
                         ) : tasks.length === 0 ? (
                             <div className="rounded-lg border border-dashed border-border py-8 text-center">
-                                <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
+                                <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" aria-hidden="true" />
                                 <p className="mt-2 text-sm font-medium text-foreground">Không có việc khẩn cần xử lý</p>
                                 <p className="mt-1 text-xs text-muted-foreground">Theo dõi thêm đơn mới, tồn kho và đánh giá trong ngày.</p>
                             </div>
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <AlertTriangle className="h-4 w-4 text-amber-500" aria-hidden="true" />
                             Cảnh báo vận hành
                         </CardTitle>
                         <Badge variant="secondary">{formatNumber(alerts.length)}</Badge>
@@ -239,26 +239,26 @@ export default function AdminDashboard() {
                 <CardContent className="space-y-1">
                     <Link to="/admin/returns" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
                         <div className="flex items-center gap-3">
-                            <RotateCcw className="h-4 w-4 text-red-500" />
+                            <RotateCcw className="h-4 w-4 text-red-500" aria-hidden="true" />
                             <span className="text-sm font-medium text-foreground">Yêu cầu trả hàng</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Badge variant={returnRequestsCount > 0 ? "destructive" : "secondary"}>
                                 {formatNumber(returnRequestsCount)}
                             </Badge>
-                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         </div>
                     </Link>
                     <Link to="/admin/comments" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
                         <div className="flex items-center gap-3">
-                            <MessageSquareReply className="h-4 w-4 text-amber-500" />
+                            <MessageSquareReply className="h-4 w-4 text-amber-500" aria-hidden="true" />
                             <span className="text-sm font-medium text-foreground">Đánh giá chưa phản hồi</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Badge variant={reviewsCount > 0 ? "destructive" : "secondary"}>
                                 {formatNumber(reviewsCount)}
                             </Badge>
-                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         </div>
                     </Link>
                 </CardContent>
@@ -306,12 +306,18 @@ export default function AdminDashboard() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                            <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <AlertTriangle className="h-4 w-4 text-amber-500" aria-hidden="true" />
                             Cảnh báo tồn kho thấp
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {lowStock.length === 0 ? (
+                        {isLowStockLoading ? (
+                            <div className="space-y-2">
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <Skeleton key={index} className="h-12 rounded-lg" />
+                                ))}
+                            </div>
+                        ) : lowStock.length === 0 ? (
                             <p className="py-4 text-center text-sm text-muted-foreground">Tất cả sản phẩm đều đủ hàng</p>
                         ) : (
                             <Table>

@@ -34,10 +34,22 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { bannerSchema } from "@/lib/validations";
 
+function getBannerId(banner) {
+    return banner?._id || banner?.id;
+}
+
+function getBannerImage(banner) {
+    return banner?.image || banner?.imageUrl || banner?.desktopImage || banner?.url || "";
+}
+
+function getBannerLink(banner) {
+    return banner?.ctaLink || banner?.link || "/products";
+}
+
 function BannerForm({ banner, banners, onClose }) {
     const isEditing = !!banner;
     const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(banner?.image || null);
+    const [imagePreview, setImagePreview] = useState(getBannerImage(banner) || null);
 
     const nextOrder = isEditing
         ? banner?.order
@@ -48,7 +60,7 @@ function BannerForm({ banner, banners, onClose }) {
         defaultValues: {
             title: banner?.title || "",
             order: nextOrder ?? 0,
-            ctaLink: banner?.ctaLink || "/products",
+            ctaLink: getBannerLink(banner),
             startDate: banner?.startDate ? banner.startDate.slice(0, 10) : "",
             endDate: banner?.endDate ? banner.endDate.slice(0, 10) : "",
         },
@@ -85,8 +97,8 @@ function BannerForm({ banner, banners, onClose }) {
 
             if (isEditing) {
                 await updateBanner({
-                    id: banner._id || banner.id,
-                    ...Object.fromEntries(formData),
+                    id: getBannerId(banner),
+                    body: formData,
                 }).unwrap();
                 toast.success("Đã cập nhật banner");
             } else {
@@ -111,13 +123,13 @@ function BannerForm({ banner, banners, onClose }) {
                         <div className="mb-3 h-40 w-full overflow-hidden rounded-xl bg-muted">
                             <img
                                 src={imagePreview}
-                                alt="preview"
+                                alt={form.getValues("title") ? `Ảnh banner ${form.getValues("title")}` : "Ảnh banner"}
                                 className="h-full w-full object-cover"
                             />
                         </div>
                     )}
                     <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border p-3 hover:bg-muted/30">
-                        <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                        <ImagePlus className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                         <span className="text-sm text-muted-foreground">
                             {imageFile ? imageFile.name : "Chọn ảnh banner..."}
                         </span>
@@ -226,7 +238,7 @@ function BannerForm({ banner, banners, onClose }) {
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
                                 {"Đang lưu..."}
                             </>
                         ) : isEditing ? (
@@ -246,12 +258,12 @@ export default function AdminBannerPage() {
     const [editingBanner, setEditingBanner] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const { data, isLoading } = useGetAllBannersQuery();
+    const { data, isLoading, isFetching } = useGetAllBannersQuery();
     const [deleteBanner, { isLoading: isDeleting }] = useDeleteBannerMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleBannerStatusMutation();
 
-    const banners = data || [];
+    const banners = Array.isArray(data) ? data : data?.data || [];
 
     const handleDelete = async () => {
         try {
@@ -266,7 +278,7 @@ export default function AdminBannerPage() {
 
     const handleToggle = async (banner) => {
         try {
-            await toggleStatus(banner._id || banner.id).unwrap();
+            await toggleStatus(getBannerId(banner)).unwrap();
             toast.success(banner.isActive ? "Đã ẩn banner" : "Đã hiện banner");
         } catch {
             toast.error("Có lỗi xảy ra");
@@ -298,7 +310,7 @@ export default function AdminBannerPage() {
                     </p>
                 </div>
                 <Button className="rounded-full" onClick={handleAdd}>
-                    <Plus className="mr-1.5 h-4 w-4" />
+                    <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                     {"Thêm banner"}
                 </Button>
             </div>
@@ -319,7 +331,7 @@ export default function AdminBannerPage() {
 
             {/* Banner list */}
             <div className="overflow-hidden rounded-xl border border-border bg-card">
-                {isLoading ? (
+                {isLoading || isFetching ? (
                     <div className="space-y-0">
                         {[...Array(3)].map((_, i) => (
                             <div
@@ -343,7 +355,8 @@ export default function AdminBannerPage() {
                 ) : (
                     <div>
                         {banners.map((banner, index) => {
-                            const bannerId = banner._id || banner.id;
+                            const bannerId = getBannerId(banner);
+                            const image = getBannerImage(banner);
                             const now = new Date();
                             const isUpcoming = banner.startDate && new Date(banner.startDate) > now;
                             const isExpired = banner.endDate && new Date(banner.endDate) < now;
@@ -359,10 +372,10 @@ export default function AdminBannerPage() {
                                     <div className="flex items-center gap-4 p-4">
                                         {/* Preview */}
                                         <div className="relative h-16 w-28 shrink-0 overflow-hidden rounded-lg bg-muted">
-                                            {banner.image && (
+                                            {image && (
                                                 <img
-                                                    src={banner.image}
-                                                    alt=""
+                                                    src={image}
+                                                    alt={banner.title || `Banner thứ tự ${banner.order}`}
                                                     className="h-full w-full object-cover"
                                                 />
                                             )}
@@ -387,11 +400,12 @@ export default function AdminBannerPage() {
 
                                         {/* Toggle */}
                                         <Switch
-                                            checked={banner.isActive}
+                                            checked={banner.isActive !== false}
                                             onCheckedChange={() =>
                                                 handleToggle(banner)
                                             }
                                             disabled={isToggling}
+                                            aria-label={banner.isActive !== false ? `Ẩn banner ${banner.title || banner.order}` : `Hiện banner ${banner.title || banner.order}`}
                                         />
 
                                         {/* Actions */}
@@ -405,7 +419,7 @@ export default function AdminBannerPage() {
                                                 }
                                                 aria-label={`Sửa banner thứ tự ${banner.order}`}
                                             >
-                                                <Pencil className="h-4 w-4" />
+                                                <Pencil className="h-4 w-4" aria-hidden="true" />
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -416,7 +430,7 @@ export default function AdminBannerPage() {
                                                 }
                                                 aria-label={`Xóa banner thứ tự ${banner.order}`}
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                <Trash2 className="h-4 w-4" aria-hidden="true" />
                                             </Button>
                                         </div>
                                     </div>

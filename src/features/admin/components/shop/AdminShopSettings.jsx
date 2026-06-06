@@ -16,6 +16,7 @@ const DEFAULTS = {
     shipping: { defaultFee: 30000, freeShippingMinOrder: 5000000 },
     returnPolicy: { windowDays: 7 },
     reviewReward: { points: 20000, type: "FIXED" },
+    warranty: { durationMonths: 12 },
     payment: { codEnabled: true, vnpayEnabled: true },
     seo: { title: "", description: "" },
 };
@@ -35,24 +36,36 @@ function Section({ title, description, children }) {
 }
 
 export default function AdminShopSettings() {
-    const { data, isLoading } = useGetSettingsQuery();
+    const { data, isLoading, isFetching } = useGetSettingsQuery();
     const [update, { isLoading: isSaving }] = useUpdateSettingsMutation();
 
     const [shop, setShop] = useState(DEFAULTS.shop);
     const [shipping, setShipping] = useState(DEFAULTS.shipping);
     const [returnPolicy, setReturnPolicy] = useState(DEFAULTS.returnPolicy);
     const [reviewReward, setReviewReward] = useState(DEFAULTS.reviewReward);
+    const [warranty, setWarranty] = useState(DEFAULTS.warranty);
     const [payment, setPayment] = useState(DEFAULTS.payment);
     const [seo, setSeo] = useState(DEFAULTS.seo);
     const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
         if (data && !initialized) {
-            const merged = { ...DEFAULTS, ...data };
+            const merged = {
+                ...DEFAULTS,
+                ...data,
+                shop: { ...DEFAULTS.shop, ...data?.shop },
+                shipping: { ...DEFAULTS.shipping, ...data?.shipping },
+                returnPolicy: { ...DEFAULTS.returnPolicy, ...data?.returnPolicy },
+                reviewReward: { ...DEFAULTS.reviewReward, ...data?.reviewReward },
+                warranty: { ...DEFAULTS.warranty, ...data?.warranty },
+                payment: { ...DEFAULTS.payment, ...data?.payment },
+                seo: { ...DEFAULTS.seo, ...data?.seo },
+            };
             setShop({ ...DEFAULTS.shop, ...data?.shop });
             setShipping(merged.shipping);
             setReturnPolicy(merged.returnPolicy);
             setReviewReward(merged.reviewReward);
+            setWarranty({ ...DEFAULTS.warranty, ...data?.warranty });
             setPayment(merged.payment);
             setSeo({ ...DEFAULTS.seo, ...data?.seo });
             setInitialized(true);
@@ -65,7 +78,7 @@ export default function AdminShopSettings() {
 
     const handleSave = async () => {
         try {
-            const body = { shop, shipping, returnPolicy, reviewReward, payment, seo };
+            const body = { shop, shipping, returnPolicy, reviewReward, warranty, payment, seo };
             await update(body).unwrap();
             cacheSellerInfo(shop);
             toast.success("Đã lưu cài đặt");
@@ -74,7 +87,7 @@ export default function AdminShopSettings() {
         }
     };
 
-    if (isLoading) {
+    if (isLoading || isFetching) {
         return (
             <div className="max-w-3xl space-y-6">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -85,7 +98,7 @@ export default function AdminShopSettings() {
     }
 
     const SaveButton = ({ size }) => (
-        <Button onClick={handleSave} disabled={isSaving} size={size} className="rounded-full">
+        <Button onClick={handleSave} disabled={isSaving} size={size} className="rounded-full" aria-label="Lưu tất cả cài đặt cửa hàng">
             {isSaving ? "Đang lưu..." : "Lưu tất cả"}
         </Button>
     );
@@ -157,14 +170,14 @@ export default function AdminShopSettings() {
                         <Label htmlFor="s-cod" className="text-sm font-medium">Thanh toán khi nhận hàng (COD)</Label>
                         <p className="text-xs text-muted-foreground">Khách trả tiền mặt khi nhận hàng.</p>
                     </div>
-                    <Switch id="s-cod" checked={payment.codEnabled} onCheckedChange={(v) => setPayment({ ...payment, codEnabled: v })} />
+                    <Switch id="s-cod" checked={payment.codEnabled} onCheckedChange={(v) => setPayment({ ...payment, codEnabled: v })} aria-label="Bật tắt thanh toán COD" />
                 </div>
                 <div className="flex items-center justify-between">
                     <div>
                         <Label htmlFor="s-vnpay" className="text-sm font-medium">VNPay</Label>
                         <p className="text-xs text-muted-foreground">Thanh toán online qua cổng VNPay.</p>
                     </div>
-                    <Switch id="s-vnpay" checked={payment.vnpayEnabled} onCheckedChange={(v) => setPayment({ ...payment, vnpayEnabled: v })} />
+                    <Switch id="s-vnpay" checked={payment.vnpayEnabled} onCheckedChange={(v) => setPayment({ ...payment, vnpayEnabled: v })} aria-label="Bật tắt thanh toán VNPay" />
                 </div>
             </Section>
 
@@ -185,6 +198,13 @@ export default function AdminShopSettings() {
                 <div className="w-40 space-y-2">
                     <Label htmlFor="s-return-days">Số ngày đổi trả</Label>
                     <Input id="s-return-days" type="number" min="1" max="30" value={returnPolicy.windowDays} onChange={(e) => setReturnPolicy({ ...returnPolicy, windowDays: Number(e.target.value) || 7 })} />
+                </div>
+            </Section>
+
+            <Section title="Bảo hành" description="Thời hạn bảo hành mặc định cho sản phẩm.">
+                <div className="w-40 space-y-2">
+                    <Label htmlFor="s-warranty-months">Thời hạn bảo hành (tháng)</Label>
+                    <Input id="s-warranty-months" type="number" min="1" max="60" value={warranty.durationMonths} onChange={(e) => setWarranty({ ...warranty, durationMonths: Number(e.target.value) || 12 })} />
                 </div>
             </Section>
 
@@ -221,7 +241,7 @@ export default function AdminShopSettings() {
             </Section>
 
             <div className="flex justify-end">
-                <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-full">
+                <Button onClick={handleSave} disabled={isSaving} size="lg" className="rounded-full" aria-label="Lưu tất cả cài đặt cửa hàng">
                     {isSaving ? "Đang lưu..." : "Lưu tất cả"}
                 </Button>
             </div>

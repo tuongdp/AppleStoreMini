@@ -115,7 +115,7 @@ export default function ProductDetailPage() {
         if (selectedVariant?.id) {
             incrementView(selectedVariant.id);
         }
-    }, [selectedVariant?.id]);
+    }, [selectedVariant?.id, incrementView]);
 
     const effectiveColor = selectedColor || selectedVariant?.color || "";
     const effectiveStorage = selectedStorage || selectedVariant?.storage || "";
@@ -246,7 +246,9 @@ export default function ProductDetailPage() {
         );
     }
 
-    const categoryDisplay = product.category?.name || product.categorySlug || "";
+    const categorySlug = product.category?.slug || product.categorySlug || "";
+    const categoryDisplay = product.category?.name || categorySlug || "";
+    const categoryHref = categorySlug ? `${ROUTES.PRODUCTS}?category=${encodeURIComponent(categorySlug)}` : ROUTES.PRODUCTS;
     const stickyPrice = displaySalePrice || displayOriginalPrice;
 
     return (
@@ -263,7 +265,7 @@ export default function ProductDetailPage() {
                 items={[
                     { name: "Trang chủ", url: "/" },
                     { name: "Sản phẩm", url: "/products" },
-                    ...(categoryDisplay ? [{ name: categoryDisplay, url: `/products?category=${categoryDisplay}` }] : []),
+                    ...(categoryDisplay ? [{ name: categoryDisplay, url: categoryHref }] : []),
                     { name: product.name, url: `/products/${product.slug}` },
                 ]}
             />
@@ -272,7 +274,7 @@ export default function ProductDetailPage() {
                     { label: "Sản phẩm", href: ROUTES.PRODUCTS },
                     {
                         label: categoryDisplay,
-                        href: `${ROUTES.PRODUCTS}?category=${categoryDisplay}`,
+                        href: categoryHref,
                     },
                     { label: product.name },
                 ]}
@@ -601,7 +603,7 @@ export default function ProductDetailPage() {
 
             {/* Related */}
             <Separator className="my-12" />
-            <RelatedProducts slug={slug} category={categoryDisplay} />
+            <RelatedProducts slug={slug} category={categorySlug} />
 
             <Separator className="my-12" />
             <PersonalizedRecommendations />

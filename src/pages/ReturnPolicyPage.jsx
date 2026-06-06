@@ -56,7 +56,7 @@ export default function ReturnPolicyPage() {
                 <SeoHead
                     title="Chính sách đổi trả"
                     description="Chính sách đổi trả sản phẩm tại Apple Store. Đổi trả miễn phí trong 30 ngày, hoàn tiền 100% nếu sản phẩm lỗi."
-                    url="/return-policy"
+                    url="/return"
                 />
 
                 <Breadcrumb items={[{ label: "Chính sách đổi trả" }]} className="mb-6" />

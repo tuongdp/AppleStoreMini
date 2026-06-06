@@ -52,7 +52,7 @@ export default function CartTable() {
           className="text-muted-foreground hover:text-destructive"
           onClick={handleClearCart}
         >
-          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+          <Trash2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
           {"Xóa giỏ hàng"}
         </Button>
       </div>

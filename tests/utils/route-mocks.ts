@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { apiEnvelope, apiPaginated, makeOrder, testNews, testProducts, testUsers, adminUsersList, testCategories, testSeries, testCoupons, testBanners, testOrders, testReviews, testReturnRequests, dashboardStats, globalOptions, appSettings } from "./mock-data";
+import { apiEnvelope, apiPaginated, makeOrder, testNews, testProducts, testUsers, adminUsersList, testCategories, testSeries, testCoupons, testBanners, testOrders, testReviews, testReturnRequests, dashboardStats, dashboardOperations, dashboardRevenue, dashboardCategoryRevenue, dashboardTopProducts, dashboardSlowProducts, dashboardLowStock, dashboardTopCustomers, globalOptionsList, appSettings } from "./mock-data";
 
 const json = (body: unknown, status = 200) => ({
   status,
@@ -11,6 +11,13 @@ const paged = (data: unknown[]) => json(apiPaginated(data));
 
 export async function mockApi(page: Page) {
   let serverCartQuantity = 1;
+  const makeCartPayload = () => ({
+    items: [{
+      quantity: serverCartQuantity,
+      variantId: "v1",
+      variant: { id: "v1", stock: 5, inStock: true, images: ["/assets/test/iphone.png"], product: testProducts[0] },
+    }],
+  });
 
   await page.route(/^https?:\/\/(localhost|127\.0\.0\.1):5000\/api\/.*$/, async (route) => {
     const url = new URL(route.request().url());
@@ -47,6 +54,14 @@ export async function mockApi(page: Page) {
     }
     if (path === "/auth/forgot-password") {
       await route.fulfill(json(apiEnvelope(null, "Email đặt lại mật khẩu đã được gửi")));
+      return;
+    }
+    if (path === "/auth/send-verification") {
+      await route.fulfill(json(apiEnvelope(null, "Verification email sent")));
+      return;
+    }
+    if (path === "/auth/verify-email") {
+      await route.fulfill(json(apiEnvelope({ user: testUsers.customer, accessToken: "user.access", refreshToken: "user.refresh" })));
       return;
     }
 
@@ -101,28 +116,55 @@ export async function mockApi(page: Page) {
       await route.fulfill(json({ ...apiEnvelope(testNews), pagination: { page: 1, limit: 6, total: testNews.length, totalPages: 1 } }));
       return;
     }
-    if (/^\/news\/slug\/[^/]+$/.test(path)) {
-      await route.fulfill(json(apiEnvelope(testNews[0])));
+    if (/^\/news\/[^/]+$/.test(path)) {
+      const slug = path.split("/").at(-1);
+      await route.fulfill(json(apiEnvelope(testNews.find((item) => item.slug === slug) || testNews[0])));
       return;
     }
 
     // ─── CART ─────────────────────────────────────
+    if (path === "/cart/sync") {
+      const body = route.request().postDataJSON?.() || {};
+      const firstItem = body.items?.[0];
+      if (firstItem?.quantity) serverCartQuantity = firstItem.quantity;
+      await route.fulfill(json(apiEnvelope(makeCartPayload())));
+      return;
+    }
+    if (path === "/cart/clear") {
+      serverCartQuantity = 0;
+      await route.fulfill(json(apiEnvelope({ items: [] })));
+      return;
+    }
     if (path === "/cart") {
       const body = route.request().postDataJSON?.() || {};
-      if (body.quantity) serverCartQuantity = body.quantity;
-      await route.fulfill(json(apiEnvelope({
-        items: [{
-          quantity: serverCartQuantity,
-          variantId: "v1",
-          variant: { id: "v1", stock: 5, product: testProducts[0] },
-        }],
-      })));
+      if (method === "DELETE") {
+        serverCartQuantity = 0;
+        await route.fulfill(json(apiEnvelope({ items: [] })));
+      } else {
+        if (body.quantity) serverCartQuantity = body.quantity;
+        await route.fulfill(json(apiEnvelope(makeCartPayload())));
+      }
       return;
     }
 
     // ─── ORDERS ───────────────────────────────────
     if (path === "/orders") {
-      await route.fulfill(paged(testOrders));
+      if (method === "POST") {
+        const body = route.request().postDataJSON?.() || {};
+        await route.fulfill(json(apiEnvelope(makeOrder({
+          id: "order-checkout-e2e",
+          code: "ORD-CHECKOUT-E2E",
+          paymentMethod: body.paymentMethod || "cod",
+          couponCode: body.couponCode,
+          usedPoints: body.usePoints ? 500 : 0,
+          totalAmount: body.usePoints ? 26990000 : 27490000,
+          fullName: body.fullName,
+          shippingAddress: body.address,
+          shippingPhone: body.phone,
+        }))));
+      } else {
+        await route.fulfill(paged(testOrders));
+      }
       return;
     }
     if (/^\/orders\/[^/]+$/.test(path)) {
@@ -131,14 +173,23 @@ export async function mockApi(page: Page) {
     }
 
     // ─── COUPONS ──────────────────────────────────
-    if (path === "/coupons/validate") {
-      await route.fulfill(json(apiEnvelope({ valid: true, discount: 500000, discountType: "PERCENT", discountValue: 10 })));
+    if (path === "/coupons/apply" || path === "/coupons/validate") {
+      const body = route.request().postDataJSON?.() || {};
+      await route.fulfill(json(apiEnvelope({
+        valid: true,
+        code: body.code || "SUMMER2024",
+        discountAmount: 500000,
+        discount: 500000,
+        discountType: "PERCENT",
+        discountValue: 10,
+        description: "Giam 500.000d cho don hang test",
+      })));
       return;
     }
 
     // ─── PAYMENT ──────────────────────────────────
-    if (path === "/payment/create" || /^\/payment\/[^/]+\/create$/.test(path)) {
-      await route.fulfill(json(apiEnvelope({ paymentUrl: "https://sandbox.vnpayment.vn/pay?order=test" })));
+    if (path === "/payment/create" || /^\/payment\/[^/]+\/create$/.test(path) || /^\/orders\/[^/]+\/payment$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ paymentUrl: "/payment/success?order=test" })));
       return;
     }
     if (path === "/payment/vnpay-mock-ipn") {
@@ -161,8 +212,12 @@ export async function mockApi(page: Page) {
       await route.fulfill(json(apiEnvelope(null, "Đổi mật khẩu thành công")));
       return;
     }
-    if (path === "/users/points") {
+    if (path === "/points" || path === "/users/points") {
       await route.fulfill(json(apiEnvelope({ points: 500, transactions: [] })));
+      return;
+    }
+    if (path === "/points/history") {
+      await route.fulfill(json({ ...apiEnvelope([]), pagination: { page: 1, limit: 10, total: 0, totalPages: 1 } }));
       return;
     }
 
@@ -171,8 +226,49 @@ export async function mockApi(page: Page) {
       await route.fulfill(json(apiEnvelope(dashboardStats)));
       return;
     }
+    if (path === "/admin/dashboard/operations") {
+      await route.fulfill(json(apiEnvelope(dashboardOperations)));
+      return;
+    }
+    if (path === "/admin/dashboard/revenue") {
+      await route.fulfill(json(apiEnvelope(dashboardRevenue)));
+      return;
+    }
+    if (path === "/admin/dashboard/category-revenue") {
+      await route.fulfill(json(apiEnvelope(dashboardCategoryRevenue)));
+      return;
+    }
+    if (path === "/admin/dashboard/top-products") {
+      await route.fulfill(json(apiEnvelope(dashboardTopProducts)));
+      return;
+    }
+    if (path === "/admin/dashboard/slow-products") {
+      await route.fulfill(json(apiEnvelope(dashboardSlowProducts)));
+      return;
+    }
+    if (path === "/admin/dashboard/low-stock") {
+      await route.fulfill(json(apiEnvelope(dashboardLowStock)));
+      return;
+    }
+    if (path === "/admin/dashboard/order-status-distribution") {
+      await route.fulfill(json(apiEnvelope(dashboardStats.orderStatusDistribution)));
+      return;
+    }
+    if (path === "/admin/dashboard/top-customers") {
+      await route.fulfill(json(apiEnvelope(dashboardTopCustomers)));
+      return;
+    }
     if (path === "/admin/dashboard/recent-orders") {
       await route.fulfill(json(apiEnvelope(testOrders)));
+      return;
+    }
+    if (path === "/admin/dashboard/review-reward") {
+      if (method === "PATCH") {
+        const body = route.request().postDataJSON?.() || {};
+        await route.fulfill(json(apiEnvelope({ points: body.points ?? 20000, type: body.type || "FIXED" })));
+      } else {
+        await route.fulfill(json(apiEnvelope({ points: 20000, type: "FIXED" })));
+      }
       return;
     }
 
@@ -193,12 +289,12 @@ export async function mockApi(page: Page) {
       await route.fulfill(paged(testOrders));
       return;
     }
-    if (/^\/admin\/orders\/[^/]+$/.test(path)) {
-      await route.fulfill(json(apiEnvelope(testOrders[0])));
-      return;
-    }
     if (/^\/admin\/orders\/[^/]+\/status$/.test(path)) {
       await route.fulfill(json(apiEnvelope(null, "Cập nhật trạng thái thành công")));
+      return;
+    }
+    if (/^\/admin\/orders\/[^/]+$/.test(path)) {
+      await route.fulfill(json(apiEnvelope(testOrders[0])));
       return;
     }
 
@@ -207,15 +303,50 @@ export async function mockApi(page: Page) {
       await route.fulfill(paged(adminUsersList));
       return;
     }
+    if (path === "/admin/users/stats") {
+      await route.fulfill(json(apiEnvelope({
+        total: adminUsersList.length,
+        active: adminUsersList.filter((user) => !user.isBlocked).length,
+        staff: adminUsersList.filter((user) => user.role === "staff").length,
+        admins: adminUsersList.filter((user) => user.role === "admin").length,
+        blocked: adminUsersList.filter((user) => user.isBlocked).length,
+        unverified: adminUsersList.filter((user) => !user.isVerified).length,
+      })));
+      return;
+    }
+    if (/^\/admin\/users\/[^/]+\/role$/.test(path)) {
+      const body = route.request().postDataJSON?.() || {};
+      await route.fulfill(json(apiEnvelope({ ...adminUsersList[0], role: String(body.role || "USER").toLowerCase() })));
+      return;
+    }
+    if (/^\/admin\/users\/[^/]+\/permissions$/.test(path)) {
+      const body = route.request().postDataJSON?.() || {};
+      await route.fulfill(json(apiEnvelope({ ...adminUsersList[0], role: "staff", permissions: body.permissions || [] })));
+      return;
+    }
+    if (/^\/admin\/users\/[^/]+\/toggle$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...adminUsersList[0], isBlocked: true })));
+      return;
+    }
+    if (/^\/admin\/users\/[^/]+\/reset-password$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ newPassword: "Temp@123456" })));
+      return;
+    }
     if (/^\/admin\/users\/[^/]+$/.test(path)) {
       if (method === "PUT") await route.fulfill(json(apiEnvelope(adminUsersList[0])));
+      else if (method === "DELETE") await route.fulfill(json(apiEnvelope(null, "Xoá tài khoản thành công")));
       else await route.fulfill(json(apiEnvelope(adminUsersList[0])));
       return;
     }
 
     // ─── ADMIN CATEGORIES ─────────────────────────
     if (path === "/admin/categories") {
-      await route.fulfill(paged(testCategories));
+      if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testCategories[0], id: "cat-new" })));
+      else await route.fulfill(paged(testCategories));
+      return;
+    }
+    if (/^\/admin\/categories\/[^/]+\/toggle$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testCategories[0], isActive: false })));
       return;
     }
     if (/^\/admin\/categories\/[^/]+$/.test(path)) {
@@ -227,7 +358,8 @@ export async function mockApi(page: Page) {
 
     // ─── ADMIN SERIES ─────────────────────────────
     if (path === "/admin/series") {
-      await route.fulfill(paged(testSeries));
+      if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testSeries[0], id: "series-new" })));
+      else await route.fulfill(paged(testSeries));
       return;
     }
     if (/^\/admin\/series\/[^/]+$/.test(path)) {
@@ -239,7 +371,12 @@ export async function mockApi(page: Page) {
 
     // ─── ADMIN COUPONS ────────────────────────────
     if (path === "/admin/coupons") {
-      await route.fulfill(paged(testCoupons));
+      if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testCoupons[0], id: "coupon-new" })));
+      else await route.fulfill(paged(testCoupons));
+      return;
+    }
+    if (/^\/admin\/coupons\/[^/]+\/toggle$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testCoupons[0], isActive: false })));
       return;
     }
     if (/^\/admin\/coupons\/[^/]+$/.test(path)) {
@@ -251,7 +388,12 @@ export async function mockApi(page: Page) {
 
     // ─── ADMIN BANNERS ────────────────────────────
     if (path === "/admin/banners") {
-      await route.fulfill(paged(testBanners));
+      if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testBanners[0], id: "banner-new" })));
+      else await route.fulfill(paged(testBanners));
+      return;
+    }
+    if (/^\/admin\/banners\/[^/]+\/toggle$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testBanners[0], isActive: false })));
       return;
     }
     if (/^\/admin\/banners\/[^/]+$/.test(path)) {
@@ -263,13 +405,29 @@ export async function mockApi(page: Page) {
 
     // ─── ADMIN NEWS ───────────────────────────────
     if (path === "/admin/news") {
-      await route.fulfill(paged(testNews));
+      if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testNews[0], id: "news-new" })));
+      else await route.fulfill(paged(testNews));
+      return;
+    }
+    if (path === "/admin/news/stats") {
+      await route.fulfill(json(apiEnvelope({
+        total: testNews.length,
+        published: testNews.filter((item) => item.isPublished).length,
+        draft: testNews.filter((item) => !item.isPublished).length,
+        views: testNews.reduce((sum, item) => sum + (item.viewCount || item.views || 0), 0),
+      })));
+      return;
+    }
+    if (/^\/admin\/news\/[^/]+\/toggle$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testNews[0], isPublished: false })));
       return;
     }
     if (/^\/admin\/news\/[^/]+$/.test(path)) {
-      if (method === "PUT") await route.fulfill(json(apiEnvelope(testNews[0])));
+      const key = path.split("/").at(-1);
+      const item = testNews.find((news) => news.id === key || news._id === key || news.slug === key) || testNews[0];
+      if (method === "PUT") await route.fulfill(json(apiEnvelope(item)));
       else if (method === "DELETE") await route.fulfill(json(apiEnvelope(null, "Xoá bài viết thành công")));
-      else await route.fulfill(json(apiEnvelope(testNews[0])));
+      else await route.fulfill(json(apiEnvelope(item)));
       return;
     }
 
@@ -278,14 +436,49 @@ export async function mockApi(page: Page) {
       await route.fulfill(paged(testReviews));
       return;
     }
+    if (path === "/admin/reviews/sentiment") {
+      await route.fulfill(json(apiEnvelope({
+        overview: { total: testReviews.length, averageScore: 0.75 },
+        products: [
+          { productId: "prod-iphone-15", name: "iPhone 15 Pro E2E", positive: 1, negative: 0, neutral: 0, averageScore: 0.75 },
+        ],
+      })));
+      return;
+    }
+    if (/^\/admin\/reviews\/[^/]+\/visibility$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testReviews[0], isVisible: false })));
+      return;
+    }
+    if (/^\/admin\/reviews\/[^/]+\/reply$/.test(path)) {
+      const body = route.request().postDataJSON?.() || {};
+      await route.fulfill(json(apiEnvelope({ ...testReviews[0], adminReply: body.content || "Cảm ơn bạn đã đánh giá." })));
+      return;
+    }
     if (/^\/admin\/reviews\/[^/]+$/.test(path)) {
-      await route.fulfill(json(apiEnvelope(testReviews[0])));
+      if (method === "DELETE") await route.fulfill(json(apiEnvelope(null, "Xoá bình luận thành công")));
+      else await route.fulfill(json(apiEnvelope(testReviews[0])));
       return;
     }
 
     // ─── ADMIN RETURNS ────────────────────────────
     if (path === "/admin/returns") {
       await route.fulfill(paged(testReturnRequests));
+      return;
+    }
+    if (/^\/admin\/returns\/[^/]+\/approve$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testReturnRequests[0], status: "APPROVED" })));
+      return;
+    }
+    if (/^\/admin\/returns\/[^/]+\/reject$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testReturnRequests[0], status: "REJECTED" })));
+      return;
+    }
+    if (/^\/admin\/returns\/[^/]+\/receive$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testReturnRequests[0], status: "RECEIVED" })));
+      return;
+    }
+    if (/^\/admin\/returns\/[^/]+\/refund$/.test(path)) {
+      await route.fulfill(json(apiEnvelope({ ...testReturnRequests[0], status: "REFUNDED" })));
       return;
     }
     if (/^\/admin\/returns\/[^/]+$/.test(path)) {
@@ -295,13 +488,47 @@ export async function mockApi(page: Page) {
 
     // ─── ADMIN GLOBAL OPTIONS ─────────────────────
     if (path === "/admin/options" || path === "/admin/global-options") {
-      await route.fulfill(json(apiEnvelope(globalOptions)));
+      if (method === "POST") {
+        const body = route.request().postDataJSON?.() || {};
+        await route.fulfill(json(apiEnvelope({ id: "opt-new", isActive: true, ...body })));
+      } else {
+        const type = url.searchParams.get("type");
+        const items = type ? globalOptionsList.filter((item) => item.type === type) : globalOptionsList;
+        await route.fulfill(json(apiEnvelope(items)));
+      }
+      return;
+    }
+    if (/^\/admin\/global-options\/[^/]+$/.test(path)) {
+      const key = path.split("/").at(-1);
+      const item = globalOptionsList.find((option) => option.id === key) || globalOptionsList[0];
+      if (method === "PUT") {
+        const body = route.request().postDataJSON?.() || {};
+        await route.fulfill(json(apiEnvelope({ ...item, ...body })));
+      } else if (method === "DELETE") {
+        await route.fulfill(json(apiEnvelope(null, "Xoá tuỳ chọn thành công")));
+      } else {
+        await route.fulfill(json(apiEnvelope(item)));
+      }
       return;
     }
 
     // ─── ADMIN SETTINGS ───────────────────────────
+    if (path === "/admin/dashboard/settings") {
+      if (method === "PUT") {
+        const body = route.request().postDataJSON?.() || {};
+        await route.fulfill(json(apiEnvelope({ ...appSettings, ...body })));
+      } else {
+        await route.fulfill(json(apiEnvelope(appSettings)));
+      }
+      return;
+    }
     if (path === "/admin/settings" || path === "/admin/settings/shop") {
       await route.fulfill(json(apiEnvelope(appSettings)));
+      return;
+    }
+
+    if (path === "/settings/public") {
+      await route.fulfill(json(apiEnvelope({ shop: appSettings.shop })));
       return;
     }
 
@@ -332,6 +559,12 @@ export async function mockApi(page: Page) {
   await page.route("**/api/auth/check-email**", async (route) => {
     await route.fulfill(json(apiEnvelope({ exists: false })));
   });
+  await page.route("**/api/auth/send-verification", async (route) => {
+    await route.fulfill(json(apiEnvelope(null, "Verification email sent")));
+  });
+  await page.route("**/api/auth/verify-email", async (route) => {
+    await route.fulfill(json(apiEnvelope({ user: testUsers.customer, accessToken: "user.access", refreshToken: "user.refresh" })));
+  });
   await page.route("**/api/auth/refresh-token", async (route) => {
     await route.fulfill(json(apiEnvelope({ accessToken: "refreshed.access", refreshToken: "refreshed.refresh", user: testUsers.customer })));
   });
@@ -344,6 +577,10 @@ export async function mockApi(page: Page) {
   await page.route(/.*\/api\/news(\?.*)?$/, async (route) => {
     await route.fulfill(json({ ...apiEnvelope(testNews), pagination: { page: 1, limit: 6, total: testNews.length, totalPages: 1 } }));
   });
+  await page.route(/.*\/api\/news\/[^/?]+$/, async (route) => {
+    const slug = new URL(route.request().url()).pathname.split("/").at(-1);
+    await route.fulfill(json(apiEnvelope(testNews.find((item) => item.slug === slug) || testNews[0])));
+  });
   await page.route(/.*\/api\/products\/slug\/[^/]+\/related(\?.*)?$/, async (route) => {
     await route.fulfill(json(apiEnvelope(testProducts)));
   });
@@ -352,6 +589,42 @@ export async function mockApi(page: Page) {
   });
   await page.route(/.*\/api\/products(\?.*)?$/, async (route) => {
     await route.fulfill(json({ ...apiEnvelope(testProducts), pagination: { page: 1, limit: 12, total: testProducts.length, totalPages: 1 } }));
+  });
+  await page.route("**/api/coupons/apply", async (route) => {
+    const body = route.request().postDataJSON?.() || {};
+    await route.fulfill(json(apiEnvelope({
+      valid: true,
+      code: body.code || "SUMMER2024",
+      discountAmount: 500000,
+      discount: 500000,
+      discountType: "PERCENT",
+      discountValue: 10,
+      description: "Giam 500.000d cho don hang test",
+    })));
+  });
+  await page.route("**/api/points", async (route) => {
+    await route.fulfill(json(apiEnvelope({ points: 500, transactions: [] })));
+  });
+  await page.route("**/api/orders", async (route) => {
+    if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON?.() || {};
+      await route.fulfill(json(apiEnvelope(makeOrder({
+        id: "order-checkout-e2e",
+        code: "ORD-CHECKOUT-E2E",
+        paymentMethod: body.paymentMethod || "cod",
+        couponCode: body.couponCode,
+        usedPoints: body.usePoints ? 500 : 0,
+        totalAmount: body.usePoints ? 26990000 : 27490000,
+        fullName: body.fullName,
+        shippingAddress: body.address,
+        shippingPhone: body.phone,
+      }))));
+      return;
+    }
+    await route.fulfill(paged(testOrders));
+  });
+  await page.route(/.*\/api\/orders\/[^/]+\/payment$/, async (route) => {
+    await route.fulfill(json(apiEnvelope({ paymentUrl: "/payment/success?order=test" })));
   });
   await page.route(/.*\/api\/categories(\?.*)?$/, async (route) => {
     await route.fulfill(json(apiEnvelope(testCategories)));

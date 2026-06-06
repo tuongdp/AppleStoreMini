@@ -15,6 +15,7 @@ export default function PaymentMethodCard({ method, selected, onSelect }) {
         <button
             type="button"
             onClick={() => onSelect(method.id)}
+            data-testid={`payment-method-${method.id}`}
             className={cn(
                 "w-full rounded-xl border p-4 text-left transition-[background-color,border-color] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
                 selected

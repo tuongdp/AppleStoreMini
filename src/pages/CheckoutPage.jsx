@@ -108,6 +108,7 @@ export default function CheckoutPage() {
                             total={total}
                             shippingFee={shippingFee}
                             discountAmount={discountAmount}
+                            pointsDiscount={pointsDiscount}
                             grandTotal={grandTotal}
                             onPlaceOrder={handlePlaceOrder}
                             onBack={goBack}
@@ -195,6 +196,7 @@ export default function CheckoutPage() {
                                         checked={usePoints}
                                         onCheckedChange={(checked) => setUsePoints(Boolean(checked))}
                                         className="mt-0.5"
+                                        data-testid="checkout-use-points"
                                     />
                                     <span className="min-w-0 flex-1 text-sm">
                                         <span className="block font-medium text-foreground">

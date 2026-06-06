@@ -35,7 +35,7 @@ export default function CartDrawer() {
       <SheetContent className="flex w-full flex-col p-0 sm:max-w-md">
         <SheetHeader className="border-b border-border px-6 py-4">
           <SheetTitle className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5" />
+            <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             {"Giỏ hàng của bạn"}
             {count > 0 && (
               <span className="ml-1 rounded-full bg-foreground px-2 py-0.5 text-xs text-background">

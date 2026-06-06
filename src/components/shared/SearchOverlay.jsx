@@ -25,6 +25,11 @@ export default function SearchOverlay({ open, onClose }) {
         handleClear,
     } = useProductSearch();
 
+    const close = useCallback(() => {
+        handleClear();
+        onClose?.();
+    }, [handleClear, onClose]);
+
     useEffect(() => {
         let timer;
         if (open) {
@@ -40,18 +45,18 @@ export default function SearchOverlay({ open, onClose }) {
         };
     }, [open, handleClear]);
 
-    const { isListening, startListening, stopListening, isSupported } = useVoiceSearch({
-        onResult: (text) => {
+    const handleVoiceResult = useCallback(
+        (text) => {
             handleKeywordChange(text);
             close();
             navigate(`/search?q=${encodeURIComponent(text)}&ai=1`);
         },
-    });
+        [close, handleKeywordChange, navigate],
+    );
 
-    const close = useCallback(() => {
-        handleClear();
-        onClose?.();
-    }, [handleClear, onClose]);
+    const { isListening, startListening, stopListening, isSupported } = useVoiceSearch({
+        onResult: handleVoiceResult,
+    });
 
     const closeRef = useRef(close);
     useEffect(() => {
@@ -79,7 +84,12 @@ export default function SearchOverlay({ open, onClose }) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] animate-in fade-in duration-200">
+        <div
+            className="fixed inset-0 z-[60] animate-in fade-in duration-200"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="global-search-title"
+        >
             <button
                 type="button"
                 className="absolute inset-0 bg-background/80 backdrop-blur-sm"
@@ -88,6 +98,9 @@ export default function SearchOverlay({ open, onClose }) {
             />
             <div className="absolute inset-x-0 top-0 z-10 border-b border-border bg-card shadow-2xl animate-in slide-in-from-top duration-300">
                 <div className="mx-auto max-w-2xl px-4 py-6 md:py-10">
+                    <h2 id="global-search-title" className="sr-only">
+                        {"Tìm kiếm sản phẩm"}
+                    </h2>
                     <div className="flex items-center gap-3">
                         <form onSubmit={handleSubmit} className="flex-1">
                             <div className="relative">
@@ -107,6 +120,7 @@ export default function SearchOverlay({ open, onClose }) {
                                     className="h-12 rounded-2xl pl-12 pr-12 text-base transition-[border-color,box-shadow] duration-200 focus-visible:ring-2 focus-visible:ring-foreground/20"
                                     name="overlay-product-search"
                                     autoComplete="off"
+                                    data-testid="global-search-input"
                                 />
                                 {keyword && (
                                     <button

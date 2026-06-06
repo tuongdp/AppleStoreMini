@@ -33,11 +33,13 @@ const HEX_PRESETS = [
 const getOptionTypeLabel = (type) =>
     OPTION_TYPES.find((item) => item.value === type)?.label || type;
 
+const getOptionId = (option) => option?._id || option?.id;
+
 const SummaryCard = ({ icon: Icon, label, value, className }) => (
     <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-3">
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${className}`}>
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
                 <p className="text-xs text-muted-foreground">{label}</p>
@@ -60,14 +62,14 @@ export default function AdminGlobalOptionsPage() {
     const [editingValue, setEditingValue] = useState("");
     const [deleteId, setDeleteId] = useState(null);
 
-    const { data: options = [], isLoading } = useGetGlobalOptionsQuery(activeTab);
+    const { data: options = [], isLoading, isFetching } = useGetGlobalOptionsQuery(activeTab);
     const { data: allOptions = [] } = useGetGlobalOptionsQuery();
     const [createOption, { isLoading: isCreating }] = useCreateGlobalOptionMutation();
     const [updateOption, { isLoading: isUpdating }] = useUpdateGlobalOptionMutation();
     const [deleteOption, { isLoading: isDeleting }] = useDeleteGlobalOptionMutation();
 
     const filtered = options.filter((o) =>
-        o.value.toLowerCase().includes(search.toLowerCase()),
+        (o.value || "").toLowerCase().includes(search.toLowerCase()),
     );
 
     const activeType = OPTION_TYPES.find((item) => item.value === activeTab);
@@ -115,7 +117,7 @@ export default function AdminGlobalOptionsPage() {
 
     const handleHexChange = async (option, hex) => {
         try {
-            await updateOption({ id: option.id, hex }).unwrap();
+            await updateOption({ id: getOptionId(option), hex }).unwrap();
             toast.success("Đã cập nhật màu");
         } catch {
             toast.error("Không thể cập nhật màu");
@@ -123,7 +125,7 @@ export default function AdminGlobalOptionsPage() {
     };
 
     const startEdit = (option) => {
-        setEditingId(option.id);
+        setEditingId(getOptionId(option));
         setEditingValue(option.value);
     };
 
@@ -139,7 +141,7 @@ export default function AdminGlobalOptionsPage() {
         }
         try {
             await updateOption({
-                id: option.id,
+                id: getOptionId(option),
                 value: editingValue.trim(),
             }).unwrap();
             toast.success("Đã cập nhật tùy chọn");
@@ -151,7 +153,7 @@ export default function AdminGlobalOptionsPage() {
 
     const handleToggleActive = async (option) => {
         try {
-            await updateOption({ id: option.id, isActive: !option.isActive }).unwrap();
+            await updateOption({ id: getOptionId(option), isActive: !option.isActive }).unwrap();
         } catch {
             toast.error("Không thể cập nhật trạng thái");
         }
@@ -223,6 +225,8 @@ export default function AdminGlobalOptionsPage() {
                 <div className="flex flex-wrap items-center gap-2">
                     <Input
                         aria-label={`Thêm ${activeType?.label?.toLowerCase() || "tùy chọn"}`}
+                        name="admin-option-value"
+                        autoComplete="off"
                         placeholder="Thêm giá trị..."
                         value={newValue}
                         onChange={(e) => setNewValue(e.target.value)}
@@ -251,7 +255,7 @@ export default function AdminGlobalOptionsPage() {
                                         onClick={() => setNewHex(hex)}
                                         className="h-5 w-5 rounded-full border border-border"
                                         style={{ backgroundColor: hex }}
-                                        aria-label={hex}
+                                        aria-label={`Chọn màu ${hex}`}
                                     />
                                 ))}
                             </div>
@@ -263,14 +267,16 @@ export default function AdminGlobalOptionsPage() {
                         onClick={handleAdd}
                         disabled={!newValue.trim() || isCreating}
                     >
-                        <Plus className="mr-1.5 h-4 w-4" />
+                        <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                         Thêm
                     </Button>
 
                     <div className="relative ml-auto">
-                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                         <Input
                             aria-label="Tìm kiếm tùy chọn"
+                            name="admin-options-search"
+                            autoComplete="off"
                             placeholder="Tìm kiếm..."
                         value={search}
                         onChange={(e) => {
@@ -289,7 +295,7 @@ export default function AdminGlobalOptionsPage() {
                                 className="absolute right-2 top-1/2 -translate-y-1/2"
                                 aria-label="Xóa từ khóa tìm kiếm"
                             >
-                                <X className="h-3 w-3 text-muted-foreground" />
+                                <X className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
                             </button>
                         )}
                     </div>
@@ -297,7 +303,7 @@ export default function AdminGlobalOptionsPage() {
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                {isLoading ? (
+                {isLoading || isFetching ? (
                     <div className="space-y-2 p-4">
                         {[...Array(5)].map((_, index) => (
                             <Skeleton key={index} className="h-10 w-full" />
@@ -319,9 +325,10 @@ export default function AdminGlobalOptionsPage() {
                             </thead>
                             <tbody>
                                 {filtered.map((option) => {
-                                    const isEditing = editingId === option.id;
+                                    const optionId = getOptionId(option);
+                                    const isEditing = editingId === optionId;
                                     return (
-                                        <tr key={option.id} className="border-b border-border last:border-0 hover:bg-muted/20">
+                                        <tr key={optionId} className="border-b border-border last:border-0 hover:bg-muted/20">
                                             <td className="px-4 py-2">
                                                 {activeTab === "COLOR" ? (
                                                     <div className="flex items-center gap-2">
@@ -394,9 +401,9 @@ export default function AdminGlobalOptionsPage() {
                                                             aria-label={option.isActive ? `Ẩn ${option.value}` : `Hiện ${option.value}`}
                                                         >
                                                             {option.isActive ? (
-                                                                <Eye className="h-3.5 w-3.5" />
+                                                                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
                                                             ) : (
-                                                                <EyeOff className="h-3.5 w-3.5" />
+                                                                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
                                                             )}
                                                         </Button>
                                                         <Button
@@ -404,10 +411,10 @@ export default function AdminGlobalOptionsPage() {
                                                             size="icon"
                                                             className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive"
                                                             disabled={isDeleting}
-                                                            onClick={() => setDeleteId(option.id)}
+                                                            onClick={() => setDeleteId(optionId)}
                                                             aria-label={`Xóa tùy chọn ${option.value}`}
                                                         >
-                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                                     </Button>
                                                 </div>
                                             </td>

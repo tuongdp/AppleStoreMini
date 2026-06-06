@@ -115,7 +115,7 @@ export default function CartTableItem({ item, isLast }) {
               aria-label={`Xoá ${product?.name || "sản phẩm"} khỏi giỏ hàng`}
               data-testid="cart-remove-mobile"
             >
-              <Trash2 className="h-3 w-3" />
+              <Trash2 className="h-3 w-3" aria-hidden="true" />
               {"Xoá"}
             </button>
             {hasStockIssue && (
@@ -163,7 +163,7 @@ export default function CartTableItem({ item, isLast }) {
             aria-label={`Xoá ${product?.name || "sản phẩm"} khỏi giỏ hàng`}
             data-testid="cart-remove"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       </div>

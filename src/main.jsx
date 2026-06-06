@@ -16,17 +16,19 @@ import { registerServiceWorker } from "./lib/registerServiceWorker";
 registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <Provider store={store}>
-        <PersistGate loading={<LoadingScreen />} persistor={persistor}>
-            <UnheadProvider>
-                <AppProviders>
-                    <ErrorBoundary>
-                        <App />
-                    </ErrorBoundary>
-                    <Toaster />
-                    <NetworkStatusNotifier />
-                </AppProviders>
-            </UnheadProvider>
-        </PersistGate>
-    </Provider>,
+    <React.StrictMode>
+        <Provider store={store}>
+            <PersistGate loading={<LoadingScreen />} persistor={persistor}>
+                <UnheadProvider>
+                    <AppProviders>
+                        <ErrorBoundary>
+                            <App />
+                        </ErrorBoundary>
+                        <Toaster />
+                        <NetworkStatusNotifier />
+                    </AppProviders>
+                </UnheadProvider>
+            </PersistGate>
+        </Provider>
+    </React.StrictMode>,
 );

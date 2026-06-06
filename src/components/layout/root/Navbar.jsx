@@ -1,8 +1,15 @@
 import { useDispatch, useSelector } from "react-redux";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useCallback } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, Search } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
     Tooltip,
@@ -19,6 +26,7 @@ import {
     selectMobileMenuOpen,
     toggleSearch,
     selectSearchOpen,
+    toggleCartDrawer,
 } from "@/store/uiSlice";
 import { useScrolled } from "@/hooks/useScrollToTop";
 import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
@@ -28,17 +36,17 @@ import ResponsiveImage from "@/components/shared/ResponsiveImage";
 
 const SearchOverlay = lazy(() => import("@/components/shared/SearchOverlay"));
 
+const SIMPLE_NAV_LINKS = [
+    { label: "AppleCare", href: ROUTES.APPLE_CARE, prefetch: null },
+    { label: "Tin tức", href: "/news", prefetch: "news" },
+];
+
 export default function Navbar() {
     const dispatch = useDispatch();
     const mobileOpen = useSelector(selectMobileMenuOpen);
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
-    const SIMPLE_NAV_LINKS = [
-        { label: "AppleCare", href: "/apple-care", icon: null },
-        { label: "Tin tức", href: "/news", icon: null },
-    ];
-
-    const prefetchNewsList = () => {
+    const prefetchNewsList = useCallback(() => {
         dispatch(
             newsApi.util.prefetch(
                 "getNews",
@@ -46,14 +54,31 @@ export default function Navbar() {
                 { ifOlderThan: 60 },
             ),
         );
-    };
+    }, [dispatch]);
+
+    const openSearch = useCallback(() => {
+        dispatch(toggleSearch(true));
+        dispatch(toggleMobileMenu(false));
+        dispatch(toggleCartDrawer(false));
+    }, [dispatch]);
+
+    const handleMobileOpenChange = useCallback(
+        (open) => {
+            dispatch(toggleMobileMenu(open));
+            if (open) {
+                dispatch(toggleSearch(false));
+                dispatch(toggleCartDrawer(false));
+            }
+        },
+        [dispatch],
+    );
 
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full border-b transition-[background-color,border-color,backdrop-filter] duration-200",
+                "sticky top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-200",
                 isScrolled
-                    ? "border-border bg-background/90 backdrop-blur-md"
+                    ? "border-border bg-background/90 shadow-sm backdrop-blur-md"
                     : "border-transparent bg-background/60 backdrop-blur-sm",
             )}
         >
@@ -87,8 +112,8 @@ export default function Navbar() {
                                 <NavLink
                                     key={link.href}
                                     to={link.href}
-                                    onMouseEnter={link.href === "/news" ? prefetchNewsList : undefined}
-                                    onFocus={link.href === "/news" ? prefetchNewsList : undefined}
+                                    onMouseEnter={link.prefetch === "news" ? prefetchNewsList : undefined}
+                                    onFocus={link.prefetch === "news" ? prefetchNewsList : undefined}
                                     className={({ isActive }) =>
                                         cn(
                                             "inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
@@ -98,7 +123,6 @@ export default function Navbar() {
                                         )
                                     }
                                 >
-                                    {link.icon && <link.icon className="h-3.5 w-3.5" />}
                                     {link.label}
                                 </NavLink>
                             ))}
@@ -116,10 +140,7 @@ export default function Navbar() {
                             aria-label="Tìm kiếm (Ctrl K)"
                             aria-keyshortcuts="Control+K Meta+K"
                             title="Tìm kiếm (Ctrl+K / Cmd+K)"
-                            onClick={() => {
-                                dispatch(toggleSearch(true));
-                                dispatch(toggleMobileMenu(false));
-                            }}
+                            onClick={openSearch}
                         >
                             <Search className="h-5 w-5" />
                             <span className="sr-only">Tìm kiếm</span>
@@ -140,9 +161,7 @@ export default function Navbar() {
 
                         <Sheet
                             open={mobileOpen}
-                            onOpenChange={(open) =>
-                                dispatch(toggleMobileMenu(open))
-                            }
+                            onOpenChange={handleMobileOpenChange}
                         >
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -161,7 +180,16 @@ export default function Navbar() {
                                     {"Menu"}
                                 </TooltipContent>
                             </Tooltip>
-                            <SheetContent side="right" className="w-72 p-0">
+                            <SheetContent
+                                side="right"
+                                className="w-[min(88vw,22rem)] p-0"
+                            >
+                                <SheetHeader className="sr-only">
+                                    <SheetTitle>{"Menu điều hướng"}</SheetTitle>
+                                    <SheetDescription>
+                                        {"Điều hướng sản phẩm, khám phá và tài khoản"}
+                                    </SheetDescription>
+                                </SheetHeader>
                                 <NavbarMobile />
                             </SheetContent>
                         </Sheet>

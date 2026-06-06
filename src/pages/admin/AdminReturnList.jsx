@@ -25,7 +25,7 @@ import { formatPrice, formatDateTime } from "@/lib/utils";
 import { toast } from "sonner";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
-import { Check, X, Eye, Search, MoreHorizontal } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Eye, Search, MoreHorizontal, X } from "lucide-react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -45,7 +45,7 @@ export default function AdminReturnList() {
   const [rejectId, setRejectId] = useState(null);
   const [adminNote, setAdminNote] = useState("");
 
-  const { data, isLoading } = useGetAllReturnsQuery({ page, limit: 10, status: statusFilter !== "all" ? statusFilter : undefined, search: search || undefined });
+  const { data, isLoading, isFetching } = useGetAllReturnsQuery({ page, limit: 10, status: statusFilter !== "all" ? statusFilter : undefined, search: search || undefined });
   const [approveReturn, { isLoading: isApproving }] = useApproveReturnMutation();
   const [rejectReturn, { isLoading: isRejecting }] = useRejectReturnMutation();
 
@@ -63,7 +63,7 @@ export default function AdminReturnList() {
   const handleApprove = async (id) => {
     try {
       await approveReturn(id).unwrap();
-      toast.success("Đã duyệt và xử lý hoàn tiền");
+      toast.success("Đã duyệt yêu cầu trả hàng");
     } catch {
       toast.error("Thao tác thất bại");
     }
@@ -125,7 +125,7 @@ export default function AdminReturnList() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <Input
             aria-label="Tìm kiếm yêu cầu trả hàng"
             placeholder="Tìm mã đơn hàng..."
@@ -149,7 +149,7 @@ export default function AdminReturnList() {
           onExportExcel={handleExportReturnsExcel}
           onExportPDF={handleExportReturnsPDF}
           loading={isExporting}
-          disabled={isLoading}
+          disabled={isLoading || isFetching}
         />
       </div>
 
@@ -168,7 +168,7 @@ export default function AdminReturnList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {isLoading || isFetching ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
                   <TableCell colSpan={7}><Skeleton className="h-8 w-full" /></TableCell>
@@ -188,8 +188,8 @@ export default function AdminReturnList() {
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className="text-sm font-medium">{ret.user?.fullName}</p>
-                      <p className="text-xs text-muted-foreground">{ret.user?.email}</p>
+                      <p className="text-sm font-medium">{ret.user?.fullName || "Khách vãng lai"}</p>
+                      <p className="text-xs text-muted-foreground">{ret.user?.email || "—"}</p>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -213,7 +213,7 @@ export default function AdminReturnList() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                           <span className="sr-only">Mở thao tác yêu cầu trả hàng</span>
-                          <MoreHorizontal className="h-4 w-4" />
+                          <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -224,21 +224,21 @@ export default function AdminReturnList() {
                               disabled={isApproving}
                               className="text-green-600"
                             >
-                              <Check className="mr-2 h-4 w-4" />
-                              Duyệt & Hoàn tiền
+                              <Check className="mr-2 h-4 w-4" aria-hidden="true" />
+                              Duyệt yêu cầu
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => setRejectId(ret.id)}
                               className="text-destructive"
                             >
-                              <X className="mr-2 h-4 w-4" />
+                              <X className="mr-2 h-4 w-4" aria-hidden="true" />
                               Từ chối
                             </DropdownMenuItem>
                           </>
                         )}
                         <DropdownMenuItem asChild>
                           <Link to={`/admin/returns/${ret.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
+                            <Eye className="mr-2 h-4 w-4" aria-hidden="true" />
                             Xem chi tiết
                           </Link>
                         </DropdownMenuItem>
@@ -257,22 +257,26 @@ export default function AdminReturnList() {
         <div className="flex items-center justify-center gap-2">
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
+            className="h-8 w-8 rounded-full"
             disabled={page <= 1}
             onClick={() => updateParam("page", page - 1)}
+            aria-label="Trang trước"
           >
-            Trước
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
           </Button>
           <span className="text-sm text-muted-foreground">
             {page} / {pagination.totalPages}
           </span>
           <Button
             variant="outline"
-            size="sm"
+            size="icon"
+            className="h-8 w-8 rounded-full"
             disabled={page >= pagination.totalPages}
             onClick={() => updateParam("page", page + 1)}
+            aria-label="Trang sau"
           >
-            Sau
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       )}

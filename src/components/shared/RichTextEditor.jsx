@@ -48,6 +48,7 @@ export default function RichTextEditor({
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
+                link: false,
                 bulletList: { keepMarks: true },
                 orderedList: { keepMarks: true },
             }),

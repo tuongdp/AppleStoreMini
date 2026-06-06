@@ -6,6 +6,7 @@ import { Eye, EyeOff, Info } from "lucide-react";
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -45,6 +46,9 @@ export default function AuthModal() {
                             ? "Đăng nhập"
                             : "Tạo tài khoản"}
                     </DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Dang nhap hoac tao tai khoan de tiep tuc mua hang.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <Tabs value={tab} onValueChange={setTab}>

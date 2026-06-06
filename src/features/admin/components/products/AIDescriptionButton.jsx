@@ -1,4 +1,4 @@
-import { Sparkles, Loader2 } from "lucide-react";
+import { FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -46,7 +46,7 @@ export default function AIDescriptionButton({ productName, specs, onDescriptionG
           {isLoading ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
-            <Sparkles className="mr-1.5 h-4 w-4" />
+            <FileText className="mr-1.5 h-4 w-4" />
           )}
           {isLoading ? "Đang tạo..." : "Tạo mô tả AI"}
         </Button>

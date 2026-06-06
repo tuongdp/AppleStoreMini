@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Search, X } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -57,20 +57,42 @@ function getSeriesId(series) {
     return series?._id || series?.id;
 }
 
+function getCategoryValue(category) {
+    return category?.slug || category?.id || category?._id || "";
+}
+
+function getSeriesCategoryValue(series, categories = []) {
+    if (series?.category?.slug) return series.category.slug;
+    if (series?.categorySlug) return series.categorySlug;
+    const categoryId = series?.categoryId || series?.category?._id || series?.category?.id;
+    if (!categoryId) return "";
+    return getCategoryValue(categories.find((category) => String(category.id || category._id) === String(categoryId))) || categoryId;
+}
+
+function getSeriesCategoryName(series, categories = []) {
+    if (series?.category?.name) return series.category.name;
+    const categoryId = series?.categoryId || series?.category?._id || series?.category?.id;
+    return categories.find((category) => String(category.id || category._id) === String(categoryId))?.name || "Không có danh mục";
+}
+
+function getSeriesProductCount(series) {
+    return series?._count?.products ?? series?.productCount ?? series?.productsCount ?? 0;
+}
+
 function SeriesForm({ series, categories, allSeries, onClose }) {
     const isEditing = !!series;
     const [createSeries, { isLoading: isCreating }] = useCreateSeriesMutation();
     const [updateSeries, { isLoading: isUpdating }] = useUpdateSeriesMutation();
     const isLoading = isCreating || isUpdating;
 
-    const initialCategory = series?.category?.slug || "";
+    const initialCategory = getSeriesCategoryValue(series, categories);
 
     const getCategoryOrder = useCallback((catSlug) => {
         if (!catSlug) return 0;
-        const catSeries = (allSeries || []).filter((s) => s.category?.slug === catSlug);
+        const catSeries = (allSeries || []).filter((s) => getSeriesCategoryValue(s, categories) === catSlug);
         if (catSeries.length === 0) return 0;
         return Math.max(...catSeries.map((s) => s.order || 0)) + 1;
-    }, [allSeries]);
+    }, [allSeries, categories]);
 
     const form = useForm({
         resolver: zodResolver(seriesSchema),
@@ -176,7 +198,7 @@ function SeriesForm({ series, categories, allSeries, onClose }) {
                                     </FormControl>
                                     <SelectContent>
                                         {categories.map((category) => (
-                                            <SelectItem key={category.id || category._id} value={category.slug}>
+                                            <SelectItem key={category.id || category._id} value={getCategoryValue(category)}>
                                                 {category.name}
                                             </SelectItem>
                                         ))}
@@ -219,8 +241,9 @@ function SeriesForm({ series, categories, allSeries, onClose }) {
                     <Button
                         type="button"
                         variant="outline"
-                        size="sm"
-                        className="rounded-full"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        aria-label="Trang trước"
                         onClick={onClose}
                         disabled={isLoading}
                     >
@@ -303,7 +326,7 @@ export default function AdminSeriesList() {
                 id: getSeriesId(item),
                 name: item.name,
                 slug: item.slug,
-                category: item.category?.slug,
+                category: getSeriesCategoryValue(item, categories),
                 description: item.description || "",
                 order: item.order ?? 0,
                 isActive: item.isActive === false,
@@ -330,8 +353,11 @@ export default function AdminSeriesList() {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                     <div className="relative w-full sm:w-72">
-                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                         <Input
+                            aria-label="Tìm series sản phẩm"
+                            name="admin-series-search"
+                            autoComplete="off"
                             value={search}
                             onChange={handleSearchChange}
                             placeholder="Tìm tên hoặc slug"
@@ -345,7 +371,7 @@ export default function AdminSeriesList() {
                         <SelectContent>
                             <SelectItem value={ALL_CATEGORIES}>Tất cả danh mục</SelectItem>
                             {categories.map((category) => (
-                                <SelectItem key={category.id || category._id} value={category.slug}>
+                                <SelectItem key={category.id || category._id} value={getCategoryValue(category)}>
                                     {category.name}
                                 </SelectItem>
                             ))}
@@ -353,13 +379,13 @@ export default function AdminSeriesList() {
                     </Select>
                     {hasFilters && (
                         <Button type="button" variant="ghost" className="rounded-full" onClick={clearFilters}>
-                            <X className="mr-1.5 h-4 w-4" />
+                            <X className="mr-1.5 h-4 w-4" aria-hidden="true" />
                             Xóa lọc
                         </Button>
                     )}
                 </div>
                 <Button className="rounded-full" onClick={handleAdd} disabled={isLoadingCategories}>
-                    <Plus className="mr-1.5 h-4 w-4" />
+                    <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                     Thêm series
                 </Button>
             </div>
@@ -396,7 +422,7 @@ export default function AdminSeriesList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             [...Array(5)].map((_, index) => (
                                 <TableRow key={index}>
                                     {[...Array(6)].map((__, cellIndex) => (
@@ -429,16 +455,16 @@ export default function AdminSeriesList() {
                                         </TableCell>
                                         <TableCell>
                                             <span className="text-sm text-foreground">
-                                                {item.category?.name || "Không có danh mục"}
+                                                {getSeriesCategoryName(item, categories)}
                                             </span>
-                                            {item.category?.slug && (
-                                                <p className="truncate text-xs text-muted-foreground">/{item.category.slug}</p>
+                                            {getSeriesCategoryValue(item, categories) && (
+                                                <p className="truncate text-xs text-muted-foreground">/{getSeriesCategoryValue(item, categories)}</p>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground">{item.order ?? 0}</TableCell>
                                         <TableCell>
                                             <span className="text-sm text-muted-foreground">
-                                                {item._count?.products ?? 0}
+                                                {getSeriesProductCount(item)}
                                             </span>
                                         </TableCell>
                                         <TableCell>
@@ -464,9 +490,9 @@ export default function AdminSeriesList() {
                                                     aria-label={isActive ? `Ẩn series ${item.name}` : `Hiện series ${item.name}`}
                                                 >
                                                     {isActive ? (
-                                                        <ToggleRight className="h-4 w-4 text-green-500" />
+                                                        <ToggleRight className="h-4 w-4 text-green-500" aria-hidden="true" />
                                                     ) : (
-                                                        <ToggleLeft className="h-4 w-4" />
+                                                        <ToggleLeft className="h-4 w-4" aria-hidden="true" />
                                                     )}
                                                 </Button>
                                                 <Button
@@ -476,7 +502,7 @@ export default function AdminSeriesList() {
                                                     onClick={() => handleEdit(item)}
                                                     aria-label={`Sửa series ${item.name}`}
                                                 >
-                                                    <Pencil className="h-4 w-4" />
+                                                    <Pencil className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
@@ -485,7 +511,7 @@ export default function AdminSeriesList() {
                                                     onClick={() => setDeleteId(id)}
                                                     aria-label={`Xóa series ${item.name}`}
                                                 >
-                                                    <Trash2 className="h-4 w-4" />
+                                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -502,12 +528,13 @@ export default function AdminSeriesList() {
                     <Button
                         type="button"
                         variant="outline"
-                        size="sm"
-                        className="rounded-full"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        aria-label="Trang sau"
                         disabled={page <= 1 || isFetching}
                         onClick={() => setPage((current) => Math.max(1, current - 1))}
                     >
-                        Trước
+                        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                     </Button>
                     <span className="text-sm text-muted-foreground">
                         Trang {page} / {totalPages}
@@ -520,7 +547,7 @@ export default function AdminSeriesList() {
                         disabled={page >= totalPages || isFetching}
                         onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                     >
-                        Sau
+                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </Button>
                 </div>
             )}

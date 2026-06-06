@@ -2,6 +2,57 @@ import { test, expect } from "../fixtures/test";
 import { seedAuthStorage } from "../utils/auth";
 import { waitForNoBlockingLoaders } from "../utils/waits";
 
+const checkoutCartState = {
+  items: [{
+    variantId: "v1",
+    quantity: 1,
+    selected: true,
+    product: {
+      id: "prod-iphone-15",
+      _id: "prod-iphone-15",
+      name: "iPhone 15 Pro E2E",
+      slug: "iphone-15-pro-e2e",
+      price: 29990000,
+      salePrice: 27990000,
+      stock: 5,
+      inStock: true,
+      variantId: "v1",
+      images: ["/assets/test/iphone.png"],
+    },
+  }],
+};
+
+async function seedCheckoutState(page, { authenticated = false } = {}) {
+  await page.addInitScript((state) => {
+    const auth = state.authenticated
+      ? { user: { id: "checkout-user", role: "user", isVerified: true, fullName: "Checkout User", email: "checkout@example.com", phone: "0900000000" }, accessToken: "user.access", refreshToken: "user.refresh", isAuthenticated: true }
+      : { user: null, accessToken: null, refreshToken: null, isAuthenticated: false };
+    const persisted = {
+      auth: JSON.stringify(auth),
+      cart: JSON.stringify(state.cart),
+      wishlist: JSON.stringify({ items: [] }),
+      _persist: JSON.stringify({ version: -1, rehydrated: true }),
+    };
+    sessionStorage.setItem("persist:apple-store", JSON.stringify(persisted));
+    localStorage.setItem("persist:apple-store", JSON.stringify(persisted));
+    window.__E2E_PRELOADED_STATE__ = {
+      auth,
+      cart: state.cart,
+      wishlist: { items: [] },
+      ui: {},
+    };
+  }, { cart: checkoutCartState, authenticated });
+}
+
+async function fillCheckoutAddress(page) {
+  await page.getByTestId("checkout-full-name").fill("Nguyen Van Test");
+  await page.getByTestId("checkout-phone").fill("0900000000");
+  await page.getByTestId("checkout-email").fill("checkout@example.com");
+  await page.getByTestId("checkout-address").fill("123 Nguyen Hue, Quan 1, TP.HCM");
+  await page.getByTestId("checkout-note").fill("Giao trong gio hanh chinh");
+  await page.getByTestId("checkout-address-next").click();
+}
+
 test.describe("ecommerce flows", () => {
   test("shows product listing with pagination-ready cards", async ({ mockedPage: page }) => {
     await page.goto("/products");
@@ -83,10 +134,13 @@ test.describe("ecommerce flows", () => {
   });
 
   test("opens global search with keyboard shortcut", async ({ mockedPage: page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("app-welcome-dismissed", "1");
+    });
     await page.goto("/");
     await page.keyboard.press("ControlOrMeta+K");
 
-    const overlayInput = page.getByRole("textbox", { name: "Tìm kiếm sản phẩm" });
+    const overlayInput = page.getByTestId("global-search-input");
     await expect(overlayInput).toBeVisible();
     await expect(overlayInput).toBeFocused();
   });
@@ -133,5 +187,114 @@ test.describe("ecommerce flows", () => {
     await page.getByTestId("product-card").first().hover();
     await page.getByTestId("wishlist-toggle").first().click();
     await expect(page.getByTestId("wishlist-toggle").first()).toBeVisible();
+  });
+
+  test("guest checkout supports coupon and COD order creation", async ({ mockedPage: page }) => {
+    await seedCheckoutState(page);
+    const orderRequestPromise = page.waitForRequest((request) =>
+      request.method() === "POST" && request.url().includes("/api/orders"),
+    );
+
+    await page.goto("/checkout", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("coupon-code-input").fill("SUMMER2024");
+    await page.getByTestId("coupon-apply-button").click();
+    await expect(page.getByText("SUMMER2024", { exact: true })).toBeVisible();
+
+    await fillCheckoutAddress(page);
+    await page.getByTestId("payment-method-cod").click();
+    await page.getByTestId("checkout-payment-next").click();
+    await page.getByTestId("checkout-place-order").click();
+
+    const orderBody = orderRequestPromise.then((request) => request.postDataJSON());
+    await expect(page.getByText(/ORD-CHECKOUT-E2E/)).toBeVisible();
+    await expect(orderBody).resolves.toMatchObject({
+      paymentMethod: "cod",
+      couponCode: "SUMMER2024",
+      usePoints: false,
+    });
+  });
+
+  test("authenticated checkout supports coupon, points, and VNPay redirect", async ({ mockedPage: page }) => {
+    await seedCheckoutState(page, { authenticated: true });
+    const orderRequestPromise = page.waitForRequest((request) =>
+      request.method() === "POST" && request.url().includes("/api/orders"),
+    );
+    const paymentRequestPromise = page.waitForRequest((request) =>
+      request.method() === "POST" && /\/api\/orders\/[^/]+\/payment$/.test(new URL(request.url()).pathname),
+    );
+
+    await page.goto("/checkout", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("coupon-code-input").fill("SUMMER2024");
+    await page.getByTestId("coupon-apply-button").click();
+    await expect(page.getByText("SUMMER2024", { exact: true })).toBeVisible();
+    await page.getByTestId("checkout-use-points").click();
+
+    await fillCheckoutAddress(page);
+    await page.getByTestId("payment-method-vnpay").click();
+    await page.getByTestId("checkout-payment-next").click();
+    await page.getByTestId("checkout-place-order").click();
+
+    const orderBody = orderRequestPromise.then((request) => request.postDataJSON());
+    await paymentRequestPromise;
+    await expect(page).toHaveURL(/\/payment\/success\?order=test/);
+    await expect(orderBody).resolves.toMatchObject({
+      paymentMethod: "vnpay",
+      couponCode: "SUMMER2024",
+      usePoints: true,
+    });
+  });
+
+  test("wishlist page shows the product added from listing", async ({ mockedPage: page }) => {
+    await page.addInitScript(() => {
+      const auth = { user: { id: "storage-user", role: "user", isVerified: true }, accessToken: "user.access", refreshToken: "user.refresh", isAuthenticated: true };
+      const wishlist = {
+        items: [{
+          id: "prod-iphone-15",
+          _id: "prod-iphone-15",
+          name: "iPhone 15 Pro E2E",
+          slug: "iphone-15-pro-e2e",
+          category: "iphone",
+          price: 29990000,
+          salePrice: 27990000,
+          stock: 12,
+          inStock: true,
+          images: JSON.stringify(["/assets/test/iphone.png"]),
+        }],
+      };
+      const persisted = {
+        auth: JSON.stringify(auth),
+        cart: JSON.stringify({ items: [] }),
+        wishlist: JSON.stringify(wishlist),
+        _persist: JSON.stringify({ version: -1, rehydrated: true }),
+      };
+      sessionStorage.setItem("persist:apple-store", JSON.stringify(persisted));
+      localStorage.setItem("persist:apple-store", JSON.stringify(persisted));
+      window.__E2E_PRELOADED_STATE__ = {
+        auth,
+        cart: { items: [] },
+        wishlist,
+        ui: {},
+      };
+    });
+
+    await page.goto("/profile/wishlist", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("product-card")).toHaveCount(1);
+    await expect(page.getByText("iPhone 15 Pro E2E")).toBeVisible();
+  });
+
+  test("AI search keeps AI mode in the URL", async ({ mockedPage: page }) => {
+    await page.route("**/api/chat/search", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: { products: [] } }),
+      });
+    });
+
+    await page.goto("/search?ai=1", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("search-page-input").fill("iphone pin trau");
+    await page.getByTestId("search-page-input").press("Enter");
+
+    await expect(page).toHaveURL(/\/search\?q=iphone\+pin\+trau&ai=1|\/search\?q=iphone%20pin%20trau&ai=1/);
   });
 });

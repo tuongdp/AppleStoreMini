@@ -80,7 +80,7 @@ export default function RichTextEditor({ value, onChange, placeholder, disabled 
 
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({ link: false }),
             Underline,
             ImageExtension,
             LinkExtension.configure({ openOnClick: false }),

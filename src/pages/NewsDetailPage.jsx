@@ -52,7 +52,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
         { category: currentCategory, limit: 5 },
         { skip: !currentCategory },
     );
-    const { data: popularData } = useGetNewsQuery({ limit: 10 });
+    const { data: popularData } = useGetNewsQuery({ limit: 5, sort: "popular" });
 
     const related = (relatedData?.news || [])
         .filter((item) => item.slug !== currentSlug)
@@ -60,7 +60,6 @@ function NewsSidebar({ currentSlug, currentCategory }) {
 
     const popular = (popularData?.news || [])
         .filter((item) => item.slug !== currentSlug)
-        .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
         .slice(0, 4);
 
     return (
@@ -72,7 +71,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
                     </h3>
                     <div className="space-y-1">
                         {related.map((item) => (
-                            <SidebarNewsCard key={item.id} news={item} />
+                            <SidebarNewsCard key={item.id || item._id || item.slug} news={item} />
                         ))}
                     </div>
                 </div>
@@ -87,7 +86,7 @@ function NewsSidebar({ currentSlug, currentCategory }) {
                     </h3>
                     <div className="space-y-1">
                         {popular.map((item, index) => (
-                            <SidebarNewsCard key={item.id} news={item} index={index + 1} />
+                            <SidebarNewsCard key={item.id || item._id || item.slug} news={item} index={index + 1} />
                         ))}
                     </div>
                 </div>
@@ -149,6 +148,8 @@ export default function NewsDetailPage() {
         );
     }
 
+    const authorName = news.author || news.authorUser?.fullName;
+
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto w-full max-w-7xl">
@@ -193,9 +194,9 @@ export default function NewsDetailPage() {
                                     {news.readTime} phút đọc
                                 </span>
                             )}
-                            {news.author && (
+                            {authorName && (
                                 <span>
-                                    bởi <span className="font-medium text-foreground">{news.author}</span>
+                                    bởi <span className="font-medium text-foreground">{authorName}</span>
                                 </span>
                             )}
                             <span className="flex items-center gap-1.5">

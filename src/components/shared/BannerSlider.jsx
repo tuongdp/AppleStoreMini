@@ -14,8 +14,9 @@ function BannerSkeleton() {
   );
 }
 
-export default function BannerSlider({ slides = [] }) {
-  if (!slides.length) return <BannerSkeleton />;
+export default function BannerSlider({ slides = [], isLoading = false }) {
+  if (isLoading) return <BannerSkeleton />;
+  if (!slides.length) return null;
 
   return (
     <section className="w-full overflow-hidden">

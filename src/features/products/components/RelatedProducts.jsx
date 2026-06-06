@@ -11,6 +11,9 @@ export default function RelatedProducts({ slug, category }) {
     );
 
     const products = data || [];
+    const viewAllHref = category
+        ? `${ROUTES.PRODUCTS}?category=${encodeURIComponent(category)}`
+        : ROUTES.PRODUCTS;
 
     if (!isLoading && products.length === 0) return null;
 
@@ -18,7 +21,7 @@ export default function RelatedProducts({ slug, category }) {
         <section>
             <SectionTitle
                 title={"Sản phẩm liên quan"}
-                viewAllHref={`${ROUTES.PRODUCTS}?category=${category}`}
+                viewAllHref={viewAllHref}
                 className="mb-6"
             />
             {isLoading ? (

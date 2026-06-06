@@ -28,6 +28,21 @@ export const productsApi = baseApi.injectEndpoints({
             transformResponse: (response) => parseProduct(response.data),
         }),
 
+        getAdminProducts: builder.query({
+            query: (params) => ({ url: "/admin/products", params }),
+            providesTags: ["Products"],
+            transformResponse: (response) => ({
+                products: response.data,
+                pagination: response.pagination,
+            }),
+        }),
+
+        getAdminProductById: builder.query({
+            query: (id) => `/admin/products/${id}`,
+            providesTags: (_, __, id) => [{ type: "Product", id }],
+            transformResponse: (response) => parseProduct(response.data),
+        }),
+
         // GET /products/featured?limit=8
         getFeaturedProducts: builder.query({
             query: (limit = 8) => ({
@@ -196,6 +211,8 @@ export const {
     useGetProductsQuery,
     useGetProductBySlugQuery,
     useGetProductByIdQuery,
+    useGetAdminProductsQuery,
+    useGetAdminProductByIdQuery,
     useGetFeaturedProductsQuery,
     useGetNewProductsQuery,
     useGetNewReleaseProductsQuery,

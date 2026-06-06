@@ -1,6 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { Search, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Loader2, Search } from "lucide-react";
 import {
   useGetAllOrdersQuery,
   useUpdateOrderStatusMutation,
@@ -67,6 +67,9 @@ const NEXT_STATUS = {
   [ORDER_STATUS.SHIPPING]: ORDER_STATUS.DELIVERED,
 };
 
+const normalizeStatus = (status) => (status || "").toLowerCase();
+const normalizePaymentMethod = (method) => (method || "").toLowerCase();
+
 export default function AdminOrderTable() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
@@ -84,7 +87,7 @@ export default function AdminOrderTable() {
     search: debouncedSearch || undefined,
   };
 
-  const { data, isLoading } = useGetAllOrdersQuery(filters);
+  const { data, isLoading, isFetching } = useGetAllOrdersQuery(filters);
   const [updateStatus] = useUpdateOrderStatusMutation();
   const { exportExcel, exportPDF, isExporting } = useExport();
 
@@ -152,8 +155,8 @@ export default function AdminOrderTable() {
     customerName: o.user?.fullName || "—",
     phone: o.user?.phone || "—",
     createdAt: o.createdAt,
-    status: STATUS_MAP[o.status?.toLowerCase()] || o.status,
-    paymentMethod: EXPORT_PAYMENT_LABELS[o.paymentMethod] || o.paymentMethod || "—",
+    status: STATUS_MAP[normalizeStatus(o.status)] || o.status,
+    paymentMethod: EXPORT_PAYMENT_LABELS[o.paymentMethod] || EXPORT_PAYMENT_LABELS[normalizePaymentMethod(o.paymentMethod)] || o.paymentMethod || "—",
     isPaid: o.isPaid ? "Đã TT" : "Chưa TT",
     totalAmount: o.totalAmount || 0,
     discountAmount: o.discountAmount || 0,
@@ -175,7 +178,7 @@ export default function AdminOrderTable() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-[200px] flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             aria-label="Tìm kiếm đơn hàng"
             placeholder={"Tìm kiếm đơn hàng..."}
@@ -204,7 +207,7 @@ export default function AdminOrderTable() {
           onExportExcel={handleExportOrdersExcel}
           onExportPDF={handleExportOrdersPDF}
           loading={isExporting}
-          disabled={isLoading}
+          disabled={isLoading || isFetching}
         />
       </div>
 
@@ -224,7 +227,7 @@ export default function AdminOrderTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {isLoading || isFetching ? (
               [...Array(6)].map((_, i) => (
                 <TableRow key={i}>
                   {[...Array(8)].map((_, j) => (
@@ -269,23 +272,23 @@ export default function AdminOrderTable() {
                       {formatPrice(order.totalAmount)}
                     </span>
                   </TableCell>
-                    <TableCell>
-                     <span className="text-sm text-muted-foreground">
-                       {(PAYMENT_MAP[order.paymentMethod] || order.paymentMethod)}
-                     </span>
-                     {order.paymentMethod === "vnpay" ? (
-                       <p className={order.isPaid ? "text-xs text-green-600 dark:text-green-400" : order.status === "CANCELLED" || !order.user ? "text-xs text-red-500" : "text-xs text-muted-foreground"}>
-                         {order.isPaid
-                           ? "Đã thanh toán"
-                           : order.status === "CANCELLED" || !order.user
-                             ? "Thanh toán thất bại"
-                             : "Chờ thanh toán"}
-                       </p>
-                     ) : (
-                       <p className={order.isPaid ? "text-xs text-green-600 dark:text-green-400" : "text-xs text-muted-foreground"}>
-                         {order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
-                       </p>
-                     )}
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {PAYMENT_MAP[normalizePaymentMethod(order.paymentMethod)] || order.paymentMethod}
+                    </span>
+                    {normalizePaymentMethod(order.paymentMethod) === "vnpay" ? (
+                        <p className={order.isPaid ? "text-xs text-green-600 dark:text-green-400" : normalizeStatus(order.status) === ORDER_STATUS.CANCELLED || !order.user ? "text-xs text-red-500" : "text-xs text-muted-foreground"}>
+                          {order.isPaid
+                            ? "Đã thanh toán"
+                            : normalizeStatus(order.status) === ORDER_STATUS.CANCELLED || !order.user
+                              ? "Thanh toán thất bại"
+                              : "Chờ thanh toán"}
+                        </p>
+                    ) : (
+                        <p className={order.isPaid ? "text-xs text-green-600 dark:text-green-400" : "text-xs text-muted-foreground"}>
+                            {order.isPaid ? "Đã thanh toán" : "Chưa thanh toán"}
+                        </p>
+                    )}
                   </TableCell>
                   <TableCell>
                     <OrderStatusBadge status={order.status} />
@@ -311,7 +314,7 @@ export default function AdminOrderTable() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {NEXT_STATUS[(order.status || "").toLowerCase()] && (
+                      {NEXT_STATUS[normalizeStatus(order.status)] && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -320,13 +323,13 @@ export default function AdminOrderTable() {
                           onClick={() =>
                             requestUpdateStatus(
                               order,
-                              NEXT_STATUS[(order.status || "").toLowerCase()],
+                              NEXT_STATUS[normalizeStatus(order.status)],
                             )
                           }
                         >
                           {updatingId === (order._id || order.id)
-                            ? "Đang tải..."
-                            : (STATUS_MAP[NEXT_STATUS[(order.status || "").toLowerCase()]] || NEXT_STATUS[(order.status || "").toLowerCase()])}
+                            ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                            : (STATUS_MAP[NEXT_STATUS[normalizeStatus(order.status)]] || NEXT_STATUS[normalizeStatus(order.status)])}
                         </Button>
                       )}
                       <Button
@@ -339,7 +342,7 @@ export default function AdminOrderTable() {
                         <Link
                           to={ROUTES.ADMIN_ORDER_DETAIL(order._id || order.id)}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4" aria-hidden="true" />
                         </Link>
                       </Button>
                     </div>
@@ -360,24 +363,26 @@ export default function AdminOrderTable() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              size="sm"
-              className="rounded-full"
+              size="icon"
+              className="h-8 w-8 rounded-full"
               disabled={filters.page <= 1}
               onClick={() => updateParam("page", filters.page - 1)}
+              aria-label="Trang trước"
             >
-              {"Trước"}
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </Button>
             <span className="text-sm text-muted-foreground">
               {filters.page} {"trong"} {pagination.totalPages}
             </span>
             <Button
               variant="outline"
-              size="sm"
-              className="rounded-full"
+              size="icon"
+              className="h-8 w-8 rounded-full"
               disabled={filters.page >= pagination.totalPages}
               onClick={() => updateParam("page", filters.page + 1)}
+              aria-label="Trang sau"
             >
-              {"Sau"}
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>

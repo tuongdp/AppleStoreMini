@@ -1,11 +1,11 @@
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import ProfileSidebar from "./profile/ProfileSidebar";
+import SeoHead from "@/components/shared/SeoHead";
 
 const BREADCRUMB_MAP = {
     "/profile": "Tài khoản",
     "/profile/orders": "Đơn hàng của tôi",
-    "/profile/addresses": "Sổ địa chỉ",
     "/profile/change-password": "Đổi mật khẩu",
     "/profile/wishlist": "Yêu thích",
     "/profile/points": "Điểm thưởng",
@@ -22,6 +22,8 @@ export default function ProfileLayout() {
     return (
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
+                <SeoHead title={currentLabel} url={pathname} noindex />
+
                 {/* ── Breadcrumb ── */}
                 <nav className="mb-6 flex items-center gap-1.5 text-sm">
                     <Link

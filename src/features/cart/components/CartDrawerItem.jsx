@@ -119,7 +119,7 @@ export default function CartDrawerItem({ item }) {
             onClick={handleRemove}
             aria-label={`Xoá ${product?.name || "sản phẩm"} khỏi giỏ hàng`}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
         </div>
 

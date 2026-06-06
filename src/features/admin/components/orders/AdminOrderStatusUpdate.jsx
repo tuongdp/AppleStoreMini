@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useUpdateOrderStatusMutation } from "@/store/api/ordersApi";
 import {
     Select,
@@ -31,30 +32,33 @@ const STATUS_OPTIONS = [
     ORDER_STATUS.REFUNDED,
 ];
 
+const normalizeStatus = (status) => (status || "").toLowerCase();
+
 export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
-    const [selected, setSelected] = useState((currentStatus || "").toLowerCase());
+    const normalizedCurrentStatus = normalizeStatus(currentStatus);
+    const [selected, setSelected] = useState(normalizedCurrentStatus);
     const [updateStatus, { isLoading }] = useUpdateOrderStatusMutation();
 
     useEffect(() => {
-        setSelected((currentStatus || "").toLowerCase());
+        setSelected(normalizeStatus(currentStatus));
     }, [currentStatus]);
 
     const handleUpdate = async () => {
-        if (selected === currentStatus) return;
+        if (selected === normalizedCurrentStatus || !orderId) return;
 
         try {
             await updateStatus({ id: orderId, status: selected }).unwrap();
             toast.success("Cập nhật trạng thái thành công");
         } catch {
             toast.error("Cập nhật trạng thái thất bại");
-            setSelected(currentStatus);
+            setSelected(normalizedCurrentStatus);
         }
     };
 
     return (
         <div className="flex items-center gap-2">
             <Select value={selected} onValueChange={setSelected}>
-                <SelectTrigger className="w-44 rounded-full">
+                <SelectTrigger className="w-44 rounded-full" aria-label="Trạng thái đơn hàng">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -69,9 +73,16 @@ export default function AdminOrderStatusUpdate({ orderId, currentStatus }) {
                 size="sm"
                 className="rounded-full"
                 onClick={handleUpdate}
-                disabled={isLoading || selected === currentStatus}
+                disabled={isLoading || selected === normalizedCurrentStatus || !orderId}
             >
-                {isLoading ? "Đang tải..." : "Cập nhật trạng thái"}
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />
+                        {"Đang tải..."}
+                    </>
+                ) : (
+                    "Cập nhật trạng thái"
+                )}
             </Button>
         </div>
     );

@@ -59,6 +59,7 @@ export default function PaymentStep({ defaultData, onNext, onBack }) {
                     variant="outline"
                     className="rounded-full"
                     onClick={onBack}
+                    data-testid="checkout-payment-back"
                 >
                     {"Quay lại"}
                 </Button>
@@ -66,6 +67,7 @@ export default function PaymentStep({ defaultData, onNext, onBack }) {
                     className="rounded-full px-8"
                     onClick={handleNext}
                     disabled={!selectedMethod}
+                    data-testid="checkout-payment-next"
                 >
                     {"Tiếp tục"}
                 </Button>

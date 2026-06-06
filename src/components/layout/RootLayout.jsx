@@ -8,7 +8,12 @@ import ScrollToTop from "@/components/shared/ScrollToTop";
 import ChatWidget from "@/components/shared/ChatWidget";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { closeAll, toggleMobileMenu, toggleSearch } from "@/store/uiSlice";
+import {
+    closeAll,
+    toggleCartDrawer,
+    toggleMobileMenu,
+    toggleSearch,
+} from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useGetServerCartQuery } from "@/store/api/cartApi";
 
@@ -48,6 +53,7 @@ export default function RootLayout() {
 
             event.preventDefault();
             dispatch(toggleMobileMenu(false));
+            dispatch(toggleCartDrawer(false));
             dispatch(toggleSearch(true));
         };
 

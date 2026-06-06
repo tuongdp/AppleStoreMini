@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Newspaper } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { newsApi } from "@/store/api/newsApi";
 import { formatDate } from "@/lib/utils";
@@ -25,7 +25,7 @@ export default function NewsCard({ news, className }) {
             onMouseEnter={prefetchNewsDetail}
             onFocus={prefetchNewsDetail}
             className={cn(
-                "group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:border-border/80 hover:shadow-md",
+                "group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-sm",
                 className,
             )}
         >
@@ -41,8 +41,8 @@ export default function NewsCard({ news, className }) {
                         loading="lazy"
                     />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted">
-                        <span className="text-3xl">📰</span>
+                    <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+                        <Newspaper className="h-8 w-8" aria-hidden="true" />
                     </div>
                 )}
             </div>

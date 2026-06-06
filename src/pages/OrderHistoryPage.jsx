@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useGetOrdersQuery } from "@/store/api/ordersApi";
 import OrderList from "@/features/orders/components/OrderList";
 import { Button } from "@/components/ui/button";
@@ -79,6 +80,7 @@ export default function OrderHistoryPage() {
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
                     >
+                        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                         Trước
                     </Button>
                     <span className="text-sm text-muted-foreground">
@@ -92,6 +94,7 @@ export default function OrderHistoryPage() {
                         onClick={() => setPage((p) => p + 1)}
                     >
                         Sau
+                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </Button>
                 </div>
             )}

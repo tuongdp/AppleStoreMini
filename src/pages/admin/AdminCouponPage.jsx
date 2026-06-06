@@ -58,7 +58,7 @@ export default function AdminCouponPage() {
             <Card className="border-border">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-sm font-medium">
-                        <Coins className="h-4 w-4 text-amber-500" />
+                        <Coins className="h-4 w-4 text-amber-500" aria-hidden="true" />
                         Chính sách thưởng đánh giá
                     </CardTitle>
                     {isRewardLoading ? <Skeleton className="h-5 w-20" /> : (
@@ -79,6 +79,7 @@ export default function AdminCouponPage() {
                             </Select>
                             <div className="flex items-center gap-1">
                                 <Input
+                                    aria-label="Giá trị thưởng đánh giá"
                                     type="number"
                                     min="0"
                                     step="1"
@@ -91,7 +92,7 @@ export default function AdminCouponPage() {
                             </div>
                         </div>
                         <Button type="button" size="sm" onClick={handleUpdateReviewReward} disabled={isRewardLoading || isUpdatingReward} className="w-fit">
-                            {isUpdatingReward ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                            {isUpdatingReward ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}
                             Lưu
                         </Button>
                     </div>

@@ -1,6 +1,7 @@
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -53,6 +54,9 @@ export default function CommentModal({
                             ? "Chỉnh sửa bình luận"
                             : "Viết bình luận"}
                     </DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Nhap noi dung binh luan cho san pham da mua.
+                    </DialogDescription>
                 </DialogHeader>
 
                 {(product || imageSrc) && (

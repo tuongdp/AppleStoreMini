@@ -32,7 +32,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGetAdminCategoriesQuery, useDeleteVariantMutation, useLazyCheckVariantOrdersQuery, useCreateVariantMutation, useUpdateVariantMutation, useUploadEditorImageMutation, useCreateProductMutation } from "@/store/api/productsApi";
 import { useGetAdminSeriesQuery } from "@/store/api/seriesApi";
 import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput, parsePriceInput } from "@/lib/utils";
@@ -47,6 +47,8 @@ const EMPTY_VARIANT = {
     storage: "",
     ram: "",
     edition: "",
+    refreshRate: "",
+    ssd: "",
     price: "",
     salePrice: "",
     stock: 0,
@@ -161,6 +163,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 storage: v.storage || "",
                 ram: v.ram || "",
                 edition: v.edition || "",
+                refreshRate: v.refreshRate || "",
+                ssd: v.ssd || "",
                 price: v.price ?? 0,
                 salePrice: v.salePrice ?? "",
                 stock: v.stock ?? 0,
@@ -258,7 +262,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
     const saveVariant = async (data) => {
         setIsSavingVariant(true);
         try {
-        const { color, storage, ram, edition, price, salePrice, stock, images: vImages } = data;
+        const { color = "", storage = "", ram = "", edition = "", refreshRate = "", ssd = "", price, salePrice, stock, images: vImages } = data;
         const marketingFields = normalizeMarketingBadgeFields(data);
         if (!color.trim()) { toast.error("Màu sắc không được để trống"); return; }
         if (!price || Number(price) < 1000) { toast.error("Giá bán phải lớn hơn 1.000đ"); return; }
@@ -269,7 +273,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             v.color?.toLowerCase() === color.trim().toLowerCase() &&
             v.storage?.toLowerCase() === storage.trim().toLowerCase() &&
             v.ram?.toLowerCase() === ram.trim().toLowerCase() &&
-            v.edition?.toLowerCase() === edition.trim().toLowerCase()
+            v.edition?.toLowerCase() === edition.trim().toLowerCase() &&
+            v.refreshRate?.toLowerCase() === refreshRate.trim().toLowerCase() &&
+            v.ssd?.toLowerCase() === ssd.trim().toLowerCase()
         );
         if (dup >= 0) { toast.error("Variant này đã tồn tại"); return; }
 
@@ -282,14 +288,14 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                 if (editingVariantIdx !== null) {
                     const existing = variants[editingVariantIdx];
                     if (existing?.id) {
-                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
+                        await updateVariantApi({ variantId: existing.id, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), refreshRate: refreshRate.trim(), ssd: ssd.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
                         savedId = existing.id;
                     } else {
-                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
+                        const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), refreshRate: refreshRate.trim(), ssd: ssd.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
                         savedId = created.id;
                     }
                 } else {
-                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
+                    const created = await createVariantApi({ productId: productIdForApi, color: color.trim(), storage: storage.trim(), ram: ram.trim(), edition: edition.trim(), refreshRate: refreshRate.trim(), ssd: ssd.trim(), price: Number(price), salePrice: salePrice ? Number(salePrice) : null, stock: Number(stock) || 0, images, ...marketingFields }).unwrap();
                     savedId = created.id;
                 }
              } catch (err) {
@@ -319,6 +325,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                         storage: storage.trim(),
                         ram: ram.trim(),
                         edition: edition.trim(),
+                        refreshRate: refreshRate.trim(),
+                        ssd: ssd.trim(),
                         price: Number(price),
                         salePrice: salePrice ? Number(salePrice) : null,
                         stock: Number(stock) || 0,
@@ -345,6 +353,8 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
             storage: storage.trim(),
             ram: ram.trim(),
             edition: edition.trim(),
+            refreshRate: refreshRate.trim(),
+            ssd: ssd.trim(),
             price: Number(price),
             salePrice: salePrice ? Number(salePrice) : null,
             stock: Number(stock) || 0,
@@ -588,6 +598,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col" showCloseButton>
                                                 <DialogHeader>
                                                     <DialogTitle>{"Soạn mô tả sản phẩm"}</DialogTitle>
+                                                    <DialogDescription className="sr-only">
+                                                        Soan va dinh dang noi dung mo ta chi tiet cho san pham.
+                                                    </DialogDescription>
                                                 </DialogHeader>
                                                 <div className="flex items-center justify-end">
                                                     <AIDescriptionButton

@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Search } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
@@ -13,7 +13,7 @@ export default function AISearchToggle({ enabled, onToggle, disabled }) {
           disabled={disabled}
         />
         <Label htmlFor="ai-search" className="flex items-center gap-1 text-sm cursor-pointer">
-          <Sparkles className="h-3.5 w-3.5 text-apple-blue" />
+          <Search className="h-3.5 w-3.5 text-apple-blue" />
           Tìm kiếm AI
         </Label>
       </div>

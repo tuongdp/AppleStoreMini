@@ -12,7 +12,7 @@ import {
   useReceiveReturnMutation,
   useRefundReturnMutation,
 } from "@/store/api/ordersApi";
-import { RETURN_REASON_MAP, RETURN_REQUEST_STATUS_MAP, RETURN_REQUEST_STATUS_COLOR } from "@/lib/constants";
+import { RETURN_REASON_MAP, RETURN_REQUEST_STATUS, RETURN_REQUEST_STATUS_MAP, RETURN_REQUEST_STATUS_COLOR } from "@/lib/constants";
 import { formatPrice, formatDateTime } from "@/lib/utils";
 import { toast } from "sonner";
 import { Check, X, Package, MapPin, Image as ImageIcon, Video } from "lucide-react";
@@ -20,6 +20,9 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import ImageLightbox from "@/components/shared/ImageLightbox";
 import ReturnHistoryTimeline from "@/features/orders/components/ReturnHistoryTimeline";
+import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
+
+const normalizePaymentMethod = (method) => (method || "").toLowerCase();
 
 export default function AdminReturnDetail() {
   const { returnId } = useParams();
@@ -36,7 +39,7 @@ export default function AdminReturnDetail() {
   const [receiveReturn, { isLoading: isReceiving }] = useReceiveReturnMutation();
   const [refundReturn, { isLoading: isRefunding }] = useRefundReturnMutation();
 
-  const returnReq = data?.data;
+  const returnReq = data?.data ?? data;
   const order = returnReq?.order;
 
   if (isLoading) {
@@ -97,11 +100,11 @@ export default function AdminReturnDetail() {
             <h2 className="text-lg font-semibold text-foreground">
               Yêu cầu trả hàng #{returnReq.id.slice(0, 8)}
             </h2>
-            <Badge className={RETURN_REQUEST_STATUS_COLOR[returnReq.status]}>
-              {RETURN_REQUEST_STATUS_MAP[returnReq.status]}
+            <Badge className={RETURN_REQUEST_STATUS_COLOR[returnReq.status] || ""}>
+              {RETURN_REQUEST_STATUS_MAP[returnReq.status] || returnReq.status}
             </Badge>
             <Badge variant="outline">
-              {RETURN_REASON_MAP[returnReq.reason]}
+              {RETURN_REASON_MAP[returnReq.reason] || returnReq.reason}
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -111,7 +114,7 @@ export default function AdminReturnDetail() {
         </div>
 
         <div className="flex items-center gap-2">
-          {returnReq.status === "PENDING" && (
+          {returnReq.status === RETURN_REQUEST_STATUS.PENDING && (
             <>
               <Button
                 size="sm"
@@ -119,7 +122,7 @@ export default function AdminReturnDetail() {
                 onClick={handleApprove}
                 disabled={isApproving}
               >
-                <Check className="mr-1.5 h-4 w-4" />
+                <Check className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 {isApproving ? "Đang xử lý..." : "Duyệt"}
               </Button>
               <Button
@@ -128,29 +131,29 @@ export default function AdminReturnDetail() {
                 className="rounded-full"
                 onClick={() => setRejectOpen(true)}
               >
-                <X className="mr-1.5 h-4 w-4" />
+                <X className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 Từ chối
               </Button>
             </>
           )}
-          {returnReq.status === "RETURNING" && (
+          {returnReq.status === RETURN_REQUEST_STATUS.RETURNING && (
             <Button
               size="sm"
               className="rounded-full bg-indigo-600 hover:bg-indigo-700"
               onClick={() => setReceiveOpen(true)}
             >
-              <Package className="mr-1.5 h-4 w-4" />
+              <Package className="mr-1.5 h-4 w-4" aria-hidden="true" />
               Xác nhận đã nhận hàng
             </Button>
           )}
-          {returnReq.status === "RECEIVED" && (
+          {returnReq.status === RETURN_REQUEST_STATUS.RECEIVED && (
             <Button
               size="sm"
               className="rounded-full bg-green-600 hover:bg-green-700"
               onClick={handleRefund}
               disabled={isRefunding}
             >
-              <Check className="mr-1.5 h-4 w-4" />
+              <Check className="mr-1.5 h-4 w-4" aria-hidden="true" />
               {isRefunding ? "Đang xử lý..." : "Hoàn tiền"}
             </Button>
           )}
@@ -163,7 +166,7 @@ export default function AdminReturnDetail() {
           {/* Returned items */}
           <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <div className="mb-4 flex items-center gap-2">
-              <Package className="h-4 w-4 text-muted-foreground" />
+              <Package className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <h3 className="text-sm font-medium text-foreground">
                 Sản phẩm yêu cầu trả ({returnReq.items?.length || 0})
               </h3>
@@ -178,7 +181,7 @@ export default function AdminReturnDetail() {
                     <div className="flex gap-4">
                       <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-1.5">
                         <img
-                          src={oi.variant?.images?.[0] || oi.variant?.product?.image || ""}
+                          src={oi.variant?.images?.[0] || oi.variant?.product?.image || placeholderImg}
                           alt={oi.variant?.product?.name || ""}
                           className="h-full w-full object-contain"
                         />
@@ -230,7 +233,7 @@ export default function AdminReturnDetail() {
               {returnReq.images?.length > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center gap-1.5 mb-3">
-                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <span className="text-xs text-muted-foreground">Hình ảnh ({returnReq.images.length})</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
@@ -250,7 +253,7 @@ export default function AdminReturnDetail() {
               {returnReq.video && (
                 <div>
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Video className="h-4 w-4 text-muted-foreground" />
+                    <Video className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <span className="text-xs text-muted-foreground">Video</span>
                   </div>
                   <video controls className="w-full rounded-lg max-h-[400px] border">
@@ -285,7 +288,7 @@ export default function AdminReturnDetail() {
           </div>
 
           {/* Rejected reason */}
-          {returnReq.status === "REJECTED" && returnReq.adminNote && (
+          {returnReq.status === RETURN_REQUEST_STATUS.REJECTED && returnReq.adminNote && (
             <div className="rounded-2xl border-l-4 border-red-500 bg-red-50 p-5 dark:bg-red-950/30">
               <h3 className="mb-1 text-sm font-semibold text-red-700 dark:text-red-400">Lý do từ chối</h3>
               <p className="text-sm text-red-600 dark:text-red-300 whitespace-pre-wrap">{returnReq.adminNote}</p>
@@ -293,7 +296,7 @@ export default function AdminReturnDetail() {
           )}
 
           {/* Approved banner */}
-          {returnReq.status === "APPROVED" && (
+          {returnReq.status === RETURN_REQUEST_STATUS.APPROVED && (
             <div className="rounded-2xl border-l-4 border-blue-500 bg-blue-50 p-5 dark:bg-blue-950/30">
               <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-400">Đã duyệt yêu cầu trả hàng</h3>
               <p className="text-sm text-blue-600 dark:text-blue-300">Vui lòng chờ khách hàng gửi hàng về</p>
@@ -348,7 +351,7 @@ export default function AdminReturnDetail() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Thanh toán</span>
-                <span>{order?.paymentMethod === "VNPAY" ? "VNPay" : "COD"}</span>
+                <span>{normalizePaymentMethod(order?.paymentMethod) === "vnpay" ? "VNPay" : "COD"}</span>
               </div>
               {order?.isPaid && (
                 <div className="flex justify-between">
@@ -373,14 +376,14 @@ export default function AdminReturnDetail() {
           {/* Shipping info */}
           <div className="rounded-2xl border border-border bg-card p-5">
             <div className="mb-3 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <h3 className="text-sm font-medium text-foreground">Địa chỉ giao hàng</h3>
             </div>
             <div className="space-y-0.5 text-sm">
-              <p className="font-medium">{order?.shippingFullName}</p>
-              <p className="text-muted-foreground">{order?.shippingPhone}</p>
+              <p className="font-medium">{order?.shippingFullName || "—"}</p>
+              <p className="text-muted-foreground">{order?.shippingPhone || "—"}</p>
               <p className="text-muted-foreground">
-                {order?.shippingAddress}
+                {order?.shippingAddress || "—"}
               </p>
             </div>
           </div>
@@ -434,7 +437,7 @@ export default function AdminReturnDetail() {
       />
 
       <ImageLightbox
-        images={returnReq.images}
+        images={returnReq.images || []}
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
         initialIndex={lightboxIndex}

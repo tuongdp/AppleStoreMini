@@ -72,8 +72,8 @@ export const registerSchema = z
             .string()
             .min(8, { message: v("password.minLength") })
             .max(32, { message: v("password.maxLength") })
-            .regex(/[A-Z]/, { message: "Máº­t kháº©u cáº§n Ã­t nháº¥t 1 chá»¯ hoa" })
-            .regex(/[^A-Za-z0-9]/, { message: "Máº­t kháº©u cáº§n Ã­t nháº¥t 1 kÃ½ tá»± Ä‘áº·c biá»‡t" }),
+            .regex(/[A-Z]/, { message: "Mật khẩu cần ít nhất 1 chữ hoa" })
+            .regex(/[^A-Za-z0-9]/, { message: "Mật khẩu cần ít nhất 1 ký tự đặc biệt" }),
         confirmPassword: z
             .string()
             .min(1, { message: v("password.confirmRequired") }),
@@ -99,8 +99,8 @@ export const resetPasswordSchema = z
             .string()
             .min(8, { message: v("password.minLength") })
             .max(32, { message: v("password.maxLength") })
-            .regex(/[A-Z]/, { message: "Máº­t kháº©u cáº§n Ã­t nháº¥t 1 chá»¯ hoa" })
-            .regex(/[^A-Za-z0-9]/, { message: "Máº­t kháº©u cáº§n Ã­t nháº¥t 1 kÃ½ tá»± Ä‘áº·c biá»‡t" }),
+            .regex(/[A-Z]/, { message: "Mật khẩu cần ít nhất 1 chữ hoa" })
+            .regex(/[^A-Za-z0-9]/, { message: "Mật khẩu cần ít nhất 1 ký tự đặc biệt" }),
         confirmPassword: z
             .string()
             .min(1, { message: v("password.confirmRequired") }),
@@ -120,8 +120,8 @@ export const changePasswordSchema = z
             .string()
             .min(8, { message: v("password.minLength") })
             .max(32, { message: v("password.maxLength") })
-            .regex(/[A-Z]/, { message: "Máº­t kháº©u cáº§n Ã­t nháº¥t 1 chá»¯ hoa" })
-            .regex(/[^A-Za-z0-9]/, { message: "Máº­t kháºu cáº§n Ã­t nháº¥t 1 kÃ½ tá»± Ä‘áº·c biá»‡t" }),
+            .regex(/[A-Z]/, { message: "Mật khẩu cần ít nhất 1 chữ hoa" })
+            .regex(/[^A-Za-z0-9]/, { message: "Mật khẩu cần ít nhất 1 ký tự đặc biệt" }),
         confirmPassword: z
             .string()
             .min(1, { message: v("password.confirmNewRequired") }),

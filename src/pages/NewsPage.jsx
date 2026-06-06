@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useGetNewsQuery } from "@/store/api/newsApi";
 import NewsCard from "@/features/news/components/NewsCard";
@@ -15,10 +15,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { ROUTES, PAGINATION } from "@/lib/constants";
+import { PAGINATION } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
-import { Search, Calendar, Clock, TrendingUp } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, Search, TrendingUp } from "lucide-react";
 
 
 const ALL_CATEGORIES = [
@@ -45,20 +45,37 @@ export default function NewsPage() {
     const page = Number(searchParams.get("page")) || 1;
     const activeCategory = searchParams.get("category") || "";
     const activeSort = searchParams.get("sort") || "newest";
+    const searchQuery = searchParams.get("q") || "";
+
+    useEffect(() => {
+        setSearchInput(searchQuery);
+    }, [searchQuery]);
+
+    useEffect(() => {
+        const nextSearch = debouncedSearch.trim();
+        if (nextSearch === searchQuery) return;
+        const params = new URLSearchParams(searchParams);
+        if (nextSearch) params.set("q", nextSearch);
+        else params.delete("q");
+        params.set("page", "1");
+        setSearchParams(params);
+    }, [debouncedSearch, searchParams, searchQuery, setSearchParams]);
 
     const { data, isLoading } = useGetNewsQuery({
         page,
         limit: PAGINATION.DEFAULT_LIMIT,
-        search: debouncedSearch || undefined,
+        search: searchQuery || undefined,
         category: activeCategory || undefined,
         sort: activeSort === "newest" ? undefined : activeSort,
     });
 
     const news = data?.news || [];
     const pagination = data?.pagination || {};
-    const hasFocusedFilters = !!activeCategory || !!debouncedSearch || page > 1;
+    const hasFocusedFilters = !!activeCategory || !!searchQuery || page > 1;
     const featuredNews = !hasFocusedFilters ? news[0] : null;
     const gridNews = featuredNews ? news.slice(1) : news;
+    const seoTitle = searchQuery ? `Tìm kiếm ${searchQuery}` : activeCategory ? `Tin ${activeCategory}` : "Tin tức";
+    const canonicalPath = `/news${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
 
     const updateParam = (key, value) => {
         const params = new URLSearchParams(searchParams);
@@ -72,9 +89,9 @@ export default function NewsPage() {
         <div className="section-padding py-8 md:py-12">
             <div className="mx-auto max-w-7xl">
                 <SeoHead
-                    title="Tin tức"
+                    title={seoTitle}
                     description="Tin tức công nghệ, sản phẩm Apple mới nhất, đánh giá, thủ thuật và khuyến mãi."
-                    url="/news"
+                    url={canonicalPath}
                 />
 
                 {/* Header */}
@@ -88,7 +105,7 @@ export default function NewsPage() {
                         </p>
                     </div>
                     {/* Search */}
-                    <div className="relative max-w-xs w-full">
+                    <div className="relative w-full max-w-xs">
                         <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <label htmlFor="news-search" className="sr-only">
                             {"Tìm kiếm bài viết"}
@@ -146,7 +163,7 @@ export default function NewsPage() {
                         {[...Array(8)].map((_, i) => (
                             <div
                                 key={i}
-                                className="overflow-hidden rounded-2xl border border-border"
+                                className="overflow-hidden rounded-lg border border-border"
                             >
                                 <Skeleton className="aspect-video w-full" />
                                 <div className="space-y-2 p-4">
@@ -172,7 +189,7 @@ export default function NewsPage() {
                         {featuredNews && (
                             <Link
                                 to={`/news/${featuredNews.slug}`}
-                                className="group mb-6 grid overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:border-border/80 md:grid-cols-[1.25fr_1fr]"
+                                className="group mb-6 grid overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-foreground/20 md:grid-cols-[1.25fr_1fr]"
                             >
                                 <div className="aspect-video overflow-hidden bg-muted md:aspect-auto">
                                     {featuredNews.thumbnail && (
@@ -182,7 +199,8 @@ export default function NewsPage() {
                                             width={720}
                                             height={405}
                                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                            loading="lazy"
+                                            loading="eager"
+                                            fetchPriority="high"
                                         />
                                     )}
                                 </div>
@@ -235,7 +253,8 @@ export default function NewsPage() {
                             disabled={page <= 1}
                             onClick={() => updateParam("page", page - 1)}
                         >
-                            {"Trước"}
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                            Trước
                         </Button>
                         <span className="text-sm text-muted-foreground">
                             {page} / {pagination.totalPages}
@@ -247,7 +266,8 @@ export default function NewsPage() {
                             disabled={page >= pagination.totalPages}
                             onClick={() => updateParam("page", page + 1)}
                         >
-                            {"Sau"}
+                            Sau
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
                         </Button>
                     </div>
                 )}

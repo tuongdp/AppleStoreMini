@@ -4,19 +4,20 @@ import ProductCard from "@/components/shared/ProductCard";
 import ProductSlider from "@/components/shared/ProductSlider";
 import SectionTitle from "@/components/shared/SectionTitle";
 
-export default function PersonalizedRecommendations() {
+export default function PersonalizedRecommendations({ enabled = true }) {
     const [fetch, { data, isLoading, isError }] = usePersonalizedRecommendMutation();
     const fetched = useRef(false);
 
     useEffect(() => {
-        if (!fetched.current) {
+        if (enabled && !fetched.current) {
             fetched.current = true;
             fetch();
         }
-    }, [fetch]);
+    }, [enabled, fetch]);
 
     const products = (data?.products || []).slice(0, 6);
 
+    if (!enabled) return null;
     if (isError || (!isLoading && products.length === 0)) return null;
 
     return (

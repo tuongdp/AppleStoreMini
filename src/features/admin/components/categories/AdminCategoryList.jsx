@@ -45,6 +45,24 @@ const categorySchema = z.object({
     order: z.coerce.number().int().min(0).optional(),
 });
 
+function getCategoryId(category) {
+    return category?._id || category?.id;
+}
+
+function getCategoryImage(category) {
+    return category?.image || category?.icon || category?.thumbnail || "";
+}
+
+function getCategoryProductCount(category) {
+    return category?._count?.products ?? category?.productCount ?? category?.productsCount ?? 0;
+}
+
+function getCategorySeriesCount(category) {
+    const count = category?._count?.series ?? category?.seriesCount;
+    if (count != null) return count;
+    return Array.isArray(category?.series) ? category.series.length : 0;
+}
+
 function CategoryForm({ category, categories, onClose }) {
     const isEditing = !!category;
     const [createCategory, { isLoading: isCreating }] =
@@ -56,7 +74,7 @@ function CategoryForm({ category, categories, onClose }) {
     const sliderInputRef = useRef(null);
     const [uploadImage] = useUploadEditorImageMutation();
     const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(category?.image || null);
+    const [imagePreview, setImagePreview] = useState(getCategoryImage(category) || null);
     const [sliderImages, setSliderImages] = useState(() =>
         parseJsonField(category?.sliderImages ?? category?.slider ?? category?.slides ?? category?.bannerImages)
             .map((item) => (typeof item === "string" ? item : item?.image || item?.url || item?.src))
@@ -138,7 +156,7 @@ function CategoryForm({ category, categories, onClose }) {
             if (imageFile) payload.image = imageFile;
             payload.sliderImages = sliderImages;
             if (isEditing) {
-                payload.id = category._id || category.id;
+                payload.id = getCategoryId(category);
                 await updateCategory(payload).unwrap();
                 toast.success("Đã cập nhật danh mục");
             } else {
@@ -254,12 +272,12 @@ function CategoryForm({ category, categories, onClose }) {
                             {imagePreview ? (
                                 <img
                                     src={imagePreview}
-                                    alt="Preview"
+                                    alt={category?.name ? `Ảnh danh mục ${category.name}` : "Ảnh danh mục"}
                                     className="h-full w-full object-cover"
                                 />
                             ) : (
                                 <div className="flex flex-col items-center gap-1.5 text-muted-foreground">
-                                    <ImageUp className="h-6 w-6" />
+                                    <ImageUp className="h-6 w-6" aria-hidden="true" />
                                     <span className="text-[10px]">Chọn ảnh</span>
                                 </div>
                             )}
@@ -281,7 +299,7 @@ function CategoryForm({ category, categories, onClose }) {
                                             className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-muted-foreground shadow-sm hover:text-destructive"
                                             aria-label={`Xóa ảnh slider ${index + 1}`}
                                         >
-                                            <X className="h-3.5 w-3.5" />
+                                            <X className="h-3.5 w-3.5" aria-hidden="true" />
                                         </button>
                                     </div>
                                 ))}
@@ -293,6 +311,9 @@ function CategoryForm({ category, categories, onClose }) {
                                 value={sliderUrl}
                                 onChange={(e) => setSliderUrl(e.target.value)}
                                 placeholder="https://..."
+                                aria-label="URL ảnh slider danh mục"
+                                name="category-slider-url"
+                                autoComplete="off"
                                 disabled={isLoading || isUploadingSlider}
                             />
                             <Button
@@ -312,9 +333,9 @@ function CategoryForm({ category, categories, onClose }) {
                                 disabled={isLoading || isUploadingSlider}
                             >
                                 {isUploadingSlider ? (
-                                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />
                                 ) : (
-                                    <ImageUp className="mr-1.5 h-4 w-4" />
+                                    <ImageUp className="mr-1.5 h-4 w-4" aria-hidden="true" />
                                 )}
                                 Upload
                             </Button>
@@ -364,13 +385,13 @@ export default function AdminCategoryList() {
     const [editingCategory, setEditingCategory] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const { data, isLoading } = useGetAdminCategoriesQuery();
+    const { data, isLoading, isFetching } = useGetAdminCategoriesQuery();
     const [deleteCategory, { isLoading: isDeleting }] =
         useDeleteCategoryMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCategoryStatusMutation();
 
-    const categories = data || [];
+    const categories = Array.isArray(data) ? data : data?.data || [];
 
     const handleDelete = async () => {
         try {
@@ -387,7 +408,7 @@ export default function AdminCategoryList() {
     };
 
     const handleToggle = async (category) => {
-        const id = category._id || category.id;
+        const id = getCategoryId(category);
         try {
             await toggleStatus(id).unwrap();
             toast.success(
@@ -418,10 +439,10 @@ export default function AdminCategoryList() {
             {/* Toolbar */}
             <div className="flex items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">
-                    {categories.length} danh mục
+                    {isFetching ? "Đang tải..." : `${categories.length} danh mục`}
                 </p>
                 <Button className="rounded-full" onClick={handleAdd}>
-                    <Plus className="mr-1.5 h-4 w-4" />
+                    <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                     Thêm danh mục
                 </Button>
             </div>
@@ -454,7 +475,7 @@ export default function AdminCategoryList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             [...Array(5)].map((_, i) => (
                                 <TableRow key={i}>
                                     <TableCell><Skeleton className="h-5 w-8" /></TableCell>
@@ -479,7 +500,10 @@ export default function AdminCategoryList() {
                             </TableRow>
                         ) : (
                             categories.map((category) => {
-                                const catId = category._id || category.id;
+                                const catId = getCategoryId(category);
+                                const image = getCategoryImage(category);
+                                const productCount = getCategoryProductCount(category);
+                                const seriesCount = getCategorySeriesCount(category);
                                 return (
                                     <TableRow key={catId}>
                                         <TableCell className="text-sm text-muted-foreground">
@@ -488,14 +512,14 @@ export default function AdminCategoryList() {
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted/30">
-                                                    {category.image ? (
+                                                    {image ? (
                                                         <img
-                                                            src={category.image}
-                                                            alt={category.name}
+                                                            src={image}
+                                                            alt={category.name || "Danh mục"}
                                                             className="h-full w-full object-cover"
                                                         />
                                                     ) : (
-                                                        <ImagePlus className="h-4 w-4 text-muted-foreground/40" />
+                                                        <ImagePlus className="h-4 w-4 text-muted-foreground/40" aria-hidden="true" />
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
@@ -504,11 +528,13 @@ export default function AdminCategoryList() {
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
                                                         /{category.slug}
-                                                        {category.productCount != null && (
+                                                        {(productCount > 0 || seriesCount > 0) && (
                                                             <span className="ml-2">
-                                                                · {category.productCount} sản phẩm
-                                                                {category.seriesCount > 0 && (
-                                                                    <span> · {category.seriesCount} series</span>
+                                                                {productCount > 0 && (
+                                                                    <span>· {productCount} sản phẩm</span>
+                                                                )}
+                                                                {seriesCount > 0 && (
+                                                                    <span> · {seriesCount} series</span>
                                                                 )}
                                                             </span>
                                                         )}
@@ -534,22 +560,25 @@ export default function AdminCategoryList() {
                                                     checked={category.isActive !== false}
                                                     onCheckedChange={() => handleToggle(category)}
                                                     disabled={isToggling}
+                                                    aria-label={category.isActive !== false ? `Ẩn danh mục ${category.name}` : `Hiện danh mục ${category.name}`}
                                                 />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                                                     onClick={() => handleEdit(category)}
+                                                    aria-label={`Sửa danh mục ${category.name}`}
                                                 >
-                                                    <Pencil className="h-4 w-4" />
+                                                    <Pencil className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                                     onClick={() => setDeleteId(catId)}
+                                                    aria-label={`Xóa danh mục ${category.name}`}
                                                 >
-                                                    <Trash2 className="h-4 w-4" />
+                                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                             </div>
                                         </TableCell>

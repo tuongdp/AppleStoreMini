@@ -64,7 +64,7 @@ export const usersApi = baseApi.injectEndpoints({
         getUserStats: builder.query({
             query: () => "/admin/users/stats",
             providesTags: ["Users"],
-            transformResponse: (response) => normalizeProfileUser(response.data),
+            transformResponse: (response) => response.data,
         }),
 
         // GET /admin/users/:id

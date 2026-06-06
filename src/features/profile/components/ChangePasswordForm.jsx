@@ -31,8 +31,8 @@ const PasswordInput = ({ field, placeholder, disabled }) => {
             <button
                 type="button"
                 onClick={() => setShow((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                aria-label={show ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
             >
                 {show ? (
                     <EyeOff className="h-4 w-4" />

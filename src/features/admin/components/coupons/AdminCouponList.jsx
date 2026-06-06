@@ -34,12 +34,17 @@ export default function AdminCouponList() {
 
     const status = searchParams.get("status") || "";
 
-    const { data, isLoading } = useGetAllCouponsQuery(status && status !== "all" ? { status } : undefined);
+    const { data, isLoading, isFetching } = useGetAllCouponsQuery(status && status !== "all" ? { status } : undefined);
     const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCouponStatusMutation();
 
     const coupons = data?.coupons || [];
+    const getDiscountType = (coupon) => String(coupon.discountType || "").toUpperCase();
+    const getMaxDiscountAmount = (coupon) => coupon.maxDiscountAmount ?? coupon.maxDiscount;
+    const getMinOrderAmount = (coupon) => coupon.minOrderAmount ?? coupon.minOrderValue;
+    const getMaxUsage = (coupon) => coupon.maxUsage ?? coupon.usageLimit;
+    const getExpiresAt = (coupon) => coupon.expiresAt ?? coupon.endDate;
 
     const handleDelete = async () => {
         try {
@@ -71,14 +76,14 @@ export default function AdminCouponList() {
         coupons.map((c) => ({
             code: c.code,
             description: c.description || "—",
-            discountType: DISCOUNT_TYPE_LABELS[c.discountType] || c.discountType,
+            discountType: DISCOUNT_TYPE_LABELS[getDiscountType(c)] || getDiscountType(c),
             discountValue:
-                c.discountType === "PERCENT"
-                    ? `${c.discountValue}% (tối đa ${(c.maxDiscountAmount || 0).toLocaleString("vi-VN")}₫)`
+                getDiscountType(c) === "PERCENT"
+                    ? `${c.discountValue}% (tối đa ${(getMaxDiscountAmount(c) || 0).toLocaleString("vi-VN")}₫)`
                     : `${(c.discountValue || 0).toLocaleString("vi-VN")}₫`,
-            minOrderAmount: c.minOrderAmount || 0,
-            usedCount: `${c.usedCount || 0} / ${c.maxUsage || "∞"}`,
-            expiresAt: c.expiresAt,
+            minOrderAmount: getMinOrderAmount(c) || 0,
+            usedCount: `${c.usedCount || 0} / ${getMaxUsage(c) || "∞"}`,
+            expiresAt: getExpiresAt(c),
             isActive: c.isActive ? "Đang kích hoạt" : "Đã tắt",
         }));
 
@@ -178,10 +183,10 @@ export default function AdminCouponList() {
                         onExportExcel={handleExportCouponsExcel}
                         onExportPDF={handleExportCouponsPDF}
                         loading={isExporting}
-                        disabled={isLoading}
+                        disabled={isLoading || isFetching}
                     />
                     <Button className="rounded-full" onClick={handleAdd}>
-                        <Plus className="mr-1.5 h-4 w-4" />
+                        <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                         Thêm mã mới
                     </Button>
                 </div>
@@ -217,7 +222,7 @@ export default function AdminCouponList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             [...Array(5)].map((_, i) => (
                                 <TableRow key={i}>
                                     {[...Array(7)].map((_, j) => (
@@ -239,10 +244,15 @@ export default function AdminCouponList() {
                         ) : (
                             coupons.map((coupon) => {
                                 const couponId = coupon._id || coupon.id;
-                                const expired = isExpired(coupon.expiresAt);
+                                const discountType = getDiscountType(coupon);
+                                const maxDiscountAmount = getMaxDiscountAmount(coupon);
+                                const minOrderAmount = getMinOrderAmount(coupon);
+                                const maxUsage = getMaxUsage(coupon);
+                                const expiresAt = getExpiresAt(coupon);
+                                const expired = isExpired(expiresAt);
                                 const usedUp =
-                                    coupon.maxUsage &&
-                                    coupon.usedCount >= coupon.maxUsage;
+                                    maxUsage &&
+                                    coupon.usedCount >= maxUsage;
 
                                 return (
                                     <TableRow key={couponId}>
@@ -264,7 +274,7 @@ export default function AdminCouponList() {
                                                 variant="outline"
                                                 className="text-xs"
                                             >
-                                                {coupon.discountType ===
+                                                {discountType ===
                                                 "PERCENT"
                                                     ? "Phần trăm"
                                                     : "Số tiền"}
@@ -274,28 +284,28 @@ export default function AdminCouponList() {
                                         {/* Value */}
                                         <TableCell>
                                             <span className="text-sm font-medium text-foreground">
-                                                {coupon.discountType ===
+                                                {discountType ===
                                                 "PERCENT"
                                                     ? `${formatNumber(coupon.discountValue)}%`
                                                     : formatPrice(
                                                           coupon.discountValue,
                                                       )}
                                             </span>
-                                            {coupon.maxDiscountAmount &&
-                                                coupon.discountType ===
+                                            {maxDiscountAmount &&
+                                                discountType ===
                                                     "PERCENT" && (
                                                     <p className="text-xs text-muted-foreground">
                                                         Tối đa{" "}
                                                         {formatPrice(
-                                                            coupon.maxDiscountAmount,
+                                                            maxDiscountAmount,
                                                         )}
                                                     </p>
                                                 )}
-                                            {coupon.minOrderAmount && (
+                                            {minOrderAmount && (
                                                 <p className="text-xs text-muted-foreground">
                                                     Đơn tối thiểu{" "}
                                                     {formatPrice(
-                                                        coupon.minOrderAmount,
+                                                        minOrderAmount,
                                                     )}
                                                 </p>
                                             )}
@@ -312,10 +322,15 @@ export default function AdminCouponList() {
                                                 )}
                                             >
                                                 {formatNumber(coupon.usedCount || 0)}
-                                                {coupon.maxUsage
-                                                    ? ` / ${formatNumber(coupon.maxUsage)}`
+                                                {maxUsage
+                                                    ? ` / ${formatNumber(maxUsage)}`
                                                     : " / ∞"}
                                             </span>
+                                            {coupon.maxUsagePerUser != null && (
+                                                <p className="text-xs text-muted-foreground">
+                                                    Tối đa {coupon.maxUsagePerUser} lần/user
+                                                </p>
+                                            )}
                                         </TableCell>
 
                                         {/* Expiry */}
@@ -328,9 +343,9 @@ export default function AdminCouponList() {
                                                         : "text-muted-foreground",
                                                 )}
                                             >
-                                                {coupon.expiresAt
+                                                {expiresAt
                                                     ? formatDate(
-                                                          coupon.expiresAt,
+                                                          expiresAt,
                                                       )
                                                     : "Không hết hạn"}
                                             </span>
@@ -383,9 +398,9 @@ export default function AdminCouponList() {
                                                     aria-label={coupon.isActive ? `Tắt mã ${coupon.code}` : `Bật mã ${coupon.code}`}
                                                 >
                                                     {coupon.isActive ? (
-                                                        <ToggleRight className="h-4 w-4 text-green-500" />
+                                                        <ToggleRight className="h-4 w-4 text-green-500" aria-hidden="true" />
                                                     ) : (
-                                                        <ToggleLeft className="h-4 w-4" />
+                                                        <ToggleLeft className="h-4 w-4" aria-hidden="true" />
                                                     )}
                                                 </Button>
 
@@ -399,7 +414,7 @@ export default function AdminCouponList() {
                                                     }
                                                     aria-label={`Sửa mã ${coupon.code}`}
                                                 >
-                                                    <Pencil className="h-4 w-4" />
+                                                    <Pencil className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
 
                                                 {/* Delete */}
@@ -412,7 +427,7 @@ export default function AdminCouponList() {
                                                     }
                                                     aria-label={`Xóa mã ${coupon.code}`}
                                                 >
-                                                    <Trash2 className="h-4 w-4" />
+                                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </Button>
                                             </div>
                                         </TableCell>

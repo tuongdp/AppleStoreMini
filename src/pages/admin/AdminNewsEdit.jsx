@@ -63,7 +63,7 @@ export default function AdminNewsEdit() {
         <div className="space-y-6">
             <Button variant="ghost" size="sm" className="rounded-full" asChild>
                 <Link to="/admin/news">
-                    <ChevronLeft className="mr-1 h-4 w-4" />
+                    <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
                     {"Quản lý tin tức"}
                 </Link>
             </Button>

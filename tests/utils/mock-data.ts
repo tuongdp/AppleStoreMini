@@ -183,18 +183,119 @@ export const dashboardStats = {
   ],
 };
 
+export const dashboardOperations = {
+  revenue: { today: 27990000, week: 180000000, month: 620000000 },
+  orders: {
+    today: 6,
+    total: 320,
+    pending: 4,
+    confirmed: 3,
+    processing: 5,
+    shipping: 8,
+    delivered: 220,
+    cancelled: 8,
+    refunded: 2,
+    deliveryRate: 92.5,
+    problemRate: 3.1,
+  },
+  inventory: { lowStockVariants: 2, outOfStockVariants: 1 },
+  customers: { newToday: 3, unverified: 4 },
+  marketing: { activeCoupons: 2, expiredActiveCoupons: 0 },
+  online: { activeUsers: 12, carts: 5 },
+  tasks: [
+    { key: "pendingOrders", label: "Đơn chờ xác nhận", count: 4, href: "/admin/orders?status=PENDING", tone: "danger" },
+    { key: "reviews", label: "Đánh giá chưa phản hồi", count: 2, href: "/admin/comments", tone: "warning" },
+    { key: "returnRequests", label: "Yêu cầu trả hàng", count: 1, href: "/admin/returns", tone: "warning" },
+  ],
+  alerts: [
+    { key: "low-stock", title: "Tồn kho thấp", message: "Một số phiên bản iPhone sắp hết hàng.", severity: "MEDIUM", href: "/admin/products" },
+  ],
+};
+
+export const dashboardRevenue = {
+  chart: [
+    { label: "01/06", revenue: 27990000, orders: 1 },
+    { label: "02/06", revenue: 32990000, orders: 1 },
+    { label: "03/06", revenue: 24990000, orders: 1 },
+  ],
+  totalRevenue: 85970000,
+  totalOrders: 3,
+  avgOrderValue: 28656667,
+  revenueChange: 12.4,
+  orderChange: 8.2,
+  avgOrderChange: 4.1,
+};
+
+export const dashboardCategoryRevenue = [
+  { categoryId: "cat-iphone", label: "iPhone", value: 56000000, change: 12 },
+  { categoryId: "cat-mac", label: "Mac", value: 32990000, change: 5 },
+  { categoryId: "cat-ipad", label: "iPad", value: 24990000, change: -3 },
+];
+
+export const dashboardTopProducts = [
+  { ...testProducts[0], soldCount: 12, revenue: 335880000, inStock: true },
+  { ...testProducts[1], soldCount: 6, revenue: 197940000, inStock: true },
+  { ...testProducts[2], soldCount: 4, revenue: 99960000, inStock: true },
+];
+
+export const dashboardSlowProducts = [
+  { ...testProducts[2], soldCount: 0, totalStock: 10, daysInStock: 75, categorySlug: "ipad" },
+  { ...testProducts[1], soldCount: 1, totalStock: 8, daysInStock: 45, categorySlug: "mac" },
+];
+
+export const dashboardLowStock = [
+  { ...testProducts[0].variants[1], productId: testProducts[0].id, product: { name: testProducts[0].name, slug: testProducts[0].slug }, recentSales: 7 },
+  { ...testProducts[0].variants[2], productId: testProducts[0].id, product: { name: testProducts[0].name, slug: testProducts[0].slug }, recentSales: 2 },
+];
+
+export const dashboardTopCustomers = [
+  { id: "user-1", fullName: "Nguyễn Văn A", email: "nguyenvana@example.com", totalSpent: 86970000, orderCount: 3, lastOrderDate: "2024-06-01T10:00:00Z" },
+  { id: "user-2", fullName: "Trần Thị B", email: "tranthib@example.com", totalSpent: 32990000, orderCount: 1, lastOrderDate: "2024-05-15T08:00:00Z" },
+];
+
 export const globalOptions = {
   colors: ["Titan tự nhiên", "Titan xanh", "Titan đen", "Bạc", "Xám"],
   storages: ["128GB", "256GB", "512GB", "1TB"],
   rams: ["8GB", "16GB", "24GB"],
   editions: ["", "Wi-Fi", "Wi-Fi + Cellular", "GPS", "GPS + Cellular"],
+  refreshRates: ["60Hz", "120Hz"],
+  ssds: ["256GB", "512GB", "1TB"],
 };
+
+export const globalOptionsList = [
+  { id: "opt-color-titan", type: "COLOR", value: "Titan tự nhiên", hex: "#8f8a81", isActive: true },
+  { id: "opt-color-blue", type: "COLOR", value: "Titan xanh", hex: "#3f4e65", isActive: true },
+  { id: "opt-storage-128", type: "STORAGE", value: "128GB", isActive: true },
+  { id: "opt-storage-256", type: "STORAGE", value: "256GB", isActive: true },
+  { id: "opt-ram-8", type: "RAM", value: "8GB", isActive: true },
+  { id: "opt-edition-wifi", type: "EDITION", value: "Wi-Fi", isActive: true },
+  { id: "opt-refresh-120", type: "REFRESH_RATE", value: "120Hz", isActive: true },
+  { id: "opt-ssd-512", type: "SSD", value: "512GB", isActive: true },
+];
 
 export const appSettings = {
   shopName: "Apple Store Mini",
   shopEmail: "contact@applestore.vn",
   shopPhone: "1900 1234",
   shopAddress: "123 Nguyễn Huệ, Quận 1, TP.HCM",
+  shop: {
+    name: "Apple Store Mini",
+    email: "contact@applestore.vn",
+    phone: "1900 1234",
+    address: "123 Nguyễn Huệ, Quận 1, TP.HCM",
+    logo: "",
+    taxCode: "0312345678",
+    facebook: "https://facebook.com/applestoremini",
+    zalo: "https://zalo.me/19001234",
+    tiktok: "https://tiktok.com/@applestoremini",
+    youtube: "https://youtube.com/@applestoremini",
+  },
+  shipping: { defaultFee: 30000, freeShippingMinOrder: 5000000 },
+  returnPolicy: { windowDays: 7 },
+  reviewReward: { points: 20000, type: "FIXED" },
+  warranty: { durationMonths: 12 },
+  payment: { codEnabled: true, vnpayEnabled: true },
+  seo: { title: "Apple Store Mini", description: "Apple Store Mini chính hãng" },
 };
 
 export const apiEnvelope = <T>(data: T, message = "ok") => ({ statusCode: 200, data, message, success: true });

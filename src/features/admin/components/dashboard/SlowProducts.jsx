@@ -22,8 +22,8 @@ const daysInStockColor = (days) => {
 
 const daysInStockLabel = (days) => {
     if (days < 30) return `${days} ngày`;
-    if (days <= 60) return `${days} ngày ⚠`;
-    return `${days} ngày ⚠`;
+    if (days <= 60) return `${days} ngày`;
+    return `${days} ngày`;
 };
 
 export default function SlowProducts() {

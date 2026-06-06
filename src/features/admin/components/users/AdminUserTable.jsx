@@ -14,6 +14,8 @@ import {
     UserX,
     UserCog,
     MailWarning,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import {
     useGetAllUsersQuery,
@@ -123,7 +125,7 @@ export default function AdminUserTable() {
         search: debouncedSearch || undefined,
     };
 
-    const { data, isLoading } = useGetAllUsersQuery(filters);
+    const { data, isLoading, isFetching } = useGetAllUsersQuery(filters);
     const { data: stats } = useGetUserStatsQuery();
     const [updateRole, { isLoading: isUpdating }] = useUpdateUserRoleMutation();
     const [toggleStatus, { isLoading: isToggling }] =
@@ -357,7 +359,7 @@ export default function AdminUserTable() {
                     onExportExcel={handleExportUsersExcel}
                     onExportPDF={handleExportUsersPDF}
                     loading={isExporting}
-                    disabled={isLoading}
+                    disabled={isLoading || isFetching}
                 />
             </div>
 
@@ -380,7 +382,7 @@ export default function AdminUserTable() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {isLoading ? (
+                        {isLoading || isFetching ? (
                             [...Array(6)].map((_, i) => (
                                 <TableRow key={i}>
                                     {[...Array(9)].map((_, j) => (
@@ -432,7 +434,7 @@ export default function AdminUserTable() {
                                             <Avatar className="h-8 w-8">
                                                 <AvatarImage
                                                     src={user.avatar}
-                                                    alt={user.fullName}
+                                                    alt={user.fullName || user.email || "Người dùng"}
                                                 />
                                                 <AvatarFallback className="text-xs">
                                                     {user.fullName
@@ -442,10 +444,10 @@ export default function AdminUserTable() {
                                             </Avatar>
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-medium text-foreground">
-                                                    {user.fullName}
+                                                    {user.fullName || "Người dùng chưa cập nhật tên"}
                                                 </p>
                                                 <p className="truncate text-xs text-muted-foreground">
-                                                    {user.email}
+                                                    {user.email || "—"}
                                                 </p>
                                                 {!user.isVerified && (
                                                     <Badge className="mt-1 bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
@@ -619,14 +621,15 @@ export default function AdminUserTable() {
                     <div className="flex items-center gap-2">
                         <Button
                             variant="outline"
-                            size="sm"
-                            className="rounded-full"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            aria-label="Trang trước"
                             disabled={filters.page <= 1}
                             onClick={() =>
                                 updateParam("page", filters.page - 1)
                             }
                         >
-                            {"Trước"}
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                         </Button>
                         <span className="text-sm text-muted-foreground">
                             {filters.page} {"trong"}{" "}
@@ -634,14 +637,15 @@ export default function AdminUserTable() {
                         </span>
                         <Button
                             variant="outline"
-                            size="sm"
-                            className="rounded-full"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            aria-label="Trang sau"
                             disabled={filters.page >= pagination.totalPages}
                             onClick={() =>
                                 updateParam("page", filters.page + 1)
                             }
                         >
-                            {"Sau"}
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
                         </Button>
                     </div>
                 </div>

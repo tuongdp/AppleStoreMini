@@ -90,7 +90,7 @@ export default function QuantityInput({
                     sizes[size].btn,
                 )}
             >
-                <Minus className={sizes[size].icon} strokeWidth={2} />
+                <Minus className={sizes[size].icon} strokeWidth={2} aria-hidden="true" />
             </Button>
 
             <Input
@@ -126,7 +126,7 @@ export default function QuantityInput({
                     sizes[size].btn,
                 )}
             >
-                <Plus className={sizes[size].icon} strokeWidth={2} />
+                <Plus className={sizes[size].icon} strokeWidth={2} aria-hidden="true" />
             </Button>
         </div>
     );

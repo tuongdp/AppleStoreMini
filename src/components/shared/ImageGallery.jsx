@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs, Controller } from "swiper/modules";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { productPlaceholder } from "@/assets/images";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
@@ -157,8 +157,11 @@ export default function ImageGallery({ images = [], productName = "" }) {
                 <DialogContent
                     className="border-none bg-black/95 p-0 max-w-[95vw] sm:max-w-[95vw] rounded-2xl"
                     showCloseButton={false}
-                    aria-describedby={undefined}
                 >
+                    <DialogTitle className="sr-only">Anh phong to cua san pham</DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Xem anh san pham kich thuoc lon va chuyen qua lai giua cac anh.
+                    </DialogDescription>
                     <div className="relative flex h-[85vh] w-full items-center justify-center">
                         <ResponsiveImage
                             src={images[zoomIndex]}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bot, Loader2, MessageCircle, Send, Sparkles, X } from "lucide-react";
+import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
@@ -79,24 +79,27 @@ export default function ChatWidget() {
 
     return (
         <>
-            <button
-                type="button"
-                onClick={() => setOpen((value) => !value)}
-                aria-label={open ? "Đóng chat" : "Mở chat"}
-                className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
-            >
-                {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
-            </button>
+            {!open && (
+                <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    aria-label="Mở chat"
+                    className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
+                >
+                    <MessageCircle className="h-5 w-5" />
+                </button>
+            )}
 
             {open && (
                 <div
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby="chat-widget-title"
-                    className="fixed inset-0 z-50 flex flex-col bg-card sm:inset-auto sm:bottom-20 sm:right-6 sm:h-[480px] sm:w-[380px] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl"
+                    data-testid="chat-widget-dialog"
+                    className="fixed inset-0 z-60 flex flex-col bg-card sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(640px,calc(100vh-3rem))] sm:w-[min(380px,calc(100vw-2rem))] sm:rounded-2xl sm:border sm:border-border sm:shadow-2xl"
                 >
                     <div className="flex items-center gap-3 bg-foreground px-4 py-3 text-background sm:rounded-t-2xl">
-                        <Sparkles aria-hidden="true" className="h-5 w-5" />
+                        <Bot aria-hidden="true" className="h-5 w-5" />
                         <div className="min-w-0 flex-1">
                             <p id="chat-widget-title" className="truncate text-sm font-semibold">Trợ lý Apple Store</p>
                             <p className="text-xs text-background/70">Hỗ trợ tư vấn sản phẩm bằng AI</p>
@@ -105,7 +108,8 @@ export default function ChatWidget() {
                             type="button"
                             onClick={() => setOpen(false)}
                             aria-label="Đóng chat"
-                            className="rounded-full p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:hidden"
+                            data-testid="chat-widget-close"
+                            className="rounded-full p-1 transition-colors hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
                         >
                             <X className="h-5 w-5" />
                         </button>

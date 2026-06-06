@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Label } from "recharts";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { AlertTriangle, Lightbulb, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetCategoryRevenueQuery } from "@/store/api/ordersApi";
@@ -219,18 +219,27 @@ export default function CategoryPieChart() {
             {(topCategory || topGrowth || worstGrowth) && (
                 <div className="space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
                     {topCategory && (
-                        <p>
-                            💡 <span className="font-medium text-foreground">{topCategory.label}</span> là danh mục doanh thu cao nhất ({topCategory.pct.toFixed(1)}%)
+                        <p className="flex items-start gap-1.5">
+                            <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden="true" />
+                            <span>
+                                <span className="font-medium text-foreground">{topCategory.label}</span> là danh mục doanh thu cao nhất ({topCategory.pct.toFixed(1)}%)
+                            </span>
                         </p>
                     )}
                     {topGrowth && topGrowth.change != null && topGrowth.change > 0 && (
-                        <p>
-                            📈 <span className="font-medium text-foreground">{topGrowth.label}</span> tăng trưởng mạnh nhất (+{topGrowth.change}%)
+                        <p className="flex items-start gap-1.5">
+                            <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" aria-hidden="true" />
+                            <span>
+                                <span className="font-medium text-foreground">{topGrowth.label}</span> tăng trưởng mạnh nhất (+{topGrowth.change}%)
+                            </span>
                         </p>
                     )}
                     {worstGrowth && worstGrowth.change != null && worstGrowth.change < 0 && (
-                        <p>
-                            ⚠️ <span className="font-medium text-foreground">{worstGrowth.label}</span> cần chú ý ({worstGrowth.change}%)
+                        <p className="flex items-start gap-1.5">
+                            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" aria-hidden="true" />
+                            <span>
+                                <span className="font-medium text-foreground">{worstGrowth.label}</span> cần chú ý ({worstGrowth.change}%)
+                            </span>
                         </p>
                     )}
                 </div>

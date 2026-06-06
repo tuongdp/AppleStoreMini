@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { ClipboardList, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAiReviewSummaryMutation } from "@/store/api/aiApi";
@@ -33,7 +33,7 @@ export default function AIReviewSummary({ productSlug, reviews }) {
     <Card className="my-8">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-apple-blue" />
+          <ClipboardList className="h-5 w-5 text-apple-blue" />
           AI Tổng hợp đánh giá
         </CardTitle>
         <CardDescription>
@@ -55,7 +55,7 @@ export default function AIReviewSummary({ productSlug, reviews }) {
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
+                <ClipboardList className="mr-2 h-4 w-4" />
                 Phân tích đánh giá
               </>
             )}

@@ -1,30 +1,34 @@
 let fontReady = false;
 let fontPromise = null;
 
-const FONT_URL = "https://cdn.jsdelivr.net/gh/adobe-fonts/source-sans@3.046/TTF/SourceSans3-Regular.ttf";
-const FONT_NAME = "SourceSansVN";
+const FONT_URL = "/times.ttf";
+const FONT_NAME = "TimesVN";
+
+function arrayBufferToBase64(buf) {
+    const bytes = new Uint8Array(buf);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+}
 
 async function loadPdfFont() {
-    if (fontReady) return;
+    if (fontReady) { return; }
     if (fontPromise) { await fontPromise; return; }
 
     fontPromise = (async () => {
         const { jsPDF } = await import("jspdf");
         try {
             const res = await fetch(FONT_URL);
-            if (!res.ok) throw new Error(`Font fetch failed: ${res.status}`);
+            if (!res.ok) { throw new Error(`HTTP ${res.status}`); }
             const buf = await res.arrayBuffer();
-            const bytes = new Uint8Array(buf);
-            let base64 = "";
-            for (let i = 0; i < bytes.length; i++) {
-                base64 += String.fromCharCode(bytes[i]);
-            }
-            base64 = btoa(base64);
+            const base64 = arrayBufferToBase64(buf);
             jsPDF.API.addFont(base64, FONT_NAME, "normal");
             fontReady = true;
         } catch (e) {
-            console.warn("[PDF] Không thể tải font tiếng Việt, dùng font mặc định:", e.message);
-            fontReady = true;
+            console.warn("[PDF] Không thể tải font tiếng Việt:", e.message);
+            fontReady = false;
         }
     })();
 
@@ -37,9 +41,6 @@ export async function createPdfDoc(options = {}) {
     const doc = new jsPDF({ orientation: options.orientation || "portrait", unit: "mm", format: "a4" });
     if (fontReady) {
         doc.setFont(FONT_NAME);
-    }
-    if (options.register) {
-        options.register(doc);
     }
     return doc;
 }

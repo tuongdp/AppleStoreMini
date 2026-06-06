@@ -19,6 +19,11 @@ export default function CartSummaryCard() {
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
     const grandTotal = Math.max(0, total - discountAmount);
     const canCheckout = selectedItems.length > 0 && stockIssues.length === 0;
+    const disabledReason = selectedItems.length === 0
+        ? "Vui lòng chọn ít nhất một sản phẩm để thanh toán."
+        : stockIssues.length > 0
+            ? "Có sản phẩm đã chọn không đủ số lượng. Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm đó."
+            : "";
 
     const handleApplyCoupon = (couponData) => {
         setAppliedCoupon(couponData);
@@ -85,6 +90,12 @@ export default function CartSummaryCard() {
                 {stockIssues.length > 0 && (
                     <p className="mt-4 text-xs font-medium text-destructive">
                         {"Có sản phẩm đã chọn không đủ số lượng. Vui lòng giảm số lượng hoặc bỏ chọn sản phẩm đó."}
+                    </p>
+                )}
+
+                {!canCheckout && disabledReason && selectedItems.length === 0 && (
+                    <p className="mt-4 text-xs text-muted-foreground" role="status">
+                        {disabledReason}
                     </p>
                 )}
 

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   ArrowRight,
   Truck,
@@ -9,13 +10,8 @@ import {
 } from "lucide-react";
 import PersonalizedRecommendations from "@/features/products/PersonalizedRecommendations";
 
-import {
-  useGetNewReleaseProductsQuery,
-  useGetProductsByCategoryQuery,
-  useGetRestockedProductsQuery,
-} from "@/store/api/productsApi";
-import { useGetBannersQuery } from "@/store/api/bannersApi";
-import { useGetCategoriesQuery } from "@/store/api/categoriesApi";
+import { selectIsAuthenticated } from "@/store/authSlice";
+import { useGetHomepageQuery } from "@/store/api/homepageApi";
 
 import { Button } from "@/components/ui/button";
 import BannerSlider from "@/components/shared/BannerSlider";
@@ -46,6 +42,8 @@ const CATEGORY_SLIDERS = [
   { slug: "phu-kien", label: "Phụ kiện", subtitle: "Phụ kiện" },
 ];
 
+const CATEGORY_SECTION_SLUGS = CATEGORY_SLIDERS.map((category) => category.slug);
+
 const TRUST_BADGES = [
   { icon: Truck, title: "Miễn phí vận chuyển", desc: "Đơn hàng từ 500.000₫" },
   {
@@ -61,13 +59,7 @@ const TRUST_BADGES = [
   },
 ];
 
-function CategoryProductSlider({ slug, label }) {
-  const { data, isLoading } = useGetProductsByCategoryQuery({
-    category: slug,
-    limit: 10,
-  });
-  const products = data ?? [];
-
+function CategoryProductSlider({ slug, label, products = [], isLoading }) {
   return (
     <section className="section-padding py-8 md:py-10 lg:py-14">
       <div className="mx-auto max-w-7xl">
@@ -88,23 +80,28 @@ function CategoryProductSlider({ slug, label }) {
 
 export default function HomePage() {
   const [showWelcome, setShowWelcome] = useState(() => !isWelcomeDismissed());
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  const { data: bannerData, isLoading: isBannerLoading } = useGetBannersQuery();
-  const { data: categories = [] } = useGetCategoriesQuery();
-  const { data: newReleaseProducts = [], isLoading: isNewReleaseLoading } =
-    useGetNewReleaseProductsQuery(10);
-  const { data: restockedProducts = [], isLoading: isRestockedLoading } =
-    useGetRestockedProductsQuery(10);
+  const { data: homepageData, isLoading: isHomepageLoading } = useGetHomepageQuery({
+    sections: CATEGORY_SECTION_SLUGS,
+    limit: 10,
+  });
 
   const banners =
-    bannerData
+    [...(homepageData?.banners || [])]
       ?.filter((item) => item.isActive)
       ?.sort((a, b) => a.order - b.order)
       ?.map((item) => ({
         id: item.id,
         image: item.image,
         ctaLink: item.ctaLink,
-      })) || [];
+      }));
+  const categories = homepageData?.categories || [];
+  const newReleaseProducts = homepageData?.newReleaseProducts || [];
+  const restockedProducts = homepageData?.restockedProducts || [];
+  const categorySectionBySlug = new Map(
+    (homepageData?.categorySections || []).map((section) => [section.slug, section]),
+  );
 
   return (
     <div className="flex flex-col">
@@ -117,7 +114,7 @@ export default function HomePage() {
         </Suspense>
       )}
 
-      <BannerSlider slides={banners} isLoading={isBannerLoading} />
+      <BannerSlider slides={banners} isLoading={isHomepageLoading} />
 
       <section className="section-padding py-8 md:py-10 lg:py-14">
         <div className="mx-auto max-w-7xl">
@@ -128,7 +125,7 @@ export default function HomePage() {
           />
           <ProductSlider
             products={newReleaseProducts}
-            isLoading={isNewReleaseLoading}
+            isLoading={isHomepageLoading}
             sliderId="new-releases"
           />
         </div>
@@ -143,7 +140,7 @@ export default function HomePage() {
           />
           <ProductSlider
             products={restockedProducts}
-            isLoading={isRestockedLoading}
+            isLoading={isHomepageLoading}
             sliderId="restocked"
           />
         </div>
@@ -187,14 +184,15 @@ export default function HomePage() {
         <CategoryProductSlider
           key={cat.slug}
           slug={cat.slug}
-          label={cat.label}
-          subtitle={cat.subtitle}
+          label={categorySectionBySlug.get(cat.slug)?.label || cat.label}
+          products={categorySectionBySlug.get(cat.slug)?.products || []}
+          isLoading={isHomepageLoading}
         />
         ))}
 
       <section className="section-padding py-8 md:py-10 lg:py-14">
         <div className="mx-auto max-w-7xl">
-          <PersonalizedRecommendations />
+          <PersonalizedRecommendations enabled={isAuthenticated} />
         </div>
       </section>
 

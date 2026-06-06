@@ -99,7 +99,7 @@ const StatCard = ({ icon: Icon, label, value, iconClassName }) => (
         <div
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClassName}`}
         >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="min-w-0">
             <p className="text-xs text-muted-foreground">{label}</p>
@@ -190,7 +190,7 @@ function StaffActivityTimeline({ user }) {
         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         Lịch sử hoạt động
                     </h3>
@@ -360,7 +360,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
     const handleResetPassword = async () => {
         try {
             const result = await resetPassword(user.id).unwrap();
-            setResetResult(result.newPassword);
+            setResetResult(result?.newPassword || result?.password || "");
             setResetConfirmOpen(false);
         } catch {
             toast.error("Đặt lại mật khẩu thất bại");
@@ -375,7 +375,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                 <div className="bg-linear-to-b from-muted/50 to-card p-6 md:p-8">
                     <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
                         <Avatar className="h-20 w-20 shrink-0 ring-4 ring-background">
-                            <AvatarImage src={user.avatar} alt={user.fullName} />
+                            <AvatarImage src={user.avatar} alt={user.fullName || user.email || "Người dùng"} />
                             <AvatarFallback className="text-2xl font-semibold">
                                 {user.fullName?.charAt(0)?.toUpperCase() || "U"}
                             </AvatarFallback>
@@ -383,7 +383,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
 
                         <div className="min-w-0 flex-1 text-center sm:text-left">
                             <h1 className="text-xl font-bold text-foreground">
-                                {user.fullName}
+                                {user.fullName || "Người dùng chưa cập nhật tên"}
                             </h1>
                             <div className="mt-1.5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                                 <Badge className={roleConfig.color}>
@@ -409,22 +409,22 @@ export default function AdminUserDetail({ user, orders = [] }) {
                             </div>
                             <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground sm:justify-start">
                                 <span className="inline-flex items-center gap-1.5">
-                                    <Mail className="h-3.5 w-3.5" />
-                                    {user.email}
+                                    <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {user.email || "—"}
                                 </span>
                                 {user.phone && (
                                     <span className="inline-flex items-center gap-1.5">
-                                        <Phone className="h-3.5 w-3.5" />
+                                        <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                                         {formatPhone(user.phone)}
                                     </span>
                                 )}
                                 <span className="inline-flex items-center gap-1.5">
-                                    <Clock className="h-3.5 w-3.5" />
+                                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                                     Tham gia {formatDate(user.createdAt)}
                                 </span>
                                 {user.lastLoginAt && (
                                     <span className="inline-flex items-center gap-1.5">
-                                        <Clock className="h-3.5 w-3.5" />
+                                        <Clock className="h-3.5 w-3.5" aria-hidden="true" />
                                         Đăng nhập {timeAgo(user.lastLoginAt)}
                                     </span>
                                 )}
@@ -439,7 +439,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                                <ShieldCheck className="h-4 w-4 text-blue-600" />
+                                <ShieldCheck className="h-4 w-4 text-blue-600" aria-hidden="true" />
                                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                     Phân quyền
                                 </h3>
@@ -471,7 +471,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                             >
                                 {isUpdatingPerms ? (
                                     <>
-                                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
                                         Đang lưu...
                                     </>
                                 ) : (
@@ -583,7 +583,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                             <>
                                 <Separator className="my-4" />
                                 <div className="flex items-center gap-3 text-sm">
-                                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                                    <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                                     <span className="text-muted-foreground">
                                         Sinh nhật:{" "}
                                         <span className="font-medium text-foreground">
@@ -603,7 +603,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                             </h3>
                             <div className="flex items-start gap-3">
                                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400">
-                                    <MapPin className="h-4 w-4" />
+                                    <MapPin className="h-4 w-4" aria-hidden="true" />
                                 </div>
                                 <p className="text-sm leading-relaxed text-foreground">
                                     {user.address}
@@ -615,7 +615,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     {isAdmin && (
                         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                             <div className="mb-4 flex items-center gap-2">
-                                <Shield className="h-4 w-4 text-muted-foreground" />
+                                <Shield className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                     Quản trị tài khoản
                                 </h3>
@@ -628,7 +628,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     disabled={isUpdatingRole || user.role === "admin" || !canChangeRole}
                                     onClick={() => requestRoleChange("admin")}
                                 >
-                                    <ShieldCheck className="mr-2 h-4 w-4" />
+                                    <ShieldCheck className="mr-2 h-4 w-4" aria-hidden="true" />
                                     Đặt làm quản trị viên
                                 </Button>
                                 <Button
@@ -638,7 +638,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     disabled={isUpdatingRole || user.role === "staff" || !canChangeRole}
                                     onClick={() => requestRoleChange("staff")}
                                 >
-                                    <Shield className="mr-2 h-4 w-4" />
+                                    <Shield className="mr-2 h-4 w-4" aria-hidden="true" />
                                     Đặt làm nhân viên
                                 </Button>
                                 <Button
@@ -648,7 +648,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     disabled={isUpdatingRole || user.role === "user" || !canChangeRole}
                                     onClick={() => requestRoleChange("user")}
                                 >
-                                    <User className="mr-2 h-4 w-4" />
+                                    <User className="mr-2 h-4 w-4" aria-hidden="true" />
                                     Đặt làm người dùng
                                 </Button>
                                 <Separator className="my-1" />
@@ -659,7 +659,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     disabled={isTogglingStatus || !canToggleStatus}
                                     onClick={requestStatusToggle}
                                 >
-                                    <ShieldOff className="mr-2 h-4 w-4" />
+                                    <ShieldOff className="mr-2 h-4 w-4" aria-hidden="true" />
                                     {user.isBlocked ? "Mở khóa tài khoản" : "Khóa tài khoản"}
                                 </Button>
                                 <Separator className="my-1" />
@@ -670,7 +670,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     disabled={isResetting}
                                     onClick={() => setResetConfirmOpen(true)}
                                 >
-                                    <KeyRound className="mr-2 h-4 w-4" />
+                                    <KeyRound className="mr-2 h-4 w-4" aria-hidden="true" />
                                     Đặt lại mật khẩu
                                 </Button>
                             </div>
@@ -692,7 +692,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                     <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
                         <div className="mb-4 flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                                <ShoppingBag className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                                 <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                     Đơn hàng gần đây
                                 </h3>
@@ -705,7 +705,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                         {orders.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-16 text-center">
                                 <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
-                                    <ShoppingBag className="h-6 w-6 text-muted-foreground" />
+                                    <ShoppingBag className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
                                 </div>
                                 <p className="text-sm text-muted-foreground">
                                     Chưa có đơn hàng nào
@@ -801,7 +801,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                         toast.success("Đã sao chép mật khẩu");
                                     }}
                                 >
-                                    <Copy className="h-3.5 w-3.5" />
+                                    <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                                 </Button>
                             </div>
                         </div>
