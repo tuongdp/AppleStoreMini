@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Clock, ExternalLink, Mail, MapPin, Phone, Send } from "lucide-react";
 import { contactSchema } from "@/lib/validations";
 import { formatPhone } from "@/lib/utils";
+import { useSendContactMessageMutation } from "@/store/api/contactApi";
 
 const STORE_ADDRESS =
   "41/1, Nguyễn Tất Thành, Quốc lộ 1, Phường Tuy Hòa, Đắk Lắk";
@@ -26,6 +27,7 @@ const STORE_COORDINATES = {
 };
 const STORE_MAP_DIRECTIONS_URL = "https://maps.app.goo.gl/6VVwQJVK67oNaxuD8";
 const STORE_MAP_EMBED_URL = `https://www.google.com/maps?q=${STORE_COORDINATES.latitude},${STORE_COORDINATES.longitude}&z=17&output=embed`;
+const CONTACT_EMAIL = "phuctuong123456@gmail.com";
 
 const CONTACT_INFO = [
   {
@@ -45,7 +47,7 @@ const CONTACT_INFO = [
   {
     icon: Mail,
     label: "Email",
-    value: "phuctuong123456@gmail.com",
+    value: CONTACT_EMAIL,
     color:
       "bg-muted text-foreground",
   },
@@ -63,10 +65,16 @@ export default function ContactPage() {
     resolver: zodResolver(contactSchema),
     defaultValues: { name: "", email: "", phone: "", message: "" },
   });
+  const [sendContactMessage, { isLoading }] = useSendContactMessageMutation();
 
-  const onSubmit = () => {
-    toast.success("Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
-    form.reset();
+  const onSubmit = async (values) => {
+    try {
+      await sendContactMessage(values).unwrap();
+      toast.success("Gửi thành công! Chúng tôi sẽ liên hệ lại sớm nhất.");
+      form.reset();
+    } catch (error) {
+      toast.error(error?.data?.message || "Không thể gửi liên hệ, vui lòng thử lại.");
+    }
   };
 
   return (
@@ -122,6 +130,9 @@ export default function ContactPage() {
               <h2 className="mb-5 text-base font-semibold text-foreground">
                 Gửi tin nhắn
               </h2>
+              <p className="-mt-3 mb-5 text-sm text-muted-foreground">
+                Thông tin sẽ được gửi tự động tới email hỗ trợ {CONTACT_EMAIL}.
+              </p>
 
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -132,7 +143,7 @@ export default function ContactPage() {
                       <FormItem>
                         <FormLabel>Họ và tên</FormLabel>
                         <FormControl>
-                          <Input placeholder="Nguyễn Văn A" {...field} />
+                          <Input placeholder="Nguyễn Văn A" disabled={isLoading} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -149,6 +160,7 @@ export default function ContactPage() {
                           <Input
                             type="email"
                             placeholder="email@example.com"
+                            disabled={isLoading}
                             {...field}
                           />
                         </FormControl>
@@ -165,7 +177,7 @@ export default function ContactPage() {
                     <FormItem>
                       <FormLabel>Số điện thoại (tuỳ chọn)</FormLabel>
                       <FormControl>
-                        <Input type="tel" placeholder="0901234567" {...field} />
+                        <Input type="tel" placeholder="0901234567" disabled={isLoading} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -182,6 +194,7 @@ export default function ContactPage() {
                         <Textarea
                           placeholder="Nhập nội dung bạn muốn liên hệ..."
                           rows={5}
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -190,9 +203,9 @@ export default function ContactPage() {
                   )}
                 />
 
-                <Button type="submit" className="w-full rounded-full" size="lg">
+                <Button type="submit" className="w-full rounded-full" size="lg" disabled={isLoading}>
                   <Send className="mr-2 h-4 w-4" />
-                  Gửi tin nhắn
+                  {isLoading ? "Đang gửi..." : "Gửi tin nhắn"}
                 </Button>
               </div>
             </form>

@@ -1,9 +1,10 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useState, Fragment } from "react";
-import { Plus, Edit, Trash2, MoreHorizontal, Search, Copy, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { Plus, Edit, Trash2, MoreHorizontal, Search, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import {
   useGetAdminProductsQuery,
   useDeleteProductMutation,
+  useUpdateProductMutation,
 } from "@/store/api/productsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -102,6 +103,7 @@ export default function AdminProductTable() {
 
   const { data, isLoading, isFetching } = useGetAdminProductsQuery(filters);
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+  const [updateProduct] = useUpdateProductMutation();
 
   const products = data?.products || [];
   const pagination = data?.pagination || {};
@@ -129,6 +131,19 @@ export default function AdminProductTable() {
     }
   };
 
+  const handleToggleProductVisibility = async (product) => {
+    const productId = product._id || product.id;
+    if (!productId) return;
+    const nextIsActive = product.isActive === false;
+
+    try {
+      await updateProduct({ id: productId, isActive: nextIsActive }).unwrap();
+      toast.success(nextIsActive ? "Đã hiện sản phẩm" : "Đã ẩn sản phẩm");
+    } catch {
+      toast.error("Cập nhật trạng thái sản phẩm thất bại");
+    }
+  };
+
   const { exportExcel, exportPDF, isExporting } = useExport();
 
   const productColumns = [
@@ -144,7 +159,7 @@ export default function AdminProductTable() {
     category: p.category || "—",
     stock: p.stock ?? 0,
     soldCount: getSafeSoldCount(p.soldCount),
-    status: p.inStock ? "Đang bán" : "Ngừng bán",
+    status: p.isActive !== false ? "Đang bán" : "Ẩn sản phẩm",
   }));
 
   const handleExportProductsExcel = () => {
@@ -280,8 +295,8 @@ export default function AdminProductTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={product.inStock ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400" : "bg-red-100 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400"}>
-                        {product.inStock ? "Đang bán" : "Ngừng bán"}
+                      <Badge className={product.isActive !== false ? "bg-green-100 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400" : "bg-slate-100 text-slate-700 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300"}>
+                        {product.isActive !== false ? "Đang bán" : "Ẩn sản phẩm"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -302,13 +317,10 @@ export default function AdminProductTable() {
                               <Edit className="h-4 w-4" aria-hidden="true" />{"Chỉnh sửa"}
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2" onClick={() => toast.info("Sao chép sản phẩm — đang phát triển")}>
-                            <Copy className="h-4 w-4" aria-hidden="true" />{"Sao chép"}
+                          <DropdownMenuItem className="gap-2" onClick={() => handleToggleProductVisibility(product)}>
+                            <EyeOff className="h-4 w-4" aria-hidden="true" />{product.isActive !== false ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="gap-2" onClick={() => toast.info("Ẩn sản phẩm — đang phát triển")}>
-                            <EyeOff className="h-4 w-4" aria-hidden="true" />{product.inStock ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
-                          </DropdownMenuItem>
                           <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive" onClick={() => setDeleteId(productId)}>
                             <Trash2 className="h-4 w-4" aria-hidden="true" />{"Xoá"}
                           </DropdownMenuItem>

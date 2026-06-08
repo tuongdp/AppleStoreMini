@@ -1,16 +1,58 @@
-# React + Vite
+# AppleStoreMini
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AppleStoreMini là website bán sản phẩm Apple gồm frontend React/Vite và backend Node.js/Express/Prisma. Dự án có các luồng chính: xem sản phẩm, giỏ hàng, đặt hàng COD/VNPay, tài khoản người dùng, yêu thích, đánh giá, tin tức và trang quản trị.
 
-Currently, two official plugins are available:
+## Cấu trúc source
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `D:\AppleStoreMini`: frontend React/Vite.
+- `D:\AppleStoreMini_Api`: backend Node.js/Express/Prisma.
 
-## React Compiler
+## Chạy frontend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Frontend mặc định chạy tại `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Chạy backend
+
+Tạo file `.env` trong `D:\AppleStoreMini_Api` dựa trên `.env.example`, sau đó chạy:
+
+```bash
+npm install
+npx prisma generate
+npm run dev
+```
+
+Backend mặc định chạy tại `http://localhost:5000`.
+
+## Cấu hình AI
+
+AI sử dụng Groq API từ backend. API key không nhập trực tiếp trong giao diện admin để tránh lộ khóa khi demo, nộp source hoặc deploy.
+
+Các biến môi trường cần cấu hình trong `D:\AppleStoreMini_Api\.env`:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+AI_MODEL_NAME=llama-3.3-70b-versatile
+AI_MAX_TOKENS=1200
+AI_TEMPERATURE=0.5
+AI_TIMEOUT_MS=20000
+```
+
+Khi đổi API key hoặc model, lưu file `.env` rồi restart backend. Trang admin `Cấu hình AI` chỉ dùng để bật/tắt AI toàn hệ thống, bật/tắt từng tính năng, test kết nối và xem nhật ký AI.
+
+## Kiểm tra
+
+```bash
+npm run lint
+npm run build
+```
+
+Một số kiểm tra contract đang dùng Node test:
+
+```bash
+node --test tests\adminAiManagementContract.test.mjs
+```

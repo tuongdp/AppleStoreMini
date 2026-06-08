@@ -217,9 +217,9 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
         setSpecs([...specs, ...newSpecs]);
         setShowImportSpecs(false);
         if (newSpecs.length < importedSpecs.length) {
-            toast.info("importSpecsDupSkipped");
+            toast.info("Đã bỏ qua thông số trùng lặp");
         }
-        toast.success("importSpecsSuccess");
+        toast.success("Đã nhập thông số từ Excel");
     };
 
     const handleProductImageUpload = async (e) => {

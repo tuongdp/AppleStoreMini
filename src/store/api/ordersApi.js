@@ -223,7 +223,7 @@ export const ordersApi = baseApi.injectEndpoints({
             invalidatesTags: ["Orders", "Order"],
         }),
 
-        // GET /admin/dashboard/revenue?period=week|month|year
+        // GET /admin/dashboard/revenue?period=day|week|month|year
         getRevenueStats: builder.query({
             query: (params) => ({ url: "/admin/dashboard/revenue", params }),
             transformResponse: (response) => response.data,
@@ -237,6 +237,11 @@ export const ordersApi = baseApi.injectEndpoints({
 
         getDashboardOperations: builder.query({
             query: () => "/admin/dashboard/operations",
+            transformResponse: (response) => response.data,
+        }),
+
+        getDashboardAiInsights: builder.query({
+            query: () => "/admin/dashboard/ai-insights",
             transformResponse: (response) => response.data,
         }),
 
@@ -288,7 +293,7 @@ export const ordersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // GET /admin/dashboard/top-products?period=week|month|year&limit=5
+        // GET /admin/dashboard/top-products?period=day|week|month|year&limit=5
         getTopProducts: builder.query({
             query: (params) => ({ url: "/admin/dashboard/top-products", params }),
             transformResponse: (response) => response.data,
@@ -336,6 +341,7 @@ export const {
     useGetCouponStatsQuery,
     useGetDashboardStatsQuery,
     useGetDashboardOperationsQuery,
+    useGetDashboardAiInsightsQuery,
     useGetOrderStatsQuery,
     useGetTopProductsQuery,
     useGetSlowProductsQuery,

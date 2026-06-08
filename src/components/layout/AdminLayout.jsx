@@ -21,6 +21,7 @@ import {
     RotateCcw,
     ListTree,
     Settings,
+    Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,7 +32,7 @@ import SeoHead from "@/components/shared/SeoHead";
 import AdminBreadcrumb from "@/components/layout/admin/AdminBreadcrumb";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
-import { hasPermissionAction, logout, selectCurrentUser, selectHasAdminAccess, selectIsAdmin, selectUserPermissions } from "@/store/authSlice";
+import { logout, selectCurrentUser, selectIsAdmin } from "@/store/authSlice";
 
 const SIDEBAR_MAP = {
     backToStore: "Về cửa hàng",
@@ -48,6 +49,7 @@ const SIDEBAR_MAP = {
     returns: "Yêu cầu trả hàng",
     comments: "Bình luận sản phẩm",
     settings: "Cài đặt",
+    ai: "Cấu hình AI",
     users: "Người dùng",
 };
 
@@ -82,6 +84,7 @@ const NAV_ITEMS = [
     { key: "news", href: "/admin/news", icon: Newspaper, permission: "news", end: false },
     { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners", end: false },
     { key: "settings", href: "/admin/settings/shop", icon: Settings, permission: null, end: false, adminOnly: true },
+    { key: "ai", href: "/admin/ai", icon: Bot, permission: null, end: false, adminOnly: true },
     { key: "options", href: "/admin/options", icon: ListFilter, permission: null, end: false, adminOnly: true },
 ];
 
@@ -102,16 +105,9 @@ function SidebarContent({ onClose }) {
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
     const isAdmin = useSelector(selectIsAdmin);
-    const hasAdminAccess = useSelector(selectHasAdminAccess);
-    const permissions = useSelector(selectUserPermissions);
 
-    const visibleItems = NAV_ITEMS.filter((item) => {
-        if (item.adminOnly && !isAdmin) return false;
-        if (item.permission && !isAdmin && !hasPermissionAction(permissions, item.permission, "view")) return false;
-        return true;
-    });
-    const grantedModuleCount = visibleItems.filter((item) => item.permission).length;
-    const defaultAdminHref = visibleItems[0]?.href || ROUTES.ADMIN_DASHBOARD;
+    const visibleItems = NAV_ITEMS;
+    const defaultAdminHref = ROUTES.ADMIN_DASHBOARD;
 
     const handleLogout = () => {
         dispatch(logout());
@@ -155,14 +151,6 @@ function SidebarContent({ onClose }) {
                         <ChevronRight className="h-3.5 w-3.5 opacity-40" />
                     </NavLink>
                 ))}
-                {!isAdmin && hasAdminAccess && grantedModuleCount === 0 && (
-                    <div className="rounded-xl border border-dashed border-border bg-muted/30 px-3 py-4 text-sm">
-                        <p className="font-medium text-foreground">Chưa có module được cấp</p>
-                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                            Bạn vẫn có thể xem tổng quan. Liên hệ quản trị viên để được cấp quyền thao tác.
-                        </p>
-                    </div>
-                )}
             </nav>
 
             <Separator />

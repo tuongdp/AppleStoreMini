@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import AISearchToggle from "@/features/ai/AISearchToggle";
-import { useAiSearchMutation } from "@/store/api/aiApi";
+import { useAiHealthQuery, useAiSearchMutation } from "@/store/api/aiApi";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import SeoHead from "@/components/shared/SeoHead";
@@ -71,7 +71,8 @@ export default function SearchPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const keyword = searchParams.get("q") || "";
     const [inputValue, setInputValue] = useState(keyword);
-    const [page, setPage] = useState(1);
+    const page = Number(searchParams.get("page")) || 1;
+    const aiMode = searchParams.get("ai") === "1";
 
     const { data, isLoading, isFetching } = useGetProductsQuery(
         {
@@ -87,8 +88,10 @@ export default function SearchPage() {
         { skip: !keyword },
     );
 
-    const [aiMode, setAiMode] = useState(() => searchParams.get("ai") === "1");
     const [aiSearch, { isLoading: isAiLoading }] = useAiSearchMutation();
+    const { data: aiHealth } = useAiHealthQuery();
+    const aiSearchAvailable = aiHealth ? Boolean(aiHealth.aiEnabled && aiHealth.features?.search !== false) : true;
+    const canUseAiMode = aiMode && aiSearchAvailable;
     const [aiProducts, setAiProducts] = useState(null);
 
     useEffect(() => {
@@ -96,28 +99,41 @@ export default function SearchPage() {
     }, [keyword]);
 
     useEffect(() => {
-        if (keyword && searchParams.get("ai") === "1" && !aiProducts) {
+        if (keyword && canUseAiMode && !aiProducts && !isAiLoading) {
             const runAiSearch = async () => {
                 try {
                     const res = await aiSearch({ query: keyword }).unwrap();
                     setAiProducts(res.products || []);
                 } catch {
+                    setAiProducts([]);
                     toast.error("Không thể kết nối AI, vui lòng thử lại");
                 }
             };
             runAiSearch();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        if (!canUseAiMode && aiProducts) {
+            setAiProducts(null);
+        }
+    }, [aiProducts, aiSearch, canUseAiMode, isAiLoading, keyword]);
+
+    useEffect(() => {
+        if (!aiHealth || !aiMode || aiSearchAvailable) return;
+        const params = new URLSearchParams(searchParams);
+        params.delete("ai");
+        params.set("page", "1");
+        setAiProducts(null);
+        setSearchParams(params);
+        toast.info("Tìm kiếm AI đang tắt trong cấu hình admin");
+    }, [aiHealth, aiMode, aiSearchAvailable, searchParams, setSearchParams]);
 
     const pagination = data?.pagination || {};
     const products = useMemo(
-        () => (aiMode && aiProducts ? aiProducts : (data?.products || [])),
-        [aiMode, aiProducts, data?.products],
+        () => (canUseAiMode && aiProducts ? aiProducts : (data?.products || [])),
+        [aiProducts, canUseAiMode, data?.products],
     );
     const newsResults = newsData?.news || [];
     const productGroups = useMemo(() => groupProductsByCategory(products), [products]);
-    const totalProducts = aiMode && aiProducts ? products.length : (pagination.total || products.length);
+    const totalProducts = canUseAiMode && aiProducts ? products.length : (pagination.total || products.length);
     const hasResults = products.length > 0 || newsResults.length > 0;
     const isResultLoading = isLoading || isFetching || isNewsFetching || isAiLoading;
 
@@ -125,13 +141,14 @@ export default function SearchPage() {
         e.preventDefault();
         const nextKeyword = inputValue.trim();
 
-        if (aiMode && nextKeyword) {
+        if (canUseAiMode && nextKeyword) {
             try {
                 const res = await aiSearch({ query: nextKeyword }).unwrap();
                 setAiProducts(res.products || []);
                 const params = new URLSearchParams();
                 params.set("q", nextKeyword);
                 params.set("ai", "1");
+                params.set("page", "1");
                 setSearchParams(params);
             } catch {
                 toast.error("Không thể kết nối AI, vui lòng thử lại");
@@ -140,13 +157,35 @@ export default function SearchPage() {
             setAiProducts(null);
             const params = new URLSearchParams();
             if (nextKeyword) params.set("q", nextKeyword);
+            if (nextKeyword) params.set("page", "1");
             setSearchParams(params);
         }
-        setPage(1);
     };
 
     const handleInputChange = (e) => {
         setInputValue(e.target.value);
+    };
+
+    const updatePage = (nextPage) => {
+        const params = new URLSearchParams(searchParams);
+        params.set("page", String(nextPage));
+        setSearchParams(params);
+    };
+
+    const handleAiModeChange = (enabled) => {
+        if (enabled && !aiSearchAvailable) {
+            toast.info("Tìm kiếm AI đang tắt trong cấu hình admin");
+            return;
+        }
+        const params = new URLSearchParams(searchParams);
+        if (enabled) {
+            params.set("ai", "1");
+        } else {
+            params.delete("ai");
+            setAiProducts(null);
+        }
+        params.set("page", "1");
+        setSearchParams(params);
     };
 
     return (
@@ -172,7 +211,7 @@ export default function SearchPage() {
                         id="search-page-input"
                         value={inputValue}
                         onChange={handleInputChange}
-                        placeholder={aiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm, tin tức..."}
+                        placeholder={canUseAiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm, tin tức..."}
                         className="h-12 rounded-full pl-12 pr-32 text-base"
                         name="search"
                         autoComplete="off"
@@ -186,7 +225,7 @@ export default function SearchPage() {
                     </Button>
                 </div>
             </form>
-            <AISearchToggle enabled={aiMode} onToggle={setAiMode} disabled={isAiLoading} />
+            <AISearchToggle enabled={canUseAiMode} onToggle={handleAiModeChange} disabled={isAiLoading} available={aiSearchAvailable} />
 
             {keyword && (
                 <div className="mb-6">
@@ -195,7 +234,7 @@ export default function SearchPage() {
                         <span className="text-apple-blue">
                             &ldquo;{keyword}&rdquo;
                         </span>
-                        {aiMode && aiProducts && (
+                        {canUseAiMode && aiProducts && (
                             <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-apple-blue/10 px-2 py-0.5 text-xs font-normal text-apple-blue">
                                 AI
                             </span>
@@ -225,6 +264,7 @@ export default function SearchPage() {
                     actionLabel={"Xóa tìm kiếm"}
                     onAction={() => {
                         setInputValue("");
+                        setAiProducts(null);
                         setSearchParams({});
                     }}
                 />
@@ -260,7 +300,7 @@ export default function SearchPage() {
                                         size="sm"
                                         className="rounded-full"
                                         disabled={page <= 1}
-                                        onClick={() => setPage((p) => p - 1)}
+                                        onClick={() => updatePage(page - 1)}
                                     >
                                         {"Trước"}
                                     </Button>
@@ -272,7 +312,7 @@ export default function SearchPage() {
                                         size="sm"
                                         className="rounded-full"
                                         disabled={page >= pagination.totalPages}
-                                        onClick={() => setPage((p) => p + 1)}
+                                        onClick={() => updatePage(page + 1)}
                                     >
                                         {"Sau"}
                                     </Button>

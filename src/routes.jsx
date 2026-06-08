@@ -87,6 +87,7 @@ const AdminNewsEdit = lazyPage(() => import("@/pages/admin/AdminNewsEdit"));
 const AdminBannerPage = lazyPage(() => import("@/pages/admin/AdminBannerPage"));
 const AdminGlobalOptionsPage = lazyPage(() => import("@/pages/admin/AdminGlobalOptionsPage"));
 const AdminShopSettingsPage = lazyPage(() => import("@/pages/admin/AdminShopSettings"));
+const AdminAiSettings = lazyPage(() => import("@/pages/admin/AdminAiSettings"));
 const AdminReturnList = lazyPage(() => import("@/pages/admin/AdminReturnList"));
 const AdminReturnDetail = lazyPage(() => import("@/pages/admin/AdminReturnDetail"));
 
@@ -201,6 +202,7 @@ export const router = createBrowserRouter([
             { path: "banners", element: <AdminPermissionRoute permission="banners"><AdminBannerPage /></AdminPermissionRoute> },
             { path: "options", element: <AdminPermissionRoute adminOnly><AdminGlobalOptionsPage /></AdminPermissionRoute> },
             { path: "settings/shop", element: <AdminPermissionRoute adminOnly><AdminShopSettingsPage /></AdminPermissionRoute> },
+            { path: "ai", element: <AdminPermissionRoute adminOnly><AdminAiSettings /></AdminPermissionRoute> },
         ],
     },
 

@@ -37,3 +37,21 @@ test("admin product table keeps compact accessible pagination controls", () => {
   assert.match(source, /<ChevronLeft className="h-4 w-4" aria-hidden="true" \/>/);
   assert.match(source, /<ChevronRight className="h-4 w-4" aria-hidden="true" \/>/);
 });
+
+test("admin product table does not expose fake product actions", () => {
+  const source = read("src/features/admin/components/products/AdminProductTable.jsx");
+
+  assert.doesNotMatch(source, /đang phát triển/);
+  assert.doesNotMatch(source, /Sao chép sản phẩm/);
+  assert.match(source, /useUpdateProductMutation/);
+  assert.match(source, /const nextIsActive = product\.isActive === false/);
+  assert.match(source, /updateProduct\(\{ id: productId, isActive: nextIsActive \}\)\.unwrap\(\)/);
+});
+
+test("admin product table labels sales status from isActive instead of stock", () => {
+  const source = read("src/features/admin/components/products/AdminProductTable.jsx");
+
+  assert.match(source, /status: p\.isActive !== false \? "Đang bán" : "Ẩn sản phẩm"/);
+  assert.match(source, /product\.isActive !== false \? "Đang bán" : "Ẩn sản phẩm"/);
+  assert.doesNotMatch(source, /status: p\.inStock \? "Đang bán" : "Ngừng bán"/);
+});

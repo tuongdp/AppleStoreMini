@@ -20,6 +20,7 @@ import { useExport } from "@/hooks/useExport";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 const PERIODS = [
+    { value: "day", label: "Ngày" },
     { value: "week", label: "Tuần" },
     { value: "month", label: "Tháng" },
     { value: "year", label: "Năm" },
@@ -91,7 +92,7 @@ export default function RevenueChart() {
     };
 
     const revenueColumns = [
-        { key: "label", label: period === "year" ? "Tháng" : "Ngày" },
+        { key: "label", label: period === "day" ? "Giờ" : period === "year" ? "Tháng" : "Ngày" },
         { key: "revenue", label: "Doanh thu", format: "currency" },
         { key: "orders", label: "Đơn hàng" },
     ];
@@ -120,7 +121,7 @@ export default function RevenueChart() {
         return (
             <div className="space-y-3">
                 <div className="flex gap-2">
-                    {[...Array(3)].map((_, i) => (
+                    {[...Array(4)].map((_, i) => (
                         <Skeleton key={i} className="h-8 w-16 rounded-full" />
                     ))}
                 </div>

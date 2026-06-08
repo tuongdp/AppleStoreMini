@@ -80,6 +80,9 @@ export default function OrderDetail({ order }) {
     const daysLeft = order.deliveredAt
         ? Math.ceil((new Date(order.deliveredAt).getTime() + returnWindowDays * 24 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60 * 24))
         : 0;
+    const returnDeadline = order.deliveredAt
+        ? new Date(new Date(order.deliveredAt).getTime() + returnWindowDays * 24 * 60 * 60 * 1000)
+        : null;
 
     const cancelForm = useForm({
         resolver: zodResolver(cancelOrderSchema),
@@ -147,7 +150,7 @@ export default function OrderDetail({ order }) {
                         </p>
                         {canReturn && (
                             <p className="mt-1 text-xs text-muted-foreground">
-                                Bạn còn {daysLeft} ngày để yêu cầu trả hàng (hết hạn {order.deliveredAt ? new Date(new Date(order.deliveredAt).getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN") : ""})
+                                Bạn còn {daysLeft} ngày để yêu cầu trả hàng (hết hạn {returnDeadline ? returnDeadline.toLocaleDateString("vi-VN") : ""})
                             </p>
                         )}
                     </div>

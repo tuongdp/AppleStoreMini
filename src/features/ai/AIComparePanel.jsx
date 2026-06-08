@@ -15,6 +15,7 @@ import SearchableSelect from "@/components/shared/SearchableSelect";
 import { useAiCompareMutation } from "@/store/api/aiApi";
 import { toast } from "sonner";
 import { buildCompareProductInput, parseComparisonReply } from "@/features/ai/compareUtils";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 function ResultSection({ type, children }) {
   const config = {
@@ -52,6 +53,7 @@ export default function AIComparePanel({ currentProduct, products }) {
   const [result, setResult] = useState(null);
 
   const [compare, { isLoading }] = useAiCompareMutation();
+  const { available: aiAvailable } = useAiFeatureAvailable("compare");
   const allProducts = useMemo(() => products || [], [products]);
   const currentCategory = (currentProduct?.category?.slug || currentProduct?.category || "").toLowerCase();
   const targetProduct = useMemo(
@@ -107,6 +109,8 @@ export default function AIComparePanel({ currentProduct, products }) {
   }, [result]);
 
   const comparison = result?.comparison || parsedReply;
+
+  if (!aiAvailable) return null;
 
   return (
     <Card className="my-8 overflow-visible border-border/80 shadow-sm">

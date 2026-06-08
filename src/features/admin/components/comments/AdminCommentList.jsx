@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { AlertTriangle, ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquareReply, Search, Star, Trash2 } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquareReply, Search, Sparkles, Star, Trash2 } from "lucide-react";
 import {
     useAdminDeleteReviewMutation,
     useGetAdminReviewQuery,
     useGetAllReviewsQuery,
     useReplyReviewMutation,
+    useSuggestReviewReplyMutation,
     useToggleReviewVisibilityMutation,
 } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,7 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const { data: review, isFetching } = useGetAdminReviewQuery(reviewId, { skip: !reviewId || !open });
     const [replyReview, { isLoading: isReplying }] = useReplyReviewMutation();
+    const [suggestReviewReply, { isLoading: isSuggesting }] = useSuggestReviewReplyMutation();
     const reply = replyById[reviewId] ?? review?.adminReply ?? "";
 
     const handleReply = async () => {
@@ -83,6 +85,17 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
             toast.success("Đã phản hồi bình luận");
         } catch {
             toast.error("Có lỗi xảy ra");
+        }
+    };
+
+    const handleSuggestReply = async () => {
+        if (!reviewId) return;
+        try {
+            const result = await suggestReviewReply({ reviewId }).unwrap();
+            setReplyById((current) => ({ ...current, [reviewId]: result?.suggestion || "" }));
+            toast.success(result?.aiOnline ? "Đã tạo gợi ý phản hồi bằng AI" : "Đã tạo gợi ý phản hồi dự phòng");
+        } catch {
+            toast.error("Không thể tạo gợi ý phản hồi");
         }
     };
 
@@ -211,6 +224,10 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
 
                         <div className="space-y-2">
                             <p className="text-sm font-medium">Phản hồi của cửa hàng</p>
+                            <Button type="button" variant="outline" size="sm" onClick={handleSuggestReply} disabled={isSuggesting}>
+                                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                                {isSuggesting ? "Đang gợi ý..." : "Gợi ý AI"}
+                            </Button>
                             <Textarea
                                 value={reply}
                                 onChange={(e) => setReplyById((current) => ({ ...current, [reviewId]: e.target.value }))}

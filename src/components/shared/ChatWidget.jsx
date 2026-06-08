@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
+import { useAiHealthQuery } from "@/store/api/aiApi";
 import { buildFocusedChatReply, filterChatProductsByMessage } from "@/features/ai/chatProductFilter";
 
 export default function ChatWidget() {
@@ -11,9 +12,10 @@ export default function ChatWidget() {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [sendMessage, { isLoading }] = useSendMessageMutation();
+    const { data: aiHealth } = useAiHealthQuery(undefined, { skip: !open });
+    const chatAiAvailable = Boolean(aiHealth?.aiEnabled && aiHealth?.features?.chat !== false);
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (!open) return;
@@ -102,7 +104,9 @@ export default function ChatWidget() {
                         <Bot aria-hidden="true" className="h-5 w-5" />
                         <div className="min-w-0 flex-1">
                             <p id="chat-widget-title" className="truncate text-sm font-semibold">Trợ lý Apple Store</p>
-                            <p className="text-xs text-background/70">Hỗ trợ tư vấn sản phẩm bằng AI</p>
+                            <p className="text-xs text-background/70">
+                                {chatAiAvailable ? "Hỗ trợ tư vấn sản phẩm bằng AI" : "Hỗ trợ tư vấn theo dữ liệu cửa hàng"}
+                            </p>
                         </div>
                         <button
                             type="button"
@@ -145,10 +149,9 @@ export default function ChatWidget() {
                                 ) : item.products ? (
                                     <div className="w-full space-y-2">
                                         {item.products.map((product) => (
-                                            <button
+                                            <Link
                                                 key={product.id || product.slug}
-                                                type="button"
-                                                onClick={() => navigate(`/products/${product.slug}`)}
+                                                to={`/products/${product.slug}`}
                                                 className="flex w-full items-center gap-3 rounded-xl border border-border bg-muted/50 p-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                                             >
                                                 <div className="min-w-0 flex-1">
@@ -158,7 +161,7 @@ export default function ChatWidget() {
                                                     </p>
                                                 </div>
                                                 <span className="text-xs font-medium text-foreground">Xem</span>
-                                            </button>
+                                            </Link>
                                         ))}
                                     </div>
                                 ) : null}

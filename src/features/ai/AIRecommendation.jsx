@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 const PERSONAS = [
   { value: "student", label: "Sinh viên" },
@@ -36,6 +37,7 @@ export default function AIRecommendation() {
   const [result, setResult] = useState(null);
 
   const [recommend, { isLoading }] = useAiRecommendMutation();
+  const { available: aiAvailable } = useAiFeatureAvailable("recommend");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +56,8 @@ export default function AIRecommendation() {
       toast.error("Không thể kết nối AI, vui lòng thử lại");
     }
   };
+
+  if (!aiAvailable) return null;
 
   return (
     <Card className="my-8">

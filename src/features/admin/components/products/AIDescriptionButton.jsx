@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAiGenerateDescriptionMutation } from "@/store/api/aiApi";
 import { toast } from "sonner";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 const STYLES = [
   { value: "seo", label: "Chuẩn SEO" },
@@ -17,8 +18,14 @@ const STYLES = [
 
 export default function AIDescriptionButton({ productName, specs, onDescriptionGenerated }) {
   const [generate, { isLoading }] = useAiGenerateDescriptionMutation();
+  const { available: aiAvailable } = useAiFeatureAvailable("generateDescription");
 
   const handleGenerate = async (style) => {
+    if (!aiAvailable) {
+      toast.info("Không thể tạo mô tả vì AI đang tắt trong cấu hình admin");
+      return;
+    }
+
     try {
       const res = await generate({
         productName: productName || "",
@@ -41,14 +48,14 @@ export default function AIDescriptionButton({ productName, specs, onDescriptionG
           variant="outline"
           size="sm"
           className="rounded-full"
-          disabled={isLoading || !productName}
+          disabled={isLoading || !productName || !aiAvailable}
         >
           {isLoading ? (
             <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
             <FileText className="mr-1.5 h-4 w-4" />
           )}
-          {isLoading ? "Đang tạo..." : "Tạo mô tả AI"}
+          {isLoading ? "Đang tạo..." : aiAvailable ? "Tạo mô tả AI" : "AI đang tắt"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { apiEnvelope, apiPaginated, makeOrder, testNews, testProducts, testUsers, adminUsersList, testCategories, testSeries, testCoupons, testBanners, testOrders, testReviews, testReturnRequests, dashboardStats, dashboardOperations, dashboardRevenue, dashboardCategoryRevenue, dashboardTopProducts, dashboardSlowProducts, dashboardLowStock, dashboardTopCustomers, globalOptionsList, appSettings } from "./mock-data";
+import { apiEnvelope, apiPaginated, makeOrder, testNews, testProducts, testUsers, adminUsersList, testCategories, testSeries, testCoupons, testBanners, testOrders, testReviews, adminReviewReplySuggestion, testReturnRequests, dashboardStats, dashboardOperations, dashboardAiInsights, dashboardRevenue, dashboardRevenueDay, dashboardCategoryRevenue, dashboardCategoryRevenueDay, dashboardTopProducts, dashboardTopProductsDay, dashboardSlowProducts, dashboardLowStock, dashboardTopCustomers, globalOptionsList, appSettings, adminAiSettings, adminAiLogs } from "./mock-data";
 
 const json = (body: unknown, status = 200) => ({
   status,
@@ -230,16 +230,20 @@ export async function mockApi(page: Page) {
       await route.fulfill(json(apiEnvelope(dashboardOperations)));
       return;
     }
+    if (path === "/admin/dashboard/ai-insights") {
+      await route.fulfill(json(apiEnvelope(dashboardAiInsights)));
+      return;
+    }
     if (path === "/admin/dashboard/revenue") {
-      await route.fulfill(json(apiEnvelope(dashboardRevenue)));
+      await route.fulfill(json(apiEnvelope(url.searchParams.get("period") === "day" ? dashboardRevenueDay : dashboardRevenue)));
       return;
     }
     if (path === "/admin/dashboard/category-revenue") {
-      await route.fulfill(json(apiEnvelope(dashboardCategoryRevenue)));
+      await route.fulfill(json(apiEnvelope(url.searchParams.get("period") === "day" ? dashboardCategoryRevenueDay : dashboardCategoryRevenue)));
       return;
     }
     if (path === "/admin/dashboard/top-products") {
-      await route.fulfill(json(apiEnvelope(dashboardTopProducts)));
+      await route.fulfill(json(apiEnvelope(url.searchParams.get("period") === "day" ? dashboardTopProductsDay : dashboardTopProducts)));
       return;
     }
     if (path === "/admin/dashboard/slow-products") {
@@ -454,6 +458,10 @@ export async function mockApi(page: Page) {
       await route.fulfill(json(apiEnvelope({ ...testReviews[0], adminReply: body.content || "Cảm ơn bạn đã đánh giá." })));
       return;
     }
+    if (/^\/admin\/reviews\/[^/]+\/reply-suggestion$/.test(path)) {
+      await route.fulfill(json(apiEnvelope(adminReviewReplySuggestion)));
+      return;
+    }
     if (/^\/admin\/reviews\/[^/]+$/.test(path)) {
       if (method === "DELETE") await route.fulfill(json(apiEnvelope(null, "Xoá bình luận thành công")));
       else await route.fulfill(json(apiEnvelope(testReviews[0])));
@@ -527,8 +535,35 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    if (path === "/admin/ai/settings") {
+      if (method === "PUT") {
+        const body = route.request().postDataJSON?.() || {};
+        await route.fulfill(json(apiEnvelope({ ...adminAiSettings, ...body, features: { ...adminAiSettings.features, ...body.features } })));
+      } else {
+        await route.fulfill(json(apiEnvelope(adminAiSettings)));
+      }
+      return;
+    }
+
+    if (path === "/admin/ai/test") {
+      await route.fulfill(json(apiEnvelope({ ok: true, ...adminAiSettings, latencyMs: 42, message: "Kết nối AI hoạt động" })));
+      return;
+    }
+
+    if (path === "/admin/ai/logs") {
+      const feature = url.searchParams.get("feature");
+      const status = url.searchParams.get("status");
+      await route.fulfill(json(apiEnvelope(adminAiLogs.filter((log) => (!feature || log.feature === feature) && (!status || log.status === status)))));
+      return;
+    }
+
     if (path === "/settings/public") {
       await route.fulfill(json(apiEnvelope({ shop: appSettings.shop })));
+      return;
+    }
+
+    if (path === "/contact") {
+      await route.fulfill(json(apiEnvelope({ sent: true }, "Contact message sent")));
       return;
     }
 
@@ -539,6 +574,11 @@ export async function mockApi(page: Page) {
     }
 
     // ─── SEARCH / CHAT ────────────────────────────
+    if (path === "/chat/health") {
+      await route.fulfill(json({ aiEnabled: adminAiSettings.enabled && adminAiSettings.hasApiKey, provider: adminAiSettings.provider, model: adminAiSettings.modelName, features: adminAiSettings.features }));
+      return;
+    }
+
     if (path === "/chat" || path === "/chat/message") {
       await route.fulfill(json(apiEnvelope({ reply: "Tôi gợi ý iPhone 15 Pro cho bạn.", products: [testProducts[0]] })));
       return;
@@ -625,6 +665,9 @@ export async function mockApi(page: Page) {
   });
   await page.route(/.*\/api\/orders\/[^/]+\/payment$/, async (route) => {
     await route.fulfill(json(apiEnvelope({ paymentUrl: "/payment/success?order=test" })));
+  });
+  await page.route("**/api/contact", async (route) => {
+    await route.fulfill(json(apiEnvelope({ sent: true }, "Contact message sent")));
   });
   await page.route(/.*\/api\/categories(\?.*)?$/, async (route) => {
     await route.fulfill(json(apiEnvelope(testCategories)));

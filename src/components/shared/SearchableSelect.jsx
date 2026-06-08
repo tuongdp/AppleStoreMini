@@ -62,18 +62,18 @@ export default function SearchableSelect({
     };
 
     return (
-        <div ref={containerRef} className={cn("relative", className)}>
+        <div ref={containerRef} className={cn("relative min-w-0 max-w-full", className)}>
             <button
                 type="button"
                 onClick={() => !disabled && setOpen(!open)}
                 disabled={disabled}
                 className={cn(
-                    "flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 text-xs transition-colors",
+                    "flex h-9 w-full min-w-0 max-w-full items-center justify-between rounded-md border border-input bg-transparent px-3 text-xs transition-colors",
                     !disabled && "hover:border-foreground/50",
                     disabled && "cursor-not-allowed opacity-50",
                 )}
             >
-                <span className={selected ? "text-foreground" : "text-muted-foreground"}>
+                <span className={cn("min-w-0 flex-1 truncate text-left", selected ? "text-foreground" : "text-muted-foreground")}>
                     {selected?.label || selected?.value || placeholder}
                 </span>
                 <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", open && "rotate-180")} />

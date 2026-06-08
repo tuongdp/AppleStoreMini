@@ -2,6 +2,11 @@ import { baseApi } from "./baseApi";
 
 export const aiApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    aiHealth: builder.query({
+      query: () => ({ url: "/chat/health" }),
+      transformResponse: (response) => response.data ?? response,
+      providesTags: ["AIHealth"],
+    }),
     aiRecommend: builder.mutation({
       query: (body) => ({ url: "/chat/recommend", method: "POST", body }),
       transformResponse: (response) => response.data,
@@ -30,6 +35,7 @@ export const aiApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useAiHealthQuery,
   useAiRecommendMutation,
   useAiCompareMutation,
   useAiSearchMutation,

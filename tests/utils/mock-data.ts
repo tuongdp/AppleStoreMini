@@ -163,6 +163,12 @@ export const testReviews = [
   { id: "review-1", productId: "prod-iphone-15", userId: "user-1", user: { fullName: "Nguyễn Văn A" }, rating: 5, comment: "Sản phẩm tuyệt vời!", isApproved: true, createdAt: "2024-06-10T00:00:00Z" },
 ];
 
+export const adminReviewReplySuggestion = {
+  suggestion: "Cảm ơn bạn đã chia sẻ đánh giá về sản phẩm. Cửa hàng rất vui khi bạn có trải nghiệm tốt và mong tiếp tục được phục vụ bạn trong những lần mua sắm tiếp theo.",
+  generatedBy: "ai",
+  aiOnline: true,
+};
+
 export const testReturnRequests = [
   { id: "return-1", orderId: "order-2", orderCode: "ORD-E2E-0002", userId: "user-2", user: { fullName: "Trần Thị B" }, reason: "Sản phẩm bị lỗi", status: "PENDING", createdAt: "2024-05-20T00:00:00Z" },
 ];
@@ -226,16 +232,40 @@ export const dashboardRevenue = {
   avgOrderChange: 4.1,
 };
 
+export const dashboardRevenueDay = {
+  chart: Array.from({ length: 24 }, (_, hour) => ({
+    label: `${String(hour).padStart(2, "0")}:00`,
+    revenue: hour === 9 ? 27990000 : hour === 14 ? 32990000 : 0,
+    orders: hour === 9 || hour === 14 ? 1 : 0,
+  })),
+  totalRevenue: 60980000,
+  totalOrders: 2,
+  avgOrderValue: 30490000,
+  revenueChange: 18,
+  orderChange: 12,
+  avgOrderChange: 5,
+};
+
 export const dashboardCategoryRevenue = [
   { categoryId: "cat-iphone", label: "iPhone", value: 56000000, change: 12 },
   { categoryId: "cat-mac", label: "Mac", value: 32990000, change: 5 },
   { categoryId: "cat-ipad", label: "iPad", value: 24990000, change: -3 },
 ];
 
+export const dashboardCategoryRevenueDay = [
+  { categoryId: "cat-iphone", label: "iPhone", value: 27990000, change: 15 },
+  { categoryId: "cat-mac", label: "Mac", value: 32990000, change: 8 },
+];
+
 export const dashboardTopProducts = [
   { ...testProducts[0], soldCount: 12, revenue: 335880000, inStock: true },
   { ...testProducts[1], soldCount: 6, revenue: 197940000, inStock: true },
   { ...testProducts[2], soldCount: 4, revenue: 99960000, inStock: true },
+];
+
+export const dashboardTopProductsDay = [
+  { ...testProducts[0], soldCount: 1, revenue: 27990000, inStock: true },
+  { ...testProducts[1], soldCount: 1, revenue: 32990000, inStock: true },
 ];
 
 export const dashboardSlowProducts = [
@@ -252,6 +282,19 @@ export const dashboardTopCustomers = [
   { id: "user-1", fullName: "Nguyễn Văn A", email: "nguyenvana@example.com", totalSpent: 86970000, orderCount: 3, lastOrderDate: "2024-06-01T10:00:00Z" },
   { id: "user-2", fullName: "Trần Thị B", email: "tranthib@example.com", totalSpent: 32990000, orderCount: 1, lastOrderDate: "2024-05-15T08:00:00Z" },
 ];
+
+export const dashboardAiInsights = {
+  summary: "Gợi ý vận hành AI tập trung vào đơn chờ xử lý, tồn kho thấp và chăm sóc khách hàng.",
+  generatedBy: "ai",
+  aiOnline: true,
+  provider: "Groq",
+  modelName: "llama-3.3-70b-versatile",
+  insights: [
+    { title: "Ưu tiên xác nhận đơn mới", description: "Có 4 đơn chờ xác nhận, nên xử lý trước để giảm thời gian chờ của khách.", severity: "HIGH", actionLabel: "Xem đơn hàng", href: "/admin/orders?status=PENDING" },
+    { title: "Bổ sung tồn kho iPhone", description: "Một số biến thể iPhone đang gần hết hàng trong khi vẫn có bán trong 30 ngày gần đây.", severity: "MEDIUM", actionLabel: "Kiểm tra sản phẩm", href: "/admin/products" },
+    { title: "Phản hồi đánh giá", description: "Còn đánh giá chưa phản hồi, nên trả lời để cải thiện trải nghiệm sau mua.", severity: "LOW", actionLabel: "Xem bình luận", href: "/admin/comments" },
+  ],
+};
 
 export const globalOptions = {
   colors: ["Titan tự nhiên", "Titan xanh", "Titan đen", "Bạc", "Xám"],
@@ -297,6 +340,65 @@ export const appSettings = {
   payment: { codEnabled: true, vnpayEnabled: true },
   seo: { title: "Apple Store Mini", description: "Apple Store Mini chính hãng" },
 };
+
+export const adminAiSettings = {
+  provider: "Groq",
+  enabled: true,
+  modelName: "llama-3.3-70b-versatile",
+  maxTokens: 1200,
+  temperature: 0.5,
+  timeoutMs: 20000,
+  hasApiKey: true,
+  features: {
+    chat: true,
+    search: true,
+    recommend: true,
+    compare: true,
+    reviewSummary: true,
+    reviewReply: true,
+    generateDescription: true,
+    sentiment: true,
+    personalized: true,
+    contentCheck: true,
+    adminInsights: true,
+  },
+};
+
+export const adminAiLogs = [
+  {
+    id: "ai-log-1",
+    feature: "chat",
+    status: "SUCCESS",
+    latencyMs: 842,
+    modelName: "llama-3.3-70b-versatile",
+    provider: "Groq",
+    errorMessage: null,
+    userId: "user-e2e-1",
+    createdAt: "2026-06-07T08:30:00Z",
+  },
+  {
+    id: "ai-log-2",
+    feature: "generateDescription",
+    status: "ERROR",
+    latencyMs: 10012,
+    modelName: "llama-3.3-70b-versatile",
+    provider: "Groq",
+    errorMessage: "Provider timeout",
+    userId: "admin-e2e-1",
+    createdAt: "2026-06-07T08:15:00Z",
+  },
+  {
+    id: "ai-log-3",
+    feature: "search",
+    status: "DISABLED",
+    latencyMs: 0,
+    modelName: "llama-3.3-70b-versatile",
+    provider: "Groq",
+    errorMessage: "AI feature disabled",
+    userId: null,
+    createdAt: "2026-06-07T08:00:00Z",
+  },
+];
 
 export const apiEnvelope = <T>(data: T, message = "ok") => ({ statusCode: 200, data, message, success: true });
 export const apiPaginated = <T>(data: T[], page = 1, limit = 12) => ({

@@ -6,7 +6,7 @@ export default function SocialLoginButtons() {
     const { loginWithGoogle, isGoogleLoginLoading, isGoogleReady, hasGoogleClientId } = useAuth();
     const googleButtonText = isGoogleLoginLoading
         ? "Đang đăng nhập..."
-        : !hasGoogleClientId ? "Tiếp tục với Google" : isGoogleReady ? "Tiếp tục với Google" : "Đang tải Google...";
+        : !hasGoogleClientId ? "Chưa cấu hình Google" : isGoogleReady ? "Tiếp tục với Google" : "Đang tải Google...";
 
     return (
         <div className="space-y-3">
@@ -20,7 +20,7 @@ export default function SocialLoginButtons() {
                 type="button"
                 variant="outline"
                 className="w-full rounded-full"
-                disabled={isGoogleLoginLoading || (hasGoogleClientId && !isGoogleReady)}
+                disabled={!hasGoogleClientId || isGoogleLoginLoading || !isGoogleReady}
                 onClick={() => loginWithGoogle()}
             >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

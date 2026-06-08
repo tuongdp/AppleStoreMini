@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAiReviewSummaryMutation } from "@/store/api/aiApi";
 import { toast } from "sonner";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 export default function AIReviewSummary({ productSlug, reviews }) {
   const [result, setResult] = useState(null);
   const [summarize, { isLoading }] = useAiReviewSummaryMutation();
+  const { available: aiAvailable } = useAiFeatureAvailable("reviewSummary");
 
   const hasReviews = reviews && reviews.length > 0;
 
@@ -28,6 +30,7 @@ export default function AIReviewSummary({ productSlug, reviews }) {
   };
 
   if (!hasReviews) return null;
+  if (!aiAvailable) return null;
 
   return (
     <Card className="my-8">

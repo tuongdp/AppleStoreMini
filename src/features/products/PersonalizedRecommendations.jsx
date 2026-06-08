@@ -3,21 +3,23 @@ import { usePersonalizedRecommendMutation } from "@/store/api/aiApi";
 import ProductCard from "@/components/shared/ProductCard";
 import ProductSlider from "@/components/shared/ProductSlider";
 import SectionTitle from "@/components/shared/SectionTitle";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 export default function PersonalizedRecommendations({ enabled = true }) {
     const [fetch, { data, isLoading, isError }] = usePersonalizedRecommendMutation();
+    const { available: aiAvailable } = useAiFeatureAvailable("personalized");
     const fetched = useRef(false);
 
     useEffect(() => {
-        if (enabled && !fetched.current) {
+        if (enabled && aiAvailable && !fetched.current) {
             fetched.current = true;
             fetch();
         }
-    }, [enabled, fetch]);
+    }, [aiAvailable, enabled, fetch]);
 
     const products = (data?.products || []).slice(0, 6);
 
-    if (!enabled) return null;
+    if (!(enabled && aiAvailable)) return null;
     if (isError || (!isLoading && products.length === 0)) return null;
 
     return (

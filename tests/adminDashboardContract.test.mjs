@@ -44,3 +44,24 @@ test("dashboard insights use lucide icons instead of inline emoji", () => {
   assert.doesNotMatch(categoryChart, /💡|📈|⚠️|⚠/u);
   assert.doesNotMatch(slowProducts, /⚠️|⚠/u);
 });
+
+test("dashboard revenue widgets support day period for today analytics", () => {
+  const revenueChart = read("src/features/admin/components/dashboard/RevenueChart.jsx");
+  const categoryChart = read("src/features/admin/components/dashboard/CategoryPieChart.jsx");
+  const topProducts = read("src/features/admin/components/dashboard/TopProducts.jsx");
+  const mockData = read("tests/utils/mock-data.ts");
+  const routeMocks = read("tests/utils/route-mocks.ts");
+  const orderAnalytics = read("D:/AppleStoreMini_Api/src/services/orderAnalytics.service.js");
+  const dashboardService = read("D:/AppleStoreMini_Api/src/services/dashboard.service.js");
+
+  [revenueChart, categoryChart, topProducts].forEach((source) => {
+    assert.match(source, /\{ value: "day", label: "Ngày" \}/);
+  });
+  assert.match(mockData, /Array\.from\(\{ length: 24 \}/);
+  assert.match(routeMocks, /url\.searchParams\.get\("period"\) === "day" \? dashboardRevenueDay/);
+  assert.match(routeMocks, /url\.searchParams\.get\("period"\) === "day" \? dashboardCategoryRevenueDay/);
+  assert.match(routeMocks, /url\.searchParams\.get\("period"\) === "day" \? dashboardTopProductsDay/);
+  assert.match(orderAnalytics, /period === "day"/);
+  assert.match(orderAnalytics, /hour < 24/);
+  assert.match(dashboardService, /period === "day"/);
+});

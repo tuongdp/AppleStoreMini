@@ -14,6 +14,7 @@ const DONUT_COLORS = [
 ];
 
 const PERIODS = [
+    { value: "day", label: "Ngày" },
     { value: "week", label: "Tuần" },
     { value: "month", label: "Tháng" },
     { value: "year", label: "Năm" },
@@ -98,7 +99,7 @@ export default function CategoryPieChart() {
         return (
             <div className="space-y-4">
                 <div className="flex gap-2">
-                    {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-8 w-16 rounded-full" />)}
+                    {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-8 w-16 rounded-full" />)}
                 </div>
                 <div className="flex gap-6">
                     <Skeleton className="h-48 w-48 rounded-full shrink-0" />

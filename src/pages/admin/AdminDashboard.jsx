@@ -28,6 +28,7 @@ import OrderStatusChart from "@/features/admin/components/dashboard/OrderStatusC
 import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
+import AdminAiInsights from "@/features/admin/components/dashboard/AdminAiInsights";
 import { formatNumber, formatPrice, cn } from "@/lib/utils";
 
 function MetricCard({ title, value, note, icon: Icon, tone = "default", loading }) {
@@ -188,6 +189,8 @@ export default function AdminDashboard() {
                     <MetricCard key={card.title} {...card} loading={isStatsLoading || isOperationsLoading} />
                 ))}
             </div>
+
+            <AdminAiInsights />
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <Card>

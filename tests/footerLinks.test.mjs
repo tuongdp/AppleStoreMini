@@ -23,6 +23,12 @@ test("footer renders contact channels from shop settings when present", () => {
   assert.match(footerSource, /formatPhone/);
 });
 
+test("footer support copy uses the same body text scale as footer links", () => {
+  assert.match(footerSource, /Liên hệ hỗ trợ/);
+  assert.match(footerSource, /className="mb-3 text-sm leading-6 text-muted-foreground"/);
+  assert.doesNotMatch(footerSource, /className="mb-3 text-xs leading-5 text-muted-foreground"/);
+});
+
 test("footer social links render brand icons with labels", () => {
   assert.match(footerSource, /function FacebookIcon/);
   assert.match(footerSource, /function ZaloIcon/);

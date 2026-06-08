@@ -11,6 +11,7 @@ import { ROUTES } from "@/lib/constants";
 import placeholderImg from "@/assets/images/placeholder/product-placeholder.jpg";
 
 const PERIODS = [
+    { value: "day", label: "Ngày" },
     { value: "week", label: "Tuần" },
     { value: "month", label: "Tháng" },
     { value: "year", label: "Năm" },

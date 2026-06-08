@@ -203,7 +203,7 @@ export default function Footer() {
                             <h3 className="mb-4 text-sm font-semibold text-foreground">
                                 Liên hệ hỗ trợ
                             </h3>
-                            <p className="mb-3 text-xs leading-5 text-muted-foreground">
+                            <p className="mb-3 text-sm leading-6 text-muted-foreground">
                                 Cần tư vấn sản phẩm, bảo hành hoặc đổi trả? Đội ngũ hỗ trợ luôn sẵn sàng.
                             </p>
 

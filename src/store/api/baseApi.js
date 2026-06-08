@@ -152,6 +152,9 @@ export const baseApi = createApi({
     "Points",
     "Returns",
     "ShopSettings",
+    "AdminAI",
+    "AIHealth",
+    "AdminAILogs",
   ],
   endpoints: () => ({}),
 });
