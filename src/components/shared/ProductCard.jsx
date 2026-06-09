@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,7 +49,7 @@ function getProductDetailHref(product) {
     return query ? `${basePath}?${query}` : basePath;
 }
 
-export default function ProductCard({ product }) {
+function ProductCard({ product }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -311,3 +312,5 @@ export default function ProductCard({ product }) {
         </Card>
     );
 }
+
+export default memo(ProductCard);

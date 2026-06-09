@@ -35,7 +35,7 @@ export default function RootLayout() {
     const isAuthenticated = useSelector(selectIsAuthenticated);
     useGetServerCartQuery(undefined, {
         skip: !isAuthenticated,
-        refetchOnMountOrArgChange: true,
+        refetchOnMountOrArgChange: false,
     });
 
     useEffect(() => {

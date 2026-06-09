@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, memo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -33,6 +33,27 @@ function isWelcomeDismissed() {
   }
 }
 
+function CategoryProductSlider({ slug, label, products = [], isLoading }) {
+  return (
+    <section className="section-padding py-8 md:py-10 lg:py-14">
+      <div className="mx-auto max-w-7xl">
+        <SectionTitle
+          title={label}
+          viewAllHref={`${ROUTES.PRODUCTS}?category=${slug}`}
+          className="mb-8"
+        />
+        <ProductSlider
+          products={products}
+          isLoading={isLoading}
+          sliderId={`cat-${slug}`}
+        />
+      </div>
+    </section>
+  );
+}
+
+const MemoizedCategoryProductSlider = memo(CategoryProductSlider);
+
 const CATEGORY_SLIDERS = [
   { slug: "iphone", label: "iPhone", subtitle: "iPhone" },
   { slug: "mac", label: "Mac", subtitle: "Mac" },
@@ -58,25 +79,6 @@ const TRUST_BADGES = [
     desc: "VNPay, Thanh toán khi nhận hàng",
   },
 ];
-
-function CategoryProductSlider({ slug, label, products = [], isLoading }) {
-  return (
-    <section className="section-padding py-8 md:py-10 lg:py-14">
-      <div className="mx-auto max-w-7xl">
-        <SectionTitle
-          title={label}
-          viewAllHref={`${ROUTES.PRODUCTS}?category=${slug}`}
-          className="mb-8"
-        />
-        <ProductSlider
-          products={products}
-          isLoading={isLoading}
-          sliderId={`cat-${slug}`}
-        />
-      </div>
-    </section>
-  );
-}
 
 export default function HomePage() {
   const [showWelcome, setShowWelcome] = useState(() => !isWelcomeDismissed());
@@ -181,7 +183,7 @@ export default function HomePage() {
       </section>
 
       {CATEGORY_SLIDERS.map((cat) => (
-        <CategoryProductSlider
+        <MemoizedCategoryProductSlider
           key={cat.slug}
           slug={cat.slug}
           label={categorySectionBySlug.get(cat.slug)?.label || cat.label}

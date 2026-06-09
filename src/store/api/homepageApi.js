@@ -11,6 +11,7 @@ export const homepageApi = baseApi.injectEndpoints({
                     ...(sections?.length ? { sections: sections.join(",") } : {}),
                 },
             }),
+            keepUnusedDataFor: 300,
             providesTags: ["Products", "Categories", "Banners"],
             transformResponse: (response) => {
                 const data = response.data || {};
