@@ -92,7 +92,7 @@ function ReadonlyInfo({ label, value }) {
 
 export default function AdminAiSettings() {
     const { data, isLoading, isFetching } = useGetAdminAiSettingsQuery();
-    const { data: aiLogs = [], isFetching: isLogsFetching } = useGetAdminAiLogsQuery({ limit: 25 });
+    const { data: aiLogs = [], isFetching: isLogsFetching } = useGetAdminAiLogsQuery({ limit: 5 });
     const [update, { isLoading: isSaving }] = useUpdateAdminAiSettingsMutation();
     const [testConnection, { isLoading: isTesting }] = useTestAdminAiConnectionMutation();
     const [settings, setSettings] = useState(DEFAULTS);

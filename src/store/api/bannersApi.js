@@ -11,9 +11,12 @@ export const bannersApi = baseApi.injectEndpoints({
 
         // GET /admin/banners
         getAllBanners: builder.query({
-            query: () => "/admin/banners",
+            query: (params) => ({ url: "/admin/banners", params }),
             providesTags: ["Banners"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => ({
+                banners: response.data,
+                pagination: response.pagination,
+            }),
         }),
 
         // POST /admin/banners — multipart/form-data

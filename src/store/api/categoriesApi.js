@@ -11,9 +11,12 @@ export const categoriesApi = baseApi.injectEndpoints({
 
         // GET /admin/categories — all (with productCount)
         getAdminCategories: builder.query({
-            query: () => "/admin/categories",
+            query: (params) => ({ url: "/admin/categories", params }),
             providesTags: ["Categories"],
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => ({
+                categories: response.data,
+                pagination: response.pagination,
+            }),
         }),
 
         // POST /admin/categories

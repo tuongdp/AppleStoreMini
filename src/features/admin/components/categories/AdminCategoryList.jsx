@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Plus, Pencil, Trash2, ImagePlus, ImageUp, Loader2, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, ImagePlus, ImageUp, Loader2, X } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
@@ -36,7 +37,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { parseJsonField, slugify } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { IMAGE } from "@/lib/constants";
+import { IMAGE, PAGINATION } from "@/lib/constants";
 
 const categorySchema = z.object({
     name: z.string().min(1, "Tên danh mục không được để trống"),
@@ -381,17 +382,29 @@ function CategoryForm({ category, categories, onClose }) {
 }
 
 export default function AdminCategoryList() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [deleteId, setDeleteId] = useState(null);
     const [editingCategory, setEditingCategory] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const { data, isLoading, isFetching } = useGetAdminCategoriesQuery();
+    const page = Number(searchParams.get("page")) || 1;
+
+    const { data, isLoading, isFetching } = useGetAdminCategoriesQuery({ page, limit: PAGINATION.DEFAULT_LIMIT });
     const [deleteCategory, { isLoading: isDeleting }] =
         useDeleteCategoryMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCategoryStatusMutation();
 
-    const categories = Array.isArray(data) ? data : data?.data || [];
+    const categories = data?.categories || [];
+    const pagination = data?.pagination || {};
+
+    const updateParam = (key, value) => {
+        const params = new URLSearchParams(searchParams);
+        if (value && value !== "all") params.set(key, value);
+        else params.delete(key);
+        if (key !== "page") params.set("page", "1");
+        setSearchParams(params);
+    };
 
     const handleDelete = async () => {
         try {
@@ -439,7 +452,7 @@ export default function AdminCategoryList() {
             {/* Toolbar */}
             <div className="flex items-center justify-between gap-3">
                 <p className="text-sm text-muted-foreground">
-                    {isFetching ? "Đang tải..." : `${categories.length} danh mục`}
+                    {isFetching ? "Đang tải..." : `${pagination.total || categories.length} danh mục`}
                 </p>
                 <Button className="rounded-full" onClick={handleAdd}>
                     <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
@@ -589,6 +602,21 @@ export default function AdminCategoryList() {
                     </TableBody>
                 </Table>
             </div>
+
+            {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">Hàng mỗi trang {PAGINATION.DEFAULT_LIMIT}</p>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang trước" disabled={page <= 1} onClick={() => updateParam("page", page - 1)}>
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <span className="text-sm text-muted-foreground">{page} trong {pagination.totalPages}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang sau" disabled={page >= pagination.totalPages} onClick={() => updateParam("page", page + 1)}>
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {/* Confirm delete */}
             <ConfirmDialog

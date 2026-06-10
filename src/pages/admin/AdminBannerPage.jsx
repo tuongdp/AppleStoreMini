@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+    ChevronLeft,
+    ChevronRight,
     Plus,
     Pencil,
     Trash2,
@@ -33,6 +36,7 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { bannerSchema } from "@/lib/validations";
+import { PAGINATION } from "@/lib/constants";
 
 function getBannerId(banner) {
     return banner?._id || banner?.id;
@@ -254,16 +258,28 @@ function BannerForm({ banner, banners, onClose }) {
 }
 
 export default function AdminBannerPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [deleteId, setDeleteId] = useState(null);
     const [editingBanner, setEditingBanner] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
-    const { data, isLoading, isFetching } = useGetAllBannersQuery();
+    const page = Number(searchParams.get("page")) || 1;
+
+    const { data, isLoading, isFetching } = useGetAllBannersQuery({ page, limit: PAGINATION.DEFAULT_LIMIT });
     const [deleteBanner, { isLoading: isDeleting }] = useDeleteBannerMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleBannerStatusMutation();
 
-    const banners = Array.isArray(data) ? data : data?.data || [];
+    const banners = data?.banners || [];
+    const pagination = data?.pagination || {};
+
+    const updateParam = (key, value) => {
+        const params = new URLSearchParams(searchParams);
+        if (value && value !== "all") params.set(key, value);
+        else params.delete(key);
+        if (key !== "page") params.set("page", "1");
+        setSearchParams(params);
+    };
 
     const handleDelete = async () => {
         try {
@@ -443,6 +459,21 @@ export default function AdminBannerPage() {
                     </div>
                 )}
             </div>
+
+            {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">Hàng mỗi trang {PAGINATION.DEFAULT_LIMIT}</p>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang trước" disabled={page <= 1} onClick={() => updateParam("page", page - 1)}>
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <span className="text-sm text-muted-foreground">{page} trong {pagination.totalPages}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang sau" disabled={page >= pagination.totalPages} onClick={() => updateParam("page", page + 1)}>
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             <ConfirmDialog
                 open={!!deleteId}

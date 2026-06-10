@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import {
     useGetAllCouponsQuery,
     useDeleteCouponMutation,
@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import AdminCouponForm from "./AdminCouponForm";
 import { toast } from "sonner";
 import { formatPrice, formatDate, formatNumber } from "@/lib/utils";
+import { PAGINATION } from "@/lib/constants";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
 import { cn } from "@/lib/utils";
@@ -33,13 +34,29 @@ export default function AdminCouponList() {
     const [showForm, setShowForm] = useState(false);
 
     const status = searchParams.get("status") || "";
+    const page = Number(searchParams.get("page")) || 1;
 
-    const { data, isLoading, isFetching } = useGetAllCouponsQuery(status && status !== "all" ? { status } : undefined);
+    const queryParams = {
+        page,
+        limit: PAGINATION.DEFAULT_LIMIT,
+    };
+    if (status && status !== "all") queryParams.status = status;
+
+    const { data, isLoading, isFetching } = useGetAllCouponsQuery(queryParams);
     const [deleteCoupon, { isLoading: isDeleting }] = useDeleteCouponMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleCouponStatusMutation();
 
     const coupons = data?.coupons || [];
+    const pagination = data?.pagination || {};
+
+    const updateParam = (key, value) => {
+        const params = new URLSearchParams(searchParams);
+        if (value && value !== "all") params.set(key, value);
+        else params.delete(key);
+        if (key !== "page") params.set("page", "1");
+        setSearchParams(params);
+    };
     const getDiscountType = (coupon) => String(coupon.discountType || "").toUpperCase();
     const getMaxDiscountAmount = (coupon) => coupon.maxDiscountAmount ?? coupon.maxDiscount;
     const getMinOrderAmount = (coupon) => coupon.minOrderAmount ?? coupon.minOrderValue;
@@ -156,12 +173,7 @@ export default function AdminCouponList() {
                 <div className="flex items-center gap-3">
                     <Select
                         value={status || "all"}
-                        onValueChange={(val) => {
-                            const params = new URLSearchParams(searchParams);
-                            if (val && val !== "all") params.set("status", val);
-                            else params.delete("status");
-                            setSearchParams(params);
-                        }}
+                        onValueChange={(val) => updateParam("status", val)}
                     >
                         <SelectTrigger className="w-40 rounded-full">
                             <SelectValue placeholder="Tất cả" />
@@ -175,7 +187,7 @@ export default function AdminCouponList() {
                         </SelectContent>
                     </Select>
                     <p className="text-sm text-muted-foreground">
-                        {coupons.length} mã giảm giá
+                        {pagination.total || coupons.length} mã giảm giá
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -438,6 +450,21 @@ export default function AdminCouponList() {
                     </TableBody>
                 </Table>
             </div>
+
+            {pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">Hàng mỗi trang {PAGINATION.DEFAULT_LIMIT}</p>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang trước" disabled={page <= 1} onClick={() => updateParam("page", page - 1)}>
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                        <span className="text-sm text-muted-foreground">{page} trong {pagination.totalPages}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" aria-label="Trang sau" disabled={page >= pagination.totalPages} onClick={() => updateParam("page", page + 1)}>
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                    </div>
+                </div>
+            )}
 
             {/* Confirm delete */}
             <ConfirmDialog
