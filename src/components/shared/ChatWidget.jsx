@@ -138,7 +138,7 @@ export default function ChatWidget() {
                             <div key={`${item.senderType}-${index}`} className={`flex ${item.senderType === "USER" ? "justify-end" : "justify-start"}`}>
                                 {item.content ? (
                                     <div
-                                        className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
+                                        className={`max-w-[80%] break-words rounded-2xl px-4 py-2.5 text-sm ${
                                             item.senderType === "USER"
                                                 ? "rounded-br-md bg-foreground text-background"
                                                 : "rounded-bl-md bg-muted text-foreground"

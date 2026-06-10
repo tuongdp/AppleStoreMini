@@ -60,7 +60,7 @@ export default function RichTextEditor({
         onUpdate: ({ editor }) => onChange?.(editor.getHTML()),
         editorProps: {
             attributes: {
-                class: "prose prose-sm dark:prose-invert max-w-none min-h-[300px] px-4 py-3 focus:outline-none",
+                class: "prose prose-sm dark:prose-invert max-w-none min-h-[300px] px-4 py-3 break-words focus:outline-none",
             },
         },
     });

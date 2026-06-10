@@ -42,7 +42,7 @@ export default function ProductCommentItem({ comment }) {
             </div>
 
             {/* Comment */}
-            <p className="text-sm leading-relaxed text-foreground">
+            <p className="break-words text-sm leading-relaxed text-foreground">
                 {comment.comment || comment.content}
             </p>
 
@@ -56,7 +56,7 @@ export default function ProductCommentItem({ comment }) {
                             </span>
                         )}
                     </div>
-                    <p className="text-sm leading-relaxed text-foreground">
+                    <p className="break-words text-sm leading-relaxed text-foreground">
                         {comment.adminReply}
                     </p>
                 </div>
