@@ -169,6 +169,7 @@
         @apply bg-background text-foreground;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
+        overflow-x: hidden;
     }
     html {
         @apply font-sans;
