@@ -81,9 +81,11 @@ function TimelineStep({ item, isLast }) {
 export default function OrderLookupPage() {
     const [urlSearchParams] = useSearchParams();
     const initialCode = (urlSearchParams.get("code") || "").toUpperCase();
+    const initialPhone = urlSearchParams.get("phone") || "";
     const [code, setCode] = useState(initialCode);
+    const [phone, setPhone] = useState(initialPhone);
     const [searchParams, setSearchParams] = useState(
-        initialCode ? { code: initialCode } : null,
+        initialCode ? { code: initialCode, phone: initialPhone } : null,
     );
 
     const { data: order, isLoading, isError, error } = useLookupOrderQuery(
@@ -94,8 +96,9 @@ export default function OrderLookupPage() {
     const handleLookup = (e) => {
         e.preventDefault();
         const trimmedCode = code.trim();
-        if (!trimmedCode) return;
-        setSearchParams({ code: trimmedCode });
+        const trimmedPhone = phone.trim();
+        if (!trimmedCode || !trimmedPhone) return;
+        setSearchParams({ code: trimmedCode, phone: trimmedPhone });
     };
 
     const statusCfg = order ? STATUS_MAP[order.status] || STATUS_MAP.PENDING : null;
@@ -128,6 +131,17 @@ export default function OrderLookupPage() {
                                     value={code}
                                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                                     className="font-mono text-center text-lg tracking-wider"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="order-phone">Số điện thoại đặt hàng</Label>
+                                <Input
+                                    id="order-phone"
+                                    type="tel"
+                                    placeholder="VD: 0912345678"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="text-center text-lg tracking-wider"
                                 />
                             </div>
                             <Button

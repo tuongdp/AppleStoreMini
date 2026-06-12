@@ -2,6 +2,8 @@ import { test, expect } from "../fixtures/test";
 import { waitForAppReady } from "../utils/waits";
 
 test.describe("pwa and service worker", () => {
+  test.use({ serviceWorkers: "allow" });
+
   test("serves offline fallback page", async ({ page }) => {
     const response = await page.request.get("/offline.html");
     expect(response.ok()).toBeTruthy();

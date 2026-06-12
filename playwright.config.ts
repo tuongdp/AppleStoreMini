@@ -29,11 +29,11 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
   projects: [
-    { name: "chromium", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Firefox"] } },
-    { name: "webkit", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Safari"] } },
-    { name: "mobile-chrome", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Pixel 7"] } },
-    { name: "mobile-safari", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["iPhone 15"] } },
+    { name: "chromium", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Chrome"], serviceWorkers: "block" } },
+    { name: "firefox", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Firefox"], serviceWorkers: "block" } },
+    { name: "webkit", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Desktop Safari"], serviceWorkers: "block" } },
+    { name: "mobile-chrome", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["Pixel 7"], serviceWorkers: "block" } },
+    { name: "mobile-safari", testIgnore: /.*\.api\.spec\.ts/, use: { ...devices["iPhone 15"], serviceWorkers: "block" } },
     {
       name: "api",
       testMatch: /.*\.api\.spec\.ts/,

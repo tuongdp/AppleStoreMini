@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "./OrderStatusBadge";
 import CommentModal from "./CommentModal";
+import { useGetPublicSettingsQuery } from "@/store/api/shopSettingsApi";
 import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
@@ -71,10 +72,13 @@ export default function OrderCard({ order }) {
     // key: productId, value: comment data đã submit (hoặc true nếu không có data)
     const [commentedMap, setCommentedMap] = useState({});
 
+    const { data: settings } = useGetPublicSettingsQuery();
+    const returnWindowDays = settings?.returnPolicy?.windowDays ?? 7;
+
     const visibleItems = order.items?.slice(0, 3) || [];
     const remainCount = (order.items?.length || 0) - visibleItems.length;
     const isDelivered = (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED;
-    const REVIEW_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+    const REVIEW_WINDOW_MS = returnWindowDays * 24 * 60 * 60 * 1000;
     const canReview = isDelivered && order.deliveredAt && (new Date(order.deliveredAt).getTime() + REVIEW_WINDOW_MS > Date.now());
     const deliveredItems = canReview ? order.items || [] : [];
 

@@ -34,6 +34,16 @@ const periodButtonClass = (active) =>
             : "text-muted-foreground",
     );
 
+const periodReportLabel = (value) => PERIODS.find((item) => item.value === value)?.label || value;
+
+const formatRevenuePeriodLabel = (period, value) => {
+    const label = String(value ?? "");
+    if (!label) return "";
+    if (period === "day") return `${label}:00`;
+    if (period === "year") return `Tháng ${label}`;
+    return label.toLocaleLowerCase("vi-VN").startsWith("ngày") ? label : `Ngày ${label}`;
+};
+
 function CustomTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
     const d = payload[0]?.payload;
@@ -97,14 +107,30 @@ export default function RevenueChart() {
         { key: "orders", label: "Đơn hàng" },
     ];
 
+    const getRevenueExportRows = () => chartData.map((row) => ({
+        ...row,
+        label: formatRevenuePeriodLabel(period, row.label),
+    }));
+
     const handleExportRevenueExcel = () => {
         if (chartData.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
-        exportExcel({ sheets: [{ name: "DoanhThu", columns: revenueColumns, rows: chartData }], filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}` });
+        exportExcel({
+            title: "Báo cáo doanh thu",
+            subtitle: `Kỳ báo cáo: ${periodReportLabel(period)} | Tổng doanh thu: ${formatPrice(data?.totalRevenue ?? 0)} | Tổng đơn hàng: ${formatNumber(data?.totalOrders ?? 0)}`,
+            sheets: [{ name: "DoanhThu", columns: revenueColumns, rows: getRevenueExportRows() }],
+            filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}`,
+        });
     };
 
     const handleExportRevenuePDF = () => {
         if (chartData.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
-        exportPDF({ title: "Báo cáo doanh thu", columns: revenueColumns, rows: chartData, filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}` });
+        exportPDF({
+            title: "Báo cáo doanh thu",
+            subtitle: `Kỳ báo cáo: ${periodReportLabel(period)} | Tổng doanh thu: ${formatPrice(data?.totalRevenue ?? 0)} | Tổng đơn hàng: ${formatNumber(data?.totalOrders ?? 0)}`,
+            columns: revenueColumns,
+            rows: getRevenueExportRows(),
+            filename: `DoanhThu_${new Date().toISOString().slice(0, 10)}`,
+        });
     };
 
     if (isError) {

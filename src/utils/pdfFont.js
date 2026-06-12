@@ -3,6 +3,7 @@ let fontPromise = null;
 
 const FONT_URL = "/times.ttf";
 const FONT_NAME = "TimesVN";
+const FONT_FILE = "times.ttf";
 
 function arrayBufferToBase64(buf) {
     const bytes = new Uint8Array(buf);
@@ -24,7 +25,8 @@ async function loadPdfFont() {
             if (!res.ok) { throw new Error(`HTTP ${res.status}`); }
             const buf = await res.arrayBuffer();
             const base64 = arrayBufferToBase64(buf);
-            jsPDF.API.addFont(base64, FONT_NAME, "normal");
+            jsPDF.API.addFileToVFS(FONT_FILE, base64);
+            jsPDF.API.addFont(FONT_FILE, FONT_NAME, "normal");
             fontReady = true;
         } catch (e) {
             console.warn("[PDF] Không thể tải font tiếng Việt:", e.message);
@@ -43,4 +45,8 @@ export async function createPdfDoc(options = {}) {
         doc.setFont(FONT_NAME);
     }
     return doc;
+}
+
+export function getPdfFontFamily() {
+    return fontReady ? FONT_NAME : "helvetica";
 }

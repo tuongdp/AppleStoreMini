@@ -4,8 +4,8 @@ import path from "node:path";
 
 const rootDir = process.cwd();
 const backendDir = process.env.TEST_BACKEND_DIR || path.resolve(rootDir, "..", "AppleStoreMini_Api");
-const frontendUrl = process.env.TEST_BASE_URL || "http://127.0.0.1:5173";
-const backendUrl = process.env.TEST_BACKEND_URL || "http://127.0.0.1:5000";
+const frontendUrl = process.env.TEST_BASE_URL || "http://localhost:5173";
+const backendUrl = process.env.TEST_BACKEND_URL || "http://localhost:5000";
 const normalizeApiUrl = (value) => {
   const url = new URL(value || `${backendUrl}/api`);
   if (!url.pathname || url.pathname === "/") {
@@ -64,6 +64,15 @@ async function waitFor(url, label, timeoutMs = 60_000) {
   throw new Error(`${label} was not ready at ${url}: ${lastError}`);
 }
 
+async function isReady(url) {
+  try {
+    const response = await fetch(url);
+    return response.status < 500;
+  } catch {
+    return false;
+  }
+}
+
 async function run(command, args, options) {
   return new Promise((resolve) => {
     const child = spawn(command, args, { stdio: "inherit", shell: useShell, ...options });
@@ -76,30 +85,37 @@ async function main() {
     throw new Error(`Backend package.json not found. Set TEST_BACKEND_DIR. Current: ${backendDir}`);
   }
 
-  spawnLogged(npmBin, ["start"], {
-    cwd: backendDir,
-    env: {
-      ...process.env,
-      PORT: process.env.TEST_BACKEND_PORT || "5000",
-      CLIENT_URL: frontendUrl,
-      FRONTEND_URL: frontendUrl,
-    },
-  });
+  const backendHealthUrl = new URL("health", apiUrl).toString();
 
-  spawnLogged("node", ["./node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "5173", "--strictPort"], {
-    cwd: rootDir,
-    env: {
-      ...process.env,
-      VITE_API_URL: apiUrl,
-    },
-  });
+  if (!(await isReady(backendHealthUrl))) {
+    spawnLogged(npmBin, ["start"], {
+      cwd: backendDir,
+      env: {
+        ...process.env,
+        NODE_OPTIONS: [process.env.NODE_OPTIONS, "--use-system-ca"].filter(Boolean).join(" "),
+        PORT: process.env.TEST_BACKEND_PORT || "5000",
+        CLIENT_URL: frontendUrl,
+        FRONTEND_URL: frontendUrl,
+      },
+    });
+  }
 
-  await waitFor(new URL("health", apiUrl).toString(), "Backend API");
+  if (!(await isReady(frontendUrl))) {
+    spawnLogged("node", ["./node_modules/vite/bin/vite.js", "--host", "localhost", "--port", "5173", "--strictPort"], {
+      cwd: rootDir,
+      env: {
+        ...process.env,
+        VITE_API_URL: apiUrl,
+      },
+    });
+  }
+
+  await waitFor(backendHealthUrl, "Backend API");
   await waitFor(frontendUrl, "Frontend");
 
   const testArgs = process.env.TEST_FULLSTACK_ARGS
     ? process.env.TEST_FULLSTACK_ARGS.split(" ").filter(Boolean)
-    : ["playwright", "test", "tests/e2e", "tests/api", "--project=chromium", "--project=api"];
+    : ["playwright", "test", "tests/e2e", "tests/api", "--project=chromium", "--project=api", "--workers=1"];
 
   const exitCode = await run(npxBin, testArgs, {
     cwd: rootDir,
@@ -127,6 +143,7 @@ process.on("SIGTERM", () => {
 });
 
 main().catch((error) => {
+  children.forEach(killTree);
   console.error(error.message);
-  process.exitCode = 1;
+  process.exit(1);
 });

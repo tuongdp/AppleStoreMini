@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, Loader2, Video, X } from "lucide-react";
 import { commentSchema } from "@/lib/validations";
 import { useCreateReviewMutation, useUpdateReviewMutation, useUploadReviewMediaMutation } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
@@ -61,7 +61,21 @@ export default function CommentForm({
         }
     }, [comment, form]);
 
-    const media = form.watch("images") || [];
+    const watchedMedia = useWatch({
+        control: form.control,
+        name: "images",
+    });
+    const allMedia = useMemo(() => watchedMedia || [], [watchedMedia]);
+
+    const { imageUrls, videoUrls } = useMemo(() => {
+        const imgs = [];
+        const vids = [];
+        for (const url of allMedia) {
+            if (isVideoUrl(url)) vids.push(url);
+            else imgs.push(url);
+        }
+        return { imageUrls: imgs, videoUrls: vids };
+    }, [allMedia]);
 
     const addMediaFile = async (file) => {
         if (!file) return;
@@ -70,17 +84,17 @@ export default function CommentForm({
         try {
             const result = await uploadMedia(formData).unwrap();
             if (result?.url) {
-                form.setValue("images", [...media, result.url], { shouldValidate: true });
+                form.setValue("images", [...allMedia, result.url], { shouldValidate: true });
             }
         } catch (error) {
-            toast.error(error?.data?.message || "Tải hình ảnh/video lên thất bại");
+            toast.error(error?.data?.message || "Tải tệp lên thất bại");
         }
     };
 
     const removeMedia = (index) => {
         form.setValue(
             "images",
-            media.filter((_, i) => i !== index),
+            allMedia.filter((_, i) => i !== index),
             { shouldValidate: true },
         );
     };
@@ -97,6 +111,7 @@ export default function CommentForm({
                     reviewId: comment._id || comment.id,
                     ...values,
                 }).unwrap();
+                toast.success("Đã cập nhật đánh giá");
             } else {
                 const result = await createReview({
                     productId,
@@ -104,15 +119,14 @@ export default function CommentForm({
                     ...(orderItemId && { orderItemId }),
                     ...values,
                 }).unwrap();
-                toast.success(
-                    result.pointsAwarded
-                        ? `Đánh giá thành công, bạn đã nhận ${result.reviewRewardPoints?.toLocaleString("vi-VN") || 0} điểm thưởng`
-                        : "Đánh giá thành công",
-                );
-            }
 
-            if (isEditing) {
-                toast.success("Đã cập nhật đánh giá");
+                if (result.pointsAwarded) {
+                    toast.success(
+                        `Đánh giá thành công, bạn đã nhận ${result.reviewRewardPoints?.toLocaleString("vi-VN") || 0} điểm thưởng`
+                    );
+                } else {
+                    toast.success("Đánh giá thành công");
+                }
             }
             form.reset();
             onSuccess?.(values);
@@ -143,48 +157,46 @@ export default function CommentForm({
                     )}
                 />
 
+                {/* ── Images ── */}
                 <FormField
                     control={form.control}
                     name="images"
-                    render={({ field }) => (
+                    render={() => (
                         <FormItem>
-                            <FormLabel>Hình ảnh / video sản phẩm</FormLabel>
+                            <FormLabel>Hình ảnh</FormLabel>
                             <div className="space-y-3">
-                                <div>
-                                    <FormControl>
-                                        <Input
-                                            type="file"
-                                            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
-                                            disabled={isLoading}
-                                            onChange={(event) => {
-                                                addMediaFile(event.target.files?.[0]);
-                                                event.target.value = "";
-                                            }}
-                                        />
-                                    </FormControl>
-                                </div>
+                                <FormControl>
+                                    <Input
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        disabled={isLoading}
+                                        onChange={(event) => {
+                                            addMediaFile(event.target.files?.[0]);
+                                            event.target.value = "";
+                                        }}
+                                    />
+                                </FormControl>
                                 {isUploading && (
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                         Đang tải tệp lên...
                                     </div>
                                 )}
-                                {field.value?.length > 0 ? (
+                                {imageUrls.length > 0 ? (
                                     <div className="grid grid-cols-3 gap-2">
-                                        {field.value.map((url, index) => (
-                                            <div key={`${url}-${index}`} className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
-                                                {isVideoUrl(url) ? (
-                                                    <video src={url} className="h-full w-full object-cover" muted />
-                                                ) : (
-                                                    <ResponsiveImage src={url} alt="" width={120} height={120} className="h-full w-full object-cover" />
-                                                )}
+                                        {imageUrls.map((url, index) => (
+                                            <div key={`img-${url}-${index}`} className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
+                                                <ResponsiveImage src={url} alt="" width={120} height={120} className="h-full w-full object-cover" />
                                                 <Button
                                                     type="button"
                                                     variant="secondary"
                                                     size="icon"
                                                     className="absolute right-1 top-1 h-6 w-6 rounded-full"
-                                                    onClick={() => removeMedia(index)}
-                                                    aria-label="Xoá media đã tải lên"
+                                                    onClick={() => {
+                                                        const gi = allMedia.indexOf(url);
+                                                        if (gi !== -1) removeMedia(gi);
+                                                    }}
+                                                    aria-label="Xoá ảnh"
                                                 >
                                                     <X className="h-3 w-3" />
                                                 </Button>
@@ -192,11 +204,9 @@ export default function CommentForm({
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col gap-1 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
-                                        <div className="flex items-center gap-2">
-                                            <ImagePlus className="h-4 w-4" />
-                                            <span>Gửi ít nhất 2 ảnh và 1 video để nhận điểm thưởng</span>
-                                        </div>
+                                    <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+                                        <ImagePlus className="h-4 w-4" />
+                                        Nhấn chọn hoặc kéo thả ảnh vào đây
                                     </div>
                                 )}
                             </div>
@@ -205,6 +215,65 @@ export default function CommentForm({
                     )}
                 />
 
+                {/* ── Video ── */}
+                <FormField
+                    control={form.control}
+                    name="images"
+                    render={() => (
+                        <FormItem>
+                            <FormLabel>Video</FormLabel>
+                            <div className="space-y-3">
+                                <FormControl>
+                                    <Input
+                                        type="file"
+                                        accept="video/mp4,video/webm,video/quicktime"
+                                        disabled={isLoading}
+                                        onChange={(event) => {
+                                            addMediaFile(event.target.files?.[0]);
+                                            event.target.value = "";
+                                        }}
+                                    />
+                                </FormControl>
+                                {videoUrls.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {videoUrls.map((url, index) => (
+                                            <div key={`vid-${url}-${index}`} className="relative overflow-hidden rounded-lg border bg-muted">
+                                                <video
+                                                    src={url}
+                                                    controls
+                                                    className="w-full"
+                                                    preload="metadata"
+                                                    style={{ maxHeight: "240px" }}
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="icon"
+                                                    className="absolute right-2 top-2 h-6 w-6 rounded-full"
+                                                    onClick={() => {
+                                                        const gi = allMedia.indexOf(url);
+                                                        if (gi !== -1) removeMedia(gi);
+                                                    }}
+                                                    aria-label="Xoá video"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2 rounded-lg border border-dashed p-3 text-xs text-muted-foreground">
+                                        <Video className="h-4 w-4" />
+                                        Tải video trải nghiệm sản phẩm
+                                    </div>
+                                )}
+                            </div>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                {/* ── Comment text ── */}
                 <FormField
                     control={form.control}
                     name="comment"
@@ -223,6 +292,13 @@ export default function CommentForm({
                         </FormItem>
                     )}
                 />
+
+                {/* ── Optional reward hint ── */}
+                {!isEditing && (
+                    <p className="text-xs text-muted-foreground">
+                        Gửi kèm tối thiểu 2 ảnh và 1 video để có cơ hội nhận điểm thưởng (trong vòng 7 ngày sau khi nhận hàng)
+                    </p>
+                )}
 
                 <div className="flex justify-end gap-2">
                     {onCancel && (

@@ -7,8 +7,8 @@ import { useSendMessageMutation } from "@/store/api/chatApi";
 import { useAiHealthQuery } from "@/store/api/aiApi";
 import { buildFocusedChatReply, filterChatProductsByMessage } from "@/features/ai/chatProductFilter";
 
-export default function ChatWidget() {
-    const [open, setOpen] = useState(false);
+export default function ChatWidget({ initialOpen = false }) {
+    const [open, setOpen] = useState(initialOpen);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [sendMessage, { isLoading }] = useSendMessageMutation();

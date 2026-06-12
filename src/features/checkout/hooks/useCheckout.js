@@ -124,6 +124,9 @@ export function useCheckout() {
 
             setCreatedOrder(order);
 
+            // Store phone for order lookup after VNPay redirect
+            sessionStorage.setItem("order_phone", checkoutData.phone);
+
             if (checkoutData.paymentMethod === PAYMENT_METHODS.VNPAY) {
                 const redirected = await handleOnlinePayment(order.id);
                 if (redirected) return;

@@ -22,11 +22,11 @@ export const ordersApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // GET /orders/lookup?code= (public, no auth)
+        // GET /orders/lookup?code=&phone= (public, no auth)
         lookupOrder: builder.query({
-            query: ({ code }) => ({
+            query: ({ code, phone }) => ({
                 url: "/orders/lookup",
-                params: { code },
+                params: { code, phone },
             }),
             transformResponse: (response) => response.data,
         }),

@@ -244,7 +244,7 @@ export default function ProductListPage() {
                         </ScrollNav>
                     )}
 
-                    <ScrollNav label="Sắp xếp theo">
+                    <ScrollNav label="Sắp xếp theo" wrap>
                         {PRODUCT_SORT_OPTIONS.map((option) => (
                             <button
                                 key={option.value}

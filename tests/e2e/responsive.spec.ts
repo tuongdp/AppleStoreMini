@@ -11,6 +11,10 @@ for (const viewport of viewports) {
     await page.setViewportSize(viewport);
     await page.goto("/products");
     await expect(page.getByTestId("product-card").first()).toBeVisible();
-    await expect(page.locator("body")).toHaveCSS("overflow-x", "visible");
+    const hasHorizontalOverflow = await page.evaluate(() => {
+      const root = document.documentElement;
+      return root.scrollWidth > root.clientWidth;
+    });
+    expect(hasHorizontalOverflow).toBe(false);
   });
 }

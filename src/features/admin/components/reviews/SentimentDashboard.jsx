@@ -2,9 +2,15 @@ import { useGetSentimentStatsQuery } from "@/store/api/productReviewApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 
 export default function SentimentDashboard() {
     const { data, isLoading } = useGetSentimentStatsQuery();
+    const products = data?.products;
+    const sortedProducts = useMemo(
+        () => [...(products || [])].sort((a, b) => (b.positive + b.negative + b.neutral) - (a.positive + a.negative + a.neutral)),
+        [products]
+    );
 
     if (isLoading) {
         return (
@@ -19,11 +25,11 @@ export default function SentimentDashboard() {
     }
 
     const overview = data?.overview || {};
-    const products = data?.products || [];
+    const productRows = products || [];
 
-    const totalWithSentiment = products.reduce((sum, p) => sum + p.positive + p.negative + p.neutral, 0);
-    const allPositive = products.reduce((sum, p) => sum + p.positive, 0);
-    const allNegative = products.reduce((sum, p) => sum + p.negative, 0);
+    const totalWithSentiment = productRows.reduce((sum, p) => sum + p.positive + p.negative + p.neutral, 0);
+    const allPositive = productRows.reduce((sum, p) => sum + p.positive, 0);
+    const allNegative = productRows.reduce((sum, p) => sum + p.negative, 0);
     return (
         <div className="space-y-6">
             <div>
@@ -91,15 +97,14 @@ export default function SentimentDashboard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {products.length === 0 ? (
+                            {productRows.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                                         Chưa có dữ liệu sentiment
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                products
-                                    .sort((a, b) => (b.positive + b.negative + b.neutral) - (a.positive + a.negative + a.neutral))
+                                sortedProducts
                                     .map((product) => (
                                         <TableRow key={product.productId}>
                                             <TableCell className="font-medium max-w-[300px] truncate">

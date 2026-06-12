@@ -213,10 +213,10 @@ export default function Footer() {
                                         <li key={contact.href}>
                                             <a
                                                 href={contact.href}
-                                                className="inline-flex min-w-0 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                                                className="inline-flex max-w-full min-w-0 items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                                             >
                                                 <contact.icon className="h-4 w-4 shrink-0" />
-                                                <span className="truncate">{contact.label}</span>
+                                                <span className="min-w-0 break-all">{contact.label}</span>
                                             </a>
                                         </li>
                                     ))}

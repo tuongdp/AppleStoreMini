@@ -4,7 +4,13 @@ import StarRating from "@/components/shared/StarRating";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { timeAgo } from "@/lib/utils";
 
+const isVideoUrl = (url) => /\.(mp4|webm|mov)(\?|$)/i.test(url);
+
 export default function ProductCommentItem({ comment }) {
+    const medias = comment.images || [];
+    const imageUrls = medias.filter((url) => !isVideoUrl(url));
+    const videoUrls = medias.filter(isVideoUrl);
+
     return (
         <div className="space-y-3">
             <div className="flex items-start gap-3">
@@ -41,7 +47,7 @@ export default function ProductCommentItem({ comment }) {
                 </div>
             </div>
 
-            {/* Comment */}
+            {/* Comment text */}
             <p className="break-words text-sm leading-relaxed text-foreground">
                 {comment.comment || comment.content}
             </p>
@@ -62,23 +68,49 @@ export default function ProductCommentItem({ comment }) {
                 </div>
             )}
 
-            {/* Comment images */}
-            {comment.images?.length > 0 && (
-                <div className="flex gap-2">
-                    {comment.images.map((img, index) => (
-                        <div
-                            key={index}
-                            className="h-16 w-16 overflow-hidden rounded-lg bg-muted/30"
-                        >
-                            <ResponsiveImage
-                                src={img}
-                                alt={`Ảnh ${index + 1}`}
-                                width={64}
-                                height={64}
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
-                    ))}
+            {/* Images */}
+            {imageUrls.length > 0 && (
+                <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground">Hình ảnh</p>
+                    <div className="flex flex-wrap gap-2">
+                        {imageUrls.map((img, index) => (
+                            <div
+                                key={`img-${index}`}
+                                className="h-20 w-20 overflow-hidden rounded-lg bg-muted/30"
+                            >
+                                <ResponsiveImage
+                                    src={img}
+                                    alt={`Ảnh ${index + 1}`}
+                                    width={80}
+                                    height={80}
+                                    className="h-full w-full object-cover"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Videos */}
+            {videoUrls.length > 0 && (
+                <div className="space-y-1.5">
+                    <p className="text-xs text-muted-foreground">Video</p>
+                    <div className="space-y-2">
+                        {videoUrls.map((url, index) => (
+                            <div
+                                key={`vid-${index}`}
+                                className="overflow-hidden rounded-lg border bg-muted/30"
+                            >
+                                <video
+                                    src={url}
+                                    controls
+                                    preload="metadata"
+                                    className="w-full"
+                                    style={{ maxHeight: "320px" }}
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

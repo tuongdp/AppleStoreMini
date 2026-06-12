@@ -25,6 +25,8 @@ const periodButtonClass = (active) =>
             : "text-muted-foreground",
     );
 
+const periodReportLabel = (value) => PERIODS.find((item) => item.value === value)?.label || value;
+
 function TrendCell({ change }) {
     if (change == null) return <span className="text-muted-foreground">—</span>;
     const up = change >= 0;
@@ -91,12 +93,23 @@ export default function OrderStats() {
 
     const handleExportOrderStatsExcel = () => {
         if (data.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
-        exportExcel({ sheets: [{ name: "ThongKeDH", columns: orderStatsColumns, rows: data }], filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}` });
+        exportExcel({
+            title: "Thống kê đơn hàng",
+            subtitle: `Kỳ thống kê: ${periodReportLabel(period)} | Tổng đơn hàng: ${formatNumber(totalOrders)}`,
+            sheets: [{ name: "ThongKeDH", columns: orderStatsColumns, rows: data }],
+            filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}`,
+        });
     };
 
     const handleExportOrderStatsPDF = () => {
         if (data.length === 0) { toast.error("Không có dữ liệu để xuất"); return; }
-        exportPDF({ title: "Thống kê đơn hàng", columns: orderStatsColumns, rows: data, filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}` });
+        exportPDF({
+            title: "Thống kê đơn hàng",
+            subtitle: `Kỳ thống kê: ${periodReportLabel(period)} | Tổng đơn hàng: ${formatNumber(totalOrders)}`,
+            columns: orderStatsColumns,
+            rows: data,
+            filename: `ThongKeDH_${new Date().toISOString().slice(0, 10)}`,
+        });
     };
 
     const yAxisTickFormatter = (v) =>

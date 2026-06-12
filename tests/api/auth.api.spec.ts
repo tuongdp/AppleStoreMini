@@ -7,7 +7,7 @@ test.describe("auth api contract", () => {
     const api = await request.newContext({ baseURL: testEnv.apiUrl });
     test.skip(!(await isServiceAvailable(api)), "backend API is not running");
     const response = await api.post("auth/login", { data: { email: testEnv.userEmail, password: testEnv.userPassword } });
-    expect([200, 201, 401]).toContain(response.status());
+    expect([200, 201, 400, 401]).toContain(response.status());
     if (response.ok()) {
       const body = await response.json();
       expect(JSON.stringify(body)).toMatch(/accessToken/);

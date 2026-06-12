@@ -1,5 +1,5 @@
 import { numberToWords } from "./numberToWords";
-import { createPdfDoc } from "./pdfFont";
+import { createPdfDoc, getPdfFontFamily } from "./pdfFont";
 
 const STORAGE_KEY_SHOP = "shop_settings";
 const STORAGE_KEY_COUNTER = "invoice_counter";
@@ -69,6 +69,7 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   const today = new Date().toLocaleDateString("vi-VN");
 
   const doc = await createPdfDoc({ orientation: "p" });
+  const fontFamily = getPdfFontFamily();
   const pw = doc.internal.pageSize.getWidth();
   const m = 15;
   let y = 10;
@@ -154,7 +155,8 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
     margin: { left: m, right: m },
     head: tableHead,
     body: tableBody,
-    headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: "bold", halign: "center", fontSize: 8 },
+    styles: { font: fontFamily, fontStyle: "normal" },
+    headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: "normal", halign: "center", fontSize: 8 },
     bodyStyles: { fontSize: 8, cellPadding: 2 },
     alternateRowStyles: { fillColor: [243, 244, 246] },
     columnStyles: {
@@ -185,7 +187,8 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   const rEnd = pw - m;
 
   function drawRight(label, value, isBold) {
-    doc.setFont("helvetica", isBold ? "bold" : "normal");
+    doc.setFont(fontFamily, "normal");
+    if (isBold) doc.setTextColor(30, 64, 175);
     doc.text(label, rStart, y);
     doc.text(value, rEnd, y, { align: "right" });
     y += 5;
@@ -207,7 +210,7 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   y += 3;
   doc.setFontSize(10);
   doc.setTextColor(30, 64, 175);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(fontFamily, "normal");
   doc.text("Tổng tiền thanh toán:", rStart, y);
   doc.text(grandTotal.toLocaleString("vi-VN"), rEnd, y, { align: "right" });
   doc.setTextColor(80);
@@ -215,7 +218,7 @@ export async function exportVATInvoicePDF({ order, buyerInfo, vatRate, sellerInf
   y += 8;
 
   // Amount in words
-  doc.setFont("helvetica", "normal");
+  doc.setFont(fontFamily, "normal");
   doc.setFontSize(9);
   doc.setTextColor(80);
   doc.text(`Số tiền bằng chữ: ${numberToWords(grandTotal)} đồng`, m, y);

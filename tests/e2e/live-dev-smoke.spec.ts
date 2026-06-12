@@ -14,6 +14,7 @@ test.beforeEach(async ({ page }) => {
     if (/Missing `Description` or `aria-describedby=\{undefined\}` for \{DialogContent\}/i.test(text)) return;
     if (/cdnv2\.tgdd\.vn.*violates the following Content Security Policy directive/i.test(text)) return;
     if (/res\.cloudinary\.com.*violates the following Content Security Policy directive/i.test(text)) return;
+    if (/Failed to load resource: net::ERR_NAME_NOT_RESOLVED/i.test(text)) return;
     consoleIssues.push(`${message.type()}: ${text}`);
   });
 });

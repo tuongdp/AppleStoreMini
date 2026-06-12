@@ -18,6 +18,7 @@ export default function PaymentResult({ status }) {
     const [isSuccess, setIsSuccess] = useState(null);
     const [orderCode, setOrderCode] = useState(null);
     const [orderId, setOrderId] = useState(null);
+    const [orderPhone] = useState(sessionStorage.getItem("order_phone") || "");
     const [switchOpen, setSwitchOpen] = useState(false);
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const [switchToCod, { isLoading: isSwitching }] = useSwitchToCodMutation();
@@ -66,7 +67,7 @@ export default function PaymentResult({ status }) {
 
     const trackLink = isAuthenticated || !orderCode
         ? ROUTES.ORDERS
-        : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}`;
+        : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(orderPhone)}`;
 
     const handleSwitchToCod = async () => {
         try {
@@ -83,7 +84,7 @@ export default function PaymentResult({ status }) {
         if (orderId && isAuthenticated) {
             navigate(`${ROUTES.ORDERS}/${orderId}`);
         } else if (orderCode) {
-            navigate(`${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}`);
+            navigate(`${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(orderPhone)}`);
         }
     };
 

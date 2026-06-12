@@ -24,7 +24,7 @@ import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
 import { ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
-import { createPdfDoc } from "@/utils/pdfFont";
+import { createPdfDoc, getPdfFontFamily } from "@/utils/pdfFont";
 import ExportButton from "@/components/ui/export-button";
 import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 
@@ -98,6 +98,7 @@ export default function AdminOrderDetail({ order }) {
             });
 
             const doc = await createPdfDoc({ orientation: "p" });
+            const fontFamily = getPdfFontFamily();
             const pw = doc.internal.pageSize.getWidth();
             const m = 15;
             let y = 12;
@@ -137,7 +138,8 @@ export default function AdminOrderDetail({ order }) {
                     const v = r[c.key];
                     return c.format === "currency" ? Number(v).toLocaleString("vi-VN") + " đ" : (v ?? "\u2014");
                 })),
-                headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: "bold", halign: "center", fontSize: 9 },
+                styles: { font: fontFamily, fontStyle: "normal" },
+                headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: "normal", halign: "center", fontSize: 9 },
                 bodyStyles: { fontSize: 8, cellPadding: 2 },
                 alternateRowStyles: { fillColor: [243, 244, 246] },
                 columnStyles: { 3: { halign: "right" }, 4: { halign: "right" } },

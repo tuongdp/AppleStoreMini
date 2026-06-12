@@ -16,7 +16,7 @@ export default function OrderSuccess({ order, onOnlinePayment, isPaying, payment
 
     const trackLink = isAuthenticated
         ? ROUTES.ORDER_DETAIL(order?.id)
-        : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(order?.code || "")}`;
+        : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(order?.code || "")}&phone=${encodeURIComponent(order?.shippingPhone || "")}`;
 
     return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
