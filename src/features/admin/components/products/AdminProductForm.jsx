@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import DOMPurify from "dompurify";
 import {
     Plus, Trash2, Upload, X, PackageOpen, Edit3, Save, AlertTriangle, Loader2, FileSpreadsheet
 } from "lucide-react";
@@ -582,7 +583,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                             >
                                                 {field.value ? (
                                                     <div className="pointer-events-none max-h-32 overflow-hidden">
-                                                        <div className="prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: field.value }} />
+                                                        <div className="prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(field.value) }} />
                                                     </div>
                                                 ) : (
                                                     <p className="text-sm text-muted-foreground/60">{"Nhấn để soạn mô tả sản phẩm..."}</p>

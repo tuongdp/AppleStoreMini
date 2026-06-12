@@ -92,7 +92,7 @@ export default function RootLayout() {
                 <button
                     type="button"
                     onClick={() => setChatMounted(true)}
-                    aria-label="Má»Ÿ chat"
+                    aria-label="Mở chat"
                     className="fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background shadow-lg transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
                 >
                     <MessageCircle className="h-5 w-5" />
