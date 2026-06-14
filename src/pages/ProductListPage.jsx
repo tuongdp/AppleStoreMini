@@ -122,6 +122,10 @@ export default function ProductListPage() {
     }, [dbSeries, filters.category, seriesData?.products]);
 
     const activeSeries = filters.series || filters.slug;
+    const activeSeriesObj = useMemo(() => {
+        if (!activeSeries) return null;
+        return dbSeries.find((s) => s.slug === activeSeries) || null;
+    }, [activeSeries, dbSeries]);
 
     const updateParams = (updates) => {
         const params = new URLSearchParams(searchParams);
@@ -209,6 +213,18 @@ export default function ProductListPage() {
                     <div className="mb-8 overflow-hidden rounded-xl border border-border">
                         <BannerSlider slides={categorySlides} />
                     </div>
+                )}
+
+                {filters.category && currentCategory?.description && (
+                    <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                        {currentCategory.description}
+                    </p>
+                )}
+
+                {activeSeriesObj?.description && (
+                    <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                        {activeSeriesObj.description}
+                    </p>
                 )}
 
                 <div className="mb-8 space-y-5 border-y border-border py-4">

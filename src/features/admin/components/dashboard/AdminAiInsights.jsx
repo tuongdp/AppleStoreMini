@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDashboardAiInsightsQuery } from "@/store/api/ordersApi";
 import { cn } from "@/lib/utils";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 const severityClass = {
     HIGH: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400",
@@ -22,7 +23,10 @@ export default function AdminAiInsights() {
     const { data, isLoading, isFetching } = useGetDashboardAiInsightsQuery(undefined, {
         pollingInterval: 60000,
     });
+    const { available: aiInsightsAvailable } = useAiFeatureAvailable("adminInsights");
     const insights = data?.insights || [];
+
+    if (!aiInsightsAvailable) return null;
 
     return (
         <Card className="border-border">

@@ -2,10 +2,14 @@ import { useGetSentimentStatsQuery } from "@/store/api/productReviewApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { useMemo } from "react";
+import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
+import { Sparkles } from "lucide-react";
 
 export default function SentimentDashboard() {
     const { data, isLoading } = useGetSentimentStatsQuery();
+    const { available: aiSentimentAvailable } = useAiFeatureAvailable("sentiment");
     const products = data?.products;
     const sortedProducts = useMemo(
         () => [...(products || [])].sort((a, b) => (b.positive + b.negative + b.neutral) - (a.positive + a.negative + a.neutral)),
@@ -32,11 +36,17 @@ export default function SentimentDashboard() {
     const allNegative = productRows.reduce((sum, p) => sum + p.negative, 0);
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-2xl font-semibold tracking-tight">Phân tích cảm xúc đánh giá</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Tổng hợp sentiment từ đánh giá của khách hàng
-                </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight">Phân tích cảm xúc đánh giá</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                        Tổng hợp sentiment từ đánh giá của khách hàng
+                    </p>
+                </div>
+                <Badge variant={aiSentimentAvailable ? "default" : "secondary"} className="gap-1.5 h-6">
+                    <Sparkles className="h-3 w-3" />
+                    {aiSentimentAvailable ? "AI phân tích" : "Phân tích cơ bản"}
+                </Badge>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">

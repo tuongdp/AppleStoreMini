@@ -144,8 +144,6 @@ export const profileSchema = z.object({
         .regex(/^0[35789][0-9]{8}$/, {
             message: v("phone.invalid"),
         }),
-    birthday: z.string().optional(),
-    gender: z.enum(["male", "female", "other"]).optional(),
     address: z.string().optional().transform((val) => (val ? sanitizeText(val) : val)),
 });
 

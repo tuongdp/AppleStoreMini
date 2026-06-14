@@ -18,13 +18,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function ProfileForm({ user }) {
@@ -37,8 +30,6 @@ export default function ProfileForm({ user }) {
     defaultValues: {
       fullName: "",
       phone: "",
-      birthday: "",
-      gender: undefined,
       address: "",
     },
   });
@@ -111,46 +102,6 @@ export default function ProfileForm({ user }) {
             <p className="text-xs text-muted-foreground">{"Email không thể thay đổi"}</p>
           </FormItem>
 
-          <FormField
-            control={form.control}
-            name="birthday"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{"Ngày sinh"}</FormLabel>
-                <FormControl>
-                  <Input type="date" disabled={isLoading} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{"Giới tính"}</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isLoading}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={"Giới tính"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="male">{"Nam"}</SelectItem>
-                    <SelectItem value="female">{"Nữ"}</SelectItem>
-                    <SelectItem value="other">{"Khác"}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
         <FormField

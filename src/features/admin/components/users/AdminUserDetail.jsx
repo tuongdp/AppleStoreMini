@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import {
     Mail,
     Phone,
-    Calendar,
     ShoppingBag,
     Shield,
     ShieldCheck,
@@ -41,12 +40,6 @@ import {
 } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
-
-const GENDER_MAP = {
-    MALE: "Nam",
-    FEMALE: "Nữ",
-    OTHER: "Khác",
-};
 
 const ROLE_CONFIG = {
     admin: { label: "Quản trị viên", color: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400" },
@@ -570,29 +563,7 @@ export default function AdminUserDetail({ user, orders = [] }) {
                                     iconClassName="bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400"
                                 />
                             )}
-                            {user.gender && (
-                                <StatCard
-                                    icon={User}
-                                    label="Giới tính"
-                                    value={GENDER_MAP[user.gender] || user.gender}
-                                    iconClassName="bg-pink-100 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400"
-                                />
-                            )}
                         </div>
-                        {user.birthday && (
-                            <>
-                                <Separator className="my-4" />
-                                <div className="flex items-center gap-3 text-sm">
-                                    <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                                    <span className="text-muted-foreground">
-                                        Sinh nhật:{" "}
-                                        <span className="font-medium text-foreground">
-                                            {formatDate(user.birthday)}
-                                        </span>
-                                    </span>
-                                </div>
-                            </>
-                        )}
                     </div>
 
                     {/* Address */}

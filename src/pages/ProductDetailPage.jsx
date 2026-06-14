@@ -5,7 +5,7 @@ import {
     ShoppingCart,
     Heart,
 } from "lucide-react";
-import { useGetProductBySlugQuery, useGetProductsQuery, useIncrementVariantViewMutation } from "@/store/api/productsApi";
+import { useGetProductBySlugQuery, useIncrementVariantViewMutation } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
 import { addToCart } from "@/store/cartSlice";
 import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
@@ -37,8 +37,6 @@ import {
     isOptionSelectable,
 } from "@/features/products/utils/productVariantSelection";
 import { ROUTES } from "@/lib/constants";
-import AIComparePanel from "@/features/ai/AIComparePanel";
-import AIReviewSummary from "@/features/ai/AIReviewSummary";
 import PersonalizedRecommendations from "@/features/products/PersonalizedRecommendations";
 import SeoHead from "@/components/shared/SeoHead";
 import ProductStructuredData from "@/components/shared/ProductStructuredData";
@@ -53,9 +51,6 @@ export default function ProductDetailPage() {
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
 
     const product = data;
-
-    const { data: allProductsData } = useGetProductsQuery({ limit: 100, sort: "featured" });
-    const allProducts = allProductsData?.products || [];
 
     const variants = useMemo(() => product?.variants || [], [product]);
 
@@ -597,9 +592,6 @@ export default function ProductDetailPage() {
             </div>
             <Separator className="my-12" />
             <ProductComments product={product} />
-            <Separator className="my-12" />
-            <AIComparePanel currentProduct={product} products={allProducts} />
-            <AIReviewSummary key={slug} productSlug={slug} reviews={product.comments || product.reviews || []} />
 
             {/* Related */}
             <Separator className="my-12" />
