@@ -65,7 +65,7 @@ export const registerSchema = z
         phone: z
             .string()
             .min(1, { message: v("phone.required") })
-            .regex(/^0[35789][0-9]{8}$/, {
+            .regex(/^0[0-9]{9}$/, {
                 message: v("phone.invalid"),
             }),
         password: z
@@ -141,7 +141,7 @@ export const profileSchema = z.object({
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
-        .regex(/^0[35789][0-9]{8}$/, {
+        .regex(/^0[0-9]{9}$/, {
             message: v("phone.invalid"),
         }),
     address: z.string().optional().transform((val) => (val ? sanitizeText(val) : val)),
@@ -153,7 +153,7 @@ export const addressSchema = z.object({
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
-        .regex(/^0[35789][0-9]{8}$/, {
+        .regex(/^0[0-9]{9}$/, {
             message: v("phone.invalid"),
         }),
     address: z.string().min(10, { message: v("address.addressMinLength") }).transform(sanitizeText),
@@ -167,7 +167,7 @@ export const checkoutSchema = z.object({
     phone: z
         .string()
         .min(1, { message: v("phone.required") })
-        .regex(/^0[35789][0-9]{8}$/, {
+        .regex(/^0[0-9]{9}$/, {
             message: v("phone.invalid"),
         }),
     address: z.string().min(10, { message: v("address.addressMinLength") }).transform(sanitizeText),
@@ -229,7 +229,7 @@ export const contactSchema = z.object({
     phone: z
         .string()
         .optional()
-        .refine((val) => !val || /^0[35789][0-9]{8}$/.test(val), {
+        .refine((val) => !val || /^0[0-9]{9}$/.test(val), {
             message: v("phone.optionalInvalid"),
         }),
     message: z

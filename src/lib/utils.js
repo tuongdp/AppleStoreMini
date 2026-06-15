@@ -147,7 +147,7 @@ export function isValidEmail(email) {
 }
 
 export function isValidPhone(phone) {
-    return /^0[35789][0-9]{8}$/.test(phone);
+    return /^0[0-9]{9}$/.test(phone);
 }
 
 export function formatPhone(phone) {
