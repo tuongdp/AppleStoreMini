@@ -162,7 +162,6 @@ export default function ProfileForm({ user }) {
                   <div
                     className="flex items-center gap-2 border-b px-3 py-2"
                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onKeyDown={(e) => { if (e.key !== "Tab") e.stopPropagation(); }}
                   >
                     <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <input
@@ -171,7 +170,7 @@ export default function ProfileForm({ user }) {
                       value={provinceSearch}
                       onChange={(e) => setProvinceSearch(e.target.value)}
                       autoComplete="off"
-                      autoFocus
+                      onKeyDown={(e) => e.stopPropagation()}
                     />
                   </div>
                   {filteredProvinces.length === 0 ? (
@@ -217,7 +216,6 @@ export default function ProfileForm({ user }) {
                   <div
                     className="flex items-center gap-2 border-b px-3 py-2"
                     onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onKeyDown={(e) => { if (e.key !== "Tab") e.stopPropagation(); }}
                   >
                     <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <input
@@ -226,7 +224,7 @@ export default function ProfileForm({ user }) {
                       value={wardSearch}
                       onChange={(e) => setWardSearch(e.target.value)}
                       autoComplete="off"
-                      autoFocus
+                      onKeyDown={(e) => e.stopPropagation()}
                     />
                   </div>
                   {filteredWards.length === 0 ? (
