@@ -304,3 +304,44 @@ test.describe("ecommerce flows", () => {
     await expect(page).toHaveURL(/\/search\?q=iphone\+pin\+trau&ai=1|\/search\?q=iphone%20pin%20trau&ai=1/);
   });
 });
+
+test.describe("VNPay PaymentResult - timeout flow", () => {
+  test("shows AWAITING state with countdown when returning without VNPay params", async ({ mockedPage: page }) => {
+    await page.evaluate(() => {
+      sessionStorage.setItem("pending_order_id", "test-order-1");
+      sessionStorage.setItem("pending_order_code", "ORD-TEST-001");
+      sessionStorage.setItem("pending_order_expires", String(Date.now() + 15 * 60 * 1000));
+      sessionStorage.setItem("order_phone", "0901234567");
+    });
+
+    await page.goto("/payment/vnpay-return");
+
+    await expect(page.locator("text=Đang chờ thanh toán")).toBeVisible();
+    await expect(page.locator("text=00:")).toBeVisible();
+  });
+
+  test("shows EXPIRED state when timeout reached", async ({ mockedPage: page }) => {
+    await page.evaluate(() => {
+      sessionStorage.setItem("pending_order_id", "test-order-1");
+      sessionStorage.setItem("pending_order_code", "ORD-TEST-001");
+      sessionStorage.setItem("pending_order_expires", String(Date.now() - 1000));
+    });
+
+    await page.goto("/payment/vnpay-return");
+
+    await expect(page.locator("text=Đơn hàng đã hết hạn")).toBeVisible();
+  });
+
+  test("Đặt lại button navigates to cart", async ({ mockedPage: page }) => {
+    await page.evaluate(() => {
+      sessionStorage.setItem("pending_order_id", "test-order-1");
+      sessionStorage.setItem("pending_order_code", "ORD-TEST-001");
+      sessionStorage.setItem("pending_order_expires", String(Date.now() - 1000));
+    });
+
+    await page.goto("/payment/vnpay-return");
+    await page.locator("text=Đặt lại").first().click();
+
+    await expect(page).toHaveURL(/\/cart/);
+  });
+});
