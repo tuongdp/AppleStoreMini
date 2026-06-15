@@ -156,7 +156,9 @@ export const addressSchema = z.object({
         .regex(/^0[0-9]{9}$/, {
             message: v("phone.invalid"),
         }),
-    address: z.string().min(10, { message: v("address.addressMinLength") }).transform(sanitizeText),
+    province: z.string().min(1, { message: "Vui lòng chọn tỉnh/thành phố" }),
+    ward: z.string().min(1, { message: "Vui lòng chọn xã/phường" }),
+    streetAddress: z.string().min(5, { message: "Số nhà, tên đường tối thiểu 5 ký tự" }).transform(sanitizeText),
     email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
     note: z.string().max(200).optional().transform((val) => (val ? sanitizeText(val) : val)),
 });
