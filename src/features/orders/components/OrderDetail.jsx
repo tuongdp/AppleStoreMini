@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Package, MapPin, CreditCard, FileText, RotateCcw, Loader2 } from "lucide-react";
+import { Package, MapPin, CreditCard, FileText, RotateCcw, Loader2, ShoppingBag, ShoppingCart } from "lucide-react";
 import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,8 @@ import {
 import { cancelOrderSchema, returnRequestSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
-import { ORDER_STATUS, RETURN_REASON_MAP } from "@/lib/constants";
+import { ORDER_STATUS, RETURN_REASON_MAP, ROUTES } from "@/lib/constants";
+import { useAddToCartFromOrder } from "@/features/cart/hooks/useAddToCartFromOrder";
 
 const PAYMENT_MAP = {
   "cod": "Thanh toán khi nhận hàng",
@@ -92,6 +94,7 @@ export default function OrderDetail({ order }) {
     const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
     const [confirmDelivered, { isLoading: isConfirming }] =
         useConfirmDeliveredMutation();
+    const handleReOrder = useAddToCartFromOrder();
 
     const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
         (order.status || "").toLowerCase(),
@@ -153,6 +156,13 @@ export default function OrderDetail({ order }) {
                                 Bạn còn {daysLeft} ngày để yêu cầu trả hàng (hết hạn {returnDeadline ? returnDeadline.toLocaleDateString("vi-VN") : ""})
                             </p>
                         )}
+                        {order.status === "CANCELLED" && order.statusHistory?.some(
+                            (h) => h.note?.includes("hết hạn thanh toán")
+                        ) && (
+                            <p className="mt-1 text-sm text-amber-600 dark:text-amber-400">
+                                Đơn hàng đã bị huỷ do hết hạn thanh toán VNPay (15 phút).
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex flex-wrap gap-2">
@@ -194,6 +204,27 @@ export default function OrderDetail({ order }) {
                             >
                                 <RotateCcw className="mr-1.5 h-4 w-4" />
                                 Yêu cầu trả hàng
+                            </Button>
+                        )}
+                        {(order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED && (
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                className="rounded-full"
+                                onClick={() => handleReOrder(order)}
+                            >
+                                <ShoppingBag className="mr-1.5 h-4 w-4" />
+                                {"Mua lại"}
+                            </Button>
+                        )}
+                        {order.status === "CANCELLED" && order.statusHistory?.some(
+                            (h) => h.note?.includes("hết hạn thanh toán")
+                        ) && (
+                            <Button size="sm" className="rounded-full" asChild>
+                                <Link to={ROUTES.CART}>
+                                    <ShoppingCart className="mr-1.5 h-4 w-4" />
+                                    Đặt lại
+                                </Link>
                             </Button>
                         )}
                         <Button

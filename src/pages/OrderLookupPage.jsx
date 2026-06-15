@@ -9,6 +9,7 @@ import {
     Truck,
     Loader2,
     AlertCircle,
+    ShoppingCart,
 } from "lucide-react";
 import { useLookupOrderQuery } from "@/store/api/ordersApi";
 import { Button } from "@/components/ui/button";
@@ -228,6 +229,13 @@ export default function OrderLookupPage() {
                                             </p>
                                         </div>
                                     </div>
+                                    {order.status === "CANCELLED" && order.statusHistory?.some(
+                                        (h) => h.note?.includes("hết hạn thanh toán")
+                                    ) && (
+                                        <p className="mt-2 text-sm text-amber-600 dark:text-amber-400">
+                                            Đơn hàng đã bị huỷ do hết hạn thanh toán VNPay (15 phút).
+                                        </p>
+                                    )}
                                 </div>
 
                                 <Separator />
@@ -313,6 +321,19 @@ export default function OrderLookupPage() {
                                             </p>
                                         </div>
                                     </>
+                                )}
+
+                                {order.status === "CANCELLED" && order.statusHistory?.some(
+                                    (h) => h.note?.includes("hết hạn thanh toán")
+                                ) && (
+                                    <div className="mt-4 pt-4 border-t">
+                                        <Button className="rounded-full px-6" asChild>
+                                            <Link to={ROUTES.CART}>
+                                                <ShoppingCart className="mr-2 h-4 w-4" />
+                                                Đặt lại
+                                            </Link>
+                                        </Button>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
