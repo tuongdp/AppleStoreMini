@@ -169,6 +169,17 @@ export default function ProfileForm({ user }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{"Xã/Phường"}</FormLabel>
+              {selectedProvince && !isLoading && (
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="pl-9"
+                    placeholder="Tìm kiếm xã/phường..."
+                    value={wardSearch}
+                    onChange={(e) => setWardSearch(e.target.value)}
+                  />
+                </div>
+              )}
               <Select
                 value={field.value}
                 onValueChange={(value) => {
@@ -187,19 +198,6 @@ export default function ProfileForm({ user }) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <div
-                    className="sticky top-0 z-10 flex items-center gap-2 border-b bg-popover px-3 py-2"
-                    onKeyDown={(e) => e.stopPropagation()}
-                  >
-                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <input
-                      className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                      placeholder="Tìm kiếm..."
-                      value={wardSearch}
-                      onChange={(e) => setWardSearch(e.target.value)}
-                      autoComplete="off"
-                    />
-                  </div>
                   {filteredWards.length === 0 ? (
                     <p className="px-3 py-2 text-sm text-muted-foreground">
                       {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
