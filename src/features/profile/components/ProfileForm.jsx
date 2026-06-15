@@ -3,13 +3,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateProfileMutation } from "@/store/api/usersApi";
 import { profileSchema } from "@/lib/validations";
+import { useGetWardsByProvinceQuery } from "@/store/api/addressApi";
 import {
   getProfileFormDefaults,
   getProfileSubmitValues,
 } from "@/features/profile/utils/profileFormValues";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -19,10 +26,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
+import provinces from "@/data/province.json";
+
+const provinceOptions = Object.values(provinces).map((p) => ({
+    code: p.code,
+    label: p.name_with_type,
+}));
 
 export default function ProfileForm({ user }) {
-  // ✅ usersApi.updateProfile đã có onQueryStarted → dispatch(updateUser(data))
-  // Không cần dispatch thêm ở đây nữa
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   const form = useForm({
@@ -30,7 +41,9 @@ export default function ProfileForm({ user }) {
     defaultValues: {
       fullName: "",
       phone: "",
-      address: "",
+      province: "",
+      ward: "",
+      streetAddress: "",
     },
   });
 
@@ -40,11 +53,17 @@ export default function ProfileForm({ user }) {
     }
   }, [user, form]);
 
+  const selectedProvince = form.watch("province");
+  const { data: wards = [] } = useGetWardsByProvinceQuery(
+      selectedProvince,
+      { skip: !selectedProvince },
+  );
+
   const onSubmit = async (values) => {
     try {
-      // ✅ updateProfile.onQueryStarted tự dispatch updateUser(data)
-      // data đã qua transformResponse → user object trực tiếp
-      await updateProfile(getProfileSubmitValues(values)).unwrap();
+      const provinceName = provinceOptions.find((p) => p.code === values.province)?.label || "";
+      const wardName = wards.find((w) => w.code === values.ward)?.name_with_type || "";
+      await updateProfile(getProfileSubmitValues(values, wardName, provinceName)).unwrap();
       toast.success("Cập nhật thông tin thành công");
     } catch {
       toast.error("Cập nhật thông tin thất bại");
@@ -101,19 +120,82 @@ export default function ProfileForm({ user }) {
             />
             <p className="text-xs text-muted-foreground">{"Email không thể thay đổi"}</p>
           </FormItem>
-
         </div>
 
         <FormField
           control={form.control}
-          name="address"
+          name="province"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{"Địa chỉ"}</FormLabel>
+              <FormLabel>{"Tỉnh/Thành phố"}</FormLabel>
+              <Select
+                value={field.value}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  form.setValue("ward", "");
+                }}
+                disabled={isLoading}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={"Chọn tỉnh/thành phố"} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {provinceOptions.map((p) => (
+                    <SelectItem key={p.code} value={p.code}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="ward"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{"Xã/Phường"}</FormLabel>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={!selectedProvince || isLoading}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      selectedProvince
+                        ? "Chọn xã/phường"
+                        : "Vui lòng chọn tỉnh/thành phố trước"
+                    } />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {wards.map((w) => (
+                    <SelectItem key={w.code} value={w.code}>
+                      {w.name_with_type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="streetAddress"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{"Số nhà, tên đường"}</FormLabel>
               <FormControl>
-                <Textarea
-                  placeholder={"Nhập địa chỉ giao hàng của bạn"}
-                  rows={3}
+                <Input
+                  placeholder={"123 Nguyễn Huệ"}
                   disabled={isLoading}
                   {...field}
                 />

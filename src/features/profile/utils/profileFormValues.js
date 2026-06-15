@@ -2,13 +2,17 @@ export function getProfileFormDefaults(user) {
   return {
     fullName: user?.fullName || "",
     phone: user?.phone || "",
-    address: user?.address || "",
+    province: "",
+    ward: "",
+    streetAddress: "",
   };
 }
 
-export function getProfileSubmitValues(values) {
+export function getProfileSubmitValues(values, wardName, provinceName) {
+  const address = `${values.streetAddress}, ${wardName || ""}, ${provinceName || ""}`;
   return {
-    ...values,
-    address: values.address || "",
+    fullName: values.fullName,
+    phone: values.phone,
+    address,
   };
 }
