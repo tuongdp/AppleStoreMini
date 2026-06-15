@@ -54,6 +54,13 @@ export default function AddressStep({ defaultData, onNext }) {
         { skip: !selectedProvince },
     );
 
+    const [provinceSearch, setProvinceSearch] = useState("");
+    const filteredProvinces = useMemo(() => {
+        if (!provinceSearch.trim()) return provinceOptions;
+        const q = provinceSearch.toLowerCase();
+        return provinceOptions.filter((p) => p.label.toLowerCase().includes(q));
+    }, [provinceSearch]);
+
     const [wardSearch, setWardSearch] = useState("");
     const filteredWards = useMemo(() => {
         if (!wardSearch.trim()) return wards;
@@ -157,6 +164,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                         field.onChange(value);
                                         form.setValue("ward", "");
                                         setWardSearch("");
+                                        setProvinceSearch("");
                                     }}
                                 >
                                     <FormControl>
@@ -165,11 +173,30 @@ export default function AddressStep({ defaultData, onNext }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {provinceOptions.map((p) => (
-                                            <SelectItem key={p.code} value={p.code}>
-                                                {p.label}
-                                            </SelectItem>
-                                        ))}
+                                        <div
+                                            className="flex items-center gap-2 border-b px-3 py-2"
+                                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                            onKeyDown={(e) => { if (e.key !== "Tab") e.stopPropagation(); }}
+                                        >
+                                            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                            <input
+                                                className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                                placeholder="Tìm kiếm..."
+                                                value={provinceSearch}
+                                                onChange={(e) => setProvinceSearch(e.target.value)}
+                                                autoComplete="off"
+                                                autoFocus
+                                            />
+                                        </div>
+                                        {filteredProvinces.length === 0 ? (
+                                            <p className="px-3 py-2 text-sm text-muted-foreground">Không tìm thấy</p>
+                                        ) : (
+                                            filteredProvinces.map((p) => (
+                                                <SelectItem key={p.code} value={p.code}>
+                                                    {p.label}
+                                                </SelectItem>
+                                            ))
+                                        )}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -183,17 +210,6 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>{"Xã/Phường"}</FormLabel>
-                                {selectedProvince && (
-                                    <div className="relative mb-2">
-                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                        <Input
-                                            className="pl-9"
-                                            placeholder="Tìm kiếm xã/phường..."
-                                            value={wardSearch}
-                                            onChange={(e) => setWardSearch(e.target.value)}
-                                        />
-                                    </div>
-                                )}
                                 <Select
                                     value={field.value}
                                     onValueChange={(value) => {
@@ -212,6 +228,21 @@ export default function AddressStep({ defaultData, onNext }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
+                                        <div
+                                            className="flex items-center gap-2 border-b px-3 py-2"
+                                            onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                            onKeyDown={(e) => { if (e.key !== "Tab") e.stopPropagation(); }}
+                                        >
+                                            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                            <input
+                                                className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                                placeholder="Tìm kiếm..."
+                                                value={wardSearch}
+                                                onChange={(e) => setWardSearch(e.target.value)}
+                                                autoComplete="off"
+                                                autoFocus
+                                            />
+                                        </div>
                                         {filteredWards.length === 0 ? (
                                             <p className="px-3 py-2 text-sm text-muted-foreground">
                                                 {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
