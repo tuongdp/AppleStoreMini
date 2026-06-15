@@ -16,7 +16,6 @@ import { combineReducers } from "@reduxjs/toolkit";
 
 import authReducer from "./authSlice";
 import cartReducer from "./cartSlice";
-import wishlistReducer from "./wishlistSlice";
 import uiReducer from "./uiSlice";
 import { baseApi } from "./api/baseApi";
 
@@ -45,7 +44,6 @@ const storage = {
 const rootReducer = combineReducers({
     auth: authReducer,
     cart: cartReducer,
-    wishlist: wishlistReducer,
     ui: uiReducer,
     [baseApi.reducerPath]: baseApi.reducer,
 });
@@ -53,7 +51,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: "apple-store",
     storage,
-    whitelist: ["auth", "cart", "wishlist"],
+    whitelist: ["auth", "cart"],
     blacklist: [baseApi.reducerPath, "ui"],
 };
 

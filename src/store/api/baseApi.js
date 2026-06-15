@@ -139,7 +139,6 @@ export const baseApi = createApi({
     "Cart",
     "Profile",
     "Addresses",
-    "Wishlist",
     "Coupons",
     "Coupon",
     "Categories",

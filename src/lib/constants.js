@@ -16,7 +16,6 @@ export const ROUTES = {
 
     // Profile
     PROFILE: "/profile",
-    WISHLIST: "/profile/wishlist",
     ORDERS: "/profile/orders",
     ORDER_DETAIL: (id) => `/profile/orders/${id}`,
     ORDER_LOOKUP: "/order-lookup",
@@ -192,7 +191,6 @@ export const PRICE_RANGES = [
 export const STORAGE_KEYS = {
     ACCESS_TOKEN: "accessToken",
     CART: "apple-store-cart",
-    WISHLIST: "apple-store-wishlist",
     THEME: "apple-store-theme",
     LANGUAGE: "apple-store-language",
 };

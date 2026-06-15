@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Heart, Lock, Coins, LogOut } from "lucide-react";
+import { User, ShoppingBag, Lock, Coins, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
@@ -23,7 +23,6 @@ const SIDEBAR_MAP = {
   settings: "Cài đặt",
   users: "Người dùng",
   profile: "Trang cá nhân",
-  wishlist: "Yêu thích",
   changePassword: "Đổi mật khẩu",
   points: "Điểm thưởng",
 };
@@ -40,12 +39,6 @@ const NAV_ITEMS = [
     href: ROUTES.ORDERS,
     icon: ShoppingBag,
     end: false,
-  },
-  {
-    key: "wishlist",
-    href: ROUTES.WISHLIST,
-    icon: Heart,
-    end: true,
   },
   {
     key: "changePassword",

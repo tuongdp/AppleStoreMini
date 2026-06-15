@@ -99,7 +99,7 @@ export default function CartTableItem({ item, isLast }) {
               className="h-full w-full object-contain"
             />
           </Link>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex flex-col justify-center">
             <Link
               to={ROUTES.PRODUCT_DETAIL(product?.slug)}
               className="line-clamp-2 text-sm font-medium text-foreground hover:text-apple-blue"
@@ -129,7 +129,7 @@ export default function CartTableItem({ item, isLast }) {
         {/* Unit price — desktop */}
         <div className="col-span-2 hidden items-center justify-center md:flex">
           <PriceDisplay
-            price={product?.price}
+            price={product?.price || variant?.price}
             salePrice={effectivePrice}
             size="sm"
           />

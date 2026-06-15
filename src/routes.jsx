@@ -36,7 +36,6 @@ const ProductListPage = lazyPage(() => import("@/pages/ProductListPage"));
 const ProductDetailPage = lazyPage(() => import("@/pages/ProductDetailPage"));
 const CartPage = lazyPage(() => import("@/pages/CartPage"));
 const SearchPage = lazyPage(() => import("@/pages/SearchPage"));
-const WishlistPage = lazyPage(() => import("@/pages/WishlistPage"));
 const AboutPage = lazyPage(() => import("@/pages/AboutPage"));
 const ContactPage = lazyPage(() => import("@/pages/ContactPage"));
 const WarrantyPage = lazyPage(() => import("@/pages/WarrantyPage"));
@@ -126,7 +125,7 @@ export const router = createBrowserRouter([
                 ),
                 children: [
                     { index: true, element: <ProfilePage /> },
-                    { path: "wishlist", element: <WishlistPage /> },
+                    { path: "wishlist", element: <Navigate to="/profile" replace /> },
                     { path: "orders", element: <OrderHistoryPage /> },
                     { path: "orders/:id", element: <OrderDetailPage /> },
                     { path: "change-password", element: <ChangePasswordPage /> },

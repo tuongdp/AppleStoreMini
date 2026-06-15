@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Star, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Star, CheckCircle2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import OrderStatusBadge from "./OrderStatusBadge";
@@ -10,6 +10,7 @@ import { formatPrice, formatDateTime, parseJsonField } from "@/lib/utils";
 import { ROUTES, ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
+import { useAddToCartFromOrder } from "@/features/cart/hooks/useAddToCartFromOrder";
 
 const isValidId = (value) =>
     value !== undefined &&
@@ -71,6 +72,8 @@ export default function OrderCard({ order }) {
     // Track sản phẩm đã bình luận trong session
     // key: productId, value: comment data đã submit (hoặc true nếu không có data)
     const [commentedMap, setCommentedMap] = useState({});
+
+    const handleReOrder = useAddToCartFromOrder();
 
     const { data: settings } = useGetPublicSettingsQuery();
     const returnWindowDays = settings?.returnPolicy?.windowDays ?? 7;
@@ -277,17 +280,30 @@ export default function OrderCard({ order }) {
                             {formatPrice(order.totalAmount)}
                         </span>
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full"
-                        asChild
-                    >
-                        <Link to={ROUTES.ORDER_DETAIL(order._id || order.id)}>
-                            {"Thông tin đơn hàng"}
-                            <ChevronRight className="ml-1 h-3.5 w-3.5" />
-                        </Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {isDelivered && (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={() => handleReOrder(order)}
+                            >
+                                <ShoppingBag className="mr-1 h-3.5 w-3.5" />
+                                {"Mua lại"}
+                            </Button>
+                        )}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-full"
+                            asChild
+                        >
+                            <Link to={ROUTES.ORDER_DETAIL(order._id || order.id)}>
+                                {"Thông tin đơn hàng"}
+                                <ChevronRight className="ml-1 h-3.5 w-3.5" />
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
             </div>
 

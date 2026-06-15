@@ -1,11 +1,10 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
-import { Heart, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleAuthModal, toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
@@ -54,9 +53,6 @@ function ProductCard({ product }) {
     const navigate = useNavigate();
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isInWishlist = useSelector(
-        selectIsInWishlist(product._id || product.id),
-    );
 
     const [addToCartApi] = useAddToCartMutation();
 
@@ -77,15 +73,6 @@ function ProductCard({ product }) {
     const marketingBadge = getProductMarketingBadge(product);
     const variantSummary = getVariantSummary(product);
     const productDetailHref = getProductDetailHref(product);
-
-    const handleToggleWishlist = (e) => {
-        e.preventDefault();
-        if (!isAuthenticated) {
-            dispatch(toggleAuthModal(true));
-            return;
-        }
-        dispatch(toggleWishlist(product));
-    };
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -183,24 +170,6 @@ function ProductCard({ product }) {
                             </Badge>
                         )}
                     </div>
-
-                    {/* Wishlist button */}
-                    <button
-                        type="button"
-                        onClick={handleToggleWishlist}
-                        className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/85 opacity-100 backdrop-blur-sm transition-[opacity,transform] hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 md:h-7 md:w-7 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
-                        aria-label="Thêm vào yêu thích"
-                        data-testid="wishlist-toggle"
-                    >
-                        <Heart
-                            className={cn(
-                                "h-3.5 w-3.5 transition-colors",
-                                isInWishlist
-                                    ? "fill-red-500 text-red-500"
-                                    : "text-muted-foreground",
-                            )}
-                        />
-                    </button>
 
                     {/* Hover action buttons */}
                     {!isOutOfStock && (

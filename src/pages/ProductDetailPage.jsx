@@ -3,12 +3,10 @@ import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux";
 import {
     ShoppingCart,
-    Heart,
 } from "lucide-react";
 import { useGetProductBySlugQuery, useIncrementVariantViewMutation } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
 import { addToCart } from "@/store/cartSlice";
-import { toggleWishlist, selectIsInWishlist } from "@/store/wishlistSlice";
 import { toggleCartDrawer, toggleAuthModal } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
@@ -146,7 +144,6 @@ export default function ProductDetailPage() {
     }, [selectedVariant, product]);
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isInWishlist = useSelector(selectIsInWishlist(product?.id));
 
     const [quantity, setQuantity] = useState(1);
     const [addToCartApi, { isLoading: isAddingToCart }] = useAddToCartMutation();
@@ -216,14 +213,6 @@ export default function ProductDetailPage() {
             try { await addToCartApi({ variantId: selectedVariant.id, quantity }).unwrap(); } catch {}
         }
         navigate(ROUTES.CHECKOUT);
-    };
-
-    const handleToggleWishlist = () => {
-        if (!isAuthenticated) {
-            dispatch(toggleAuthModal(true));
-            return;
-        }
-        dispatch(toggleWishlist(product));
     };
 
     if (isLoading) return <ProductDetailSkeleton />;
@@ -563,20 +552,6 @@ export default function ProductDetailPage() {
                         >
                             <ShoppingCart className="h-5 w-5" />
                             {"Thêm vào giỏ hàng"}
-                        </Button>
-                        <Button
-                            size="lg"
-                            variant="outline"
-                            className="rounded-full"
-                            onClick={handleToggleWishlist}
-                            aria-label={isInWishlist ? "Bỏ khỏi yêu thích" : "Thêm vào yêu thích"}
-                        >
-                            <Heart
-                                className={cn(
-                                    "h-5 w-5",
-                                    isInWishlist && "fill-red-500 text-red-500",
-                                )}
-                            />
                         </Button>
                     </div>
 

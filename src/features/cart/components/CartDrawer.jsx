@@ -11,7 +11,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import CartDrawerItem from "./CartDrawerItem";
 import CartDrawerSummary from "./CartDrawerSummary";
 import CartEmpty from "./CartEmpty";
+import GuestCartWarning from "./GuestCartWarning";
 import { selectCartItems, selectCartCount, selectAllCartItems, isCartItemSelected } from "@/store/cartSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
 import { toggleCartDrawer, selectCartDrawerOpen } from "@/store/uiSlice";
 
 export default function CartDrawer() {
@@ -19,6 +21,7 @@ export default function CartDrawer() {
   const isOpen = useSelector(selectCartDrawerOpen);
   const items = useSelector(selectCartItems);
   const count = useSelector(selectCartCount);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const allSelected = items.length > 0 && items.every(isCartItemSelected);
   const someSelected = items.some(isCartItemSelected);
@@ -74,6 +77,9 @@ export default function CartDrawer() {
           )}
         </div>
 
+        {items.length > 0 && !isAuthenticated && (
+          <GuestCartWarning />
+        )}
         {items.length > 0 && <CartDrawerSummary />}
       </SheetContent>
     </Sheet>

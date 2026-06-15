@@ -10,13 +10,6 @@ test("profile layout marks private profile routes noindex", () => {
   assert.match(source, /<SeoHead title=\{currentLabel\} url=\{pathname\} noindex \/>/);
 });
 
-test("wishlist empty state uses customer-facing Vietnamese copy", () => {
-  const source = read("src/pages/WishlistPage.jsx");
-
-  assert.match(source, /Chưa có sản phẩm yêu thích/);
-  assert.doesNotMatch(source, /title=\{"wishlist"\}/);
-});
-
 test("change password visibility buttons are keyboard accessible", () => {
   const source = read("src/features/profile/components/ChangePasswordForm.jsx");
 

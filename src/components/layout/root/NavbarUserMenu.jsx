@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { User, Package, Heart, Settings, LogOut, LogIn } from "lucide-react";
+import { User, Package, Settings, LogOut, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -112,16 +112,6 @@ export default function NavbarUserMenu() {
                     >
                         <Package className="h-4 w-4" />
                         {"Đơn hàng"}
-                    </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                    <Link
-                        to={ROUTES.WISHLIST}
-                        className="flex items-center gap-2"
-                    >
-                        <Heart className="h-4 w-4" />
-                        {"Yêu thích"}
                     </Link>
                 </DropdownMenuItem>
 
