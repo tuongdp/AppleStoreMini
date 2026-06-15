@@ -201,29 +201,30 @@ export default function AddressStep({ defaultData, onNext }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <div className="flex items-center border-b px-3 py-2">
-                                            <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                                        <div
+                                            className="sticky top-0 z-10 flex items-center gap-2 border-b bg-popover px-3 py-2"
+                                            onKeyDown={(e) => e.stopPropagation()}
+                                        >
+                                            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                                             <input
-                                                className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                                className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                                                 placeholder="Tìm kiếm..."
                                                 value={wardSearch}
                                                 onChange={(e) => setWardSearch(e.target.value)}
-                                                onKeyDown={(e) => e.stopPropagation()}
+                                                autoComplete="off"
                                             />
                                         </div>
-                                        <div className="max-h-60 overflow-auto">
-                                            {filteredWards.length === 0 ? (
-                                                <p className="px-3 py-2 text-sm text-muted-foreground">
-                                                    {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
-                                                </p>
-                                            ) : (
-                                                filteredWards.map((w) => (
-                                                    <SelectItem key={w.code} value={w.code}>
-                                                        {w.name_with_type}
-                                                    </SelectItem>
-                                                ))
-                                            )}
-                                        </div>
+                                        {filteredWards.length === 0 ? (
+                                            <p className="px-3 py-2 text-sm text-muted-foreground">
+                                                {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
+                                            </p>
+                                        ) : (
+                                            filteredWards.map((w) => (
+                                                <SelectItem key={w.code} value={w.code}>
+                                                    {w.name_with_type}
+                                                </SelectItem>
+                                            ))
+                                        )}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
