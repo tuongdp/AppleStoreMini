@@ -3,9 +3,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
 import { addressSchema } from "@/lib/validations";
 import { selectCurrentUser, selectIsAuthenticated } from "@/store/authSlice";
+import { useGetWardsByProvinceQuery } from "@/store/api/addressApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import {
     Form,
     FormControl,
@@ -14,6 +22,12 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import provinces from "@/data/province.json";
+
+const provinceOptions = Object.values(provinces).map((p) => ({
+    code: p.code,
+    label: p.name_with_type,
+}));
 
 export default function AddressStep({ defaultData, onNext }) {
     const user = useSelector(selectCurrentUser);
@@ -24,15 +38,29 @@ export default function AddressStep({ defaultData, onNext }) {
         defaultValues: {
             fullName: defaultData?.fullName || user?.fullName || "",
             phone: defaultData?.phone || user?.phone || "",
-            address: defaultData?.address || "",
+            province: defaultData?.province || "",
+            ward: defaultData?.ward || "",
+            streetAddress: defaultData?.streetAddress || "",
             email: defaultData?.email || user?.email || "",
             note: defaultData?.note || "",
         },
     });
 
+    const selectedProvince = form.watch("province");
+    const { data: wards = [] } = useGetWardsByProvinceQuery(
+        selectedProvince,
+        { skip: !selectedProvince },
+    );
+
     const handleNext = () => {
         form.handleSubmit((values) => {
-            onNext(values);
+            const provinceName = provinceOptions.find((p) => p.code === values.province)?.label || "";
+            const wardName = wards.find((w) => w.code === values.ward)?.name_with_type || "";
+            const address = `${values.streetAddress}, ${wardName}, ${provinceName}`;
+            onNext({
+                ...values,
+                address,
+            });
         })();
     };
 
@@ -110,17 +138,78 @@ export default function AddressStep({ defaultData, onNext }) {
 
                     <FormField
                         control={form.control}
-                        name="address"
+                        name="province"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>
-                                    {"Địa chỉ"}
-                                </FormLabel>
+                                <FormLabel>{"Tỉnh/Thành phố"}</FormLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        form.setValue("ward", "");
+                                    }}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger data-testid="checkout-province">
+                                            <SelectValue placeholder={"Chọn tỉnh/thành phố"} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {provinceOptions.map((p) => (
+                                            <SelectItem key={p.code} value={p.code}>
+                                                {p.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="ward"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{"Xã/Phường"}</FormLabel>
+                                <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    disabled={!selectedProvince}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger data-testid="checkout-ward">
+                                            <SelectValue placeholder={
+                                                selectedProvince
+                                                    ? "Chọn xã/phường"
+                                                    : "Vui lòng chọn tỉnh/thành phố trước"
+                                            } />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {wards.map((w) => (
+                                            <SelectItem key={w.code} value={w.code}>
+                                                {w.name_with_type}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="streetAddress"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{"Số nhà, tên đường"}</FormLabel>
                                 <FormControl>
-                                    <Textarea
-                                        placeholder={"Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố"}
-                                        rows={3}
-                                        data-testid="checkout-address"
+                                    <Input
+                                        placeholder={"123 Nguyễn Huệ"}
+                                        data-testid="checkout-street-address"
                                         {...field}
                                     />
                                 </FormControl>
