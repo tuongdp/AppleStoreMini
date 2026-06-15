@@ -1,4 +1,3 @@
-import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
@@ -9,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import {
     Form,
     FormControl,
     FormField,
@@ -23,7 +15,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { Search } from "lucide-react";
+import SearchableSelect from "@/components/ui/searchable-select";
 import provinces from "@/data/province.json";
 
 const provinceOptions = Object.values(provinces).map((p) => ({
@@ -54,24 +46,12 @@ export default function AddressStep({ defaultData, onNext }) {
         { skip: !selectedProvince },
     );
 
-    const [provinceSearch, setProvinceSearch] = useState("");
-    const filteredProvinces = useMemo(() => {
-        if (!provinceSearch.trim()) return provinceOptions;
-        const q = provinceSearch.toLowerCase();
-        return provinceOptions.filter((p) => p.label.toLowerCase().includes(q));
-    }, [provinceSearch]);
-
-    const [wardSearch, setWardSearch] = useState("");
-    const filteredWards = useMemo(() => {
-        if (!wardSearch.trim()) return wards;
-        const q = wardSearch.toLowerCase();
-        return wards.filter((w) => w.name_with_type.toLowerCase().includes(q));
-    }, [wards, wardSearch]);
+    const wardOptions = wards.map((w) => ({ code: w.code, label: w.name_with_type }));
 
     const handleNext = () => {
         form.handleSubmit((values) => {
             const provinceName = provinceOptions.find((p) => p.code === values.province)?.label || "";
-            const wardName = wards.find((w) => w.code === values.ward)?.name_with_type || "";
+            const wardName = wardOptions.find((w) => w.code === values.ward)?.label || "";
             const address = `${values.streetAddress}, ${wardName}, ${provinceName}`;
             onNext({
                 ...values,
@@ -158,41 +138,16 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>{"Tỉnh/Thành phố"}</FormLabel>
-                                <div className="relative mb-2">
-                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                    <Input
-                                        className="pl-9"
-                                        placeholder="Tìm kiếm tỉnh/thành phố..."
-                                        value={provinceSearch}
-                                        onChange={(e) => setProvinceSearch(e.target.value)}
-                                    />
-                                </div>
-                                <Select
+                                <SearchableSelect
+                                    options={provinceOptions}
                                     value={field.value}
-                                    onValueChange={(value) => {
+                                    onChange={(value) => {
                                         field.onChange(value);
                                         form.setValue("ward", "");
-                                        setWardSearch("");
-                                        setProvinceSearch("");
                                     }}
-                                >
-                                    <FormControl>
-                                        <SelectTrigger data-testid="checkout-province">
-                                            <SelectValue placeholder={"Chọn tỉnh/thành phố"} />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {filteredProvinces.length === 0 ? (
-                                            <p className="px-3 py-2 text-sm text-muted-foreground">Không tìm thấy</p>
-                                        ) : (
-                                            filteredProvinces.map((p) => (
-                                                <SelectItem key={p.code} value={p.code}>
-                                                    {p.label}
-                                                </SelectItem>
-                                            ))
-                                        )}
-                                    </SelectContent>
-                                </Select>
+                                    placeholder="Chọn tỉnh/thành phố"
+                                    data-testid="checkout-province"
+                                />
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -204,48 +159,15 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>{"Xã/Phường"}</FormLabel>
-                                {selectedProvince && (
-                                    <div className="relative mb-2">
-                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                                        <Input
-                                            className="pl-9"
-                                            placeholder="Tìm kiếm xã/phường..."
-                                            value={wardSearch}
-                                            onChange={(e) => setWardSearch(e.target.value)}
-                                        />
-                                    </div>
-                                )}
-                                <Select
+                                <SearchableSelect
+                                    options={wardOptions}
                                     value={field.value}
-                                    onValueChange={(value) => {
-                                        field.onChange(value);
-                                        setWardSearch("");
-                                    }}
+                                    onChange={field.onChange}
+                                    placeholder={selectedProvince ? "Chọn xã/phường" : "Vui lòng chọn tỉnh/thành phố trước"}
                                     disabled={!selectedProvince}
-                                >
-                                    <FormControl>
-                                        <SelectTrigger data-testid="checkout-ward">
-                                            <SelectValue placeholder={
-                                                selectedProvince
-                                                    ? "Chọn xã/phường"
-                                                    : "Vui lòng chọn tỉnh/thành phố trước"
-                                            } />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {filteredWards.length === 0 ? (
-                                            <p className="px-3 py-2 text-sm text-muted-foreground">
-                                                {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
-                                            </p>
-                                        ) : (
-                                            filteredWards.map((w) => (
-                                                <SelectItem key={w.code} value={w.code}>
-                                                    {w.name_with_type}
-                                                </SelectItem>
-                                            ))
-                                        )}
-                                    </SelectContent>
-                                </Select>
+                                    emptyText="Không có dữ liệu"
+                                    data-testid="checkout-ward"
+                                />
                                 <FormMessage />
                             </FormItem>
                         )}
