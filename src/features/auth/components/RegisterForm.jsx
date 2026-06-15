@@ -133,7 +133,7 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="fullName" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Họ và tên</FormLabel>
+                            <FormLabel>Họ và tên<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input placeholder="Nhập họ và tên" autoComplete="name" disabled={isRegisterLoading} data-testid="register-full-name" {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
@@ -141,7 +141,7 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="email" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>Email<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input type="email" placeholder="Nhập địa chỉ email" autoComplete="email" disabled={isRegisterLoading || isCheckingEmail} data-testid="register-email" {...field} onChange={(e) => { field.onChange(e); setEmailCheck(null); }} onBlur={(e) => { field.onBlur(); handleEmailBlur(e.target.value); }} /></FormControl>
                             <FormMessage />
                         </FormItem>
@@ -158,7 +158,7 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="phone" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Số điện thoại</FormLabel>
+                            <FormLabel>Số điện thoại<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input type="tel" placeholder="Nhập số điện thoại" autoComplete="tel" disabled={isRegisterLoading} data-testid="register-phone" {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
@@ -166,7 +166,7 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="password" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Mật khẩu</FormLabel>
+                            <FormLabel>Mật khẩu<span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                                 <div className="relative">
                                     <Input type={showPassword ? "text" : "password"} placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" disabled={isRegisterLoading} className="pr-10" data-testid="register-password" {...field} />
@@ -187,7 +187,7 @@ export default function RegisterForm() {
 
                     <FormField control={form.control} name="confirmPassword" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Xác nhận mật khẩu</FormLabel>
+                            <FormLabel>Xác nhận mật khẩu<span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                                 <div className="relative">
                                     <Input type={showConfirmPassword ? "text" : "password"} placeholder="Nhập lại mật khẩu" autoComplete="new-password" disabled={isRegisterLoading} className="pr-10" data-testid="register-confirm-password" {...field} />

@@ -66,7 +66,7 @@ export default function ResetPasswordForm() {
 
                     <FormField control={form.control} name="code" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Mã xác nhận</FormLabel>
+                            <FormLabel>Mã xác nhận<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input maxLength={6} placeholder="000000" className="text-center text-lg tracking-[0.5em]" autoComplete="off" disabled={isLoading} {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
@@ -74,7 +74,7 @@ export default function ResetPasswordForm() {
 
                     <FormField control={form.control} name="password" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Mật khẩu mới</FormLabel>
+                            <FormLabel>Mật khẩu mới<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input type="password" placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" disabled={isLoading} {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
@@ -82,7 +82,7 @@ export default function ResetPasswordForm() {
 
                     <FormField control={form.control} name="confirmPassword" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Xác nhận mật khẩu</FormLabel>
+                            <FormLabel>Xác nhận mật khẩu<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input type="password" placeholder="Nhập lại mật khẩu mới" autoComplete="new-password" disabled={isLoading} {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>

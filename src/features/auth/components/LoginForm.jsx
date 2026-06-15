@@ -115,7 +115,7 @@ export default function LoginForm() {
                         name="email"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{"Email"}</FormLabel>
+                                <FormLabel>{"Email"}<span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
                                     <Input
                                         type="email"
@@ -137,7 +137,7 @@ export default function LoginForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <div className="flex items-center justify-between">
-                                    <FormLabel>{"Mật khẩu"}</FormLabel>
+                                    <FormLabel>{"Mật khẩu"}<span className="text-destructive">*</span></FormLabel>
                                     <Link
                                         to={ROUTES.FORGOT_PASSWORD}
                                         className="text-xs text-apple-blue hover:opacity-70"

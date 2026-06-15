@@ -84,7 +84,7 @@ export default function ForgotPasswordForm() {
 
                         <FormField control={resetForm.control} name="code" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Mã xác nhận</FormLabel>
+                                <FormLabel>Mã xác nhận<span className="text-destructive">*</span></FormLabel>
                                 <FormControl><Input maxLength={6} placeholder="000000" className="text-center text-lg tracking-[0.5em]" autoComplete="off" disabled={isResetting} {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -92,7 +92,7 @@ export default function ForgotPasswordForm() {
 
                         <FormField control={resetForm.control} name="password" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Mật khẩu mới</FormLabel>
+                                <FormLabel>Mật khẩu mới<span className="text-destructive">*</span></FormLabel>
                                 <FormControl><Input type="password" placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" disabled={isResetting} {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -100,7 +100,7 @@ export default function ForgotPasswordForm() {
 
                         <FormField control={resetForm.control} name="confirmPassword" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Xác nhận mật khẩu mới</FormLabel>
+                                <FormLabel>Xác nhận mật khẩu mới<span className="text-destructive">*</span></FormLabel>
                                 <FormControl><Input type="password" placeholder="Nhập lại mật khẩu mới" autoComplete="new-password" disabled={isResetting} {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -130,7 +130,7 @@ export default function ForgotPasswordForm() {
                     {serverError && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</div>}
                     <FormField control={emailForm.control} name="email" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>Email<span className="text-destructive">*</span></FormLabel>
                             <FormControl><Input type="email" placeholder="Nhập địa chỉ email" autoComplete="email" disabled={isLoading} {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>

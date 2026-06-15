@@ -75,7 +75,7 @@ export default function AddressStep({ defaultData, onNext }) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        {"Họ và tên"}
+                                        {"Họ và tên"}<span className="text-destructive">*</span>
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -94,7 +94,7 @@ export default function AddressStep({ defaultData, onNext }) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>
-                                        {"Số điện thoại"}
+                                        {"Số điện thoại"}<span className="text-destructive">*</span>
                                     </FormLabel>
                                     <FormControl>
                                         <Input
@@ -137,7 +137,7 @@ export default function AddressStep({ defaultData, onNext }) {
                         name="province"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{"Tỉnh/Thành phố"}</FormLabel>
+                                <FormLabel>{"Tỉnh/Thành phố"}<span className="text-destructive">*</span></FormLabel>
                                 <SearchableSelect
                                     options={provinceOptions}
                                     value={field.value}
@@ -158,7 +158,7 @@ export default function AddressStep({ defaultData, onNext }) {
                         name="ward"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{"Xã/Phường"}</FormLabel>
+                                <FormLabel>{"Xã/Phường"}<span className="text-destructive">*</span></FormLabel>
                                 <SearchableSelect
                                     options={wardOptions}
                                     value={field.value}
@@ -178,7 +178,7 @@ export default function AddressStep({ defaultData, onNext }) {
                         name="streetAddress"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>{"Số nhà, tên đường"}</FormLabel>
+                                <FormLabel>{"Số nhà, tên đường"}<span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
                                     <Input
                                         placeholder={"123 Nguyễn Huệ"}

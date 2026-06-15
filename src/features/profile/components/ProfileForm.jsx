@@ -74,7 +74,7 @@ export default function ProfileForm({ user }) {
             name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{"Họ và tên"}</FormLabel>
+                <FormLabel>{"Họ và tên"}<span className="text-destructive">*</span></FormLabel>
                 <FormControl>
                   <Input
                     placeholder={"Nhập họ và tên"}
@@ -92,7 +92,7 @@ export default function ProfileForm({ user }) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{"Số điện thoại"}</FormLabel>
+                <FormLabel>{"Số điện thoại"}<span className="text-destructive">*</span></FormLabel>
                 <FormControl>
                   <Input
                     type="tel"
@@ -122,7 +122,7 @@ export default function ProfileForm({ user }) {
           name="province"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{"Tỉnh/Thành phố"}</FormLabel>
+              <FormLabel>{"Tỉnh/Thành phố"}<span className="text-destructive">*</span></FormLabel>
               <SearchableSelect
                 options={provinceOptions}
                 value={field.value}
@@ -143,7 +143,7 @@ export default function ProfileForm({ user }) {
           name="ward"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{"Xã/Phường"}</FormLabel>
+              <FormLabel>{"Xã/Phường"}<span className="text-destructive">*</span></FormLabel>
               <SearchableSelect
                 options={wardOptions}
                 value={field.value}
@@ -162,7 +162,7 @@ export default function ProfileForm({ user }) {
           name="streetAddress"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{"Số nhà, tên đường"}</FormLabel>
+              <FormLabel>{"Số nhà, tên đường"}<span className="text-destructive">*</span></FormLabel>
               <FormControl>
                 <Input
                   placeholder={"123 Nguyễn Huệ"}
