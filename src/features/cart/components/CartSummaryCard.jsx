@@ -6,10 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import CouponInput from "@/features/checkout/components/CouponInput";
 import { selectCartSelectedItems, selectCartSelectedStockIssues, selectCartSelectedTotal } from "@/store/cartSlice";
+import { selectIsAuthenticated } from "@/store/authSlice";
 import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function CartSummaryCard() {
+    const isAuthenticated = useSelector(selectIsAuthenticated);
     const total = useSelector(selectCartSelectedTotal);
     const selectedItems = useSelector(selectCartSelectedItems);
     const stockIssues = useSelector(selectCartSelectedStockIssues);
@@ -74,6 +76,7 @@ export default function CartSummaryCard() {
                         appliedCoupon={appliedCoupon}
                         onApply={handleApplyCoupon}
                         onRemove={handleRemoveCoupon}
+                        isAuthenticated={isAuthenticated}
                     />
                 </div>
 

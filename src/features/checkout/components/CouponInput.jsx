@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Tag, X, CheckCircle2, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Tag, X, CheckCircle2, Loader2, LogIn } from "lucide-react";
 import { useApplyCouponMutation } from "@/store/api/couponsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatPrice } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants";
 
 const getCouponErrorMessage = (err) => {
     const message = err?.data?.message || err?.error;
@@ -17,6 +19,7 @@ export default function CouponInput({
     onApply,
     onRemove,
     appliedCoupon,
+    isAuthenticated = false,
 }) {
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
@@ -82,6 +85,23 @@ export default function CouponInput({
                 >
                     <X className="h-4 w-4" />
                 </Button>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-muted/30 px-4 py-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <LogIn className="h-4 w-4 shrink-0" />
+                    <span>
+                        Vui lòng{" "}
+                        <Link to={ROUTES.LOGIN} className="font-medium text-primary underline underline-offset-2 hover:text-primary/80">
+                            đăng nhập
+                        </Link>{" "}
+                        để sử dụng mã giảm giá
+                    </span>
+                </div>
             </div>
         );
     }

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "demo:start": "powershell -ExecutionPolicy Bypass -File scripts/start-demo.ps1",
+    "demo:stop": "powershell -ExecutionPolicy Bypass -File scripts/stop-demo.ps1",
     "build": "vite build && node scripts/prerender.cjs",
     "lint": "eslint .",
     "preview": "vite preview",

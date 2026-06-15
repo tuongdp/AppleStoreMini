@@ -36,6 +36,7 @@ export default function CheckoutPage() {
         isLoading,
         isPaying,
         appliedCoupon,
+        isAuthenticated,
         handleAddressNext,
         handlePaymentNext,
         handlePlaceOrder,
@@ -184,6 +185,7 @@ export default function CheckoutPage() {
                                 appliedCoupon={appliedCoupon}
                                 onApply={handleApplyCoupon}
                                 onRemove={handleRemoveCoupon}
+                                isAuthenticated={isAuthenticated}
                             />
                         </div>
 
