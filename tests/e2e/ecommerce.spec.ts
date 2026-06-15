@@ -46,11 +46,13 @@ async function seedCheckoutState(page, { authenticated = false } = {}) {
 
 async function fillCheckoutAddress(page) {
   await page.getByTestId("checkout-full-name").fill("Nguyen Van Test");
-  await page.getByTestId("checkout-phone").fill("0900000000");
+  await page.getByTestId("checkout-phone").fill("0901234567");
   await page.getByTestId("checkout-email").fill("checkout@example.com");
-  await page.getByTestId("checkout-address").fill("123 Nguyen Hue, Quan 1, TP.HCM");
-  await page.getByTestId("checkout-note").fill("Giao trong gio hanh chinh");
-  await page.getByTestId("checkout-address-next").click();
+  await page.getByTestId("checkout-province").click();
+  await page.getByRole("option", { name: /Hồ Chí Minh/ }).click();
+  await page.getByTestId("checkout-ward").click();
+  await page.getByRole("option", { name: /Xóm Chiếu/ }).click();
+  await page.getByTestId("checkout-street-address").fill("123 Nguyễn Huệ");
 }
 
 test.describe("ecommerce flows", () => {
@@ -189,16 +191,18 @@ test.describe("ecommerce flows", () => {
     await expect(page.getByTestId("wishlist-toggle").first()).toBeVisible();
   });
 
-  test("guest checkout supports coupon and COD order creation", async ({ mockedPage: page }) => {
+  test("guest checkout shows login prompt for coupon and creates COD order", async ({ mockedPage: page }) => {
     await seedCheckoutState(page);
     const orderRequestPromise = page.waitForRequest((request) =>
       request.method() === "POST" && request.url().includes("/api/orders"),
     );
 
     await page.goto("/checkout", { waitUntil: "domcontentloaded" });
-    await page.getByTestId("coupon-code-input").fill("SUMMER2024");
-    await page.getByTestId("coupon-apply-button").click();
-    await expect(page.getByText("SUMMER2024", { exact: true })).toBeVisible();
+
+    // Guest should not see coupon input, instead see login prompt
+    await expect(page.getByTestId("coupon-code-input")).not.toBeVisible();
+    await expect(page.getByText("đăng nhập")).toBeVisible();
+    await expect(page.getByText("để sử dụng mã giảm giá")).toBeVisible();
 
     await fillCheckoutAddress(page);
     await page.getByTestId("payment-method-cod").click();
@@ -207,11 +211,13 @@ test.describe("ecommerce flows", () => {
 
     const orderBody = orderRequestPromise.then((request) => request.postDataJSON());
     await expect(page.getByText(/ORD-CHECKOUT-E2E/)).toBeVisible();
+    // Guest order should NOT have a coupon
     await expect(orderBody).resolves.toMatchObject({
       paymentMethod: "cod",
-      couponCode: "SUMMER2024",
       usePoints: false,
     });
+    const body = await orderBody;
+    expect(body.couponCode).toBeUndefined();
   });
 
   test("authenticated checkout supports coupon, points, and VNPay redirect", async ({ mockedPage: page }) => {

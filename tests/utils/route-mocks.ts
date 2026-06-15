@@ -187,6 +187,21 @@ export async function mockApi(page: Page) {
       return;
     }
 
+    // ─── ADDRESS (WARDS) ──────────────────────────────────
+    if (path === "/address/wards") {
+      const url = new URL(route.request().url());
+      const provinceCode = url.searchParams.get("provinceCode") || "12";
+      const mockWards = [
+        { code: "524", name: "Xóm Chiếu", type: "phuong", slug: "xom-chieu", name_with_type: "Phường Xóm Chiếu", parent_code: provinceCode },
+        { code: "780", name: "Vĩnh Hội", type: "phuong", slug: "vinh-hoi", name_with_type: "Phường Vĩnh Hội", parent_code: provinceCode },
+        { code: "1036", name: "Khánh Hội", type: "phuong", slug: "khanh-hoi", name_with_type: "Phường Khánh Hội", parent_code: provinceCode },
+        { code: "1292", name: "Bình Chánh", type: "xa", slug: "binh-chanh", name_with_type: "Xã Bình Chánh", parent_code: provinceCode },
+        { code: "1548", name: "Vĩnh Lộc", type: "xa", slug: "vinh-loc", name_with_type: "Xã Vĩnh Lộc", parent_code: provinceCode },
+      ];
+      await route.fulfill(json(apiEnvelope(mockWards)));
+      return;
+    }
+
     // ─── PAYMENT ──────────────────────────────────
     if (path === "/payment/create" || /^\/payment\/[^/]+\/create$/.test(path) || /^\/orders\/[^/]+\/payment$/.test(path)) {
       await route.fulfill(json(apiEnvelope({ paymentUrl: "/payment/success?order=test" })));
