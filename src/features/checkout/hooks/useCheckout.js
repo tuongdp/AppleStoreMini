@@ -76,6 +76,8 @@ export function useCheckout() {
         try {
             const result = await createPayment(orderId).unwrap();
             if (result?.paymentUrl) {
+                sessionStorage.setItem("pending_order_id", orderId);
+                sessionStorage.setItem("pending_order_expires", String(Date.now() + 15 * 60 * 1000));
                 window.location.href = result.paymentUrl;
                 return true;
             }
@@ -126,6 +128,7 @@ export function useCheckout() {
 
             // Store phone for order lookup after VNPay redirect
             sessionStorage.setItem("order_phone", checkoutData.phone);
+            sessionStorage.setItem("pending_order_code", order.code);
 
             if (checkoutData.paymentMethod === PAYMENT_METHODS.VNPAY) {
                 const redirected = await handleOnlinePayment(order.id);
