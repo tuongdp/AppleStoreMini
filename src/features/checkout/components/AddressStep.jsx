@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
@@ -22,6 +23,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import { Search } from "lucide-react";
 import provinces from "@/data/province.json";
 
 const provinceOptions = Object.values(provinces).map((p) => ({
@@ -51,6 +53,13 @@ export default function AddressStep({ defaultData, onNext }) {
         selectedProvince,
         { skip: !selectedProvince },
     );
+
+    const [wardSearch, setWardSearch] = useState("");
+    const filteredWards = useMemo(() => {
+        if (!wardSearch.trim()) return wards;
+        const q = wardSearch.toLowerCase();
+        return wards.filter((w) => w.name_with_type.toLowerCase().includes(q));
+    }, [wards, wardSearch]);
 
     const handleNext = () => {
         form.handleSubmit((values) => {
@@ -147,6 +156,7 @@ export default function AddressStep({ defaultData, onNext }) {
                                     onValueChange={(value) => {
                                         field.onChange(value);
                                         form.setValue("ward", "");
+                                        setWardSearch("");
                                     }}
                                 >
                                     <FormControl>
@@ -175,7 +185,10 @@ export default function AddressStep({ defaultData, onNext }) {
                                 <FormLabel>{"Xã/Phường"}</FormLabel>
                                 <Select
                                     value={field.value}
-                                    onValueChange={field.onChange}
+                                    onValueChange={(value) => {
+                                        field.onChange(value);
+                                        setWardSearch("");
+                                    }}
                                     disabled={!selectedProvince}
                                 >
                                     <FormControl>
@@ -188,11 +201,29 @@ export default function AddressStep({ defaultData, onNext }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {wards.map((w) => (
-                                            <SelectItem key={w.code} value={w.code}>
-                                                {w.name_with_type}
-                                            </SelectItem>
-                                        ))}
+                                        <div className="flex items-center border-b px-3 py-2">
+                                            <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                                            <input
+                                                className="flex h-8 w-full rounded-md bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                                                placeholder="Tìm kiếm..."
+                                                value={wardSearch}
+                                                onChange={(e) => setWardSearch(e.target.value)}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                            />
+                                        </div>
+                                        <div className="max-h-60 overflow-auto">
+                                            {filteredWards.length === 0 ? (
+                                                <p className="px-3 py-2 text-sm text-muted-foreground">
+                                                    {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
+                                                </p>
+                                            ) : (
+                                                filteredWards.map((w) => (
+                                                    <SelectItem key={w.code} value={w.code}>
+                                                        {w.name_with_type}
+                                                    </SelectItem>
+                                                ))
+                                            )}
+                                        </div>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
