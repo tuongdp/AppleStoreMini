@@ -158,6 +158,15 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>{"Tỉnh/Thành phố"}</FormLabel>
+                                <div className="relative mb-2">
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                    <Input
+                                        className="pl-9"
+                                        placeholder="Tìm kiếm tỉnh/thành phố..."
+                                        value={provinceSearch}
+                                        onChange={(e) => setProvinceSearch(e.target.value)}
+                                    />
+                                </div>
                                 <Select
                                     value={field.value}
                                     onValueChange={(value) => {
@@ -173,33 +182,15 @@ export default function AddressStep({ defaultData, onNext }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <div
-                    className="sticky top-0 z-10 border-b bg-popover px-3 py-2"
-                    onPointerDown={(e) => { e.stopPropagation(); }}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                                <input
-                                                    className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                                                    placeholder="Tìm kiếm..."
-                                                    value={provinceSearch}
-                                                    onChange={(e) => setProvinceSearch(e.target.value)}
-                                                    autoComplete="off"
-                                                    onKeyDown={(e) => { if (e.key === "Enter") e.stopPropagation(); }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="max-h-60 overflow-y-auto">
-                                            {filteredProvinces.length === 0 ? (
-                                                <p className="px-3 py-2 text-sm text-muted-foreground">Không tìm thấy</p>
-                                            ) : (
-                                                filteredProvinces.map((p) => (
-                                                    <SelectItem key={p.code} value={p.code}>
-                                                        {p.label}
-                                                    </SelectItem>
-                                                ))
-                                            )}
-                                        </div>
+                                        {filteredProvinces.length === 0 ? (
+                                            <p className="px-3 py-2 text-sm text-muted-foreground">Không tìm thấy</p>
+                                        ) : (
+                                            filteredProvinces.map((p) => (
+                                                <SelectItem key={p.code} value={p.code}>
+                                                    {p.label}
+                                                </SelectItem>
+                                            ))
+                                        )}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -213,6 +204,17 @@ export default function AddressStep({ defaultData, onNext }) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>{"Xã/Phường"}</FormLabel>
+                                {selectedProvince && (
+                                    <div className="relative mb-2">
+                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
+                                            className="pl-9"
+                                            placeholder="Tìm kiếm xã/phường..."
+                                            value={wardSearch}
+                                            onChange={(e) => setWardSearch(e.target.value)}
+                                        />
+                                    </div>
+                                )}
                                 <Select
                                     value={field.value}
                                     onValueChange={(value) => {
@@ -231,35 +233,17 @@ export default function AddressStep({ defaultData, onNext }) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <div
-                    className="sticky top-0 z-10 border-b bg-popover px-3 py-2"
-                    onPointerDown={(e) => { e.stopPropagation(); }}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                                <input
-                                                    className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                                                    placeholder="Tìm kiếm..."
-                                                    value={wardSearch}
-                                                    onChange={(e) => setWardSearch(e.target.value)}
-                                                    autoComplete="off"
-                                                    onKeyDown={(e) => { if (e.key === "Enter") e.stopPropagation(); }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="max-h-60 overflow-y-auto">
-                                            {filteredWards.length === 0 ? (
-                                                <p className="px-3 py-2 text-sm text-muted-foreground">
-                                                    {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
-                                                </p>
-                                            ) : (
-                                                filteredWards.map((w) => (
-                                                    <SelectItem key={w.code} value={w.code}>
-                                                        {w.name_with_type}
-                                                    </SelectItem>
-                                                ))
-                                            )}
-                                        </div>
+                                        {filteredWards.length === 0 ? (
+                                            <p className="px-3 py-2 text-sm text-muted-foreground">
+                                                {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
+                                            </p>
+                                        ) : (
+                                            filteredWards.map((w) => (
+                                                <SelectItem key={w.code} value={w.code}>
+                                                    {w.name_with_type}
+                                                </SelectItem>
+                                            ))
+                                        )}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
