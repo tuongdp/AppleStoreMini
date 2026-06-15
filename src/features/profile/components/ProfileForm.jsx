@@ -160,28 +160,32 @@ export default function ProfileForm({ user }) {
                 </FormControl>
                 <SelectContent>
                   <div
-                    className="flex items-center gap-2 border-b px-3 py-2"
-                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="sticky top-0 z-10 border-b bg-popover px-3 py-2"
+                    onPointerDown={(e) => { e.stopPropagation(); }}
                   >
-                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <input
-                      className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                      placeholder="Tìm kiếm..."
-                      value={provinceSearch}
-                      onChange={(e) => setProvinceSearch(e.target.value)}
-                      autoComplete="off"
-                      onKeyDown={(e) => e.stopPropagation()}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <input
+                        className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                        placeholder="Tìm kiếm..."
+                        value={provinceSearch}
+                        onChange={(e) => setProvinceSearch(e.target.value)}
+                        autoComplete="off"
+                        onKeyDown={(e) => { if (e.key === "Enter") e.stopPropagation(); }}
+                      />
+                    </div>
                   </div>
-                  {filteredProvinces.length === 0 ? (
-                    <p className="px-3 py-2 text-sm text-muted-foreground">Không tìm thấy</p>
-                  ) : (
-                    filteredProvinces.map((p) => (
-                      <SelectItem key={p.code} value={p.code}>
-                        {p.label}
-                      </SelectItem>
-                    ))
-                  )}
+                  <div className="max-h-60 overflow-y-auto">
+                    {filteredProvinces.length === 0 ? (
+                      <p className="px-3 py-2 text-sm text-muted-foreground">Không tìm thấy</p>
+                    ) : (
+                      filteredProvinces.map((p) => (
+                        <SelectItem key={p.code} value={p.code}>
+                          {p.label}
+                        </SelectItem>
+                      ))
+                    )}
+                  </div>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -214,30 +218,34 @@ export default function ProfileForm({ user }) {
                 </FormControl>
                 <SelectContent>
                   <div
-                    className="flex items-center gap-2 border-b px-3 py-2"
-                    onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="sticky top-0 z-10 border-b bg-popover px-3 py-2"
+                    onPointerDown={(e) => { e.stopPropagation(); }}
                   >
-                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <input
-                      className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                      placeholder="Tìm kiếm..."
-                      value={wardSearch}
-                      onChange={(e) => setWardSearch(e.target.value)}
-                      autoComplete="off"
-                      onKeyDown={(e) => e.stopPropagation()}
-                    />
+                    <div className="flex items-center gap-2">
+                      <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <input
+                        className="h-7 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                        placeholder="Tìm kiếm..."
+                        value={wardSearch}
+                        onChange={(e) => setWardSearch(e.target.value)}
+                        autoComplete="off"
+                        onKeyDown={(e) => { if (e.key === "Enter") e.stopPropagation(); }}
+                      />
+                    </div>
                   </div>
-                  {filteredWards.length === 0 ? (
-                    <p className="px-3 py-2 text-sm text-muted-foreground">
-                      {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
-                    </p>
-                  ) : (
-                    filteredWards.map((w) => (
-                      <SelectItem key={w.code} value={w.code}>
-                        {w.name_with_type}
-                      </SelectItem>
-                    ))
-                  )}
+                  <div className="max-h-60 overflow-y-auto">
+                    {filteredWards.length === 0 ? (
+                      <p className="px-3 py-2 text-sm text-muted-foreground">
+                        {wardSearch ? "Không tìm thấy" : "Không có dữ liệu"}
+                      </p>
+                    ) : (
+                      filteredWards.map((w) => (
+                        <SelectItem key={w.code} value={w.code}>
+                          {w.name_with_type}
+                        </SelectItem>
+                      ))
+                    )}
+                  </div>
                 </SelectContent>
               </Select>
               <FormMessage />
