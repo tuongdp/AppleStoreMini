@@ -16,7 +16,6 @@ import AdminPromptTemplates from "./AdminPromptTemplates";
 const FEATURES = [
     { key: "chat", label: "Chatbox", description: "Trả lời tư vấn trong widget chat." },
     { key: "search", label: "Tìm kiếm AI", description: "Hiểu ý định khi khách tìm sản phẩm." },
-    { key: "recommend", label: "Gợi ý sản phẩm", description: "Đề xuất sản phẩm theo nhu cầu." },
 ];
 
 const DEFAULTS = {

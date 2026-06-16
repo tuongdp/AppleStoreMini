@@ -76,7 +76,6 @@ const AdminOrderDetail = lazyPage(() => import("@/pages/admin/AdminOrderDetail")
 const AdminUserList = lazyPage(() => import("@/pages/admin/AdminUserList"));
 const AdminUserDetail = lazyPage(() => import("@/pages/admin/AdminUserDetail"));
 const AdminCommentPage = lazyPage(() => import("@/pages/admin/AdminCommentPage"));
-const AdminSentimentPage = lazyPage(() => import("@/features/admin/components/reviews/SentimentDashboard"));
 const AdminCouponPage = lazyPage(() => import("@/pages/admin/AdminCouponPage"));
 const AdminCategoryPage = lazyPage(() => import("@/pages/admin/AdminCategoryPage"));
 const AdminSeriesPage = lazyPage(() => import("@/pages/admin/AdminSeriesPage"));
@@ -191,7 +190,6 @@ export const router = createBrowserRouter([
             { path: "users", element: <AdminPermissionRoute permission="users"><AdminUserList /></AdminPermissionRoute> },
             { path: "users/:id", element: <AdminPermissionRoute permission="users"><AdminUserDetail /></AdminPermissionRoute> },
             { path: "comments", element: <AdminPermissionRoute permission="comments"><AdminCommentPage /></AdminPermissionRoute> },
-            { path: "reviews/sentiment", element: <AdminPermissionRoute permission="comments"><AdminSentimentPage /></AdminPermissionRoute> },
             { path: "coupons", element: <AdminPermissionRoute permission="coupons"><AdminCouponPage /></AdminPermissionRoute> },
             { path: "categories", element: <AdminPermissionRoute permission="categories"><AdminCategoryPage /></AdminPermissionRoute> },
             { path: "series", element: <AdminPermissionRoute permission="products"><AdminSeriesPage /></AdminPermissionRoute> },

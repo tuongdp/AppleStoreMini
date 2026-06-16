@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { AlertTriangle, ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquareReply, Search, Sparkles, Star, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquareReply, Search, Sparkles, Star, Trash2 } from "lucide-react";
 import {
     useAdminDeleteReviewMutation,
     useGetAdminReviewQuery,
     useGetAllReviewsQuery,
     useReplyReviewMutation,
-    useSuggestReviewReplyMutation,
     useToggleReviewVisibilityMutation,
 } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ import { cn, formatDateTime, formatPrice, parseJsonField } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PAGINATION } from "@/lib/constants";
 import { Link, useSearchParams } from "react-router-dom";
-import useAiFeatureAvailable from "@/features/ai/useAiFeatureAvailable";
 
 const RATING_OPTIONS = [
     { value: "all", label: "Tất cả" },
@@ -76,8 +74,6 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const { data: review, isFetching } = useGetAdminReviewQuery(reviewId, { skip: !reviewId || !open });
     const [replyReview, { isLoading: isReplying }] = useReplyReviewMutation();
-    const [suggestReviewReply, { isLoading: isSuggesting }] = useSuggestReviewReplyMutation();
-    const { available: aiReviewReplyAvailable } = useAiFeatureAvailable("reviewReply");
     const reply = replyById[reviewId] ?? review?.adminReply ?? "";
 
     const handleReply = async () => {
@@ -87,17 +83,6 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
             toast.success("Đã phản hồi bình luận");
         } catch {
             toast.error("Có lỗi xảy ra");
-        }
-    };
-
-    const handleSuggestReply = async () => {
-        if (!reviewId) return;
-        try {
-            const result = await suggestReviewReply({ reviewId }).unwrap();
-            setReplyById((current) => ({ ...current, [reviewId]: result?.suggestion || "" }));
-            toast.success(result?.aiOnline ? "Đã tạo gợi ý phản hồi bằng AI" : "Đã tạo gợi ý phản hồi dự phòng");
-        } catch {
-            toast.error("Không thể tạo gợi ý phản hồi");
         }
     };
 
@@ -226,10 +211,6 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
 
                         <div className="space-y-2">
                             <p className="text-sm font-medium">Phản hồi của cửa hàng</p>
-                            <Button type="button" variant="outline" size="sm" onClick={handleSuggestReply} disabled={isSuggesting || !aiReviewReplyAvailable}>
-                                <Sparkles className="h-4 w-4" aria-hidden="true" />
-                                {isSuggesting ? "Đang gợi ý..." : !aiReviewReplyAvailable ? "AI đang tắt" : "Gợi ý AI"}
-                            </Button>
                             <Textarea
                                 value={reply}
                                 onChange={(e) => setReplyById((current) => ({ ...current, [reviewId]: e.target.value }))}
@@ -264,7 +245,6 @@ export default function AdminCommentList() {
     const [deleteId, setDeleteId] = useState(null);
     const [detailId, setDetailId] = useState(null);
     const debouncedSearch = useDebounce(searchInput, 400);
-    const { available: aiContentCheckAvailable } = useAiFeatureAvailable("contentCheck");
 
     const filters = {
         page: Number(searchParams.get("page")) || 1,
@@ -318,10 +298,6 @@ export default function AdminCommentList() {
                     <SelectTrigger className="w-36 rounded-full"><SelectValue placeholder="Lọc sao" /></SelectTrigger>
                     <SelectContent>{RATING_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
                 </Select>
-                <Badge variant={aiContentCheckAvailable ? "default" : "outline"} className="gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    {aiContentCheckAvailable ? "AI kiểm duyệt" : "Kiểm duyệt thường"}
-                </Badge>
             </div>
 
             <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -373,7 +349,6 @@ export default function AdminCommentList() {
                                         <TableCell>{review.adminReply ? <Badge variant="secondary">Đã phản hồi</Badge> : <Badge variant="outline">Chưa phản hồi</Badge>}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1">
-                                                {review.flagged && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 gap-1"><AlertTriangle className="h-3 w-3" aria-hidden="true" />Cần xử lý</Badge>}
                                                 <Badge className={review.isVisible !== false ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"}>{review.isVisible !== false ? "Hiển thị" : "Đã ẩn"}</Badge>
                                             </div>
                                         </TableCell>

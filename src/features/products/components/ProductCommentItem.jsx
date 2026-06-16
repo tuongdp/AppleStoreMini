@@ -11,6 +11,7 @@ export default function ProductCommentItem({ comment }) {
     const medias = comment.images || [];
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
+    const [expanded, setExpanded] = useState(false);
 
     const openLightbox = useCallback((index) => {
         setLightboxIndex(index);
@@ -20,6 +21,13 @@ export default function ProductCommentItem({ comment }) {
     const closeLightbox = useCallback(() => {
         setLightboxOpen(false);
     }, []);
+
+    const commentText = comment.comment || comment.content || "";
+    const MAX_LENGTH = 200;
+    const shouldTruncate = commentText.length > MAX_LENGTH;
+    const displayText = !shouldTruncate || expanded ? commentText : commentText.slice(0, MAX_LENGTH) + "...";
+
+    const toggleExpand = useCallback(() => setExpanded((prev) => !prev), []);
 
     return (
         <div className="space-y-3">
@@ -58,24 +66,23 @@ export default function ProductCommentItem({ comment }) {
             </div>
 
             {/* Comment text */}
-            <p className="break-words text-sm leading-relaxed text-foreground">
-                {comment.comment || comment.content}
-            </p>
+            <div>
+                <p className="break-words text-sm leading-relaxed text-foreground">
+                    {displayText}
+                </p>
+                {shouldTruncate && (
+                    <button
+                        type="button"
+                        onClick={toggleExpand}
+                        className="mt-1 text-xs font-medium text-primary hover:underline"
+                    >
+                        {expanded ? "Thu gọn" : "Xem thêm"}
+                    </button>
+                )}
+            </div>
 
             {comment.adminReply && (
-                <div className="rounded-lg border bg-muted/40 p-3">
-                    <div className="mb-1 flex items-center gap-2">
-                        <Badge variant="secondary">Cửa hàng phản hồi</Badge>
-                        {comment.repliedAt && (
-                            <span className="text-xs text-muted-foreground">
-                                {timeAgo(comment.repliedAt)}
-                            </span>
-                        )}
-                    </div>
-                    <p className="break-words text-sm leading-relaxed text-foreground">
-                        {comment.adminReply}
-                    </p>
-                </div>
+                <AdminReply reply={comment} />
             )}
 
             {/* Media thumbnails */}
@@ -126,6 +133,39 @@ export default function ProductCommentItem({ comment }) {
                 onClose={closeLightbox}
                 initialIndex={lightboxIndex}
             />
+        </div>
+    );
+}
+
+function AdminReply({ reply }) {
+    const [expanded, setExpanded] = useState(false);
+    const MAX_LENGTH = 200;
+    const text = reply.adminReply || "";
+    const shouldTruncate = text.length > MAX_LENGTH;
+    const displayText = !shouldTruncate || expanded ? text : text.slice(0, MAX_LENGTH) + "...";
+
+    return (
+        <div className="rounded-lg border bg-muted/40 p-3">
+            <div className="mb-1 flex items-center gap-2">
+                <Badge variant="secondary">Cửa hàng phản hồi</Badge>
+                {reply.repliedAt && (
+                    <span className="text-xs text-muted-foreground">
+                        {timeAgo(reply.repliedAt)}
+                    </span>
+                )}
+            </div>
+            <p className="break-words text-sm leading-relaxed text-foreground">
+                {displayText}
+            </p>
+            {shouldTruncate && (
+                <button
+                    type="button"
+                    onClick={() => setExpanded((prev) => !prev)}
+                    className="mt-1 text-xs font-medium text-primary hover:underline"
+                >
+                    {expanded ? "Thu gọn" : "Xem thêm"}
+                </button>
+            )}
         </div>
     );
 }

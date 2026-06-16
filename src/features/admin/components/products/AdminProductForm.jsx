@@ -40,7 +40,6 @@ import { slugify, formatPrice, formatDateTime, parseJsonField, formatPriceInput,
 import { IMAGE } from "@/lib/constants";
 import { toast } from "sonner";
 import ImportSpecsFromExcel from "./ImportSpecsFromExcel";
-import AIDescriptionButton from "./AIDescriptionButton";
 import { PRODUCT_MARKETING_BADGE_TYPES } from "@/features/products/utils/productMarketingBadge";
 
 const EMPTY_VARIANT = {
@@ -568,11 +567,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                     <FormItem>
                                         <div className="flex items-center justify-between">
                                             <FormLabel>{"Mô tả sản phẩm"}</FormLabel>
-                                            <AIDescriptionButton
-                                                productName={form.watch("name")}
-                                                specs={JSON.stringify(form.watch("specifications"))}
-                                                onDescriptionGenerated={(text) => form.setValue("description", text)}
-                                            />
                                         </div>
                                         <FormControl>
                                             <button
@@ -604,11 +598,6 @@ export default function AdminProductForm({ product, onSubmit, isLoading, onProdu
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <div className="flex items-center justify-end">
-                                                    <AIDescriptionButton
-                                                        productName={form.watch("name")}
-                                                        specs={JSON.stringify(form.watch("specifications"))}
-                                                        onDescriptionGenerated={(text) => form.setValue("description", text)}
-                                                    />
                                                 </div>
                                                 <div className="flex-1 overflow-y-auto pr-1">
                                                     <Controller

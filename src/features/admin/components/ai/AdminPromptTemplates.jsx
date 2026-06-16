@@ -21,13 +21,11 @@ import {
 const PROMPT_FEATURES = [
     { key: "chat", label: "Chatbox", description: "Prompt cho trợ lý tư vấn trong widget chat." },
     { key: "search", label: "Tìm kiếm AI", description: "Prompt hiểu ý định tìm kiếm sản phẩm." },
-    { key: "recommend", label: "Gợi ý sản phẩm", description: "Prompt đề xuất sản phẩm theo nhu cầu." },
 ];
 
 const DEFAULT_PROMPTS = {
     chat: "Bạn là trợ lý tư vấn của Apple Store. Trả lời ngắn gọn, thân thiện bằng tiếng Việt. Tư vấn sản phẩm Apple dựa trên nhu cầu khách hàng.",
     search: "Phân tích ý định tìm kiếm của người dùng. Xác định loại sản phẩm, ngân sách, nhu cầu cụ thể từ mô tả tự nhiên.",
-    recommend: "Dựa trên đối tượng, ngân sách và nhu cầu sử dụng, gợi ý 3-5 sản phẩm Apple phù hợp nhất kèm lý do ngắn gọn cho từng sản phẩm.",
 };
 
 export default function AdminPromptTemplates() {
