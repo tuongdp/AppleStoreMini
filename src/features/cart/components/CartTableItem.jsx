@@ -74,18 +74,21 @@ export default function CartTableItem({ item, isLast }) {
 
   const firstImage = getFirstImage(product?.images || variant?.images);
 
+  const specsText = [color && `${"Màu"}: ${color}`, storage && `${"Dung lượng"}: ${storage}`, ram && `${"RAM"}: ${ram}`, edition && `${"Phiên bản"}: ${edition}`, refreshRate && `${"Tần số quét"}: ${refreshRate}`, ssd && `${"SSD"}: ${ssd}`].filter(Boolean).join(" · ");
+
   return (
     <div data-testid="cart-line-item" data-variant-id={variantId}>
-      <div className="grid grid-cols-12 gap-4">
-        {/* Image + Info */}
-        <div className="col-span-12 flex gap-3 md:col-span-6">
+      <div className="grid grid-cols-12 items-center gap-4">
+        <div className="col-span-2 flex justify-center md:col-span-1">
           <Checkbox
             checked={isSelected}
             onCheckedChange={handleToggleSelected}
-            className="mt-10"
             aria-label={`Chọn ${product?.name || "sản phẩm"} để thanh toán`}
             data-testid="cart-item-select"
           />
+        </div>
+
+        <div className="col-span-10 flex items-center gap-3 md:col-span-6">
           <Link
             to={ROUTES.PRODUCT_DETAIL(product?.slug)}
             className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
@@ -99,16 +102,17 @@ export default function CartTableItem({ item, isLast }) {
               className="h-full w-full object-contain"
             />
           </Link>
-          <div className="min-w-0 flex flex-col justify-center">
+          <div className="min-w-0">
             <Link
               to={ROUTES.PRODUCT_DETAIL(product?.slug)}
               className="line-clamp-2 text-sm font-medium text-foreground hover:text-apple-blue"
             >
               {product?.name}
             </Link>
-            <p className="mt-1 truncate text-xs text-muted-foreground">
-              {[color && `${"Màu"}: ${color}`, storage && `${"Dung lượng"}: ${storage}`, ram && `${"RAM"}: ${ram}`, edition && `${"Phiên bản"}: ${edition}`, refreshRate && `${"Tần số quét"}: ${refreshRate}`, ssd && `${"SSD"}: ${ssd}`].filter(Boolean).join(" · ")}
-            </p>
+            <p className="mt-1 truncate text-xs text-muted-foreground">{specsText}</p>
+            <div className="mt-1">
+              <PriceDisplay price={product?.price || variant?.price} salePrice={effectivePrice} size="sm" />
+            </div>
             <button
               onClick={handleRemove}
               className="mt-2 flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-destructive md:hidden"
@@ -126,17 +130,7 @@ export default function CartTableItem({ item, isLast }) {
           </div>
         </div>
 
-        {/* Unit price — desktop */}
-        <div className="col-span-2 hidden items-center justify-center md:flex">
-          <PriceDisplay
-            price={product?.price || variant?.price}
-            salePrice={effectivePrice}
-            size="sm"
-          />
-        </div>
-
-        {/* Quantity */}
-        <div className="col-span-7 flex flex-col items-center md:col-span-2 md:justify-center">
+        <div className="col-span-7 flex flex-col items-center md:col-span-2">
           <QuantityInput
             value={item.quantity}
             min={1}
@@ -147,15 +141,12 @@ export default function CartTableItem({ item, isLast }) {
           />
           {(availableStock <= 5 || hasStockIssue) && (
             <p className={cn("mt-1 text-center text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
-              {hasStockIssue
-                ? `Không đủ — còn ${availableStock}`
-                : `Còn ${availableStock}`}
+              {hasStockIssue ? `Không đủ — còn ${availableStock}` : `Còn ${availableStock}`}
             </p>
           )}
         </div>
 
-        {/* Total */}
-        <div className="col-span-5 flex items-center justify-end gap-3 md:col-span-2">
+        <div className="col-span-5 flex items-center justify-end gap-3 md:col-span-3">
           <PriceDisplay price={effectivePrice * item.quantity} size="sm" />
           <button
             onClick={handleRemove}

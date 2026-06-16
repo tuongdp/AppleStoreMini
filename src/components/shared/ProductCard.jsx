@@ -10,10 +10,11 @@ import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
 import { addToCart } from "@/store/cartSlice";
 import { useAddToCartMutation } from "@/store/api/cartApi";
-import { formatPrice, cn, parseJsonField, calcDiscount } from "@/lib/utils";
+import { formatPrice, cn, parseJsonField, calcDiscount, formatCompactNumber } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 import { useNavigate } from "react-router-dom";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
+import StarRating from "@/components/shared/StarRating";
 import {
     getProductMarketingBadge,
     getProductMarketingBadgeClassName,
@@ -276,6 +277,13 @@ function ProductCard({ product }) {
                             )}
                         </>
                     )}
+                </div>
+
+                {/* Rating & Đã bán — always show for consistent card look */}
+                <div className="mt-1.5 flex min-h-5 items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <StarRating rating={product.rating || 0} size="sm" />
+                    <span aria-hidden="true">·</span>
+                    <span>Đã bán {formatCompactNumber(product.soldCount || 0)}</span>
                 </div>
             </CardContent>
         </Card>

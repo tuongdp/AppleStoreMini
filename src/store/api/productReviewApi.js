@@ -6,7 +6,10 @@ export const productReviewApi = baseApi.injectEndpoints({
     getReviews: builder.query({
       query: ({ productId, params }) => ({ url: `/reviews/${productId}`, params }),
       providesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }],
-      transformResponse: (response) => response.data,
+      transformResponse: (response) => ({
+        reviews: response.data,
+        pagination: response.pagination,
+      }),
     }),
 
     createReview: builder.mutation({

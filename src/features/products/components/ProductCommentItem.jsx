@@ -1,15 +1,25 @@
+import { useState, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/shared/StarRating";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
-import { timeAgo } from "@/lib/utils";
-
-const isVideoUrl = (url) => /\.(mp4|webm|mov)(\?|$)/i.test(url);
+import ImageLightbox from "@/components/shared/ImageLightbox";
+import { timeAgo, isVideoUrl } from "@/lib/utils";
+import { Play } from "lucide-react";
 
 export default function ProductCommentItem({ comment }) {
     const medias = comment.images || [];
-    const imageUrls = medias.filter((url) => !isVideoUrl(url));
-    const videoUrls = medias.filter(isVideoUrl);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxIndex, setLightboxIndex] = useState(0);
+
+    const openLightbox = useCallback((index) => {
+        setLightboxIndex(index);
+        setLightboxOpen(true);
+    }, []);
+
+    const closeLightbox = useCallback(() => {
+        setLightboxOpen(false);
+    }, []);
 
     return (
         <div className="space-y-3">
@@ -68,51 +78,54 @@ export default function ProductCommentItem({ comment }) {
                 </div>
             )}
 
-            {/* Images */}
-            {imageUrls.length > 0 && (
+            {/* Media thumbnails */}
+            {medias.length > 0 && (
                 <div className="space-y-1.5">
-                    <p className="text-xs text-muted-foreground">Hình ảnh</p>
+                    <p className="text-xs text-muted-foreground">Hình ảnh / Video</p>
                     <div className="flex flex-wrap gap-2">
-                        {imageUrls.map((img, index) => (
-                            <div
-                                key={`img-${index}`}
-                                className="h-20 w-20 overflow-hidden rounded-lg bg-muted/30"
-                            >
-                                <ResponsiveImage
-                                    src={img}
-                                    alt={`Ảnh ${index + 1}`}
-                                    width={80}
-                                    height={80}
-                                    className="h-full w-full object-cover"
-                                />
-                            </div>
-                        ))}
+                        {medias.map((url, index) => {
+                            const isVideo = isVideoUrl(url);
+                            return (
+                                <button
+                                    key={`media-${index}`}
+                                    type="button"
+                                    className="relative h-20 w-20 overflow-hidden rounded-lg bg-muted/30 cursor-pointer border border-transparent hover:border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                                    onClick={() => openLightbox(index)}
+                                >
+                                    {isVideo ? (
+                                        <>
+                                            <video
+                                                src={url}
+                                                preload="metadata"
+                                                className="h-full w-full object-cover"
+                                                muted
+                                            />
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                                <Play className="h-6 w-6 text-white drop-shadow-md" />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <ResponsiveImage
+                                            src={url}
+                                            alt={`Ảnh ${index + 1}`}
+                                            width={80}
+                                            height={80}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             )}
 
-            {/* Videos */}
-            {videoUrls.length > 0 && (
-                <div className="space-y-1.5">
-                    <p className="text-xs text-muted-foreground">Video</p>
-                    <div className="space-y-2">
-                        {videoUrls.map((url, index) => (
-                            <div
-                                key={`vid-${index}`}
-                                className="overflow-hidden rounded-lg border bg-muted/30"
-                            >
-                                <video
-                                    src={url}
-                                    controls
-                                    preload="metadata"
-                                    className="w-full"
-                                    style={{ maxHeight: "320px" }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <ImageLightbox
+                images={medias}
+                open={lightboxOpen}
+                onClose={closeLightbox}
+                initialIndex={lightboxIndex}
+            />
         </div>
     );
 }

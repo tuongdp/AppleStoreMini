@@ -6,8 +6,8 @@ export default function ProductCommentSummary({
     distribution = {},
 }) {
     return (
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-            <div className="flex flex-col items-center gap-2 sm:w-32">
+        <div className="space-y-4">
+            <div className="flex flex-col items-center gap-2">
                 <span className="text-5xl font-bold text-foreground">
                     {rating.toFixed(1)}
                 </span>
@@ -17,7 +17,7 @@ export default function ProductCommentSummary({
                 </span>
             </div>
 
-            <div className="flex-1 space-y-1.5">
+            <div className="space-y-1.5">
                 {[5, 4, 3, 2, 1].map((star) => {
                     const count = distribution[star] || 0;
                     const pct =

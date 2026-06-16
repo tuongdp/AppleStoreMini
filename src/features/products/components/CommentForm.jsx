@@ -18,6 +18,7 @@ import {
 import StarRating from "@/components/shared/StarRating";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { toast } from "sonner";
+import { isVideoUrl } from "@/lib/utils";
 
 const isValidProductId = (value) =>
     value !== undefined &&
@@ -25,8 +26,6 @@ const isValidProductId = (value) =>
     value !== "" &&
     value !== "undefined" &&
     value !== "null";
-
-const isVideoUrl = (url) => /\.(mp4|webm|mov)(\?|$)/i.test(url);
 
 export default function CommentForm({
     productId,

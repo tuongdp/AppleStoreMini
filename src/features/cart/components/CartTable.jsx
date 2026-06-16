@@ -57,16 +57,7 @@ export default function CartTable() {
         </Button>
       </div>
 
-      <div className="mb-3 hidden grid-cols-12 gap-4 text-xs font-medium uppercase tracking-wider text-muted-foreground md:grid">
-        <div className="col-span-6">{"Sản phẩm"}</div>
-        <div className="col-span-2 text-center">{"Đơn giá"}</div>
-        <div className="col-span-2 text-center">{"Số lượng"}</div>
-        <div className="col-span-2 text-right">{"Thành tiền"}</div>
-      </div>
-
-      <Separator className="mb-4" />
-
-      <div className="space-y-6">
+      <div className="max-h-[60vh] space-y-6 overflow-y-auto pr-2">
         {items.map((item, index) => {
           const variantId = item.variantId || item.product?.variantId;
           return (

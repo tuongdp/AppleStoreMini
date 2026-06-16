@@ -170,11 +170,13 @@
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
         overflow-x: hidden;
+        scrollbar-gutter: stable;
     }
     html {
         @apply font-sans;
         color-scheme: light;
         scroll-behavior: smooth;
+        scrollbar-gutter: stable;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }

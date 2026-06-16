@@ -119,6 +119,22 @@ export function formatNumber(number) {
     return new Intl.NumberFormat(LOCALE).format(number);
 }
 
+export function formatCompactNumber(number) {
+    if (!number && number !== 0) return "";
+    if (number < 1000) return String(number);
+    if (number < 1000000) {
+        const val = number / 1000;
+        return (val % 1 === 0 ? val : val.toFixed(1)).toString().replace(/\.0$/, "") + "k";
+    }
+    const val = number / 1000000;
+    return (val % 1 === 0 ? val : val.toFixed(1)).toString().replace(/\.0$/, "") + "tr";
+}
+
+export function isVideoUrl(url) {
+    if (!url || typeof url !== "string") return false;
+    return /\.(mp4|webm|mov|ogg|avi|mkv)(\?|$)/i.test(url);
+}
+
 // ── Storage / localStorage ─────────────────────────────
 export function getLocalStorage(key, defaultValue = null) {
     try {
