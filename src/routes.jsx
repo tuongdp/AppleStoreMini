@@ -88,6 +88,8 @@ const AdminShopSettingsPage = lazyPage(() => import("@/pages/admin/AdminShopSett
 const AdminAiSettings = lazyPage(() => import("@/pages/admin/AdminAiSettings"));
 const AdminReturnList = lazyPage(() => import("@/pages/admin/AdminReturnList"));
 const AdminReturnDetail = lazyPage(() => import("@/pages/admin/AdminReturnDetail"));
+const AdminStaffList = lazyPage(() => import("@/pages/admin/AdminStaffList"));
+const AdminStaffDetail = lazyPage(() => import("@/pages/admin/AdminStaffDetail"));
 
 export const router = createBrowserRouter([
     {
@@ -189,6 +191,8 @@ export const router = createBrowserRouter([
             { path: "returns/:returnId", element: <AdminPermissionRoute permission="returns"><AdminReturnDetail /></AdminPermissionRoute> },
             { path: "users", element: <AdminPermissionRoute permission="users"><AdminUserList /></AdminPermissionRoute> },
             { path: "users/:id", element: <AdminPermissionRoute permission="users"><AdminUserDetail /></AdminPermissionRoute> },
+            { path: "staff", element: <AdminPermissionRoute permission="users"><AdminStaffList /></AdminPermissionRoute> },
+            { path: "staff/:id", element: <AdminPermissionRoute permission="users"><AdminStaffDetail /></AdminPermissionRoute> },
             { path: "comments", element: <AdminPermissionRoute permission="comments"><AdminCommentPage /></AdminPermissionRoute> },
             { path: "coupons", element: <AdminPermissionRoute permission="coupons"><AdminCouponPage /></AdminPermissionRoute> },
             { path: "categories", element: <AdminPermissionRoute permission="categories"><AdminCategoryPage /></AdminPermissionRoute> },
@@ -197,7 +201,7 @@ export const router = createBrowserRouter([
             { path: "news/create", element: <AdminPermissionRoute permission="news" action="create"><AdminNewsCreate /></AdminPermissionRoute> },
             { path: "news/:slug/edit", element: <AdminPermissionRoute permission="news" action="update"><AdminNewsEdit /></AdminPermissionRoute> },
             { path: "banners", element: <AdminPermissionRoute permission="banners"><AdminBannerPage /></AdminPermissionRoute> },
-            { path: "options", element: <AdminPermissionRoute adminOnly><AdminGlobalOptionsPage /></AdminPermissionRoute> },
+            { path: "options", element: <AdminPermissionRoute permission="options"><AdminGlobalOptionsPage /></AdminPermissionRoute> },
             { path: "settings/shop", element: <AdminPermissionRoute adminOnly><AdminShopSettingsPage /></AdminPermissionRoute> },
             { path: "ai", element: <AdminPermissionRoute adminOnly><AdminAiSettings /></AdminPermissionRoute> },
         ],

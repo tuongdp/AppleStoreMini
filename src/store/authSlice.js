@@ -11,6 +11,7 @@ const EMPTY_PERMISSIONS = [];
 export const PERMISSION_ACTIONS = ["view", "create", "update", "delete"];
 
 const PERMISSION_ALIASES = {
+    ai: "ai",
     banner: "banners",
     banners: "banners",
     category: "categories",
@@ -31,6 +32,9 @@ const PERMISSION_ALIASES = {
     returns: "returns",
     return_request: "returns",
     return_requests: "returns",
+    series: "series",
+    settings: "settings",
+    setting: "settings",
     user: "users",
     users: "users",
 };

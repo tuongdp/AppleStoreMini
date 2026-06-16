@@ -4,27 +4,19 @@ import { useSelector } from "react-redux";
 import {
     Search,
     Eye,
-    ShieldCheck,
     ShieldOff,
-    Shield,
     MoreHorizontal,
     Trash2,
     Users,
-    UserCheck,
-    UserX,
-    UserCog,
-    MailWarning,
     ChevronLeft,
     ChevronRight,
 } from "lucide-react";
 import {
     useGetAllUsersQuery,
-    useGetUserStatsQuery,
-    useUpdateUserRoleMutation,
     useToggleUserStatusMutation,
     useDeleteUserMutation,
 } from "@/store/api/usersApi";
-import { selectCurrentUser, selectHasPermission, selectIsAdmin } from "@/store/authSlice";
+import { selectCurrentUser, selectHasPermission } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +46,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { toast } from "sonner";
-import { formatDate, formatNumber, formatPhone, formatPrice, timeAgo } from "@/lib/utils";
+import { formatDate, formatNumber, formatPhone, formatPrice } from "@/lib/utils";
 import { ROUTES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import ExportButton from "@/components/ui/export-button";
@@ -63,22 +55,7 @@ import { useExport } from "@/hooks/useExport";
 // ✅ BE auth.service.js getUserResponse() → role.toLowerCase() → "admin" | "user"
 // Dùng lowercase để so sánh nhất quán
 const ROLE = {
-    ADMIN: "admin",
-    STAFF: "staff",
     USER: "user",
-};
-
-const ROLE_OPTIONS = [
-    { value: "all", label: "Tất cả" },
-    { value: ROLE.USER, label: "Người dùng" },
-    { value: ROLE.STAFF, label: "Nhân viên" },
-    { value: ROLE.ADMIN, label: "Quản trị viên" },
-];
-
-const ROLE_LABEL = {
-    [ROLE.ADMIN]: "Quản trị viên",
-    [ROLE.STAFF]: "Nhân viên",
-    [ROLE.USER]: "Người dùng",
 };
 
 const STATUS_OPTIONS = [
@@ -88,29 +65,12 @@ const STATUS_OPTIONS = [
     { value: "unverified", label: "Chưa xác thực" },
 ];
 
-const SummaryCard = ({ icon: Icon, label, value, className }) => (
-    <div className="rounded-xl border border-border bg-card p-4">
-        <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${className}`}>
-                <Icon className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="text-xl font-semibold text-foreground">
-                    {formatNumber(value || 0)}
-                </p>
-            </div>
-        </div>
-    </div>
-);
-
 export default function AdminUserTable() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchInput, setSearchInput] = useState(
         searchParams.get("search") || "",
     );
     const [deleteId, setDeleteId] = useState(null);
-    const isAdmin = useSelector(selectIsAdmin);
     const canUpdateUsers = useSelector(selectHasPermission("users", "update"));
     const canDeleteUsers = useSelector(selectHasPermission("users", "delete"));
     const currentUser = useSelector(selectCurrentUser);
@@ -120,24 +80,20 @@ export default function AdminUserTable() {
     const filters = {
         page: Number(searchParams.get("page")) || 1,
         limit: PAGINATION.DEFAULT_LIMIT,
-        role: searchParams.get("role") || undefined,
+        role: ROLE.USER,
         status: searchParams.get("status") || undefined,
         search: debouncedSearch || undefined,
     };
 
     const { data, isLoading, isFetching } = useGetAllUsersQuery(filters);
-    const { data: stats } = useGetUserStatsQuery();
-    const [updateRole, { isLoading: isUpdating }] = useUpdateUserRoleMutation();
     const [toggleStatus, { isLoading: isToggling }] =
         useToggleUserStatusMutation();
     const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
-    // ✅ usersApi transformResponse → { users, pagination }
     const users = data?.users ?? [];
     const pagination = data?.pagination ?? {};
     const hasActiveFilters =
         !!searchInput ||
-        !!searchParams.get("role") ||
         !!searchParams.get("status");
 
     useEffect(() => {
@@ -172,29 +128,12 @@ export default function AdminUserTable() {
 
     const getManagementState = (user) => {
         const isSelf = String(user.id) === String(currentUser?.id);
-        const isTargetAdmin = user.role === ROLE.ADMIN;
 
         return {
             isSelf,
-            canChangeRole: isAdmin && !isSelf && !isTargetAdmin,
-            canToggleStatus: canUpdateUsers && !isSelf && !isTargetAdmin,
-            canDelete: canDeleteUsers && !isSelf && !isTargetAdmin,
+            canToggleStatus: canUpdateUsers && !isSelf,
+            canDelete: canDeleteUsers && !isSelf,
         };
-    };
-
-    const handleSetRole = async (user, newRole) => {
-        const { canChangeRole } = getManagementState(user);
-        if (!canChangeRole) {
-            toast.error("Không thể thay đổi vai trò của tài khoản này");
-            return;
-        }
-        if (user.role === newRole) return;
-        try {
-            await updateRole({ id: user.id, role: newRole }).unwrap();
-            toast.success("Cập nhật vai trò thành công");
-        } catch {
-            toast.error("Có lỗi xảy ra");
-        }
     };
 
     const handleToggleStatus = async (user) => {
@@ -234,7 +173,6 @@ export default function AdminUserTable() {
         { key: "fullName", label: "Họ tên" },
         { key: "email", label: "Email" },
         { key: "phone", label: "SĐT" },
-        { key: "role", label: "Vai trò" },
         { key: "isBlocked", label: "Trạng thái" },
         { key: "totalSpent", label: "Tổng chi tiêu", format: "currency" },
         { key: "orderCount", label: "Số đơn" },
@@ -246,7 +184,6 @@ export default function AdminUserTable() {
         fullName: u.fullName || "—",
         email: u.email || "—",
         phone: u.phone || "—",
-        role: ROLE_LABEL[u.role] || u.role,
         isBlocked: u.isBlocked ? "Đã khoá" : "Đang hoạt động",
         totalSpent: u.totalSpent || 0,
         orderCount: u.orderCount ?? 0,
@@ -256,55 +193,22 @@ export default function AdminUserTable() {
 
     const handleExportUsersExcel = () => {
         if (users.length === 0) { toast("Không có dữ liệu để xuất"); return; }
-        exportExcel({ sheets: [{ name: "NguoiDung", columns: userColumns, rows: getUsersExportRows() }], filename: `NguoiDung_${new Date().toISOString().slice(0, 10)}` });
+        exportExcel({ sheets: [{ name: "KhachHang", columns: userColumns, rows: getUsersExportRows() }], filename: `KhachHang_${new Date().toISOString().slice(0, 10)}` });
     };
 
     const handleExportUsersPDF = () => {
         if (users.length === 0) { toast("Không có dữ liệu để xuất"); return; }
-        exportPDF({ title: "Danh sách người dùng", columns: userColumns, rows: getUsersExportRows(), filename: `NguoiDung_${new Date().toISOString().slice(0, 10)}` });
+        exportPDF({ title: "Danh sách khách hàng", columns: userColumns, rows: getUsersExportRows(), filename: `KhachHang_${new Date().toISOString().slice(0, 10)}` });
     };
 
     return (
         <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                <SummaryCard
-                    icon={Users}
-                    label="Tổng người dùng"
-                    value={stats?.total}
-                    className="bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300"
-                />
-                <SummaryCard
-                    icon={UserCheck}
-                    label="Đang hoạt động"
-                    value={stats?.active}
-                    className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
-                />
-                <SummaryCard
-                    icon={UserCog}
-                    label="Nhân viên/Admin"
-                    value={(stats?.staff || 0) + (stats?.admins || 0)}
-                    className="bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                />
-                <SummaryCard
-                    icon={UserX}
-                    label="Đã khóa"
-                    value={stats?.blocked}
-                    className="bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
-                />
-                <SummaryCard
-                    icon={MailWarning}
-                    label="Chưa xác thực"
-                    value={stats?.unverified}
-                    className="bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400"
-                />
-            </div>
-
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3">
                 <div className="relative min-w-[220px] flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                     <Input
-                        aria-label="Tìm kiếm người dùng"
+                        aria-label="Tìm kiếm khách hàng"
                         name="admin-user-search"
                         autoComplete="off"
                         placeholder="Tìm kiếm tên, email, số điện thoại…"
@@ -313,21 +217,6 @@ export default function AdminUserTable() {
                         className="rounded-full pl-9"
                     />
                 </div>
-                <Select
-                    value={searchParams.get("role") || "all"}
-                    onValueChange={(val) => updateParam("role", val)}
-                >
-                    <SelectTrigger className="w-40 rounded-full">
-                        <SelectValue placeholder={"Lọc theo vai trò"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {ROLE_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
                 <Select
                     value={searchParams.get("status") || "all"}
                     onValueChange={(val) => updateParam("status", val)}
@@ -365,17 +254,16 @@ export default function AdminUserTable() {
 
             {/* Table */}
             <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                <Table className="min-w-[1100px]">
+                <Table className="min-w-[1000px]">
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
+                            <TableHead className="w-[80px]">{"Mã KH"}</TableHead>
                             <TableHead>{"Họ và tên"}</TableHead>
                             <TableHead>{"Số điện thoại"}</TableHead>
-                            <TableHead>{"Vai trò"}</TableHead>
-                            <TableHead>{"Trạng thái"}</TableHead>
-                            <TableHead>{"Ngày tham gia"}</TableHead>
                             <TableHead>{"Số đơn hàng"}</TableHead>
                             <TableHead>{"Tổng chi tiêu"}</TableHead>
-                            <TableHead>{"Lần hoạt động"}</TableHead>
+                            <TableHead>{"Ngày đăng ký"}</TableHead>
+                            <TableHead>{"Trạng thái"}</TableHead>
                             <TableHead className="text-right">
                                 {"Thao tác"}
                             </TableHead>
@@ -385,7 +273,7 @@ export default function AdminUserTable() {
                         {isLoading || isFetching ? (
                             [...Array(6)].map((_, i) => (
                                 <TableRow key={i}>
-                                    {[...Array(9)].map((_, j) => (
+                                    {[...Array(8)].map((_, j) => (
                                         <TableCell key={j}>
                                             <Skeleton className="h-5 w-full" />
                                         </TableCell>
@@ -395,14 +283,14 @@ export default function AdminUserTable() {
                         ) : users.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={9}
+                                    colSpan={8}
                                     className="py-12 text-center text-muted-foreground"
                                 >
                                     <div className="flex flex-col items-center gap-3">
                                         <Users className="h-8 w-8 text-muted-foreground/60" aria-hidden="true" />
                                         <div>
                                             <p className="text-sm font-medium text-foreground">
-                                                Không tìm thấy người dùng
+                                                Không tìm thấy khách hàng
                                             </p>
                                             <p className="mt-1 text-xs text-muted-foreground">
                                                 Thử thay đổi từ khóa hoặc bộ lọc đang áp dụng.
@@ -426,9 +314,13 @@ export default function AdminUserTable() {
                             users.map((user) => {
                                 const management = getManagementState(user);
                                 return (
-                                // ✅ MySQL integer id thuần — không có _id
                                 <TableRow key={user.id}>
-                                    {/* Name + Email */}
+                                    <TableCell>
+                                        <span className="text-sm font-mono text-muted-foreground">
+                                            {`KH${String(user.id).padStart(4, "0")}`}
+                                        </span>
+                                    </TableCell>
+
                                     <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar className="h-8 w-8">
@@ -449,38 +341,34 @@ export default function AdminUserTable() {
                                                 <p className="truncate text-xs text-muted-foreground">
                                                     {user.email || "—"}
                                                 </p>
-                                                {!user.isVerified && (
-                                                    <Badge className="mt-1 bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:text-amber-400">
-                                                        Chưa xác thực
-                                                    </Badge>
-                                                )}
                                             </div>
                                         </div>
                                     </TableCell>
 
-                                    {/* Phone */}
                                     <TableCell>
                                         <span className="text-sm text-muted-foreground">
                                             {user.phone ? formatPhone(user.phone) : "—"}
                                         </span>
                                     </TableCell>
 
-                                    {/* Role — ✅ so sánh lowercase */}
                                     <TableCell>
-                                        <Badge
-                                            className={
-                                                user.role === ROLE.ADMIN
-                                                    ? "bg-purple-100 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/30 dark:text-purple-400"
-                                                    : user.role === ROLE.STAFF
-                                                      ? "bg-blue-100 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:text-blue-400"
-                                                      : "bg-muted text-muted-foreground hover:bg-muted"
-                                            }
-                                        >
-                                            {ROLE_LABEL[user.role] || "Người dùng"}
-                                        </Badge>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatNumber(user.orderCount ?? 0)}
+                                        </span>
                                     </TableCell>
 
-                                    {/* Status */}
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {user.totalSpent ? formatPrice(user.totalSpent) : "0đ"}
+                                        </span>
+                                    </TableCell>
+
+                                    <TableCell>
+                                        <span className="text-sm text-muted-foreground">
+                                            {formatDate(user.createdAt)}
+                                        </span>
+                                    </TableCell>
+
                                     <TableCell>
                                         <Badge
                                             className={
@@ -490,40 +378,11 @@ export default function AdminUserTable() {
                                             }
                                         >
                                             {!user.isBlocked
-                                                ? "Đang hoạt động"
-                                                : "Đã khoá"}
+                                                ? "Hoạt động"
+                                                : "Đã khóa"}
                                         </Badge>
                                     </TableCell>
 
-                                    {/* Join date */}
-                                    <TableCell>
-                                        <span className="text-sm text-muted-foreground">
-                                            {formatDate(user.createdAt)}
-                                        </span>
-                                    </TableCell>
-
-                                    {/* Total orders */}
-                                    <TableCell>
-                                        <span className="text-sm text-muted-foreground">
-                                            {formatNumber(user.orderCount ?? 0)}
-                                        </span>
-                                    </TableCell>
-
-                                    {/* Total spent */}
-                                    <TableCell>
-                                        <span className="text-sm text-muted-foreground">
-                                            {user.totalSpent ? formatPrice(user.totalSpent) : "0đ"}
-                                        </span>
-                                    </TableCell>
-
-                                    {/* Last active */}
-                                    <TableCell>
-                                        <span className="text-sm text-muted-foreground">
-                                            {timeAgo(user.lastLoginAt) || "—"}
-                                        </span>
-                                    </TableCell>
-
-                                    {/* Actions */}
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -539,43 +398,15 @@ export default function AdminUserTable() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem asChild>
                                                     <Link
-                                                        to={ROUTES.ADMIN_USER_DETAIL(
-                                                            user.id,
-                                                        )}
+                                                        to={ROUTES.ADMIN_USER_DETAIL(user.id)}
                                                         className="flex items-center gap-2"
                                                     >
                                                         <Eye className="h-4 w-4" aria-hidden="true" />
                                                         {"Xem chi tiết"}
                                                     </Link>
                                                 </DropdownMenuItem>
-
-                                                {isAdmin && (
+                                                {!management.isSelf && (
                                                     <>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            className="gap-2"
-                                                            disabled={isUpdating || user.role === ROLE.ADMIN || !management.canChangeRole}
-                                                            onClick={() => handleSetRole(user, ROLE.ADMIN)}
-                                                        >
-                                                            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                                                            {"Đặt làm Quản trị viên"}
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="gap-2"
-                                                            disabled={isUpdating || user.role === ROLE.STAFF || !management.canChangeRole}
-                                                            onClick={() => handleSetRole(user, ROLE.STAFF)}
-                                                        >
-                                                            <Shield className="h-4 w-4" aria-hidden="true" />
-                                                            {"Đặt làm Nhân viên"}
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            className="gap-2"
-                                                            disabled={isUpdating || user.role === ROLE.USER || !management.canChangeRole}
-                                                            onClick={() => handleSetRole(user, ROLE.USER)}
-                                                        >
-                                                            <ShieldOff className="h-4 w-4" aria-hidden="true" />
-                                                            {"Đặt làm Người dùng"}
-                                                        </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             className="gap-2"
@@ -594,11 +425,6 @@ export default function AdminUserTable() {
                                                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                             {"Xoá"}
                                                         </DropdownMenuItem>
-                                                        {management.isSelf && (
-                                                            <DropdownMenuItem disabled className="text-xs">
-                                                                Không thể tự khóa, xóa hoặc hạ quyền
-                                                            </DropdownMenuItem>
-                                                        )}
                                                     </>
                                                 )}
                                             </DropdownMenuContent>

@@ -117,11 +117,22 @@ export const usersApi = baseApi.injectEndpoints({
         }),
 
         resetUserPassword: builder.mutation({
-            query: (id) => ({
+            query: ({ id, password }) => ({
                 url: `/admin/users/${id}/reset-password`,
                 method: "POST",
+                body: { password },
             }),
             transformResponse: (response) => response.data,
+        }),
+
+        // POST /admin/users — tạo nhân viên mới
+        createStaff: builder.mutation({
+            query: (data) => ({
+                url: "/admin/users",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ["Users"],
         }),
     }),
 });
@@ -138,4 +149,5 @@ export const {
     useToggleUserStatusMutation,
     useDeleteUserMutation,
     useResetUserPasswordMutation,
+    useCreateStaffMutation,
 } = usersApi;

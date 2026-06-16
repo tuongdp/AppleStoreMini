@@ -163,7 +163,7 @@ export default function AdminGlobalOptionsPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-2xl font-semibold text-foreground">
-                    Tùy chọn toàn cục
+                    Thuộc tính sản phẩm
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
                     Quản lý các giá trị dùng chung cho biến thể sản phẩm: màu sắc, dung lượng, RAM và phiên bản.

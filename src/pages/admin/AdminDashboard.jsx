@@ -29,6 +29,7 @@ import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
 import AdminAiInsights from "@/features/admin/components/dashboard/AdminAiInsights";
+import StaffActivityFeed from "@/features/admin/components/dashboard/StaffActivityFeed";
 import { formatNumber, formatPrice, cn } from "@/lib/utils";
 
 function MetricCard({ title, value, note, icon: Icon, tone = "default", loading }) {
@@ -267,6 +268,8 @@ export default function AdminDashboard() {
                 </CardContent>
             </Card>
             </div>
+
+            <StaffActivityFeed />
 
             <div className="grid gap-4 lg:grid-cols-7">
                 <Card className="lg:col-span-4">

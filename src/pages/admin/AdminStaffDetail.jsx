@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
 
-export default function AdminUserDetailPage() {
+export default function AdminStaffDetailPage() {
     const { id } = useParams();
-
     const { data: user, isLoading, isError } = useGetUserByIdQuery(id);
 
     if (isLoading) {
@@ -31,11 +30,9 @@ export default function AdminUserDetailPage() {
     if (isError || !user) {
         return (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-                <p className="mb-4 text-muted-foreground">
-                    {"Không tìm thấy khách hàng"}
-                </p>
+                <p className="mb-4 text-muted-foreground">{"Không tìm thấy nhân viên"}</p>
                 <Button variant="outline" className="rounded-full" asChild>
-                    <Link to={ROUTES.ADMIN_USERS}>{"Danh sách khách hàng"}</Link>
+                    <Link to={ROUTES.ADMIN_STAFF}>{"Quản lý nhân viên"}</Link>
                 </Button>
             </div>
         );
@@ -43,13 +40,12 @@ export default function AdminUserDetailPage() {
 
     return (
         <div className="space-y-6">
-                <Button variant="ghost" size="sm" className="rounded-full" asChild>
-                <Link to={ROUTES.ADMIN_USERS}>
+            <Button variant="ghost" size="sm" className="rounded-full" asChild>
+                <Link to={ROUTES.ADMIN_STAFF}>
                     <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
-                    {"Danh sách khách hàng"}
+                    {"Quản lý nhân viên"}
                 </Link>
             </Button>
-
             <AdminUserDetailComponent user={user} />
         </div>
     );

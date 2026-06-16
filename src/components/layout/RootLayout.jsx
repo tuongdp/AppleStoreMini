@@ -6,18 +6,17 @@ import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import { useDispatch, useSelector } from "react-redux";
 import { lazy, Suspense, useEffect, useState } from "react";
+import CartDrawer from "@/features/cart/components/CartDrawer";
 import { MessageCircle } from "lucide-react";
 import {
     closeAll,
     toggleCartDrawer,
     toggleMobileMenu,
     toggleSearch,
-    selectCartDrawerOpen,
 } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useGetServerCartQuery } from "@/store/api/cartApi";
 
-const CartDrawer = lazy(() => import("@/features/cart/components/CartDrawer"));
 const ChatWidget = lazy(() => import("@/components/shared/ChatWidget"));
 
 function isTypingTarget(target) {
@@ -36,7 +35,6 @@ export default function RootLayout() {
     const { pathname } = useLocation();
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const isCartDrawerOpen = useSelector(selectCartDrawerOpen);
     const [chatMounted, setChatMounted] = useState(false);
     useGetServerCartQuery(undefined, {
         skip: !isAuthenticated,
@@ -79,11 +77,7 @@ export default function RootLayout() {
             <TrustBadges />
             <Footer />
             <ScrollToTopButton />
-            {isCartDrawerOpen && (
-                <Suspense fallback={null}>
-                    <CartDrawer />
-                </Suspense>
-            )}
+            <CartDrawer />
             {chatMounted ? (
                 <Suspense fallback={null}>
                     <ChatWidget initialOpen />

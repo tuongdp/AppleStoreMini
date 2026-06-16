@@ -172,6 +172,12 @@
         overflow-x: hidden;
         scrollbar-gutter: stable;
     }
+
+    /* Ngăn react-remove-scroll bù scrollbar 2 lần khi modal mở (đã có scrollbar-gutter: stable) */
+    body[data-scroll-locked] {
+        --removed-body-scroll-bar-size: 0;
+        margin-right: 0 !important;
+    }
     html {
         @apply font-sans;
         color-scheme: light;
