@@ -210,7 +210,7 @@ export const commentSchema = z.object({
 
 // ── Cancel order ──────────────────────────────────────
 export const cancelOrderSchema = z.object({
-    reason: z.string().min(10, { message: v("cancelReason.required") }).transform(sanitizeText),
+    reason: z.string().optional().transform((v) => sanitizeText(v || "")),
 });
 
 // ── Contact ───────────────────────────────────────────
