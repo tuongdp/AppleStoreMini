@@ -10,10 +10,15 @@ export const aiApi = baseApi.injectEndpoints({
       query: () => ({ url: "/chat/personalized", method: "POST", body: {} }),
       transformResponse: (response) => response.data,
     }),
+    compareProducts: builder.mutation({
+      query: (body) => ({ url: "/chat/compare", method: "POST", body }),
+      transformResponse: (response) => response.data,
+    }),
   }),
 });
 
 export const {
   useAiSearchMutation,
   usePersonalizedRecommendMutation,
+  useCompareProductsMutation,
 } = aiApi;

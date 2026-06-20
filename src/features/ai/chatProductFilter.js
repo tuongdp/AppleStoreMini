@@ -152,3 +152,38 @@ export function buildFocusedChatReply(message, originalReply, products) {
     "Bạn có thể bấm vào sản phẩm bên dưới để xem chi tiết cấu hình, màu sắc và tùy chọn dung lượng.",
   ].filter(Boolean).join(" ");
 }
+
+export function detectCompareIntent(message) {
+  const text = normalizeText(String(message || ""));
+  const patterns = [
+    /(?:so s[aá]nh|compare)\s+(.+?)\s+(?:vs|v[oó][iù]|v[àa])\s+(.+)/i,
+    /(.+?)\s+(?:vs|so s[aá]nh v[oó][iù])\s+(.+)/i,
+    /(.+?)\s+v[àa]\s+(.+?)\s+(?:c[aá]i n[àa]o|n[êe]n mua)/i,
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const a = match[1].trim();
+      const b = match[2].trim().replace(/\?/g, "").trim();
+      if (a && b && a.length > 1 && b.length > 1) {
+        return [a, b];
+      }
+    }
+  }
+  return null;
+}
+
+export function findProductByName(products, name) {
+  if (!Array.isArray(products) || !products.length) return null;
+  const target = normalizeText(name);
+  for (const p of products) {
+    if (normalizeText(p.name) === target) return p;
+  }
+  for (const p of products) {
+    if (normalizeText(p.name).startsWith(target)) return p;
+  }
+  for (const p of products) {
+    if (normalizeText(p.name).includes(target)) return p;
+  }
+  return null;
+}

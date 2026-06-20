@@ -4,13 +4,16 @@ import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
-import { buildFocusedChatReply, filterChatProductsByMessage } from "@/features/ai/chatProductFilter";
+import { useCompareProductsMutation } from "@/store/api/aiApi";
+import { buildFocusedChatReply, filterChatProductsByMessage, detectCompareIntent, findProductByName } from "@/features/ai/chatProductFilter";
 
 export default function ChatWidget({ initialOpen = false }) {
     const [open, setOpen] = useState(initialOpen);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [sendMessage, { isLoading }] = useSendMessageMutation();
+    const [compareProducts, { isLoading: isComparing }] = useCompareProductsMutation();
+    const isLoadingAny = isLoading || isComparing;
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -28,17 +31,17 @@ export default function ChatWidget({ initialOpen = false }) {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [messages, isLoading]);
+    }, [messages, isLoadingAny]);
 
     const handleSend = async (event) => {
         event?.preventDefault();
         const text = message.trim();
-        if (!text || isLoading) return;
+        if (!text || isLoadingAny) return;
 
         setMessage("");
 
         const history = messages
-            .filter((m) => m.content && !m.products)
+            .filter((m) => m.content && !m.products && !m.comparison)
             .slice(-20)
             .map((m) => ({
                 role: m.senderType === "USER" ? "user" : "assistant",
@@ -49,6 +52,51 @@ export default function ChatWidget({ initialOpen = false }) {
             ...prev,
             { senderType: "USER", content: text, createdAt: new Date().toISOString() },
         ]);
+
+        // Detect compare intent
+        const compareNames = detectCompareIntent(text);
+        if (compareNames) {
+            try {
+                // Search for both products
+                const search1 = await sendMessage({ message: compareNames[0], history: [] }).unwrap();
+                const p1 = findProductByName(search1?.products || [], compareNames[0]);
+
+                const search2 = await sendMessage({ message: compareNames[1], history: [] }).unwrap();
+                const p2 = findProductByName(search2?.products || [], compareNames[1]);
+
+                if (p1 && p2) {
+                    const compareResult = await compareProducts({
+                        products: [
+                            { name: p1.name, specs: `${p1.name} - Giá: ${(p1.price || 0).toLocaleString("vi-VN")}đ` },
+                            { name: p2.name, specs: `${p2.name} - Giá: ${(p2.price || 0).toLocaleString("vi-VN")}đ` },
+                        ],
+                    }).unwrap();
+
+                    setMessages((prev) => [
+                        ...prev,
+                        {
+                            senderType: "AI",
+                            content: compareResult?.reply || `So sánh ${p1.name} và ${p2.name}`,
+                            comparison: compareResult?.comparison,
+                            createdAt: new Date().toISOString(),
+                        },
+                        { senderType: "AI", products: [p1, p2], createdAt: new Date().toISOString() },
+                    ]);
+                } else {
+                    const missing = !p1 ? compareNames[0] : compareNames[1];
+                    setMessages((prev) => [
+                        ...prev,
+                        { senderType: "AI", content: `Dạ cửa hàng mình chưa có "${missing}" để so sánh ạ. Anh/chị thử sản phẩm khác nhé!`, createdAt: new Date().toISOString() },
+                    ]);
+                }
+            } catch {
+                setMessages((prev) => [
+                    ...prev,
+                    { senderType: "AI", content: "Xin lỗi, hệ thống so sánh đang bận. Vui lòng thử lại sau.", createdAt: new Date().toISOString() },
+                ]);
+            }
+            return;
+        }
 
         try {
             const result = await sendMessage({ message: text, history }).unwrap();
@@ -142,6 +190,11 @@ export default function ChatWidget({ initialOpen = false }) {
                                         }`}
                                     >
                                         {item.content}
+                                        {item.comparison?.verdict && (
+                                            <p className="mt-2 border-t border-border pt-2 text-xs font-medium text-foreground">
+                                                Kết luận: {item.comparison.verdict}
+                                            </p>
+                                        )}
                                     </div>
                                 ) : item.products ? (
                                     <div className="w-full space-y-2">
@@ -165,7 +218,7 @@ export default function ChatWidget({ initialOpen = false }) {
                             </div>
                         ))}
 
-                        {isLoading && (
+                        {isLoadingAny && (
                             <div className="flex justify-start">
                                 <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-2.5">
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -188,7 +241,7 @@ export default function ChatWidget({ initialOpen = false }) {
                             type="submit"
                             size="icon"
                             className="h-9 w-9 rounded-full"
-                            disabled={!message.trim() || isLoading}
+                            disabled={!message.trim() || isLoadingAny}
                             aria-label="Gửi tin nhắn"
                         >
                             <Send className="h-4 w-4" />
