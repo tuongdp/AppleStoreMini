@@ -86,6 +86,13 @@ export default function TopCustomers() {
                 <ExportButton onExportExcel={handleExportCustExcel} onExportPDF={handleExportCustPDF} loading={isExporting} />
             </div>
             <div className="space-y-3">
+                {/* Header */}
+                <div className="flex items-center gap-3 px-1 text-xs font-medium text-muted-foreground">
+                    <span className="w-14 shrink-0">Xếp hạng</span>
+                    <span className="min-w-0 flex-1">Khách hàng</span>
+                    <span className="w-28 shrink-0 text-right">Tổng chi tiêu</span>
+                    <span className="w-20 shrink-0 text-right">Số đơn</span>
+                </div>
             {data.map((cust, index) => {
                 const initials = (cust.fullName || "V")
                     .split(" ")
@@ -95,7 +102,7 @@ export default function TopCustomers() {
                     .toUpperCase();
 
                 return (
-                    <div key={cust.id || `guest-${index}`} className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                         <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0",
                             index === 0 && "bg-amber-100 text-amber-700",
                             index === 1 && "bg-slate-100 text-slate-600",
@@ -115,11 +122,13 @@ export default function TopCustomers() {
                                 {cust.email || (cust.fullName ? "" : "Không đăng nhập")}
                             </p>
                         </div>
-                        <div className="text-right shrink-0">
+                        <div className="w-28 shrink-0 text-right">
                             <p className="text-sm font-semibold text-foreground">{formatPrice(cust.totalSpent)}</p>
-                            <p className="text-xs text-muted-foreground">
-                                {cust.orderCount} đơn{cust.lastOrderDate ? ` · ${relativeTime(cust.lastOrderDate)}` : ""}
-                            </p>
+                            {cust.lastOrderDate && <p className="text-xs text-muted-foreground">{relativeTime(cust.lastOrderDate)}</p>}
+                        </div>
+                        <div className="w-20 shrink-0 text-right">
+                            <p className="text-sm font-medium text-foreground">{cust.orderCount ?? 0}</p>
+                            <p className="text-xs text-muted-foreground">đơn</p>
                         </div>
                     </div>
                 );
