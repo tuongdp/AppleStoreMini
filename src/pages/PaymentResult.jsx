@@ -36,8 +36,7 @@ export default function PaymentResult({ status }) {
         if (isVnpay) {
             setIsLoading(true);
             const params = new URLSearchParams(window.location.search);
-            const apiBase = import.meta.env.VITE_API_URL || "/api";
-            fetch(`${apiBase}/payment/vnpay-return?${params.toString()}`)
+            fetch(`/api/payment/vnpay-return?${params.toString()}`)
                 .then((res) => res.json())
                 .then((data) => {
                     const success = data?.data?.isSuccess ?? data?.data?.isVerified ?? false;
@@ -86,9 +85,8 @@ export default function PaymentResult({ status }) {
             }
         }, 1000);
 
-        const apiBase = import.meta.env.VITE_API_URL || "/api";
         const poll = setInterval(() => {
-            fetch(`${apiBase}/orders/${pendingOrderId}`)
+            fetch(`/api/orders/${pendingOrderId}`)
                 .then((res) => res.json())
                 .then((data) => {
                     const order = data?.data ?? data;
