@@ -160,7 +160,7 @@ export default function PaymentResult({ status }) {
         );
     }
 
-    if (isLoading) {
+    if (isLoading || isSuccess === null) {
         return (
             <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
                 <Loader2 className="mb-4 h-10 w-10 animate-spin text-muted-foreground" />
