@@ -151,7 +151,7 @@ export default function OrderDetail({ order }) {
                 onOpenChange={handleCancelOpen}
                 title="Huỷ đơn hàng"
                 description="Bạn có chắc muốn huỷ đơn hàng này?"
-                onConfirm={cancelForm.handleSubmit(handleCancel)}
+                onConfirm={() => cancelForm.handleSubmit(handleCancel)()}
                 isLoading={isCancelling}
             >
                 <Form {...cancelForm}>
