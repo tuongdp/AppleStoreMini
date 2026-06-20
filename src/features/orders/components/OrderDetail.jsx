@@ -32,15 +32,15 @@ export default function OrderDetail({ order }) {
     const [confirmDelivered, { isLoading: isConfirming }] = useConfirmDeliveredMutation();
     const handleReOrder = useAddToCartFromOrder();
 
-    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
+    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED].includes(
         (order.status || "").toLowerCase(),
     );
     const canConfirm = (order.status || "").toLowerCase() === ORDER_STATUS.SHIPPING;
 
     const shippingInfo = {
-        fullName: order.shippingFullName,
-        phone: order.shippingPhone,
-        address: order.shippingAddress,
+        fullName: order.user?.fullName || "",
+        phone: order.user?.phone || "",
+        address: order.user?.address || order.address || "",
     };
 
     const discountAmount = order.discountAmount ?? 0;
@@ -96,9 +96,6 @@ export default function OrderDetail({ order }) {
                         )}
                         <Button size="sm" variant="outline" className="rounded-full" onClick={() => handleReOrder(order)}>
                             <ShoppingCart className="mr-1 h-4 w-4" />Mua lại
-                        </Button>
-                        <Button size="sm" variant="outline" className="rounded-full" asChild>
-                            <Link to={ROUTES.PRODUCTS}>Tiếp tục mua sắm</Link>
                         </Button>
                     </div>
                 </div>

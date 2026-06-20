@@ -9,12 +9,8 @@ import { ORDER_STATUS } from "@/lib/constants";
 const STATUS_TABS = [
     { value: "all", label: "Lịch sử mua hàng" },
     { value: ORDER_STATUS.PENDING, label: "Chờ xác nhận", status: ORDER_STATUS.PENDING },
-    {
-        value: "pickup",
-        label: "Chờ lấy hàng",
-        status: `${ORDER_STATUS.CONFIRMED},${ORDER_STATUS.PROCESSING}`,
-    },
-    { value: ORDER_STATUS.SHIPPING, label: "Chờ giao hàng", status: ORDER_STATUS.SHIPPING },
+    { value: ORDER_STATUS.CONFIRMED, label: "Đã xác nhận", status: ORDER_STATUS.CONFIRMED },
+    { value: ORDER_STATUS.SHIPPING, label: "Đang giao", status: ORDER_STATUS.SHIPPING },
     { value: "review", label: "Đánh giá", status: ORDER_STATUS.DELIVERED },
 ];
 
