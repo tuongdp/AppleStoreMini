@@ -124,6 +124,7 @@ export default function AdminOrderTable() {
                             <TableHead>Khách hàng</TableHead>
                             <TableHead className="text-right">Tổng tiền</TableHead>
                             <TableHead>Thanh toán</TableHead>
+                            <TableHead>Phương thức</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Ngày đặt</TableHead>
                             <TableHead className="text-right">Thao tác</TableHead>
@@ -133,12 +134,12 @@ export default function AdminOrderTable() {
                         {isLoading || isFetching ? (
                             [...Array(6)].map((_, i) => (
                                 <TableRow key={i}>
-                                    {[...Array(7)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
+                                    {[...Array(8)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}
                                 </TableRow>
                             ))
                         ) : orders.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">Không có đơn hàng</TableCell>
+                                <TableCell colSpan={8} className="py-12 text-center text-muted-foreground">Không có đơn hàng</TableCell>
                             </TableRow>
                         ) : (
                             orders.map((order) => {
@@ -156,7 +157,12 @@ export default function AdminOrderTable() {
                                         </TableCell>
                                         <TableCell>
                                             <Badge className={cn("text-xs", order.isPaid ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400")}>
-                                                {order.isPaid ? "Đã thanh toán" : order.paymentMethod === "COD" ? "COD" : "Chưa TT"}
+                                                {order.isPaid ? "Đã thanh toán" : "Chưa TT"}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge className={cn("text-xs", order.paymentMethod === "VNPAY" ? "bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" : "bg-muted text-muted-foreground")}>
+                                                {order.paymentMethod === "VNPAY" ? "VNPAY" : order.paymentMethod === "COD" ? "COD" : "—"}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
