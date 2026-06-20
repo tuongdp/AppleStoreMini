@@ -166,9 +166,9 @@ export default function AdminUserDetail({ user }) {
                             <div className="grid grid-cols-1 gap-2">
                                 {canChangeRole && (
                                     <>
-                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("admin")}><ShieldCheck className="mr-2 h-4 w-4" />Đặt làm quản trị viên</Button>
-                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("staff")}><Shield className="mr-2 h-4 w-4" />Đặt làm nhân viên</Button>
-                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("user")}><User className="mr-2 h-4 w-4" />Đặt làm khách hàng</Button>
+                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole || user.role === "admin"} onClick={() => requestRoleChange("admin")}><ShieldCheck className="mr-2 h-4 w-4" />Đặt làm quản trị viên{user.role === "admin" && " (hiện tại)"}</Button>
+                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole || user.role === "staff"} onClick={() => requestRoleChange("staff")}><Shield className="mr-2 h-4 w-4" />Đặt làm nhân viên{user.role === "staff" && " (hiện tại)"}</Button>
+                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole || user.role === "user"} onClick={() => requestRoleChange("user")}><User className="mr-2 h-4 w-4" />Đặt làm khách hàng{user.role === "user" && " (hiện tại)"}</Button>
                                         <Separator className="my-1" />
                                     </>
                                 )}
