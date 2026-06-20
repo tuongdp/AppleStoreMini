@@ -31,7 +31,7 @@ import { toast } from "sonner";
 const ROLE_CONFIG = {
     admin: { label: "Quản trị viên", color: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400" },
     staff: { label: "Nhân viên", color: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400" },
-    user: { label: "Người dùng", color: "bg-muted text-muted-foreground" },
+    user: { label: "Khách hàng", color: "bg-muted text-muted-foreground" },
 };
 
 export default function AdminUserDetail({ user }) {
@@ -168,7 +168,7 @@ export default function AdminUserDetail({ user }) {
                                     <>
                                         <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("admin")}><ShieldCheck className="mr-2 h-4 w-4" />Đặt làm quản trị viên</Button>
                                         <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("staff")}><Shield className="mr-2 h-4 w-4" />Đặt làm nhân viên</Button>
-                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("user")}><User className="mr-2 h-4 w-4" />Đặt làm người dùng</Button>
+                                        <Button variant="outline" size="sm" className="justify-start rounded-lg" disabled={isUpdatingRole} onClick={() => requestRoleChange("user")}><User className="mr-2 h-4 w-4" />Đặt làm khách hàng</Button>
                                         <Separator className="my-1" />
                                     </>
                                 )}
