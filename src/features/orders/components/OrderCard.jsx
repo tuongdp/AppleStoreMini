@@ -137,8 +137,8 @@ export default function OrderCard({ order }) {
         <>
             <div className="rounded-xl border border-border bg-card transition-colors hover:border-border/80">
                 {/* Header */}
-                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                    <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="text-sm font-medium text-foreground">
                             #{order.code}
                         </span>
@@ -203,8 +203,7 @@ export default function OrderCard({ order }) {
                         ))}
                         {remainCount > 0 && (
                             <p className="text-xs text-muted-foreground">
-                                {"và"}{" "}
-                                {remainCount} {"quantity"}
+                                và {remainCount} sản phẩm khác
                             </p>
                         )}
                     </div>
@@ -214,11 +213,11 @@ export default function OrderCard({ order }) {
                 {showReviewSection && (
                     <>
                         <Separator />
-                        <div className="flex flex-wrap items-center gap-2 px-4 py-3">
+                        <div className="flex flex-wrap items-center gap-1.5 px-4 py-2.5">
                             {/* Chờ bình luận */}
                             {unreviewedItems.length > 0 && (
                                 <>
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="w-full text-xs text-muted-foreground sm:w-auto">
                                         {"Chờ bình luận:"}
                                     </span>
                                     {unreviewedItems.map((item, index) => (
@@ -269,7 +268,7 @@ export default function OrderCard({ order }) {
                 <Separator />
 
                 {/* Footer */}
-                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
                     <div className="text-sm">
                         <span className="text-muted-foreground">
                             {"Tổng cộng"}:{" "}
@@ -278,26 +277,26 @@ export default function OrderCard({ order }) {
                             {formatPrice(order.totalAmount)}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                         {isDelivered && (
                             <Button
                                 variant="secondary"
                                 size="sm"
-                                className="rounded-full"
+                                className="rounded-full text-xs"
                                 onClick={() => handleReOrder(order)}
                             >
                                 <ShoppingBag className="mr-1 h-3.5 w-3.5" />
-                                {"Mua lại"}
+                                Mua lại
                             </Button>
                         )}
                         <Button
                             variant="outline"
                             size="sm"
-                            className="rounded-full"
+                            className="rounded-full text-xs"
                             asChild
                         >
                             <Link to={ROUTES.ORDER_DETAIL(order._id || order.id)}>
-                                {"Thông tin đơn hàng"}
+                                Chi tiết
                                 <ChevronRight className="ml-1 h-3.5 w-3.5" />
                             </Link>
                         </Button>
