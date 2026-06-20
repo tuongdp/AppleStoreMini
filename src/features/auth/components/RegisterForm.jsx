@@ -1,42 +1,28 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Circle, Eye, EyeOff, Info, Loader2, MailCheck } from "lucide-react";
+import { CheckCircle2, Circle, Eye, EyeOff, Info } from "lucide-react";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useRegisterMutation, useLazyCheckEmailQuery, useSendVerificationMutation } from "@/store/api/authApi";
-import { setCredentials } from "@/store/authSlice";
+import { useLazyCheckEmailQuery } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
-import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
-} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import SocialLoginButtons from "./SocialLoginButtons";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const otpSchema = z.object({ code: z.string().length(6, "Vui lòng nhập đủ 6 ký tự") });
 
 export default function RegisterForm() {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { register, isRegisterLoading } = useAuth();
-    const [verifyEmail, { isLoading: isVerifying }] = useVerifyEmailMutation();
-    const [resendOtp, { isLoading: isResending }] = useSendVerificationMutation();
+    const { register: registerUser, isRegisterLoading } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [serverError, setServerError] = useState("");
-    const [registeredEmail, setRegisteredEmail] = useState("");
-    const [otpOpen, setOtpOpen] = useState(false);
-    const [otpError, setOtpError] = useState("");
     const [emailCheck, setEmailCheck] = useState(null);
     const [checkEmail, { isFetching: isCheckingEmail }] = useLazyCheckEmailQuery();
 
@@ -44,8 +30,6 @@ export default function RegisterForm() {
         resolver: zodResolver(registerSchema),
         defaultValues: { fullName: "", email: "", phone: "", password: "", confirmPassword: "", agreeTerms: false },
     });
-
-    const otpForm = useForm({ resolver: zodResolver(otpSchema), defaultValues: { code: "" } });
 
     const getEmailAvailability = async (email) => {
         const normalizedEmail = email.trim().toLowerCase();
@@ -74,35 +58,12 @@ export default function RegisterForm() {
                 return;
             }
         }
-        const result = await register(values);
+        const result = await registerUser(values);
         if (result.success) {
-            setRegisteredEmail(values.email);
-            setOtpOpen(true);
+            toast.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.");
+            navigate(ROUTES.HOME);
         } else {
             setServerError(result.message);
-        }
-    };
-
-    const handleVerifyOtp = async (values) => {
-        setOtpError("");
-        try {
-            const result = await verifyEmail({ code: values.code }).unwrap();
-            const data = result?.data || result;
-            dispatch(setCredentials({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken }));
-            toast.success("Xác thực thành công");
-            setOtpOpen(false);
-            navigate(ROUTES.HOME);
-        } catch (err) {
-            setOtpError(err?.data?.message || "Mã xác thực không hợp lệ hoặc đã hết hạn");
-        }
-    };
-
-    const handleResendOtp = async () => {
-        try {
-            await resendOtp({ email: registeredEmail }).unwrap();
-            toast.success("Đã gửi lại mã xác thực");
-        } catch {
-            toast.error("Không thể gửi lại mã");
         }
     };
 
@@ -153,7 +114,7 @@ export default function RegisterForm() {
 
                     <div className="-mt-2 flex gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
                         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        <p>Vui lòng sử dụng email thật để nhận mã kích hoạt tài khoản, thông báo đơn hàng và ưu đãi từ cửa hàng. Tài khoản chưa xác thực email trong 24 giờ sẽ được tự động xóa.</p>
+                        <p>Vui lòng sử dụng email thật để nhận link kích hoạt tài khoản, thông báo đơn hàng và ưu đãi từ cửa hàng. Tài khoản chưa xác thực email trong 24 giờ sẽ được tự động xóa.</p>
                     </div>
 
                     <FormField control={form.control} name="phone" render={({ field }) => (
@@ -222,45 +183,6 @@ export default function RegisterForm() {
             <p className="text-center text-sm text-muted-foreground">
                 Đã có tài khoản? <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">Đăng nhập</Link>
             </p>
-
-            {/* OTP Modal */}
-            <Dialog open={otpOpen} onOpenChange={(open) => { if (!open) setOtpOpen(false); }}>
-                <DialogContent className="sm:max-w-sm">
-                    <DialogHeader>
-                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted">
-                            <MailCheck className="h-7 w-7 text-foreground" />
-                        </div>
-                        <DialogTitle className="text-center">Xác thực email</DialogTitle>
-                        <DialogDescription className="text-center">
-                            Mã xác thực 6 số đã được gửi đến<br /><strong>{registeredEmail}</strong>
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <Form {...otpForm}>
-                        <form onSubmit={otpForm.handleSubmit(handleVerifyOtp)} className="space-y-4">
-                            {otpError && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{otpError}</div>}
-
-                            <FormField control={otpForm.control} name="code" render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input maxLength={6} placeholder="000000" autoComplete="off" className="text-center text-2xl tracking-[0.5em]" disabled={isVerifying} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-
-                            <Button type="submit" className="w-full rounded-full" disabled={isVerifying}>
-                                {isVerifying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Xác thực
-                            </Button>
-
-                            <Button type="button" variant="ghost" className="w-full text-sm" disabled={isResending} onClick={handleResendOtp}>
-                                {isResending ? "Đang gửi..." : "Gửi lại mã xác thực"}
-                            </Button>
-                        </form>
-                    </Form>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }
