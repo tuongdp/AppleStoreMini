@@ -32,7 +32,7 @@ export default function OrderDetail({ order }) {
     const [confirmDelivered, { isLoading: isConfirming }] = useConfirmDeliveredMutation();
     const handleReOrder = useAddToCartFromOrder();
 
-    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED].includes(
+    const canCancel = !order.isPaid && [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED].includes(
         (order.status || "").toLowerCase(),
     );
     const canConfirm = (order.status || "").toLowerCase() === ORDER_STATUS.SHIPPING;
