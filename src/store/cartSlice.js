@@ -189,12 +189,16 @@ export const selectCartStockIssues = createSelector(
                 const variantId = getItemVariantId(item);
                 const product = item.product || item.variant?.product;
                 const available = getAvailableStock(item);
-                if (item.quantity <= available) return null;
+                const outOfStock = available <= 0;
+                const quantityExceedsStock = !outOfStock && item.quantity > available;
+                if (!outOfStock && !quantityExceedsStock) return null;
                 return {
                     variantId,
                     requested: item.quantity,
                     available,
                     productName: product?.name || item.name || "",
+                    outOfStock,
+                    quantityExceedsStock,
                 };
             })
             .filter(Boolean),

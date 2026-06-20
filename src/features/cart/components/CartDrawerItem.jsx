@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 
 const getFirstImage = (images) => {
   if (!images) return null;
@@ -42,6 +42,7 @@ export default function CartDrawerItem({ item }) {
   const stockAvailable = (variant?.stock ?? product?.stock ?? 99);
   const effectiveMax = Math.max(1, stockAvailable);
   const hasStockIssue = item.quantity > stockAvailable;
+  const isOutOfStock = stockAvailable <= 0;
 
   const timerRef = useRef(null);
 
@@ -68,7 +69,14 @@ export default function CartDrawerItem({ item }) {
     toast.warning(`Chỉ còn ${stockAvailable} sản phẩm trong kho`);
   }, [stockAvailable]);
 
+  useEffect(() => {
+    if (isOutOfStock && isSelected) {
+      dispatch(toggleCartItemSelected({ variantId, selected: false }));
+    }
+  }, [isOutOfStock, isSelected, variantId, dispatch]);
+
   const handleToggleSelected = (checked) => {
+    if (isOutOfStock) return;
     dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
   };
 
@@ -77,10 +85,11 @@ export default function CartDrawerItem({ item }) {
   const firstImage = getFirstImage(product?.images || variant?.images);
 
   return (
-    <div className="flex gap-4">
+    <div className={cn("flex gap-4", isOutOfStock && "opacity-60")}>
       <Checkbox
         checked={isSelected}
         onCheckedChange={handleToggleSelected}
+        disabled={isOutOfStock}
         className="mt-1 shrink-0"
         aria-label={`Chọn ${product?.name || "sản phẩm"} để thanh toán`}
       />
@@ -136,9 +145,15 @@ export default function CartDrawerItem({ item }) {
             size="sm"
             onChange={handleUpdateQty}
             onExceedMax={handleExceedMax}
+            disabled={isOutOfStock}
           />
         </div>
-        {(stockAvailable <= 5 || hasStockIssue) && (
+        {isOutOfStock && (
+          <span className="mt-1 inline-block w-fit rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+            Hết hàng
+          </span>
+        )}
+        {!isOutOfStock && (stockAvailable <= 5 || hasStockIssue) && (
           <p className={cn("mt-1 text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
             {hasStockIssue
               ? `Không đủ hàng — chỉ còn ${stockAvailable} sản phẩm`

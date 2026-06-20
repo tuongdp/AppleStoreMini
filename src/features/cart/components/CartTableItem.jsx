@@ -13,7 +13,7 @@ import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { productPlaceholder } from "@/assets/images";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 
 const getFirstImage = (images) => {
   if (!images) return null;
@@ -40,6 +40,7 @@ export default function CartTableItem({ item, isLast }) {
   const availableStock = Number(variant?.stock ?? product?.stock ?? 99);
   const effectiveMax = Math.max(1, availableStock);
   const hasStockIssue = item.quantity > availableStock;
+  const isOutOfStock = availableStock <= 0;
 
   const timerRef = useRef(null);
 
@@ -66,7 +67,14 @@ export default function CartTableItem({ item, isLast }) {
     toast.warning(`Chỉ còn ${availableStock} sản phẩm trong kho`);
   }, [availableStock]);
 
+  useEffect(() => {
+    if (isOutOfStock && isSelected) {
+      dispatch(toggleCartItemSelected({ variantId, selected: false }));
+    }
+  }, [isOutOfStock, isSelected, variantId, dispatch]);
+
   const handleToggleSelected = (checked) => {
+    if (isOutOfStock) return;
     dispatch(toggleCartItemSelected({ variantId, selected: Boolean(checked) }));
   };
 
@@ -83,12 +91,13 @@ export default function CartTableItem({ item, isLast }) {
           <Checkbox
             checked={isSelected}
             onCheckedChange={handleToggleSelected}
+            disabled={isOutOfStock}
             aria-label={`Chọn ${product?.name || "sản phẩm"} để thanh toán`}
             data-testid="cart-item-select"
           />
         </div>
 
-        <div className="col-span-10 flex items-center gap-3 md:col-span-6">
+        <div className={cn("col-span-10 flex items-center gap-3 md:col-span-6", isOutOfStock && "opacity-50")}>
           <Link
             to={ROUTES.PRODUCT_DETAIL(product?.slug)}
             className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted/30 p-2 transition-opacity hover:opacity-80"
@@ -122,7 +131,12 @@ export default function CartTableItem({ item, isLast }) {
               <Trash2 className="h-3 w-3" aria-hidden="true" />
               {"Xoá"}
             </button>
-            {hasStockIssue && (
+            {isOutOfStock && (
+              <span className="mt-2 inline-block rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
+                Hết hàng
+              </span>
+            )}
+            {!isOutOfStock && hasStockIssue && (
               <p className="mt-2 text-xs font-medium text-destructive" data-testid="cart-stock-warning">
                 {`Sản phẩm không đủ số lượng. Hiện cửa hàng còn ${availableStock} sản phẩm.`}
               </p>
@@ -130,7 +144,7 @@ export default function CartTableItem({ item, isLast }) {
           </div>
         </div>
 
-        <div className="col-span-7 flex flex-col items-center md:col-span-2">
+        <div className={cn("col-span-7 flex flex-col items-center md:col-span-2", isOutOfStock && "opacity-50")}>
           <QuantityInput
             value={item.quantity}
             min={1}
@@ -138,15 +152,19 @@ export default function CartTableItem({ item, isLast }) {
             size="sm"
             onChange={handleUpdateQty}
             onExceedMax={handleExceedMax}
+            disabled={isOutOfStock}
           />
-          {(availableStock <= 5 || hasStockIssue) && (
+          {isOutOfStock && (
+            <p className="mt-1 text-center text-xs font-medium text-destructive">Hết hàng</p>
+          )}
+          {!isOutOfStock && (availableStock <= 5 || hasStockIssue) && (
             <p className={cn("mt-1 text-center text-xs", hasStockIssue ? "font-medium text-destructive" : "text-muted-foreground")}>
               {hasStockIssue ? `Không đủ — còn ${availableStock}` : `Còn ${availableStock}`}
             </p>
           )}
         </div>
 
-        <div className="col-span-5 flex items-center justify-end gap-3 md:col-span-3">
+        <div className={cn("col-span-5 flex items-center justify-end gap-3 md:col-span-3", isOutOfStock && "opacity-50")}>
           <PriceDisplay price={effectivePrice * item.quantity} size="sm" />
           <button
             onClick={handleRemove}
