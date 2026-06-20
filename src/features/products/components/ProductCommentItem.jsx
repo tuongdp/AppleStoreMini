@@ -1,33 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import StarRating from "@/components/shared/StarRating";
-import ResponsiveImage from "@/components/shared/ResponsiveImage";
-import ImageLightbox from "@/components/shared/ImageLightbox";
-import { timeAgo, isVideoUrl } from "@/lib/utils";
-import { Play } from "lucide-react";
+import { timeAgo } from "@/lib/utils";
 
 export default function ProductCommentItem({ comment }) {
-    const medias = comment.images || [];
-    const [lightboxOpen, setLightboxOpen] = useState(false);
-    const [lightboxIndex, setLightboxIndex] = useState(0);
     const [expanded, setExpanded] = useState(false);
-
-    const openLightbox = useCallback((index) => {
-        setLightboxIndex(index);
-        setLightboxOpen(true);
-    }, []);
-
-    const closeLightbox = useCallback(() => {
-        setLightboxOpen(false);
-    }, []);
 
     const commentText = comment.comment || comment.content || "";
     const MAX_LENGTH = 200;
     const shouldTruncate = commentText.length > MAX_LENGTH;
     const displayText = !shouldTruncate || expanded ? commentText : commentText.slice(0, MAX_LENGTH) + "...";
-
-    const toggleExpand = useCallback(() => setExpanded((prev) => !prev), []);
 
     return (
         <div className="space-y-3">
@@ -65,7 +48,6 @@ export default function ProductCommentItem({ comment }) {
                 </div>
             </div>
 
-            {/* Comment text */}
             <div>
                 <p className="break-words text-sm leading-relaxed text-foreground">
                     {displayText}
@@ -73,7 +55,7 @@ export default function ProductCommentItem({ comment }) {
                 {shouldTruncate && (
                     <button
                         type="button"
-                        onClick={toggleExpand}
+                        onClick={() => setExpanded((prev) => !prev)}
                         className="mt-1 text-xs font-medium text-primary hover:underline"
                     >
                         {expanded ? "Thu gọn" : "Xem thêm"}
@@ -84,55 +66,6 @@ export default function ProductCommentItem({ comment }) {
             {comment.adminReply && (
                 <AdminReply reply={comment} />
             )}
-
-            {/* Media thumbnails */}
-            {medias.length > 0 && (
-                <div className="space-y-1.5">
-                    <p className="text-xs text-muted-foreground">Hình ảnh / Video</p>
-                    <div className="flex flex-wrap gap-2">
-                        {medias.map((url, index) => {
-                            const isVideo = isVideoUrl(url);
-                            return (
-                                <button
-                                    key={`media-${index}`}
-                                    type="button"
-                                    className="relative h-20 w-20 overflow-hidden rounded-lg bg-muted/30 cursor-pointer border border-transparent hover:border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-                                    onClick={() => openLightbox(index)}
-                                >
-                                    {isVideo ? (
-                                        <>
-                                            <video
-                                                src={url}
-                                                preload="metadata"
-                                                className="h-full w-full object-cover"
-                                                muted
-                                            />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                                <Play className="h-6 w-6 text-white drop-shadow-md" />
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <ResponsiveImage
-                                            src={url}
-                                            alt={`Ảnh ${index + 1}`}
-                                            width={80}
-                                            height={80}
-                                            className="h-full w-full object-cover"
-                                        />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            <ImageLightbox
-                images={medias}
-                open={lightboxOpen}
-                onClose={closeLightbox}
-                initialIndex={lightboxIndex}
-            />
         </div>
     );
 }

@@ -3,8 +3,7 @@ import { useGetReviewsQuery } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Star, Image } from "lucide-react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ProductCommentSummary from "./ProductCommentSummary";
 import ProductCommentItem from "./ProductCommentItem";
@@ -24,14 +23,12 @@ export default function ProductComments({ product }) {
 
     const [page, setPage] = useState(1);
     const [starFilter, setStarFilter] = useState(null);
-    const [mediaOnly, setMediaOnly] = useState(false);
 
     const params = {
         page,
         limit: PER_PAGE,
     };
     if (starFilter) params.rating = starFilter;
-    if (mediaOnly) params.hasMedia = true;
 
     const { data, isLoading } = useGetReviewsQuery({
         productId,
@@ -87,24 +84,6 @@ export default function ProductComments({ product }) {
                                 )}
                             </Button>
                         ))}
-                        <div className="flex items-center gap-2 rounded-full border px-3 py-1.5">
-                            <Checkbox
-                                id="media-filter"
-                                checked={mediaOnly}
-                                onCheckedChange={(checked) => {
-                                    setMediaOnly(Boolean(checked));
-                                    setPage(1);
-                                }}
-                                className="h-3.5 w-3.5"
-                            />
-                            <label
-                                htmlFor="media-filter"
-                                className="flex cursor-pointer items-center gap-1 text-xs text-muted-foreground"
-                            >
-                                <Image className="h-3.5 w-3.5" />
-                                Có ảnh / video
-                            </label>
-                        </div>
                     </div>
 
                     {/* Comment list */}
