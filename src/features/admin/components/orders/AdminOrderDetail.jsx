@@ -1,515 +1,209 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Package, MapPin, CreditCard, StickyNote, XCircle } from "lucide-react";
+import { ChevronLeft, CheckCircle, XCircle, Clock, User, Mail, Phone, MapPin } from "lucide-react";
+import { useUpdateOrderStatusMutation, useCancelOrderByAdminMutation } from "@/store/api/ordersApi";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
-} from "@/components/ui/form";
-import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
-import OrderHistoryTimeline from "@/features/orders/components/OrderHistoryTimeline";
-import OrderItemRow from "@/features/orders/components/OrderItemRow";
-import AdminOrderStatusUpdate from "./AdminOrderStatusUpdate";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
-import PriceDisplay from "@/components/shared/PriceDisplay";
-import { useCancelOrderByAdminMutation } from "@/store/api/ordersApi";
-import { useApproveReturnMutation, useRejectReturnMutation } from "@/store/api/ordersApi";
-import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
-import { formatPrice, formatDateTime, formatPhone } from "@/lib/utils";
-import { ORDER_STATUS, RETURN_REQUEST_STATUS } from "@/lib/constants";
-import { createPdfDoc, getPdfFontFamily } from "@/utils/pdfFont";
-import ExportButton from "@/components/ui/export-button";
-import VATInvoiceDialog from "@/components/shared/VATInvoiceDialog";
+import { formatPrice, formatDateTime, parseJsonField, cn } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants";
 
-const PAYMENT_MAP = {
-  "cod": "Thanh toán khi nhận hàng",
-  "vnpay": "VNPay",
-  "paid": "Đã thanh toán",
-  "refunded": "Đã hoàn tiền",
-  "unknown": "Không xác định",
-  "unpaid": "Chưa thanh toán"
+const STATUS_COLOR = {
+    PENDING: "bg-yellow-100 text-yellow-800",
+    CONFIRMED: "bg-blue-100 text-blue-800",
+    SHIPPING: "bg-orange-100 text-orange-800",
+    DELIVERED: "bg-green-100 text-green-800",
+    CANCELLED: "bg-red-100 text-red-800",
 };
 
-const normalizePaymentMethod = (method) => (method || "").toLowerCase();
+const STATUS_LABEL = {
+    PENDING: "Chờ duyệt",
+    CONFIRMED: "Đã xác nhận",
+    SHIPPING: "Đang giao",
+    DELIVERED: "Đã giao",
+    CANCELLED: "Đã hủy",
+};
+
+const ALL_STATUSES = ["PENDING", "CONFIRMED", "SHIPPING", "DELIVERED", "CANCELLED"];
 
 export default function AdminOrderDetail({ order }) {
-    const returnRequest = order.returnRequest || order.returnRequests?.[0];
-
-    const [approveReturn, { isLoading: isApproving }] = useApproveReturnMutation();
-    const [rejectReturn, { isLoading: isRejecting }] = useRejectReturnMutation();
-
-    const handleApprove = async () => {
-        try {
-            await approveReturn(returnRequest.id).unwrap();
-            toast.success("Đã duyệt trả hàng và hoàn tiền");
-        } catch {
-            toast.error("Duyệt trả hàng thất bại");
-        }
-    };
-
-    const handleReject = async () => {
-        try {
-            await rejectReturn({ returnId: returnRequest.id, adminNote: "" }).unwrap();
-            toast.success("Đã từ chối yêu cầu trả hàng");
-        } catch {
-            toast.error("Từ chối thất bại");
-        }
-    };
-
-    const handleExportOrderPDF = async () => {
-        if (!order) return;
-        setIsExportingPDF(true);
-        try {
-            const autoTable = (await import("jspdf-autotable")).default;
-            const items = order.items || [];
-            const STATUS_LABELS = {
-                pending: "Chờ xác nhận", confirmed: "Đã xác nhận", processing: "Đang xử lý",
-                shipping: "Đang giao hàng", delivered: "Đã giao hàng", cancelled: "Đã huỷ",
-                refunding: "Đang hoàn tiền", refunded: "Đã hoàn tiền",
-            };
-            const PAYMENT_LABELS = {
-                cod: "COD", COD: "COD", vnpay: "VNPay", VNPAY: "VNPay",
-            };
-
-            const itemColumns = [
-                { key: "name", label: "Sản phẩm" },
-                { key: "variant", label: "Biến thể" },
-                { key: "quantity", label: "SL" },
-                { key: "price", label: "Đơn giá", format: "currency" },
-                { key: "total", label: "Thành tiền", format: "currency" },
-            ];
-
-            const itemRows = items.map((it) => {
-                const variantParts = [it.color, it.storage, it.ram].filter(Boolean);
-                return {
-                    name: it.name || "—",
-                    variant: variantParts.length > 0 ? variantParts.join(" / ") : "—",
-                    quantity: it.quantity,
-                    price: it.price || 0,
-                    total: (it.price || 0) * (it.quantity || 0),
-                };
-            });
-
-            const doc = await createPdfDoc({ orientation: "p" });
-            const fontFamily = getPdfFontFamily();
-            const pw = doc.internal.pageSize.getWidth();
-            const m = 15;
-            let y = 12;
-
-            doc.setFontSize(9); doc.setTextColor(128);
-            doc.text("AppleStore Mini", m, y);
-            doc.text(new Date().toLocaleDateString("vi-VN"), pw - m, y, { align: "right" });
-            y += 4;
-            doc.setFontSize(7); doc.setTextColor(150);
-            doc.text("SĐT: 1800 1234 | Email: support@applestore.vn", m, y);
-            y += 8;
-
-            doc.setFontSize(16); doc.setTextColor(30, 64, 175);
-            doc.text(`Đơn hàng #${order.code}`, pw / 2, y, { align: "center" });
-            y += 8;
-
-            doc.setFontSize(10); doc.setTextColor(80);
-            doc.text(`Khách hàng: ${order.user?.fullName || "\u2014"}`, m, y); y += 5;
-            doc.text(`Email: ${order.user?.email || "\u2014"}`, m, y); y += 5;
-            doc.text(`SĐT: ${order.user?.phone || "\u2014"}`, m, y); y += 5;
-            doc.text(`Ngày đặt: ${new Date(order.createdAt).toLocaleDateString("vi-VN")}`, m, y); y += 5;
-            doc.text(`Trạng thái: ${STATUS_LABELS[order.status?.toLowerCase()] || order.status}`, m, y); y += 5;
-            doc.text(`Thanh toán: ${PAYMENT_LABELS[order.paymentMethod] || order.paymentMethod || "\u2014"}${order.isPaid ? " (Đã TT)" : " (Chưa TT)"}`, m, y);
-            y += 10;
-
-            if (order.shippingAddress || order.address) {
-                const addr = order.shippingAddress || order.address;
-                doc.setFontSize(10); doc.setTextColor(80);
-                doc.text(`Địa chỉ giao: ${typeof addr === "string" ? addr : [addr.street, addr.ward, addr.district, addr.city].filter(Boolean).join(", ")}`, m, y);
-                y += 8;
-            }
-
-            autoTable(doc, {
-                startY: y, margin: { left: m, right: m },
-                head: [itemColumns.map((c) => c.label)],
-                body: itemRows.map((r) => itemColumns.map((c) => {
-                    const v = r[c.key];
-                    return c.format === "currency" ? Number(v).toLocaleString("vi-VN") + " đ" : (v ?? "\u2014");
-                })),
-                styles: { font: fontFamily, fontStyle: "normal" },
-                headStyles: { fillColor: [30, 64, 175], textColor: 255, fontStyle: "normal", halign: "center", fontSize: 9 },
-                bodyStyles: { fontSize: 8, cellPadding: 2 },
-                alternateRowStyles: { fillColor: [243, 244, 246] },
-                columnStyles: { 3: { halign: "right" }, 4: { halign: "right" } },
-            });
-            y = doc.lastAutoTable.finalY + 8;
-
-            doc.setFontSize(10); doc.setTextColor(80);
-            doc.text(`Tổng tiền hàng: ${(order.subtotal || 0).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" }); y += 5;
-            if (order.discountAmount) {
-                doc.setTextColor(200, 0, 0);
-                doc.text(`Giảm giá: -${(order.discountAmount).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" }); y += 5;
-            }
-            if (order.shippingFee) {
-                doc.setTextColor(80);
-                doc.text(`Phí ship: ${(order.shippingFee).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" }); y += 5;
-            }
-            doc.setFontSize(12); doc.setTextColor(30, 64, 175);
-            doc.text(`Tổng cộng: ${(order.totalAmount || 0).toLocaleString("vi-VN")} đ`, pw - m, y, { align: "right" });
-
-            doc.save(`DonHang_${order.code}.pdf`);
-        } catch (err) {
-            console.error("Export PDF failed:", err);
-            toast.error("Xuất file thất bại");
-        } finally {
-            setIsExportingPDF(false);
-        }
-    };
-
-    // ✅ BE lưu shipping address dưới dạng flat fields (giống OrderDetail user)
-    const shippingInfo = {
-        fullName: order.shippingFullName,
-        phone: order.shippingPhone,
-        address: order.shippingAddress,
-    };
-
-    // ✅ BE dùng discountAmount (không phải discount)
-    const shippingFee = order?.shippingFee ?? 0;
-    const discountAmount = order?.discountAmount ?? 0;
-
-    const canCancel = [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED, ORDER_STATUS.PROCESSING].includes(
-        (order.status || "").toLowerCase(),
-    );
-
     const [cancelOpen, setCancelOpen] = useState(false);
-    const [isExportingPDF, setIsExportingPDF] = useState(false);
-    const [vatDialogOpen, setVatDialogOpen] = useState(false);
+    const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
+    const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderByAdminMutation();
 
-    const cancelForm = useForm({
-        resolver: zodResolver(cancelOrderSchema),
-        defaultValues: { reason: "" },
-    });
+    if (!order) return null;
 
-    const [cancelOrderByAdmin, { isLoading: isCancelling }] = useCancelOrderByAdminMutation();
+    const oid = order.id || order._id;
+    const items = order.items || [];
+    const user = order.user || {};
+    const address = order.address || user.address || "";
 
-    const handleCancel = async (values) => {
+    const handleStatusChange = async (status) => {
         try {
-            await cancelOrderByAdmin({ id: order.id, reason: values.reason }).unwrap();
-            toast.success("Đã huỷ đơn hàng và gửi email thông báo cho khách hàng");
-            cancelForm.reset();
-            setCancelOpen(false);
-        } catch {
-            toast.error("Huỷ đơn hàng thất bại, vui lòng thử lại");
+            await updateStatus({ id: oid, status }).unwrap();
+            toast.success("Cập nhật trạng thái thành công");
+        } catch (error) {
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
         }
     };
 
-    const handleCancelOpen = (open) => {
-        setCancelOpen(open);
-        if (!open) cancelForm.reset();
+    const handleCancel = async () => {
+        try {
+            await cancelOrder({ id: oid, reason: "Admin huỷ" }).unwrap();
+            setCancelOpen(false);
+            toast.success("Đã huỷ đơn hàng");
+        } catch (error) {
+            toast.error(error?.data?.message || "Có lỗi xảy ra");
+        }
     };
 
     return (
-        <div className="space-y-4">
-            {/* Header */}
-            <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-border bg-card p-5 md:p-6">
+        <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-3">
-                        <h2 className="text-lg font-semibold text-foreground">
-                            #{order.code}
-                        </h2>
-                        <OrderStatusBadge status={order.status} />
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        {formatDateTime(order.createdAt)}
-                    </p>
+                    <h2 className="text-lg font-semibold">#{order.code}</h2>
+                    <p className="text-sm text-muted-foreground">{formatDateTime(order.createdAt)}</p>
                 </div>
-
                 <div className="flex items-center gap-2">
-                    {canCancel && (
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="rounded-full text-destructive hover:text-destructive"
-                            onClick={() => setCancelOpen(true)}
-                        >
-                            <XCircle className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                            {"Huỷ đơn hàng"}
-                        </Button>
+                    {order.status !== "CANCELLED" && order.status !== "DELIVERED" && (
+                        <>
+                            <Select value={order.status} onValueChange={handleStatusChange} disabled={isUpdating}>
+                                <SelectTrigger className="w-40 rounded-full">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ALL_STATUSES.filter((s) => s !== "CANCELLED").map((s) => (
+                                        <SelectItem key={s} value={s}>{STATUS_LABEL[s]}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button variant="destructive" size="sm" className="rounded-full" onClick={() => setCancelOpen(true)} disabled={isCancelling}>
+                                <XCircle className="mr-1 h-4 w-4" />Huỷ đơn
+                            </Button>
+                        </>
                     )}
-                    <AdminOrderStatusUpdate
-                        orderId={order.id || order._id}
-                        currentStatus={order.status}
-                    />
-                    <ExportButton
-                        onExportPDF={handleExportOrderPDF}
-                        loading={isExportingPDF}
-                    />
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="rounded-full"
-                        onClick={() => setVatDialogOpen(true)}
-                    >
-                        Xuất hóa đơn GTGT
-                    </Button>
+                    <Badge className={cn("text-sm px-3 py-1", STATUS_COLOR[order.status] || "")}>
+                        {STATUS_LABEL[order.status] || order.status}
+                    </Badge>
                 </div>
-
-                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.PENDING && (
-                    <div className="mt-3 w-full rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-3 dark:bg-yellow-950/30">
-                        <div className="flex items-center justify-between gap-4">
-                            <div>
-                                <p className="text-sm font-medium">Yêu cầu trả hàng đang chờ duyệt</p>
-                                <p className="text-xs text-muted-foreground">
-                                    {returnRequest.reason && `Lý do: ${returnRequest.reason} — `}
-                                    {returnRequest.description?.slice(0, 80)}
-                                </p>
-                            </div>
-                            <div className="flex shrink-0 gap-2">
-                                <Button
-                                    size="sm"
-                                    className="rounded-full bg-green-600 hover:bg-green-700"
-                                    onClick={handleApprove}
-                                    disabled={isApproving}
-                                >
-                                    {isApproving ? "..." : "Duyệt & Hoàn tiền"}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="rounded-full text-destructive"
-                                    onClick={handleReject}
-                                    disabled={isRejecting}
-                                >
-                                    Từ chối
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.APPROVED && (
-                    <div className="mt-3 w-full rounded-lg border-l-4 border-blue-400 bg-blue-50 p-3 dark:bg-blue-950/30">
-                        <p className="text-sm font-medium">Đã duyệt, đang xử lý hoàn tiền</p>
-                    </div>
-                )}
-
-                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.REFUNDED && (
-                    <div className="mt-3 w-full rounded-lg border-l-4 border-green-400 bg-green-50 p-3 dark:bg-green-950/30">
-                        <p className="text-sm font-medium">Đã hoàn tiền</p>
-                    </div>
-                )}
-
-                {returnRequest && returnRequest.status === RETURN_REQUEST_STATUS.REJECTED && (
-                    <div className="mt-3 w-full rounded-lg border-l-4 border-red-400 bg-red-50 p-3 dark:bg-red-950/30">
-                        <p className="text-sm font-medium">Đã từ chối yêu cầu trả hàng</p>
-                    </div>
-                )}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                {/* ── Left ── */}
-                <div className="space-y-4 lg:col-span-2">
-                    {/* Items */}
-                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <div className="mb-4 flex items-center gap-2">
-                            <Package className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                            <h3 className="text-sm font-medium text-foreground">
-                                {"Mã đơn hàng"} —{" "}
-                                {order.items?.length ?? 0}{" "}
-                                {"Số lượng"}
-                            </h3>
-                        </div>
+            <div className="grid gap-6 lg:grid-cols-3">
+                <div className="space-y-6 lg:col-span-2">
+                    <Card>
+                        <CardHeader><CardTitle className="text-sm font-medium">Sản phẩm ({items.length})</CardTitle></CardHeader>
+                        <CardContent className="space-y-3">
+                            {items.map((item) => {
+                                const variant = item.variant || {};
+                                const product = variant.product || {};
+                                const images = parseJsonField(variant.images);
+                                const img = Array.isArray(images) ? images[0] : null;
+                                return (
+                                    <div key={item.id} className="flex gap-3 rounded-lg border p-3">
+                                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted/30 p-1">
+                                            {img ? <img src={img} alt="" className="h-full w-full object-contain" /> : <div className="h-full w-full bg-muted/50 rounded" />}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-medium truncate">{product.name || "Sản phẩm"}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {[variant.color, variant.storage, variant.size].filter(Boolean).join(" · ") || "—"}
+                                            </p>
+                                            <div className="mt-1 flex items-center gap-3 text-sm">
+                                                <span className="font-medium">{formatPrice(item.price)}</span>
+                                                <span className="text-muted-foreground">x{item.quantity}</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="text-sm font-medium">{formatPrice(Number(item.price) * item.quantity)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </CardContent>
+                    </Card>
+                </div>
 
-                        <div className="space-y-4">
-                            {order.items?.map((item, index) => (
-                                <OrderItemRow
-                                    key={index}
-                                    item={item}
-                                    isLast={index === order.items.length - 1}
-                                />
-                            ))}
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    {"Tạm tính"}
-                                </span>
-                                <span>{formatPrice(order.subtotal)}</span>
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle className="text-sm font-medium">Khách hàng</CardTitle></CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="flex items-center gap-2 text-sm">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span>{user.fullName || "—"}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">
-                                    {"Phí vận chuyển"}
-                                </span>
-                                <span>
-                                    {shippingFee === 0
-                                        ? "Miễn phí"
-                                        : formatPrice(shippingFee)}
-                                </span>
+                            {user.email && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Mail className="h-4 w-4 text-muted-foreground" />
+                                    <span className="truncate">{user.email}</span>
+                                </div>
+                            )}
+                            {user.phone && (
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Phone className="h-4 w-4 text-muted-foreground" />
+                                    <span>{user.phone}</span>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {address && (
+                        <Card>
+                            <CardHeader><CardTitle className="text-sm font-medium">Địa chỉ giao hàng</CardTitle></CardHeader>
+                            <CardContent>
+                                <div className="flex items-start gap-2 text-sm">
+                                    <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                                    <span>{address}</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    <Card>
+                        <CardHeader><CardTitle className="text-sm font-medium">Thanh toán</CardTitle></CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Phương thức</span>
+                                <Badge variant="secondary">{order.paymentMethod}</Badge>
                             </div>
-                            {/* ✅ dùng discountAmount + hiện couponCode nếu có */}
-                            {discountAmount > 0 && (
-                                <div className="flex justify-between text-green-600 dark:text-green-400">
-                                    <span>
-                                        {"Giảm giá"}
-                                        {order.couponCode && (
-                                            <code className="ml-1 text-xs">
-                                                ({order.couponCode})
-                                            </code>
-                                        )}
-                                    </span>
-                                    <span>-{formatPrice(discountAmount)}</span>
+                            {order.coupon && (
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Mã giảm giá</span>
+                                    <Badge variant="outline">{order.coupon.code}</Badge>
+                                </div>
+                            )}
+                            {Number(order.discountAmount) > 0 && (
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-muted-foreground">Giảm giá</span>
+                                    <span className="text-green-600 font-medium">-{formatPrice(order.discountAmount)}</span>
                                 </div>
                             )}
                             <Separator />
-                            <div className="flex items-center justify-between font-semibold">
-                                <span>
-                                    {"Tổng cộng"}
-                                </span>
-                                <PriceDisplay
-                                    price={order.totalAmount}
-                                    size="md"
-                                />
+                            <div className="flex items-center justify-between text-sm font-semibold">
+                                <span>Tổng tiền</span>
+                                <span>{formatPrice(order.totalAmount)}</span>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Customer + Shipping */}
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="rounded-2xl border border-border bg-card p-5">
-                            <h3 className="mb-3 text-sm font-medium text-foreground">
-                                {"Khách hàng"}
-                            </h3>
-                            <div className="space-y-1 text-sm">
-                                <p className="font-medium text-foreground">
-                                    {order.user?.fullName || order.shippingFullName || "Khách vãng lai"}
-                                </p>
-                                <p className="text-muted-foreground">
-                                    {order.user?.email || order.shippingEmail || "—"}
-                                </p>
-                                <p className="text-muted-foreground">
-                                    {order.user?.phone ? formatPhone(order.user.phone) : "—"}
-                                </p>
+                            <div className="flex items-center gap-2 text-sm">
+                                {order.isPaid ? (
+                                    <><CheckCircle className="h-4 w-4 text-green-600" /><span className="text-green-600">Đã thanh toán</span></>
+                                ) : (
+                                    <><Clock className="h-4 w-4 text-muted-foreground" /><span className="text-muted-foreground">Chưa thanh toán</span></>
+                                )}
                             </div>
-                        </div>
-
-                        {/* ✅ Dùng flat fields từ BE */}
-                        <div className="rounded-2xl border border-border bg-card p-5">
-                            <div className="mb-3 flex items-center gap-2">
-                                <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                                <h3 className="text-sm font-medium text-foreground">
-                                    {"Địa chỉ giao hàng"}
-                                </h3>
-                            </div>
-                            <div className="space-y-0.5 text-sm">
-                                <p className="font-medium text-foreground">
-                                    {shippingInfo.fullName || "—"}
-                                </p>
-                                <p className="text-muted-foreground">
-                                    {shippingInfo.phone ? formatPhone(shippingInfo.phone) : "—"}
-                                </p>
-                                <p className="text-muted-foreground">
-                                    {shippingInfo.address || "—"}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Payment */}
-                    <div className="rounded-2xl border border-border bg-card p-5">
-                        <div className="mb-3 flex items-center gap-2">
-                            <CreditCard className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                            <h3 className="text-sm font-medium text-foreground">
-                                {"Phương thức thanh toán"}
-                            </h3>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="text-foreground">
-                                {(PAYMENT_MAP[normalizePaymentMethod(order.paymentMethod)] || order.paymentMethod)}
-                            </span>
-                            <span
-                                className={
-                                    order.isPaid
-                                        ? "font-medium text-green-600 dark:text-green-400"
-                                        : "text-muted-foreground"
-                                }
-                            >
-                                {order.isPaid
-                                    ? "Đã thanh toán"
-                                    : "Chưa thanh toán"}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Note */}
-                    {order.note && (
-                        <div className="rounded-2xl border border-border bg-card p-5">
-                            <div className="mb-3 flex items-center gap-2">
-                                <StickyNote className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                                <h3 className="text-sm font-medium text-foreground">
-                                    Ghi chú đơn hàng
-                                </h3>
-                            </div>
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                                {order.note}
-                            </p>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── Right — Lịch sử đơn hàng ── */}
-                <div>
-                    <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-                        <h3 className="mb-5 text-sm font-medium text-foreground">
-                            {"Lịch sử đơn hàng"}
-                        </h3>
-                        <OrderHistoryTimeline statusHistory={order.statusHistory} />
-                    </div>
+                            {order.note && (
+                                <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                                    <span>Ghi chú: {order.note}</span>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 
-            <ConfirmDialog
-                open={cancelOpen}
-                onOpenChange={handleCancelOpen}
-                title={"Huỷ đơn hàng"}
-                description={
-                    <Form {...cancelForm}>
-                        <div className="space-y-3">
-                            <p className="text-sm text-muted-foreground">
-                                {"Bạn có chắc chắn muốn huỷ đơn hàng này? Email thông báo sẽ được gửi đến khách hàng."}
-                            </p>
-                            <FormField
-                                control={cancelForm.control}
-                                name="reason"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder={"Nhập lý do huỷ đơn hàng"}
-                                                rows={3}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </Form>
-                }
-                confirmLabel={"Xác nhận huỷ"}
-                onConfirm={cancelForm.handleSubmit(handleCancel)}
-                isLoading={isCancelling}
-            />
-            <VATInvoiceDialog
-                open={vatDialogOpen}
-                onClose={() => setVatDialogOpen(false)}
-                order={order}
-            />
+            <ConfirmDialog open={cancelOpen} onOpenChange={setCancelOpen} title="Huỷ đơn hàng?" description="Hành động này không thể hoàn tác." onConfirm={handleCancel} isLoading={isCancelling} />
         </div>
     );
 }

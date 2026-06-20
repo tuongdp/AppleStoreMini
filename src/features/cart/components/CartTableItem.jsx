@@ -37,7 +37,7 @@ export default function CartTableItem({ item, isLast }) {
   const refreshRate = variant?.refreshRate || product?.refreshRate || "";
   const ssd = variant?.ssd || product?.ssd || "";
   const isSelected = item.selected !== false;
-  const availableStock = Number(variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99));
+  const availableStock = Number(variant?.stock ?? product?.stock ?? 99);
   const effectiveMax = Math.max(1, availableStock);
   const hasStockIssue = item.quantity > availableStock;
 

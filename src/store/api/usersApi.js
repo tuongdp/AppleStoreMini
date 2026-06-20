@@ -51,13 +51,13 @@ export const usersApi = baseApi.injectEndpoints({
         // ── Admin ──────────────────────────────────────
 
         // GET /admin/users?page=&limit=&search=&role=
-        // BE trả: { data: users[], pagination }
+        // BE trả: { data: { users: [...], pagination: {...} } }
         getAllUsers: builder.query({
             query: (params) => ({ url: "/admin/users", params }),
             providesTags: ["Users"],
             transformResponse: (response) => ({
-                users: response.data,
-                pagination: response.pagination,
+                users: response.data?.users || [],
+                pagination: response.data?.pagination || {},
             }),
         }),
 
@@ -84,17 +84,6 @@ export const usersApi = baseApi.injectEndpoints({
             }),
             invalidatesTags: (_, __, { id }) => ["Users", { type: "User", id }],
             transformResponse: (response) => normalizeProfileUser(response.data),
-        }),
-
-        // PATCH /admin/users/:id/permissions — BE nhận { permissions }
-        updateUserPermissions: builder.mutation({
-            query: ({ id, permissions }) => ({
-                url: `/admin/users/${id}/permissions`,
-                method: "PATCH",
-                body: { permissions },
-            }),
-            invalidatesTags: (_, __, { id }) => ["Users", { type: "User", id }],
-            transformResponse: (response) => response.data,
         }),
 
         // PATCH /admin/users/:id/toggle
@@ -145,7 +134,6 @@ export const {
     useGetUserStatsQuery,
     useGetUserByIdQuery,
     useUpdateUserRoleMutation,
-    useUpdateUserPermissionsMutation,
     useToggleUserStatusMutation,
     useDeleteUserMutation,
     useResetUserPasswordMutation,

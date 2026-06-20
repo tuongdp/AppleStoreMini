@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,8 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { exportVATInvoicePDF, cacheSellerInfo, getSellerInfo } from "@/utils/invoiceUtils";
-import { usePublicSettings } from "@/hooks/usePublicSettings";
+import { exportVATInvoicePDF, getSellerInfo } from "@/utils/invoiceUtils";
 import { toast } from "sonner";
 
 const VAT_RATE_OPTIONS = [
@@ -35,14 +34,6 @@ export default function VATInvoiceDialog({ open, onClose, order }) {
   const [isCustom, setIsCustom] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
-  const { data: settingsData } = usePublicSettings();
-
-  useEffect(() => {
-    if (settingsData?.shop) {
-      cacheSellerInfo(settingsData.shop);
-    }
-  }, [settingsData]);
 
   const handleClose = () => {
     setCompanyName("");

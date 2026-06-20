@@ -63,67 +63,17 @@ export const SORT_OPTIONS = [
 export const ORDER_STATUS = {
     PENDING: "pending",
     CONFIRMED: "confirmed",
-    PROCESSING: "processing",
     SHIPPING: "shipping",
     DELIVERED: "delivered",
     CANCELLED: "cancelled",
-    REFUNDING: "refunding",
-    REFUNDED: "refunded",
 };
 
 export const ORDER_STATUS_COLOR = {
     pending: "bg-yellow-100 text-yellow-800",
     confirmed: "bg-blue-100 text-blue-800",
-    processing: "bg-purple-100 text-purple-800",
     shipping: "bg-orange-100 text-orange-800",
     delivered: "bg-green-100 text-green-800",
     cancelled: "bg-red-100 text-red-800",
-    refunding: "bg-pink-100 text-pink-800",
-    refunded: "bg-gray-100 text-gray-800",
-};
-
-// ── Return / Refund ───────────────────────────────────
-export const RETURN_REASON = {
-    DEFECTIVE: "DEFECTIVE",
-    WRONG_ITEM: "WRONG_ITEM",
-    DAMAGED: "DAMAGED",
-    MISSING: "MISSING",
-    OTHER: "OTHER",
-};
-
-export const RETURN_REASON_MAP = {
-    DEFECTIVE: "Sản phẩm lỗi",
-    WRONG_ITEM: "Giao sai sản phẩm",
-    DAMAGED: "Hư hỏng khi vận chuyển",
-    MISSING: "Thiếu phụ kiện",
-    OTHER: "Lý do khác",
-};
-
-export const RETURN_REQUEST_STATUS = {
-    PENDING: "PENDING",
-    APPROVED: "APPROVED",
-    REJECTED: "REJECTED",
-    RETURNING: "RETURNING",
-    RECEIVED: "RECEIVED",
-    REFUNDED: "REFUNDED",
-};
-
-export const RETURN_REQUEST_STATUS_MAP = {
-    PENDING: "Chờ duyệt",
-    APPROVED: "Đã duyệt",
-    REJECTED: "Từ chối",
-    RETURNING: "Đang gửi trả",
-    RECEIVED: "Đã nhận hàng",
-    REFUNDED: "Đã hoàn tiền",
-};
-
-export const RETURN_REQUEST_STATUS_COLOR = {
-    PENDING: "bg-yellow-100 text-yellow-800",
-    APPROVED: "bg-blue-100 text-blue-800",
-    REJECTED: "bg-red-100 text-red-800",
-    RETURNING: "bg-purple-100 text-purple-800",
-    RECEIVED: "bg-indigo-100 text-indigo-800",
-    REFUNDED: "bg-green-100 text-green-800",
 };
 
 // ── Payment methods ───────────────────────────────────

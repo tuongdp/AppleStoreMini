@@ -14,7 +14,6 @@ describe("admin categories contract", () => {
     assert.match(source, /category\?\.image \|\| category\?\.icon \|\| category\?\.thumbnail/);
     assert.match(source, /category\?\._count\?\.products/);
     assert.match(source, /category\?\.productsCount/);
-    assert.match(source, /Array\.isArray\(category\?\.series\)/);
   });
 
   it("handles paginated admin category responses and refetch loading", () => {

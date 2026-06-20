@@ -39,7 +39,7 @@ export default function CartDrawerItem({ item }) {
 
   const isSelected = item.selected !== false;
 
-  const stockAvailable = variant?.inStock === false || product?.inStock === false ? 0 : (variant?.stock ?? product?.stock ?? 99);
+  const stockAvailable = (variant?.stock ?? product?.stock ?? 99);
   const effectiveMax = Math.max(1, stockAvailable);
   const hasStockIssue = item.quantity > stockAvailable;
 

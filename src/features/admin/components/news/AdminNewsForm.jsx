@@ -1,21 +1,12 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import {
     Form,
     FormControl,
@@ -29,35 +20,12 @@ import { selectCurrentUser } from "@/store/authSlice";
 import { useUploadEditorImageMutation } from "@/store/api/productsApi";
 import { slugify } from "@/lib/utils";
 import { toast } from "sonner";
-
-const NEWS_CATEGORIES = [
-    { value: "_none", label: "Không chọn" },
-    { value: "iPhone", label: "iPhone" },
-    { value: "Mac", label: "Mac" },
-    { value: "iPad", label: "iPad" },
-    { value: "Watch", label: "Watch" },
-    { value: "Âm thanh", label: "Âm thanh" },
-    { value: "Phụ kiện", label: "Phụ kiện" },
-    { value: "Dịch vụ", label: "Dịch vụ" },
-    { value: "Tư vấn", label: "Tư vấn" },
-    { value: "Thủ thuật", label: "Thủ thuật" },
-];
-
-const calcReadTime = (text) => {
-    if (!text) return 0;
-    const plain = text.replace(/<[^>]*>/g, "").trim();
-    const words = plain.split(/\s+/).filter(Boolean).length;
-    return Math.max(1, Math.ceil(words / 200));
-};
+import { useSelector } from "react-redux";
 
 const newsSchema = z.object({
     title: z.string().min(1, "Tiêu đề không được để trống"),
     slug: z.string().min(1, "Slug không được để trống"),
-    excerpt: z.string().optional(),
     thumbnail: z.string().optional(),
-    category: z.string().optional(),
-    author: z.string().optional(),
-    readTime: z.number().optional(),
     isPublished: z.boolean().default(false),
 });
 
@@ -72,25 +40,19 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
     const [thumbnailPreview, setThumbnailPreview] = useState(news?.thumbnail || "");
     const fileInputRef = useRef(null);
 
+    const authorName = isEditing
+        ? (news?.author?.fullName || currentUser?.fullName || "")
+        : (currentUser?.fullName || "");
+
     const form = useForm({
         resolver: zodResolver(newsSchema),
         defaultValues: {
             title: news?.title || "",
             slug: news?.slug || "",
-            excerpt: news?.excerpt || "",
             thumbnail: news?.thumbnail || "",
-            category: news?.category || "",
-            author: news?.author || currentUser?.fullName || "",
-            readTime: news?.readTime || undefined,
             isPublished: news?.isPublished ?? false,
         },
     });
-
-    useEffect(() => {
-        if (!isEditing) {
-            form.setValue("author", currentUser?.fullName || "");
-        }
-    }, [currentUser, form, isEditing]);
 
     const handleTitleChange = (e) => {
         const title = e.target.value;
@@ -98,14 +60,9 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
         if (!isEditing) form.setValue("slug", slugify(title));
     };
 
-    const handleContentChange = useCallback(
-        (value) => {
-            setContent(value);
-            const readTime = calcReadTime(value);
-            form.setValue("readTime", readTime || undefined);
-        },
-        [form],
-    );
+    const handleContentChange = (value) => {
+        setContent(value);
+    };
 
     const handleThumbnailUpload = async (e) => {
         const file = e.target.files?.[0];
@@ -179,29 +136,6 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                             <Input
                                                 placeholder="tieu-de-bai-viet"
                                                 disabled={isLoading || isEditing}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="excerpt"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Tóm tắt{" "}
-                                            <span className="text-muted-foreground">
-                                                (tùy chọn)
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder="Tóm tắt ngắn về bài viết..."
-                                                rows={3}
-                                                disabled={isLoading}
                                                 {...field}
                                             />
                                         </FormControl>
@@ -312,92 +246,12 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                                 )}
                             />
                             <Separator />
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Danh mục{" "}
-                                            <span className="text-muted-foreground">
-                                                (tùy chọn)
-                                            </span>
-                                        </FormLabel>
-                                        <Select
-                                            value={field.value || "_none"}
-                                            onValueChange={(value) => field.onChange(value === "_none" ? "" : value)}
-                                            disabled={isLoading}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger aria-label="Chọn danh mục bài viết">
-                                                    <SelectValue placeholder="Chọn danh mục..." />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {NEWS_CATEGORIES.map((cat) => (
-                                                    <SelectItem key={cat.value} value={cat.value}>
-                                                        {cat.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="author"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Tác giả{" "}
-                                            <span className="text-muted-foreground">
-                                                (tùy chọn)
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Tên tác giả"
-                                                disabled={isLoading}
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="readTime"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Thời gian đọc (phút){" "}
-                                            <span className="text-xs text-muted-foreground">
-                                                (tự động tính)
-                                            </span>
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="number"
-                                                min={1}
-                                                placeholder="Tự động"
-                                                disabled={isLoading}
-                                                value={field.value ?? ""}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value === ""
-                                                            ? undefined
-                                                            : Number(e.target.value),
-                                                    )
-                                                }
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {authorName && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <User className="h-4 w-4" />
+                                    <span>Tác giả: {authorName}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -409,8 +263,8 @@ export default function AdminNewsForm({ news, onSubmit, isLoading }) {
                         {isLoading
                             ? "Đang lưu..."
                             : isEditing
-                              ? "Cập nhật bài viết"
-                              : "Tạo bài viết"}
+                                ? "Cập nhật bài viết"
+                                : "Tạo bài viết"}
                     </Button>
 
                     {news && (

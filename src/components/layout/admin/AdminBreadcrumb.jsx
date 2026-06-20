@@ -15,7 +15,6 @@ const SEGMENT_MAP = {
     categories: "Danh mục",
     news: "Tin tức",
     banners: "Banner",
-    options: "Tùy chọn",
     settings: "Cài đặt",
     ai: "Cấu hình AI",
     shop: "Cửa hàng",

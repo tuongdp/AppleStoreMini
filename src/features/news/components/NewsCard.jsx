@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Calendar, Clock, Newspaper } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Calendar, Newspaper } from "lucide-react";
 import { newsApi } from "@/store/api/newsApi";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
@@ -49,38 +48,18 @@ export default function NewsCard({ news, className }) {
 
             {/* Content */}
             <div className="flex flex-1 flex-col p-4">
-                {/* Category badge */}
-                {news.category && (
-                    <Badge variant="secondary" className="mb-2 w-fit text-xs">
-                        {news.category}
-                    </Badge>
-                )}
-
                 {/* Title */}
                 <h3 className="mb-2 line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-apple-blue">
                     {news.title}
                 </h3>
-
-                {/* Excerpt */}
-                {news.excerpt && (
-                    <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">
-                        {news.excerpt}
-                    </p>
-                )}
 
                 {/* Meta */}
                 <div className="mt-auto flex items-center justify-between gap-2 text-xs text-muted-foreground">
                     <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {formatDate(news.publishedAt || news.createdAt)}
+                            {formatDate(news.createdAt)}
                         </span>
-                        {news.readTime && (
-                            <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {news.readTime} {"phút"}
-                            </span>
-                        )}
                     </div>
                 </div>
             </div>

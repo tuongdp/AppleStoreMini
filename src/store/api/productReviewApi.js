@@ -14,12 +14,7 @@ export const productReviewApi = baseApi.injectEndpoints({
 
     createReview: builder.mutation({
       query: ({ productId, ...data }) => ({ url: `/reviews/${productId}`, method: "POST", body: data }),
-      invalidatesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }, "Products", "Orders", "Points"],
-      transformResponse: (response) => response.data,
-    }),
-
-    uploadReviewMedia: builder.mutation({
-      query: (formData) => ({ url: "/reviews/media/upload", method: "POST", body: formData }),
+      invalidatesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }, "Products"],
       transformResponse: (response) => response.data,
     }),
 
@@ -34,18 +29,11 @@ export const productReviewApi = baseApi.injectEndpoints({
       invalidatesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }, "Products"],
     }),
 
-    likeReview: builder.mutation({
-      query: ({ productId, reviewId }) => ({ url: `/reviews/${productId}/${reviewId}/like`, method: "POST" }),
-      invalidatesTags: (_, __, { productId }) => [{ type: "Reviews", id: productId }],
-      transformResponse: (response) => response.data,
-    }),
-
     checkPurchased: builder.query({
       query: (productId) => `/reviews/${productId}/check-purchased`,
       transformResponse: (response) => response.data,
     }),
 
-    // Admin
     getAllReviews: builder.query({
       query: (params) => ({ url: "/admin/reviews", params }),
       providesTags: ["Reviews"],
@@ -55,12 +43,6 @@ export const productReviewApi = baseApi.injectEndpoints({
     getAdminReview: builder.query({
       query: (reviewId) => `/admin/reviews/${reviewId}`,
       providesTags: (_, __, reviewId) => [{ type: "Reviews", id: reviewId }],
-      transformResponse: (response) => response.data,
-    }),
-
-    toggleReviewVisibility: builder.mutation({
-      query: (reviewId) => ({ url: `/admin/reviews/${reviewId}/visibility`, method: "PATCH" }),
-      invalidatesTags: ["Reviews"],
       transformResponse: (response) => response.data,
     }),
 
@@ -78,7 +60,7 @@ export const productReviewApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetReviewsQuery, useCreateReviewMutation, useUploadReviewMediaMutation, useUpdateReviewMutation, useDeleteReviewMutation,
-  useLikeReviewMutation, useCheckPurchasedQuery, useGetAllReviewsQuery,
-  useGetAdminReviewQuery, useToggleReviewVisibilityMutation, useReplyReviewMutation, useAdminDeleteReviewMutation,
+  useGetReviewsQuery, useCreateReviewMutation, useUpdateReviewMutation, useDeleteReviewMutation,
+  useCheckPurchasedQuery, useGetAllReviewsQuery,
+  useGetAdminReviewQuery, useAdminDeleteReviewMutation,
 } = productReviewApi;

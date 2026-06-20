@@ -91,7 +91,6 @@ test("live admin login and read-only admin routes work", async ({ page }) => {
     "/admin/reviews/sentiment",
     "/admin/coupons",
     "/admin/categories",
-    "/admin/series",
     "/admin/news",
     "/admin/banners",
     "/admin/options",

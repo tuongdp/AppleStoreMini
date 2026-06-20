@@ -128,11 +128,6 @@ export default function AdminStaffTable() {
         }
     };
 
-    const permCount = (user) => {
-        if (Array.isArray(user.permissions)) return user.permissions.length;
-        return 0;
-    };
-
     return (
         <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3">
@@ -234,7 +229,6 @@ export default function AdminStaffTable() {
                             </TableRow>
                         ) : (
                             users.map((user) => {
-                                const perms = permCount(user);
                                 return (
                                     <TableRow key={user.id}>
                                         <TableCell>
@@ -275,8 +269,8 @@ export default function AdminStaffTable() {
                                         </TableCell>
 
                                         <TableCell>
-                                            <Badge variant={perms > 0 ? "default" : "secondary"}>
-                                                {perms} quyền
+                                            <Badge variant="secondary">
+                                                Toàn quyền
                                             </Badge>
                                         </TableCell>
 

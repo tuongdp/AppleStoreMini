@@ -100,7 +100,6 @@ export default function HomePage() {
       }));
   const categories = homepageData?.categories || [];
   const newReleaseProducts = homepageData?.newReleaseProducts || [];
-  const restockedProducts = homepageData?.restockedProducts || [];
   const categorySectionBySlug = new Map(
     (homepageData?.categorySections || []).map((section) => [section.slug, section]),
   );
@@ -129,21 +128,6 @@ export default function HomePage() {
             products={newReleaseProducts}
             isLoading={isHomepageLoading}
             sliderId="new-releases"
-          />
-        </div>
-      </section>
-
-      <section className="section-padding bg-muted/20 py-8 md:py-10 lg:py-14">
-        <div className="mx-auto max-w-7xl">
-          <SectionTitle
-            title="Sản phẩm mới nhập về"
-            viewAllHref={`${ROUTES.PRODUCTS}?arrivalType=RESTOCK`}
-            className="mb-8"
-          />
-          <ProductSlider
-            products={restockedProducts}
-            isLoading={isHomepageLoading}
-            sliderId="restocked"
           />
         </div>
       </section>

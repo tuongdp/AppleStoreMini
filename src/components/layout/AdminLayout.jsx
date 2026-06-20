@@ -7,7 +7,6 @@ import {
     Package,
     ShoppingCart,
     Users,
-    UserCog,
     LogOut,
     Menu,
     ChevronRight,
@@ -18,11 +17,6 @@ import {
     LayoutGrid,
     Newspaper,
     FileSliders,
-    ListFilter,
-    RotateCcw,
-    ListTree,
-    Settings,
-    Bot,
     Loader2,
     User,
 } from "lucide-react";
@@ -57,20 +51,15 @@ const SIDEBAR_MAP = {
     dashboard: "Tổng quan",
     logout: "Đăng xuất",
     news: "Tin tức",
-    options: "Thuộc tính",
     orders: "Đơn hàng",
     products: "Sản phẩm",
-    series: "Series sản phẩm",
-    returns: "Yêu cầu trả hàng",
     comments: "Bình luận sản phẩm",
     settings: "Cài đặt",
     ai: "Cấu hình AI",
     users: "Người dùng",
-    staff: "Nhân viên",
     systemGroup: "Hệ thống",
     contentGroup: "Nội dung",
     productGroup: "Sản phẩm",
-    orderGroup: "Đơn hàng",
 };
 
 const NAV_GROUPS = [
@@ -87,27 +76,16 @@ const NAV_GROUPS = [
         icon: Package,
         items: [
             { key: "products", href: ROUTES.ADMIN_PRODUCTS, icon: Package, permission: "products" },
-            { key: "series", href: "/admin/series", icon: ListTree, permission: "products" },
             { key: "categories", href: "/admin/categories", icon: LayoutGrid, permission: "categories" },
-            { key: "options", href: "/admin/options", icon: ListFilter, permission: "options" },
             { key: "comments", href: "/admin/comments", icon: MessageSquare, permission: "comments" },
         ],
     },
     {
-        type: "group",
-        key: "orderGroup",
-        icon: ShoppingCart,
-        items: [
-            { key: "orders", href: ROUTES.ADMIN_ORDERS, icon: ShoppingCart, permission: "orders" },
-            { key: "returns", href: "/admin/returns", icon: RotateCcw, permission: "returns" },
-        ],
-    },
-    {
         type: "item",
-        key: "staff",
-        href: ROUTES.ADMIN_STAFF,
-        icon: UserCog,
-        permission: "users",
+        key: "orders",
+        href: ROUTES.ADMIN_ORDERS,
+        icon: ShoppingCart,
+        permission: "orders",
     },
     {
         type: "item",
@@ -130,15 +108,6 @@ const NAV_GROUPS = [
         items: [
             { key: "news", href: "/admin/news", icon: Newspaper, permission: "news" },
             { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners" },
-        ],
-    },
-    {
-        type: "group",
-        key: "systemGroup",
-        icon: Settings,
-        items: [
-            { key: "settings", href: "/admin/settings/shop", icon: Settings, adminOnly: true },
-            { key: "ai", href: "/admin/ai", icon: Bot, adminOnly: true },
         ],
     },
 ];

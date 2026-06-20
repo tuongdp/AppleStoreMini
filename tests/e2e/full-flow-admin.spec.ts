@@ -121,16 +121,6 @@ test.describe("FULL ADMIN FLOW: Category CRUD", () => {
   });
 });
 
-test.describe("FULL ADMIN FLOW: Series CRUD", () => {
-
-  test("FLOW F1: View series list", async ({ mockedPage: page }) => {
-    await seedAuthStorage(page, "admin");
-    await page.goto("/admin/series");
-
-    await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
-  });
-});
-
 test.describe("FULL ADMIN FLOW: Coupon CRUD", () => {
 
   test("FLOW G1: View coupon list", async ({ mockedPage: page }) => {

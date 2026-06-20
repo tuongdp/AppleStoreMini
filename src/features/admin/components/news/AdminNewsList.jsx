@@ -43,19 +43,6 @@ const SORT_OPTIONS = [
     { value: "popular", label: "Xem nhiều" },
 ];
 
-const NEWS_CATEGORIES = [
-    { value: "all", label: "Tất cả danh mục" },
-    { value: "iPhone", label: "iPhone" },
-    { value: "Mac", label: "Mac" },
-    { value: "iPad", label: "iPad" },
-    { value: "Watch", label: "Watch" },
-    { value: "Âm thanh", label: "Âm thanh" },
-    { value: "Phụ kiện", label: "Phụ kiện" },
-    { value: "Dịch vụ", label: "Dịch vụ" },
-    { value: "Tư vấn", label: "Tư vấn" },
-    { value: "Thủ thuật", label: "Thủ thuật" },
-];
-
 const SummaryCard = ({ icon: Icon, label, value, className }) => (
     <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-3">
@@ -83,7 +70,6 @@ export default function AdminNewsList() {
         limit: PAGINATION.DEFAULT_LIMIT,
         search: debouncedSearch || undefined,
         status: searchParams.get("status") || undefined,
-        category: searchParams.get("category") || undefined,
         sort: searchParams.get("sort") || undefined,
     };
 
@@ -180,21 +166,6 @@ export default function AdminNewsList() {
                     </SelectContent>
                 </Select>
                 <Select
-                    value={searchParams.get("category") || "all"}
-                    onValueChange={(val) => updateParam("category", val === "all" ? "" : val)}
-                >
-                    <SelectTrigger className="w-44 rounded-full" aria-label="Lọc danh mục bài viết">
-                        <SelectValue placeholder="Danh mục" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {NEWS_CATEGORIES.map((opt) => (
-                            <SelectItem key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select
                     value={searchParams.get("sort") || "newest"}
                     onValueChange={(val) => updateParam("sort", val === "newest" ? "" : val)}
                 >
@@ -222,7 +193,7 @@ export default function AdminNewsList() {
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
                             <TableHead>Bài viết</TableHead>
-                            <TableHead>Danh mục</TableHead>
+                            <TableHead>Lượt xem</TableHead>
                             <TableHead>Tác giả</TableHead>
                             <TableHead>Ngày tạo</TableHead>
                             <TableHead>Trạng thái</TableHead>
@@ -275,8 +246,8 @@ export default function AdminNewsList() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <span className="max-w-[100px] truncate block text-sm text-muted-foreground">
-                                            {item.category || "—"}
+                                        <span className="text-sm text-muted-foreground">
+                                            {item.viewCount ?? 0}
                                         </span>
                                     </TableCell>
                                     <TableCell>

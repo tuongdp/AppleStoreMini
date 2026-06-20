@@ -57,7 +57,6 @@ const routeCases: RouteCase[] = [
   { path: "/admin/reviews/sentiment", role: "admin" },
   { path: "/admin/coupons", role: "admin" },
   { path: "/admin/categories", role: "admin" },
-  { path: "/admin/series", role: "admin" },
   { path: "/admin/news", role: "admin" },
   { path: "/admin/news/create", role: "admin" },
   { path: "/admin/news/kinh-nghiem-chon-iphone-phu-hop/edit", role: "admin" },

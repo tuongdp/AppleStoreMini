@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { Calendar, ChevronRight, Clock, Eye, Share2 } from "lucide-react";
+import { Calendar, ChevronRight, Eye, Share2 } from "lucide-react";
 import { useGetNewsBySlugQuery, useGetNewsQuery } from "@/store/api/newsApi";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -39,7 +39,6 @@ function SidebarNewsCard({ news, index }) {
                     {news.title}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                    {news.readTime ? `${news.readTime} phút đọc · ` : ""}
                     {news.viewCount || 0} lượt xem
                 </p>
             </div>
@@ -148,7 +147,7 @@ export default function NewsDetailPage() {
         );
     }
 
-    const authorName = news.author || news.authorUser?.fullName;
+    const authorName = news.authorUser?.fullName;
 
     return (
         <div className="section-padding py-8 md:py-12">
@@ -186,14 +185,8 @@ export default function NewsDetailPage() {
                         <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1.5">
                                 <Calendar className="h-4 w-4" />
-                                {formatDate(news.publishedAt || news.createdAt)}
+                                {formatDate(news.createdAt)}
                             </span>
-                            {news.readTime && (
-                                <span className="flex items-center gap-1.5">
-                                    <Clock className="h-4 w-4" />
-                                    {news.readTime} phút đọc
-                                </span>
-                            )}
                             {authorName && (
                                 <span>
                                     bởi <span className="font-medium text-foreground">{authorName}</span>

@@ -18,8 +18,8 @@ export const homepageApi = baseApi.injectEndpoints({
                 return {
                     banners: data.banners || [],
                     categories: data.categories || [],
-                    newReleaseProducts: (data.newReleaseProducts || []).map(parseProduct),
-                    restockedProducts: (data.restockedProducts || []).map(parseProduct),
+                    newReleaseProducts: (data.newProducts || []).map(parseProduct),
+                    restockedProducts: [],
                     categorySections: (data.categorySections || []).map((section) => ({
                         ...section,
                         products: (section.products || []).map(parseProduct),

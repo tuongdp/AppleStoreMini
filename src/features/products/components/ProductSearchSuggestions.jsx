@@ -142,7 +142,7 @@ export default function ProductSearchSuggestions({
                                     {news.title}
                                 </span>
                                 <span className="line-clamp-1 text-xs text-muted-foreground">
-                                    {news.category || news.excerpt || "Tin tức"}
+                                    {news.title || "Tin tức"}
                                 </span>
                             </span>
                         </Link>

@@ -25,11 +25,6 @@ export const shopSettingsApi = baseApi.injectEndpoints({
             transformResponse: normalizeSettings,
             providesTags: ["ShopSettings"],
         }),
-        getPublicSettings: builder.query({
-            query: () => "/settings/public",
-            transformResponse: normalizeSettings,
-            providesTags: ["ShopSettings"],
-        }),
         updateSettings: builder.mutation({
             query: (body) => ({ url: "/admin/dashboard/settings", method: "PUT", body }),
             invalidatesTags: ["ShopSettings"],
@@ -39,7 +34,6 @@ export const shopSettingsApi = baseApi.injectEndpoints({
 });
 
 export const {
-    useGetPublicSettingsQuery,
     useGetSettingsQuery,
     useUpdateSettingsMutation,
 } = shopSettingsApi;

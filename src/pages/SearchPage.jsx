@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import AISearchToggle from "@/features/ai/AISearchToggle";
-import { useAiHealthQuery, useAiSearchMutation } from "@/store/api/aiApi";
+import { useAiSearchMutation } from "@/store/api/aiApi";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import SeoHead from "@/components/shared/SeoHead";
@@ -49,7 +49,7 @@ function NewsResultCard({ news }) {
                     {news.title}
                 </span>
                 <span className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                    {news.excerpt || news.category || "Tin tức"}
+                    {news.title || "Tin tức"}
                 </span>
             </span>
         </Link>
@@ -89,9 +89,8 @@ export default function SearchPage() {
     );
 
     const [aiSearch, { isLoading: isAiLoading }] = useAiSearchMutation();
-    const { data: aiHealth } = useAiHealthQuery();
-    const aiSearchAvailable = aiHealth ? Boolean(aiHealth.aiEnabled && aiHealth.features?.search !== false) : true;
-    const canUseAiMode = aiMode && aiSearchAvailable;
+    const aiSearchAvailable = true;
+    const canUseAiMode = aiMode;
     const [aiProducts, setAiProducts] = useState(null);
 
     useEffect(() => {
@@ -115,16 +114,6 @@ export default function SearchPage() {
             setAiProducts(null);
         }
     }, [aiProducts, aiSearch, canUseAiMode, isAiLoading, keyword]);
-
-    useEffect(() => {
-        if (!aiHealth || !aiMode || aiSearchAvailable) return;
-        const params = new URLSearchParams(searchParams);
-        params.delete("ai");
-        params.set("page", "1");
-        setAiProducts(null);
-        setSearchParams(params);
-        toast.info("Tìm kiếm AI đang tắt trong cấu hình admin");
-    }, [aiHealth, aiMode, aiSearchAvailable, searchParams, setSearchParams]);
 
     const pagination = data?.pagination || {};
     const products = useMemo(

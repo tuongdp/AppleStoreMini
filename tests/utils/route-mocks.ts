@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { apiEnvelope, apiPaginated, makeOrder, testNews, testProducts, testUsers, adminUsersList, testCategories, testSeries, testCoupons, testBanners, testOrders, testReviews, adminReviewReplySuggestion, testReturnRequests, dashboardStats, dashboardOperations, dashboardAiInsights, dashboardRevenue, dashboardRevenueDay, dashboardCategoryRevenue, dashboardCategoryRevenueDay, dashboardTopProducts, dashboardTopProductsDay, dashboardSlowProducts, dashboardLowStock, dashboardTopCustomers, globalOptionsList, appSettings, adminAiSettings, adminAiLogs } from "./mock-data";
+import { apiEnvelope, apiPaginated, makeOrder, testNews, testProducts, testUsers, adminUsersList, testCategories, testCoupons, testBanners, testOrders, testReviews, adminReviewReplySuggestion, testReturnRequests, dashboardStats, dashboardOperations, dashboardAiInsights, dashboardRevenue, dashboardRevenueDay, dashboardCategoryRevenue, dashboardCategoryRevenueDay, dashboardTopProducts, dashboardTopProductsDay, dashboardSlowProducts, dashboardLowStock, dashboardTopCustomers, appSettings, adminAiSettings, adminAiLogs } from "./mock-data";
 
 const json = (body: unknown, status = 200) => ({
   status,
@@ -95,13 +95,9 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // ─── PUBLIC CATEGORIES / SERIES ────────────────
+    // ─── PUBLIC CATEGORIES ───────────────────────────
     if (path === "/categories" || path === "/categories/public") {
       await route.fulfill(json(apiEnvelope(testCategories)));
-      return;
-    }
-    if (path === "/series" || path === "/series/public") {
-      await route.fulfill(json(apiEnvelope(testSeries)));
       return;
     }
 
@@ -375,19 +371,6 @@ export async function mockApi(page: Page) {
       return;
     }
 
-    // ─── ADMIN SERIES ─────────────────────────────
-    if (path === "/admin/series") {
-      if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testSeries[0], id: "series-new" })));
-      else await route.fulfill(paged(testSeries));
-      return;
-    }
-    if (/^\/admin\/series\/[^/]+$/.test(path)) {
-      if (method === "PUT") await route.fulfill(json(apiEnvelope(testSeries[0])));
-      else if (method === "DELETE") await route.fulfill(json(apiEnvelope(null, "Xoá series thành công")));
-      else await route.fulfill(json(apiEnvelope(testSeries[0])));
-      return;
-    }
-
     // ─── ADMIN COUPONS ────────────────────────────
     if (path === "/admin/coupons") {
       if (method === "POST") await route.fulfill(json(apiEnvelope({ ...testCoupons[0], id: "coupon-new" })));
@@ -506,32 +489,6 @@ export async function mockApi(page: Page) {
     }
     if (/^\/admin\/returns\/[^/]+$/.test(path)) {
       await route.fulfill(json(apiEnvelope(testReturnRequests[0])));
-      return;
-    }
-
-    // ─── ADMIN GLOBAL OPTIONS ─────────────────────
-    if (path === "/admin/options" || path === "/admin/global-options") {
-      if (method === "POST") {
-        const body = route.request().postDataJSON?.() || {};
-        await route.fulfill(json(apiEnvelope({ id: "opt-new", isActive: true, ...body })));
-      } else {
-        const type = url.searchParams.get("type");
-        const items = type ? globalOptionsList.filter((item) => item.type === type) : globalOptionsList;
-        await route.fulfill(json(apiEnvelope(items)));
-      }
-      return;
-    }
-    if (/^\/admin\/global-options\/[^/]+$/.test(path)) {
-      const key = path.split("/").at(-1);
-      const item = globalOptionsList.find((option) => option.id === key) || globalOptionsList[0];
-      if (method === "PUT") {
-        const body = route.request().postDataJSON?.() || {};
-        await route.fulfill(json(apiEnvelope({ ...item, ...body })));
-      } else if (method === "DELETE") {
-        await route.fulfill(json(apiEnvelope(null, "Xoá tuỳ chọn thành công")));
-      } else {
-        await route.fulfill(json(apiEnvelope(item)));
-      }
       return;
     }
 

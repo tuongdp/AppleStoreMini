@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, ImagePlus, ImageUp, Loader2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Pencil, Trash2, ImageUp, ImagePlus, Loader2 } from "lucide-react";
 import {
     useGetAdminCategoriesQuery,
     useCreateCategoryMutation,
@@ -35,14 +35,12 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { parseJsonField, slugify } from "@/lib/utils";
-import { cn } from "@/lib/utils";
-import { IMAGE, PAGINATION } from "@/lib/constants";
+import { slugify, cn } from "@/lib/utils";
+import { PAGINATION } from "@/lib/constants";
 
 const categorySchema = z.object({
     name: z.string().min(1, "Tên danh mục không được để trống"),
     slug: z.string().min(1, "Slug không được để trống"),
-    description: z.string().optional(),
     order: z.coerce.number().int().min(0).optional(),
 });
 
@@ -58,12 +56,6 @@ function getCategoryProductCount(category) {
     return category?._count?.products ?? category?.productCount ?? category?.productsCount ?? 0;
 }
 
-function getCategorySeriesCount(category) {
-    const count = category?._count?.series ?? category?.seriesCount;
-    if (count != null) return count;
-    return Array.isArray(category?.series) ? category.series.length : 0;
-}
-
 function CategoryForm({ category, categories, onClose }) {
     const isEditing = !!category;
     const [createCategory, { isLoading: isCreating }] =
@@ -72,17 +64,9 @@ function CategoryForm({ category, categories, onClose }) {
         useUpdateCategoryMutation();
     const isLoading = isCreating || isUpdating;
     const fileInputRef = useRef(null);
-    const sliderInputRef = useRef(null);
     const [uploadImage] = useUploadEditorImageMutation();
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(getCategoryImage(category) || null);
-    const [sliderImages, setSliderImages] = useState(() =>
-        parseJsonField(category?.sliderImages ?? category?.slider ?? category?.slides ?? category?.bannerImages)
-            .map((item) => (typeof item === "string" ? item : item?.image || item?.url || item?.src))
-            .filter(Boolean),
-    );
-    const [sliderUrl, setSliderUrl] = useState("");
-    const [isUploadingSlider, setIsUploadingSlider] = useState(false);
 
     const nextOrder = isEditing
         ? category.order
@@ -93,7 +77,6 @@ function CategoryForm({ category, categories, onClose }) {
         defaultValues: {
             name: category?.name || "",
             slug: category?.slug || "",
-            description: category?.description || "",
             order: nextOrder ?? 0,
         },
     });
@@ -113,49 +96,10 @@ function CategoryForm({ category, categories, onClose }) {
         reader.readAsDataURL(file);
     };
 
-    const addSliderUrl = () => {
-        const url = sliderUrl.trim();
-        if (!url) return;
-        setSliderImages((prev) => [...prev, url]);
-        setSliderUrl("");
-    };
-
-    const removeSliderImage = (index) => {
-        setSliderImages((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
-    };
-
-    const handleSliderUpload = async (e) => {
-        const files = [...(e.target.files || [])];
-        if (!files.length) return;
-        const validFiles = files.filter((file) => IMAGE.VALID_TYPES.includes(file.type) && file.size <= IMAGE.MAX_SIZE);
-        if (validFiles.length !== files.length) {
-            toast.error("Chỉ hỗ trợ ảnh JPG, PNG, WebP tối đa 5MB");
-        }
-        if (!validFiles.length) return;
-
-        setIsUploadingSlider(true);
-        try {
-            const uploaded = [];
-            for (const file of validFiles) {
-                const fd = new FormData();
-                fd.append("image", file);
-                const result = await uploadImage(fd).unwrap();
-                uploaded.push(result.url || result);
-            }
-            setSliderImages((prev) => [...prev, ...uploaded.filter(Boolean)]);
-        } catch (error) {
-            toast.error(error?.data?.message || "Upload ảnh slider thất bại");
-        } finally {
-            setIsUploadingSlider(false);
-            if (sliderInputRef.current) sliderInputRef.current.value = "";
-        }
-    };
-
     const onSubmit = async (values) => {
         try {
             const payload = { ...values };
             if (imageFile) payload.image = imageFile;
-            payload.sliderImages = sliderImages;
             if (isEditing) {
                 payload.id = getCategoryId(category);
                 await updateCategory(payload).unwrap();
@@ -229,28 +173,6 @@ function CategoryForm({ category, categories, onClose }) {
                         )}
                     />
                 </div>
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>
-                                Mô tả{" "}
-                                <span className="text-muted-foreground">
-                                    (tùy chọn)
-                                </span>
-                            </FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Mô tả ngắn về danh mục"
-                                    disabled={isLoading}
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
                 {/* Image upload */}
                 <div>
@@ -283,72 +205,6 @@ function CategoryForm({ category, categories, onClose }) {
                                 </div>
                             )}
                         </button>
-                    </div>
-                </div>
-
-                <div>
-                    <FormLabel>Ảnh slider danh mục</FormLabel>
-                    <div className="mt-1.5 space-y-3">
-                        {sliderImages.length > 0 && (
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                                {sliderImages.map((src, index) => (
-                                    <div key={`${src}-${index}`} className="relative aspect-[16/7] overflow-hidden rounded-lg border border-border bg-muted">
-                                        <img src={src} alt="" className="h-full w-full object-cover" />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeSliderImage(index)}
-                                            className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background/90 text-muted-foreground shadow-sm hover:text-destructive"
-                                            aria-label={`Xóa ảnh slider ${index + 1}`}
-                                        >
-                                            <X className="h-3.5 w-3.5" aria-hidden="true" />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <div className="flex flex-col gap-2 sm:flex-row">
-                            <Input
-                                value={sliderUrl}
-                                onChange={(e) => setSliderUrl(e.target.value)}
-                                placeholder="https://..."
-                                aria-label="URL ảnh slider danh mục"
-                                name="category-slider-url"
-                                autoComplete="off"
-                                disabled={isLoading || isUploadingSlider}
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="shrink-0 rounded-full"
-                                onClick={addSliderUrl}
-                                disabled={isLoading || isUploadingSlider || !sliderUrl.trim()}
-                            >
-                                Thêm URL
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="shrink-0 rounded-full"
-                                onClick={() => sliderInputRef.current?.click()}
-                                disabled={isLoading || isUploadingSlider}
-                            >
-                                {isUploadingSlider ? (
-                                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" aria-hidden="true" />
-                                ) : (
-                                    <ImageUp className="mr-1.5 h-4 w-4" aria-hidden="true" />
-                                )}
-                                Upload
-                            </Button>
-                            <input
-                                ref={sliderInputRef}
-                                type="file"
-                                multiple
-                                accept={IMAGE.VALID_TYPES.join(",")}
-                                className="hidden"
-                                onChange={handleSliderUpload}
-                            />
-                        </div>
                     </div>
                 </div>
 
@@ -516,7 +372,6 @@ export default function AdminCategoryList() {
                                 const catId = getCategoryId(category);
                                 const image = getCategoryImage(category);
                                 const productCount = getCategoryProductCount(category);
-                                const seriesCount = getCategorySeriesCount(category);
                                 return (
                                     <TableRow key={catId}>
                                         <TableCell className="text-sm text-muted-foreground">
@@ -541,16 +396,9 @@ export default function AdminCategoryList() {
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
                                                         /{category.slug}
-                                                        {(productCount > 0 || seriesCount > 0) && (
-                                                            <span className="ml-2">
-                                                                {productCount > 0 && (
-                                                                    <span>· {productCount} sản phẩm</span>
+                                                        {productCount > 0 && (
+                                                                    <span className="ml-2">· {productCount} sản phẩm</span>
                                                                 )}
-                                                                {seriesCount > 0 && (
-                                                                    <span> · {seriesCount} series</span>
-                                                                )}
-                                                            </span>
-                                                        )}
                                                     </p>
                                                 </div>
                                             </div>

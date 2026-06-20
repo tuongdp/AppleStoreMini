@@ -1,8 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, MapPin, Phone } from "lucide-react";
 import { CATEGORIES, ROUTES } from "@/lib/constants";
-import { usePublicSettings } from "@/hooks/usePublicSettings";
-import { formatPhone } from "@/lib/utils";
 
 const SHOP_LINKS = CATEGORIES.map((category) => ({
     label: category.label,
@@ -87,33 +84,11 @@ const SOCIAL_ICONS = {
 };
 
 export default function Footer() {
-    const { data: settings } = usePublicSettings();
-    const shop = settings?.shop || {};
-    const shopName = shop.name || "Apple Store";
+    const shopName = "Apple Store";
 
-    const socialLinks = [
-        { name: "Facebook", href: shop.facebook, icon: SOCIAL_ICONS.Facebook },
-        { name: "Zalo", href: shop.zalo, icon: SOCIAL_ICONS.Zalo },
-        { name: "TikTok", href: shop.tiktok, icon: SOCIAL_ICONS.TikTok },
-        { name: "YouTube", href: shop.youtube, icon: SOCIAL_ICONS.YouTube },
-    ];
+    const socialLinks = [];
 
-    const contactLinks = [
-        shop.phone
-            ? {
-                label: formatPhone(shop.phone),
-                href: `tel:${String(shop.phone).replace(/\D/g, "")}`,
-                icon: Phone,
-            }
-            : null,
-        shop.email
-            ? {
-                label: shop.email,
-                href: `mailto:${shop.email}`,
-                icon: Mail,
-            }
-            : null,
-    ].filter(Boolean);
+    const contactLinks = [];
 
     return (
         <footer className="border-t border-border bg-muted/20">
@@ -126,15 +101,6 @@ export default function Footer() {
                                 aria-label={`Về trang chủ ${shopName}`}
                                 className="mb-4 inline-flex transition-opacity hover:opacity-70"
                             >
-                                {shop.logo ? (
-                                    <img
-                                        src={shop.logo}
-                                        alt={shopName}
-                                        className="h-8 w-auto"
-                                        loading="lazy"
-                                        decoding="async"
-                                    />
-                                ) : (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 814 1000"
@@ -143,7 +109,6 @@ export default function Footer() {
                                     >
                                         <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-43.4-150.3-109.2c-52.1-73.6-96.2-187.8-96.2-296.7 0-166.7 108.7-254.8 215.7-254.8 56.6 0 103.7 37.5 139 37.5 33.8 0 86.5-39.5 151.8-39.5 24.4 0 108.2 2.6 168.6 80.6zm-159.5-197.7c30.3-35.7 51.5-85.4 51.5-135.1 0-6.5-.6-13-1.9-18.2-48.7 1.9-106.4 32.5-140.8 73.6-26.8 30.3-52 80-52 130.4 0 7.1 1.3 14.3 1.9 16.5 3.2.6 8.4 1.3 13.6 1.3 43.4 0 98.4-29 127.7-68.5z" />
                                     </svg>
-                                )}
                             </Link>
 
                             <p className="mb-4 text-sm text-muted-foreground">
@@ -221,13 +186,6 @@ export default function Footer() {
                                         </li>
                                     ))}
                                 </ul>
-                            )}
-
-                            {shop.address && (
-                                <p className="mb-3 flex items-start gap-2 text-sm text-muted-foreground">
-                                    <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-                                    <span>{shop.address}</span>
-                                </p>
                             )}
 
                             <Link

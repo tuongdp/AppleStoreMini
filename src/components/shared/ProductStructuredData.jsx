@@ -2,7 +2,7 @@ export default function ProductStructuredData({ product, variant }) {
   if (!product) return null;
 
   const price = variant?.salePrice ?? variant?.price ?? 0;
-  const availability = variant?.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+  const availability = (variant?.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
 
   const images = Array.isArray(product.images) ? product.images : [];
   try {

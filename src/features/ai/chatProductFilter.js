@@ -85,7 +85,7 @@ function scoreProduct(product, { exactModel, family, accessoryIntent, budget }) 
   const price = getPrice(product);
   if (budget && price > 0 && price <= budget) score += 10;
   if (budget && price > budget) score -= 100;
-  if (Number(product?.stock ?? 1) > 0 || product?.inStock) score += 2;
+  if (Number(product?.stock ?? 0) > 0) score += 2;
 
   return score;
 }

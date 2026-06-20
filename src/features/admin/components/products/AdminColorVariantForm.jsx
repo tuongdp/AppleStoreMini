@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
-const DEFAULT_COLOR = { name: "", hex: "#000000", images: [] };
+const DEFAULT_COLOR = { name: "", images: [] };
 
 export default function AdminColorVariantForm({ colors = [], onChange }) {
     const [items, setItems] = useState(
@@ -54,23 +54,6 @@ export default function AdminColorVariantForm({ colors = [], onChange }) {
                 {items.map((item, index) => (
                     <div key={index}>
                         <div className="flex items-center gap-3">
-                            {/* Color swatch */}
-                            <div className="relative shrink-0">
-                                <input
-                                    aria-label={`Chọn mã màu cho màu ${index + 1}`}
-                                    type="color"
-                                    value={item.hex}
-                                    onChange={(e) =>
-                                        handleChange(
-                                            index,
-                                            "hex",
-                                            e.target.value,
-                                        )
-                                    }
-                                    className="h-10 w-10 cursor-pointer rounded-lg border border-border bg-transparent p-0.5"
-                                />
-                            </div>
-
                             {/* Color name */}
                             <Input
                                 placeholder={"Tên màu"}
@@ -82,15 +65,6 @@ export default function AdminColorVariantForm({ colors = [], onChange }) {
                             />
 
                             {/* Hex input */}
-                            <Input
-                                placeholder="#000000"
-                                value={item.hex}
-                                onChange={(e) =>
-                                    handleChange(index, "hex", e.target.value)
-                                }
-                                className="w-28 font-mono text-sm"
-                            />
-
                             {/* Remove */}
                             <Button
                                 type="button"

@@ -64,14 +64,6 @@ export const authApi = baseApi.injectEndpoints({
             }),
         }),
 
-        resetPassword: builder.mutation({
-            query: (data) => ({
-                url: "/auth/reset-password",
-                method: "POST",
-                body: data,
-            }),
-        }),
-
         changePassword: builder.mutation({
             query: (data) => ({
                 url: "/auth/change-password",
@@ -80,19 +72,8 @@ export const authApi = baseApi.injectEndpoints({
             }),
         }),
 
-        sendChangePasswordCode: builder.mutation({
-            query: () => ({
-                url: "/auth/send-change-password-code",
-                method: "POST",
-            }),
-        }),
-
-        verifyEmail: builder.mutation({
-            query: (data) => ({
-                url: "/auth/verify-email",
-                method: "POST",
-                body: data,
-            }),
+        verifyEmail: builder.query({
+            query: (token) => `/auth/verify-email?token=${token}`,
             transformResponse: unwrapAuthPayload,
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
@@ -134,10 +115,8 @@ export const {
     useLogoutMutation,
     useGetMeQuery,
     useForgotPasswordMutation,
-    useResetPasswordMutation,
     useChangePasswordMutation,
-    useSendChangePasswordCodeMutation,
-    useVerifyEmailMutation,
+    useVerifyEmailQuery,
     useSendVerificationMutation,
     useGoogleLoginMutation,
 } = authApi;

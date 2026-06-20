@@ -11,7 +11,6 @@ export const isCartItemSelected = (item) => item.selected !== false;
 const getAvailableStock = (item) => {
     const variant = item.variant;
     const product = item.product || variant?.product;
-    if (variant?.inStock === false || product?.inStock === false) return 0;
     return Number(variant?.stock ?? product?.stock ?? 99);
 };
 

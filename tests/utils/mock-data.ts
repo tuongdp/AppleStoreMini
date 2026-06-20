@@ -28,11 +28,6 @@ export const testCategories = [
   { id: "cat-watch", name: "Watch", slug: "watch", image: "/assets/test/watch.png", isActive: true },
 ];
 
-export const testSeries = [
-  { id: "series-iphone-15", name: "iPhone 15 Series", slug: "iphone-15", categoryId: "cat-iphone", isActive: true },
-  { id: "series-macbook-air", name: "MacBook Air", slug: "macbook-air", categoryId: "cat-mac", isActive: true },
-];
-
 export const testCoupons = [
   { id: "coupon-1", code: "SUMMER2024", discountType: "PERCENT", discountValue: 10, minOrderValue: 5000000, maxDiscount: 500000, usageLimit: 100, usedCount: 10, isActive: true, startDate: "2024-06-01", endDate: "2024-12-31" },
   { id: "coupon-2", code: "WELCOME50", discountType: "FIXED", discountValue: 50000, minOrderValue: 1000000, maxDiscount: 50000, usageLimit: 50, usedCount: 5, isActive: true, startDate: "2024-01-01", endDate: "2024-12-31" },
@@ -295,26 +290,6 @@ export const dashboardAiInsights = {
     { title: "Phản hồi đánh giá", description: "Còn đánh giá chưa phản hồi, nên trả lời để cải thiện trải nghiệm sau mua.", severity: "LOW", actionLabel: "Xem bình luận", href: "/admin/comments" },
   ],
 };
-
-export const globalOptions = {
-  colors: ["Titan tự nhiên", "Titan xanh", "Titan đen", "Bạc", "Xám"],
-  storages: ["128GB", "256GB", "512GB", "1TB"],
-  rams: ["8GB", "16GB", "24GB"],
-  editions: ["", "Wi-Fi", "Wi-Fi + Cellular", "GPS", "GPS + Cellular"],
-  refreshRates: ["60Hz", "120Hz"],
-  ssds: ["256GB", "512GB", "1TB"],
-};
-
-export const globalOptionsList = [
-  { id: "opt-color-titan", type: "COLOR", value: "Titan tự nhiên", hex: "#8f8a81", isActive: true },
-  { id: "opt-color-blue", type: "COLOR", value: "Titan xanh", hex: "#3f4e65", isActive: true },
-  { id: "opt-storage-128", type: "STORAGE", value: "128GB", isActive: true },
-  { id: "opt-storage-256", type: "STORAGE", value: "256GB", isActive: true },
-  { id: "opt-ram-8", type: "RAM", value: "8GB", isActive: true },
-  { id: "opt-edition-wifi", type: "EDITION", value: "Wi-Fi", isActive: true },
-  { id: "opt-refresh-120", type: "REFRESH_RATE", value: "120Hz", isActive: true },
-  { id: "opt-ssd-512", type: "SSD", value: "512GB", isActive: true },
-];
 
 export const appSettings = {
   shopName: "Apple Store Mini",

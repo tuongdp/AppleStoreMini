@@ -69,7 +69,7 @@ function ProductCard({ product }) {
         : 0;
 
     const stock = product.stock ?? null;
-    const isOutOfStock = !product.inStock || stock === 0;
+    const isOutOfStock = stock !== null && stock <= 0;
     const isLowStock = !isOutOfStock && stock !== null && stock <= 5;
     const marketingBadge = getProductMarketingBadge(product);
     const variantSummary = getVariantSummary(product);

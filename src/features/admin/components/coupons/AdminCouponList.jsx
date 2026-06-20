@@ -61,7 +61,6 @@ export default function AdminCouponList() {
     const getMaxDiscountAmount = (coupon) => coupon.maxDiscountAmount ?? coupon.maxDiscount;
     const getMinOrderAmount = (coupon) => coupon.minOrderAmount ?? coupon.minOrderValue;
     const getMaxUsage = (coupon) => coupon.maxUsage ?? coupon.usageLimit;
-    const getExpiresAt = (coupon) => coupon.expiresAt ?? coupon.endDate;
 
     const handleDelete = async () => {
         try {
@@ -83,7 +82,6 @@ export default function AdminCouponList() {
         { key: "discountValue", label: "Giá trị" },
         { key: "minOrderAmount", label: "Đơn tối thiểu", format: "currency" },
         { key: "usedCount", label: "Đã dùng / Tối đa" },
-        { key: "expiresAt", label: "HSD", format: "date" },
         { key: "isActive", label: "Trạng thái" },
     ];
 
@@ -100,7 +98,6 @@ export default function AdminCouponList() {
                     : `${(c.discountValue || 0).toLocaleString("vi-VN")}₫`,
             minOrderAmount: getMinOrderAmount(c) || 0,
             usedCount: `${c.usedCount || 0} / ${getMaxUsage(c) || "∞"}`,
-            expiresAt: getExpiresAt(c),
             isActive: c.isActive ? "Đang kích hoạt" : "Đã tắt",
         }));
 
@@ -161,11 +158,6 @@ export default function AdminCouponList() {
         setEditingCoupon(null);
     };
 
-    const isExpired = (expiresAt) => {
-        if (!expiresAt) return false;
-        return new Date(expiresAt) < new Date();
-    };
-
     return (
         <div className="space-y-4">
             {/* Toolbar */}
@@ -181,9 +173,6 @@ export default function AdminCouponList() {
                         <SelectContent>
                             <SelectItem value="all">Tất cả</SelectItem>
                             <SelectItem value="active">Đang hoạt động</SelectItem>
-                            <SelectItem value="expiring">Sắp hết hạn</SelectItem>
-                            <SelectItem value="expired">Hết hạn</SelectItem>
-                            <SelectItem value="used_up">Đã dùng hết</SelectItem>
                         </SelectContent>
                     </Select>
                     <p className="text-sm text-muted-foreground">
@@ -260,11 +249,7 @@ export default function AdminCouponList() {
                                 const maxDiscountAmount = getMaxDiscountAmount(coupon);
                                 const minOrderAmount = getMinOrderAmount(coupon);
                                 const maxUsage = getMaxUsage(coupon);
-                                const expiresAt = getExpiresAt(coupon);
-                                const expired = isExpired(expiresAt);
-                                const usedUp =
-                                    maxUsage &&
-                                    coupon.usedCount >= maxUsage;
+                                const usedUp = maxUsage && coupon.usedCount >= maxUsage;
 
                                 return (
                                     <TableRow key={couponId}>
@@ -336,40 +321,15 @@ export default function AdminCouponList() {
                                                 {formatNumber(coupon.usedCount || 0)}
                                                 {maxUsage
                                                     ? ` / ${formatNumber(maxUsage)}`
-                                                    : " / ∞"}
-                                            </span>
-                                            {coupon.maxUsagePerUser != null && (
-                                                <p className="text-xs text-muted-foreground">
-                                                    Tối đa {coupon.maxUsagePerUser} lần/user
-                                                </p>
-                                            )}
-                                        </TableCell>
-
-                                        {/* Expiry */}
-                                        <TableCell>
-                                            <span
-                                                className={cn(
-                                                    "text-sm",
-                                                    expired
-                                                        ? "text-red-500"
-                                                        : "text-muted-foreground",
-                                                )}
-                                            >
-                                                {expiresAt
-                                                    ? formatDate(
-                                                          expiresAt,
-                                                      )
-                                                    : "Không hết hạn"}
+                                                    : " / ?"}
                                             </span>
                                         </TableCell>
 
                                         {/* Status */}
                                         <TableCell>
-                                            {expired || usedUp ? (
+                                            {usedUp ? (
                                                 <Badge className="bg-red-100 text-xs text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400">
-                                                    {expired
-                                                        ? "Hết hạn"
-                                                        : "Hết lượt"}
+                                                    Hết lượt
                                                 </Badge>
                                             ) : (
                                                 <Badge
@@ -396,7 +356,6 @@ export default function AdminCouponList() {
                                                     className="h-8 w-8 text-muted-foreground hover:text-foreground"
                                                     disabled={
                                                         isToggling ||
-                                                        expired ||
                                                         usedUp
                                                     }
                                                     onClick={() =>

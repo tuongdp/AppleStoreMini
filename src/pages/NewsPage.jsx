@@ -219,14 +219,8 @@ export default function NewsPage() {
                                     <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                                         <span className="inline-flex items-center gap-1">
                                             <Calendar className="h-3.5 w-3.5" />
-                                            {new Date(featuredNews.publishedAt || featuredNews.createdAt).toLocaleDateString("vi-VN")}
+                                            {new Date(featuredNews.createdAt).toLocaleDateString("vi-VN")}
                                         </span>
-                                        {featuredNews.readTime && (
-                                            <span className="inline-flex items-center gap-1">
-                                                <Clock className="h-3.5 w-3.5" />
-                                                {featuredNews.readTime} phút
-                                            </span>
-                                        )}
                                         <span className="inline-flex items-center gap-1">
                                             <TrendingUp className="h-3.5 w-3.5" />
                                             {featuredNews.viewCount || 0} lượt xem

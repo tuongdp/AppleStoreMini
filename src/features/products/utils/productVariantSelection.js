@@ -10,7 +10,7 @@ export function normalizeOptionValue(value) {
 }
 
 export function isVariantAvailable(variant) {
-  return Boolean(variant?.inStock) && Number(variant?.stock ?? 0) > 0;
+  return Number(variant?.stock ?? 0) > 0;
 }
 
 function matchesSelection(variant, selection, fields = VARIANT_OPTION_FIELDS) {

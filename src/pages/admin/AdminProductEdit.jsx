@@ -22,8 +22,14 @@ export default function AdminProductEdit() {
     const handleSubmit = async (values) => {
         setIsSaving(true);
         try {
-            const { variants: _, productId: __, ...productData } = values;
-            await updateProduct({ id, ...productData }).unwrap();
+            await updateProduct({
+                id,
+                name: values.name,
+                slug: values.slug,
+                category: values.category,
+                description: values.description || "",
+                isActive: values.isActive ?? true,
+            }).unwrap();
             toast.success("Cập nhật sản phẩm thành công");
             navigate(ROUTES.ADMIN_PRODUCTS);
         } catch (error) {
@@ -94,19 +100,13 @@ function AdminProductEditSkeleton() {
                 </div>
                 <Skeleton className="h-9 w-24 rounded-full" />
             </div>
-            <div className="grid gap-6 lg:grid-cols-3">
-                <div className="space-y-4 lg:col-span-2">
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="space-y-2">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-10 w-full rounded-lg" />
-                        </div>
-                    ))}
-                </div>
-                <div className="space-y-4">
-                    <Skeleton className="h-48 w-full rounded-2xl" />
-                    <Skeleton className="h-32 w-full rounded-2xl" />
-                </div>
+            <div className="space-y-4 max-w-3xl">
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-10 w-full rounded-lg" />
+                    </div>
+                ))}
             </div>
         </div>
     );

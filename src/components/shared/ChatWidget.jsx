@@ -4,7 +4,6 @@ import { Bot, Loader2, MessageCircle, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
-import { useAiHealthQuery } from "@/store/api/aiApi";
 import { buildFocusedChatReply, filterChatProductsByMessage } from "@/features/ai/chatProductFilter";
 
 export default function ChatWidget({ initialOpen = false }) {
@@ -12,8 +11,6 @@ export default function ChatWidget({ initialOpen = false }) {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [sendMessage, { isLoading }] = useSendMessageMutation();
-    const { data: aiHealth } = useAiHealthQuery(undefined, { skip: !open });
-    const chatAiAvailable = Boolean(aiHealth?.aiEnabled && aiHealth?.features?.chat !== false);
     const scrollRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -105,7 +102,7 @@ export default function ChatWidget({ initialOpen = false }) {
                         <div className="min-w-0 flex-1">
                             <p id="chat-widget-title" className="truncate text-sm font-semibold">Trợ lý Apple Store</p>
                             <p className="text-xs text-background/70">
-                                {chatAiAvailable ? "Hỗ trợ tư vấn sản phẩm bằng AI" : "Hỗ trợ tư vấn theo dữ liệu cửa hàng"}
+                                Hỗ trợ tư vấn sản phẩm bằng AI
                             </p>
                         </div>
                         <button

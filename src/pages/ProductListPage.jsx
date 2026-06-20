@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
 import { useGetProductsQuery } from "@/store/api/productsApi";
-import { useGetSeriesQuery } from "@/store/api/seriesApi";
 import ProductGrid from "@/features/products/components/ProductGrid";
 import EmptyState from "@/components/shared/EmptyState";
 import Breadcrumb from "@/components/shared/Breadcrumb";
@@ -13,8 +12,6 @@ import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import SeoHead from "@/components/shared/SeoHead";
 import {
-    buildSeriesFilters,
-    buildSeriesFiltersFromSeries,
     getCategorySliderImages,
 } from "@/features/products/utils/productListFilters";
 
@@ -67,28 +64,12 @@ export default function ProductListPage() {
             category: searchParams.get("category") || undefined,
             sort: activeSortOption.sort,
             search: searchParams.get("search") || undefined,
-            series: searchParams.get("series") || undefined,
-            slug: searchParams.get("slug") || undefined,
             arrivalType: activeSortOption.arrivalType,
         };
         return Object.fromEntries(Object.entries(raw).filter(([, value]) => value !== undefined));
     }, [activeSortOption, searchParams]);
 
     const { data, isLoading, isFetching } = useGetProductsQuery(filters);
-
-    const seriesQuery = useMemo(() => ({
-        category: filters.category,
-        limit: 120,
-        sort: "featured",
-    }), [filters.category]);
-
-    const { data: seriesData } = useGetProductsQuery(seriesQuery, {
-        skip: !filters.category,
-    });
-    const { data: dbSeries = [] } = useGetSeriesQuery(
-        { category: filters.category },
-        { skip: !filters.category },
-    );
 
     const products = useMemo(() => data?.products ?? [], [data?.products]);
     const pagination = data?.pagination ?? {};
@@ -112,21 +93,6 @@ export default function ProductListPage() {
         image,
     }));
 
-    const seriesFilters = useMemo(() => {
-        const databaseFilters = buildSeriesFiltersFromSeries(dbSeries);
-        if (databaseFilters.length > 0) {
-            return databaseFilters.map((series) => ({ ...series, source: "series" }));
-        }
-        return buildSeriesFilters(seriesData?.products ?? [], filters.category)
-            .map((series) => ({ ...series, source: "slug" }));
-    }, [dbSeries, filters.category, seriesData?.products]);
-
-    const activeSeries = filters.series || filters.slug;
-    const activeSeriesObj = useMemo(() => {
-        if (!activeSeries) return null;
-        return dbSeries.find((s) => s.slug === activeSeries) || null;
-    }, [activeSeries, dbSeries]);
-
     const updateParams = (updates) => {
         const params = new URLSearchParams(searchParams);
         updates.forEach(([key, value]) => {
@@ -141,18 +107,6 @@ export default function ProductListPage() {
         const params = new URLSearchParams(searchParams);
         params.set("page", String(page));
         setSearchParams(params);
-    };
-
-    const clearSeries = () => {
-        updateParams([["series", ""], ["slug", ""]]);
-    };
-
-    const updateSeries = (series) => {
-        const nextValue = activeSeries === series.slug ? "" : series.slug;
-        updateParams([
-            ["series", series.source === "series" ? nextValue : ""],
-            ["slug", series.source === "slug" ? nextValue : ""],
-        ]);
     };
 
     const updateSort = (option) => {
@@ -215,51 +169,7 @@ export default function ProductListPage() {
                     </div>
                 )}
 
-                {filters.category && currentCategory?.description && (
-                    <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                        {currentCategory.description}
-                    </p>
-                )}
-
-                {activeSeriesObj?.description && (
-                    <p className="mb-8 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                        {activeSeriesObj.description}
-                    </p>
-                )}
-
                 <div className="mb-8 space-y-5 border-y border-border py-4">
-                    {seriesFilters.length > 0 && (
-                        <ScrollNav label="Lọc" wrap>
-                            <button
-                                type="button"
-                                onClick={clearSeries}
-                                className={cn(
-                                    "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                                    !activeSeries
-                                        ? "border-foreground bg-foreground text-background"
-                                        : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
-                                )}
-                            >
-                                Tất cả
-                            </button>
-                            {seriesFilters.map((series) => (
-                                <button
-                                    key={series.slug}
-                                    type="button"
-                                    onClick={() => updateSeries(series)}
-                                    className={cn(
-                                        "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                                        activeSeries === series.slug
-                                            ? "border-foreground bg-foreground text-background"
-                                            : "border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground",
-                                    )}
-                                >
-                                    {series.label}
-                                </button>
-                            ))}
-                        </ScrollNav>
-                    )}
-
                     <ScrollNav label="Sắp xếp theo" wrap>
                         {PRODUCT_SORT_OPTIONS.map((option) => (
                             <button

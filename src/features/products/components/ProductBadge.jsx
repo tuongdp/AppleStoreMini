@@ -30,12 +30,12 @@ export default function ProductBadge({ product, className }) {
                     %
                 </Badge>
             )}
-            {!product.inStock && (
+            {(product.stock ?? 0) <= 0 && (
                 <Badge variant="outline" className="text-muted-foreground">
                     {"Hết hàng"}
                 </Badge>
             )}
-            {product.inStock && product.stock != null && product.stock > 0 && product.stock <= 5 && (
+            {(product.stock ?? 0) > 0 && (product.stock ?? 0) <= 5 && (
                 <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
                     {`Còn ${product.stock}`}
                 </Badge>

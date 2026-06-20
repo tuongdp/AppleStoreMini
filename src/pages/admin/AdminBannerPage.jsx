@@ -62,11 +62,8 @@ function BannerForm({ banner, banners, onClose }) {
     const form = useForm({
         resolver: zodResolver(bannerSchema),
         defaultValues: {
-            title: banner?.title || "",
             order: nextOrder ?? 0,
             ctaLink: getBannerLink(banner),
-            startDate: banner?.startDate ? banner.startDate.slice(0, 10) : "",
-            endDate: banner?.endDate ? banner.endDate.slice(0, 10) : "",
         },
     });
 
@@ -92,11 +89,8 @@ function BannerForm({ banner, banners, onClose }) {
         }
         try {
             const formData = new FormData();
-            if (values.title) formData.append("title", values.title);
             formData.append("order", String(values.order));
             formData.append("ctaLink", values.ctaLink);
-            if (values.startDate) formData.append("startDate", values.startDate);
-            if (values.endDate) formData.append("endDate", values.endDate);
             if (imageFile) formData.append("image", imageFile);
 
             if (isEditing) {
@@ -127,7 +121,7 @@ function BannerForm({ banner, banners, onClose }) {
                         <div className="mb-3 h-40 w-full overflow-hidden rounded-xl bg-muted">
                             <img
                                 src={imagePreview}
-                                alt={form.getValues("title") ? `Ảnh banner ${form.getValues("title")}` : "Ảnh banner"}
+                                alt="Ảnh banner"
                                 className="h-full w-full object-cover"
                             />
                         </div>
@@ -145,20 +139,6 @@ function BannerForm({ banner, banners, onClose }) {
                         />
                     </label>
                 </div>
-
-                <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{"Tên banner"}</FormLabel>
-                            <FormControl>
-                                <Input placeholder="VD: Sale hè 2026" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
 
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
@@ -187,35 +167,6 @@ function BannerForm({ banner, banners, onClose }) {
                                 <FormLabel>{"Link"}</FormLabel>
                                 <FormControl>
                                     <Input placeholder="/products?category=iphone" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="startDate"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{"Ngày bắt đầu"}</FormLabel>
-                                <FormControl>
-                                    <Input type="date" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="endDate"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{"Ngày kết thúc"}</FormLabel>
-                                <FormControl>
-                                    <Input type="date" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -373,16 +324,9 @@ export default function AdminBannerPage() {
                         {banners.map((banner, index) => {
                             const bannerId = getBannerId(banner);
                             const image = getBannerImage(banner);
-                            const now = new Date();
-                            const isUpcoming = banner.startDate && new Date(banner.startDate) > now;
-                            const isExpired = banner.endDate && new Date(banner.endDate) < now;
-                            const statusBadge = isExpired
-                                ? { label: "Hết hạn", color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" }
-                                : isUpcoming
-                                    ? { label: "Sắp hiển thị", color: "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" }
-                                    : banner.isActive
-                                        ? { label: "Đang hiển thị", color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" }
-                                        : { label: "Đã ẩn", color: "bg-muted text-muted-foreground" };
+                            const statusBadge = banner.isActive
+                                ? { label: "Đang hiển thị", color: "bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400" }
+                                : { label: "Đã ẩn", color: "bg-muted text-muted-foreground" };
                             return (
                                 <div key={bannerId}>
                                     <div className="flex items-center gap-4 p-4">
@@ -391,7 +335,7 @@ export default function AdminBannerPage() {
                                             {image && (
                                                 <img
                                                     src={image}
-                                                    alt={banner.title || `Banner thứ tự ${banner.order}`}
+                                                    alt={`Banner thứ tự ${banner.order}`}
                                                     className="h-full w-full object-cover"
                                                 />
                                             )}
@@ -400,12 +344,10 @@ export default function AdminBannerPage() {
                                         {/* Info */}
                                         <div className="min-w-0 flex-1">
                                             <p className="text-sm font-medium text-foreground">
-                                                {banner.title || `Banner #${banner.order}`}
+                                                {"Banner #" + banner.order}
                                             </p>
                                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                                Thứ tự #{banner.order}
-                                                {banner.startDate && ` · ${new Date(banner.startDate).toLocaleDateString("vi-VN")}`}
-                                                {banner.endDate && ` — ${new Date(banner.endDate).toLocaleDateString("vi-VN")}`}
+                                                {"Thứ tự #" + banner.order}
                                             </p>
                                         </div>
 
@@ -421,7 +363,7 @@ export default function AdminBannerPage() {
                                                 handleToggle(banner)
                                             }
                                             disabled={isToggling}
-                                            aria-label={banner.isActive !== false ? `Ẩn banner ${banner.title || banner.order}` : `Hiện banner ${banner.title || banner.order}`}
+                                            aria-label={banner.isActive !== false ? `Ẩn banner #${banner.order}` : `Hiện banner #${banner.order}`}
                                         />
 
                                         {/* Actions */}

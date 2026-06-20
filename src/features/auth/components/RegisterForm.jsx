@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Circle, Eye, EyeOff, Info, Loader2, MailCheck } from "lucide-react";
 import { registerSchema } from "@/lib/validations";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useLazyCheckEmailQuery, useVerifyEmailMutation, useSendVerificationMutation } from "@/store/api/authApi";
+import { useRegisterMutation, useLazyCheckEmailQuery, useSendVerificationMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

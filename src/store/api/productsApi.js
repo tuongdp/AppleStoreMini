@@ -147,13 +147,6 @@ export const productsApi = baseApi.injectEndpoints({
             transformResponse: (response) => response.data,
         }),
 
-        // ── Admin Categories ───────────────────────────
-        getAdminCategories: builder.query({
-            query: () => "/admin/categories",
-            providesTags: ["Categories"],
-            transformResponse: (response) => response.data,
-        }),
-
         // ── Admin Variants ─────────────────────────────
         createVariant: builder.mutation({
             query: ({ productId, ...data }) => ({
@@ -224,7 +217,6 @@ export const {
     useUpdateProductMutation,
     useDeleteProductMutation,
     useUploadProductImagesMutation,
-    useGetAdminCategoriesQuery,
     useCreateVariantMutation,
     useUpdateVariantMutation,
     useDeleteVariantMutation,

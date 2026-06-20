@@ -1,149 +1,63 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Mail } from "lucide-react";
 import { z } from "zod";
-import { useForgotPasswordMutation, useResetPasswordMutation } from "@/store/api/authApi";
+import { useForgotPasswordMutation } from "@/store/api/authApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ROUTES } from "@/lib/constants";
-import { toast } from "sonner";
 
-const emailSchema = z.object({ email: z.string().email("Email không hợp lệ") });
-
-const resetSchema = z.object({
-    code: z.string().length(6, "Mã xác nhận phải có 6 ký tự"),
-    password: z.string().min(8, "Mật khẩu tối thiểu 8 ký tự"),
-    confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
-}).refine((d) => d.password === d.confirmPassword, { message: "Mật khẩu không khớp", path: ["confirmPassword"] });
+const schema = z.object({ email: z.string().email("Email không hợp lệ") });
 
 export default function ForgotPasswordForm() {
-    const navigate = useNavigate();
     const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
-    const [resetPassword, { isLoading: isResetting }] = useResetPasswordMutation();
-    const [step, setStep] = useState(0); // 0=email, 1=otp, 2=success
-    const [submittedEmail, setSubmittedEmail] = useState("");
+    const [sent, setSent] = useState(false);
     const [serverError, setServerError] = useState("");
 
-    const emailForm = useForm({ resolver: zodResolver(emailSchema), defaultValues: { email: "" } });
-    const resetForm = useForm({ resolver: zodResolver(resetSchema), defaultValues: { code: "", password: "", confirmPassword: "" } });
+    const form = useForm({ resolver: zodResolver(schema), defaultValues: { email: "" } });
 
-    const handleSendCode = async (values) => {
+    const onSubmit = async (values) => {
         setServerError("");
         try {
-            await forgotPassword(values.email).unwrap();
-            setSubmittedEmail(values.email);
-            setStep(1);
-            toast.success("Đã gửi mã xác nhận đến email");
-        } catch (error) {
-            setServerError(error?.data?.message || "Có lỗi xảy ra");
+            await forgotPassword(values).unwrap();
+            setSent(true);
+        } catch (err) {
+            setServerError(err?.data?.message || "Có lỗi xảy ra");
         }
     };
 
-    const handleReset = async (values) => {
-        setServerError("");
-        try {
-            await resetPassword({ code: values.code, newPassword: values.password }).unwrap();
-            setStep(2);
-            toast.success("Đặt lại mật khẩu thành công");
-            setTimeout(() => navigate(ROUTES.LOGIN), 3000);
-        } catch (error) {
-            const msg = error?.data?.message || "Mã xác nhận không hợp lệ hoặc đã hết hạn";
-            toast.error(msg);
-            setServerError(msg);
-        }
-    };
-
-    if (step === 2) {
+    if (sent) {
         return (
-            <div className="w-full max-w-sm text-center">
-                <div className="mb-4 flex justify-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/30">
-                        <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-                    </div>
-                </div>
-                <h1 className="mb-2 text-2xl font-semibold text-foreground">Đặt lại mật khẩu thành công</h1>
-                <p className="mb-6 text-sm text-muted-foreground">Bạn có thể đăng nhập với mật khẩu mới</p>
-                <Button className="w-full rounded-full" onClick={() => navigate(ROUTES.LOGIN)}>Đăng nhập</Button>
-            </div>
-        );
-    }
-
-    if (step === 1) {
-        return (
-            <div className="w-full max-w-sm">
-                <div className="mb-6 text-center">
-                    <h1 className="text-2xl font-semibold text-foreground">Đặt lại mật khẩu</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">Nhập mã xác nhận gửi đến {submittedEmail}</p>
-                </div>
-                <Form {...resetForm}>
-                    <form onSubmit={resetForm.handleSubmit(handleReset)} className="space-y-4">
-                        {serverError && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</div>}
-
-                        <FormField control={resetForm.control} name="code" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Mã xác nhận<span className="text-destructive">*</span></FormLabel>
-                                <FormControl><Input maxLength={6} placeholder="000000" className="text-center text-lg tracking-[0.5em]" autoComplete="off" disabled={isResetting} {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-
-                        <FormField control={resetForm.control} name="password" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Mật khẩu mới<span className="text-destructive">*</span></FormLabel>
-                                <FormControl><Input type="password" placeholder="Tối thiểu 8 ký tự" autoComplete="new-password" disabled={isResetting} {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-
-                        <FormField control={resetForm.control} name="confirmPassword" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Xác nhận mật khẩu mới<span className="text-destructive">*</span></FormLabel>
-                                <FormControl><Input type="password" placeholder="Nhập lại mật khẩu mới" autoComplete="new-password" disabled={isResetting} {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )} />
-
-                        <Button type="submit" className="w-full rounded-full" disabled={isResetting}>
-                            {isResetting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Đặt lại mật khẩu
-                        </Button>
-                    </form>
-                </Form>
-                <p className="mt-6 text-center text-sm">
-                    <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">Quay lại đăng nhập</Link>
-                </p>
+            <div className="mx-auto max-w-md space-y-6 text-center">
+                <Mail className="mx-auto h-12 w-12 text-green-500" />
+                <h2 className="text-xl font-semibold text-foreground">Kiểm tra email của bạn</h2>
+                <p className="text-sm text-muted-foreground">Mật khẩu mới đã được gửi đến email. Vui lòng đăng nhập và đổi mật khẩu ngay.</p>
+                <Button asChild className="rounded-full"><Link to={ROUTES.LOGIN}>Đăng nhập</Link></Button>
             </div>
         );
     }
 
     return (
-        <div className="w-full max-w-sm">
-            <div className="mb-6 text-center">
-                <h1 className="text-2xl font-semibold text-foreground">Quên mật khẩu</h1>
-                <p className="mt-1 text-sm text-muted-foreground">Nhập email để nhận mã xác nhận</p>
-            </div>
-            <Form {...emailForm}>
-                <form onSubmit={emailForm.handleSubmit(handleSendCode)} className="space-y-4">
-                    {serverError && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</div>}
-                    <FormField control={emailForm.control} name="email" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email<span className="text-destructive">*</span></FormLabel>
-                            <FormControl><Input type="email" placeholder="Nhập địa chỉ email" autoComplete="email" disabled={isLoading} {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                    <Button type="submit" className="w-full rounded-full" disabled={isLoading}>
-                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Gửi mã xác nhận
-                    </Button>
-                </form>
-            </Form>
-            <p className="mt-6 text-center text-sm">
-                <Link to={ROUTES.LOGIN} className="font-medium text-apple-blue hover:opacity-70">Quay lại đăng nhập</Link>
-            </p>
-        </div>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-md space-y-6">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold text-foreground">Quên mật khẩu</h2>
+                    <p className="mt-2 text-sm text-muted-foreground">Nhập email để nhận mật khẩu mới</p>
+                </div>
+                {serverError && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</div>}
+                <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="email@example.com" disabled={isLoading} {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <Button type="submit" className="w-full rounded-full" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Gửi mật khẩu mới
+                </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                    <Link to={ROUTES.LOGIN} className="text-apple-blue hover:underline">Quay lại đăng nhập</Link>
+                </p>
+            </form>
+        </Form>
     );
 }

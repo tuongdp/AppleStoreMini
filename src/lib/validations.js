@@ -112,24 +112,16 @@ export const resetPasswordSchema = z
 
 export const changePasswordSchema = z
     .object({
-        verificationCode: z
-            .string()
-            .min(1, { message: v("password.verificationRequired") })
-            .length(6, { message: v("password.verificationLength") }),
+        oldPassword: z.string().min(1, { message: v("password.currentRequired") }),
         newPassword: z
             .string()
             .min(8, { message: v("password.minLength") })
             .max(32, { message: v("password.maxLength") })
             .regex(/[A-Z]/, { message: "Mật khẩu cần ít nhất 1 chữ hoa" })
             .regex(/[^A-Za-z0-9]/, { message: "Mật khẩu cần ít nhất 1 ký tự đặc biệt" }),
-        confirmPassword: z
-            .string()
-            .min(1, { message: v("password.confirmNewRequired") }),
+        confirmPassword: z.string().min(1, { message: v("password.confirmNewRequired") }),
     })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-        message: v("password.notMatch"),
-        path: ["confirmPassword"],
-    });
+    .refine((data) => data.newPassword === data.confirmPassword, { message: v("password.notMatch"), path: ["confirmPassword"] });
 
 // ── Profile ───────────────────────────────────────────
 export const profileSchema = z.object({
@@ -195,7 +187,6 @@ export const productSchema = z.object({
             message: v("product.slugInvalid"),
         }),
     category: z.string().min(1, { message: v("product.categoryRequired") }),
-    seriesIds: z.array(z.string()).default([]),
     description: z
         .string()
         .min(10, { message: v("product.descriptionMinLength") })
@@ -215,7 +206,6 @@ export const commentSchema = z.object({
         .min(10, { message: v("comment.commentMinLength") })
         .max(500, { message: v("comment.commentMaxLength") })
         .transform(sanitizeText),
-    images: z.array(z.string().min(1)),
 });
 
 // ── Cancel order ──────────────────────────────────────
@@ -245,11 +235,8 @@ export const contactSchema = z.object({
 
 // ── Banner ────────────────────────────────────────────
 export const bannerSchema = z.object({
-    title: z.string().optional(),
     order: z.coerce.number().int().min(0),
     ctaLink: z.string().min(1, "Vui lòng nhập link liên kết"),
-    startDate: z.string().optional(),
-    endDate: z.string().optional(),
 });
 
 // ── News Comment ───────────────────────────────────────

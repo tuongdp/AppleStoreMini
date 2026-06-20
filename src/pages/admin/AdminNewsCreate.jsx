@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useCreateNewsMutation } from "@/store/api/newsApi";
 import AdminNewsForm from "@/features/admin/components/news/AdminNewsForm";
@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export default function AdminNewsCreate() {
+    const navigate = useNavigate();
     const [createNews, { isLoading }] = useCreateNewsMutation();
 
     const handleSubmit = async (values) => {
         try {
             await createNews(values).unwrap();
             toast.success("Đã tạo bài viết");
+            navigate("/admin/news");
         } catch (error) {
             toast.error(error?.data?.message || "Có lỗi xảy ra");
         }

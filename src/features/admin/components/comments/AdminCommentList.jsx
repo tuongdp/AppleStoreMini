@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquareReply, Search, Sparkles, Star, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Star, Trash2 } from "lucide-react";
 import {
     useAdminDeleteReviewMutation,
     useGetAdminReviewQuery,
     useGetAllReviewsQuery,
-    useReplyReviewMutation,
-    useToggleReviewVisibilityMutation,
 } from "@/store/api/productReviewApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -69,22 +67,9 @@ const variantText = (item) => {
 };
 
 function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
-    const [replyById, setReplyById] = useState({});
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const { data: review, isFetching } = useGetAdminReviewQuery(reviewId, { skip: !reviewId || !open });
-    const [replyReview, { isLoading: isReplying }] = useReplyReviewMutation();
-    const reply = replyById[reviewId] ?? review?.adminReply ?? "";
-
-    const handleReply = async () => {
-        if (!reviewId) return;
-        try {
-            await replyReview({ reviewId, content: reply }).unwrap();
-            toast.success("Đã phản hồi bình luận");
-        } catch {
-            toast.error("Có lỗi xảy ra");
-        }
-    };
 
     const images = parseJsonField(review?.images) || [];
     const productImage = parseJsonField(review?.product?.images)?.[0] || review?.product?.image;
@@ -208,24 +193,11 @@ function ReviewDetailDialog({ reviewId, open, onOpenChange }) {
                                 Phản hồi gần nhất bởi {review.repliedByName || "nhân viên"} lúc {formatDateTime(review.repliedAt)}
                             </p>
                         )}
-
-                        <div className="space-y-2">
-                            <p className="text-sm font-medium">Phản hồi của cửa hàng</p>
-                            <Textarea
-                                value={reply}
-                                onChange={(e) => setReplyById((current) => ({ ...current, [reviewId]: e.target.value }))}
-                                rows={4}
-                                placeholder="Nhập phản hồi..."
-                            />
-                        </div>
                     </div>
                 ) : null}
 
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
-                    <Button onClick={handleReply} disabled={isReplying || !reply.trim()}>
-                        {isReplying ? "Đang gửi..." : "Gửi phản hồi"}
-                    </Button>
                 </DialogFooter>
 
                 <ImageLightbox
@@ -255,7 +227,6 @@ export default function AdminCommentList() {
 
     const { data, isLoading, isFetching } = useGetAllReviewsQuery(filters);
     const [deleteReview, { isLoading: isDeleting }] = useAdminDeleteReviewMutation();
-    const [toggleVisibility, { isLoading: isToggling }] = useToggleReviewVisibilityMutation();
     const reviews = data?.reviews ?? [];
     const pagination = data?.pagination ?? {};
 
@@ -270,20 +241,11 @@ export default function AdminCommentList() {
     const handleDelete = async () => {
         try {
             await deleteReview(deleteId).unwrap();
-            toast.success("Đã xóa bình luận");
+            toast.success("Đã xóa đánh giá");
         } catch {
             toast.error("Có lỗi xảy ra");
         } finally {
             setDeleteId(null);
-        }
-    };
-
-    const handleToggleVisibility = async (review) => {
-        try {
-            await toggleVisibility(review.id).unwrap();
-            toast.success(review.isVisible !== false ? "Đã ẩn đánh giá" : "Đã hiện đánh giá");
-        } catch {
-            toast.error("Có lỗi xảy ra");
         }
     };
 
@@ -355,12 +317,6 @@ export default function AdminCommentList() {
                                         <TableCell><span className="text-sm text-muted-foreground">{formatDateTime(review.createdAt)}</span></TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setDetailId(review.id)} aria-label="Xem chi tiết và phản hồi">
-                                                    <MessageSquareReply className="h-4 w-4" aria-hidden="true" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" disabled={isToggling} onClick={() => handleToggleVisibility(review)} aria-label={review.isVisible !== false ? "Ẩn bình luận" : "Hiện bình luận"}>
-                                                    {review.isVisible !== false ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
-                                                </Button>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(review.id)} aria-label="Xóa bình luận">
                                                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </Button>

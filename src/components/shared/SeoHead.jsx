@@ -1,11 +1,10 @@
 import { useHead } from "@unhead/react";
-import { usePublicSettings } from "@/hooks/usePublicSettings";
 
 const SITE_URL = "https://www.apple-store-mini.io.vn";
 const DEFAULT_IMAGE = "https://www.apple-store-mini.io.vn/og-image.jpg";
 
-const FALLBACK_SITE_NAME = "Apple Store";
-const FALLBACK_DESCRIPTION = "Apple Store - Cửa hàng Apple chính hãng, iPhone, iPad, MacBook, Apple Watch, AirPods giá tốt nhất. Giao hàng toàn quốc, bảo hành chính hãng.";
+const SITE_NAME = "Apple Store";
+const SITE_DESCRIPTION = "Apple Store - Cửa hàng Apple chính hãng, iPhone, iPad, MacBook, Apple Watch, AirPods giá tốt nhất. Giao hàng toàn quốc, bảo hành chính hãng.";
 
 export default function SeoHead({
   title,
@@ -15,11 +14,10 @@ export default function SeoHead({
   type = "website",
   noindex = false,
 }) {
-  const { data: settings } = usePublicSettings();
-  const siteName = settings?.shop?.name || FALLBACK_SITE_NAME;
-  const defaultDescription = settings?.seo?.description || FALLBACK_DESCRIPTION;
+  const siteName = SITE_NAME;
+  const defaultDescription = SITE_DESCRIPTION;
   const resolvedDescription = description || defaultDescription;
-  const fullTitle = title ? `${title} | ${siteName}` : (settings?.seo?.title || `${siteName} - Cửa hàng Apple chính hãng`);
+  const fullTitle = title ? `${title} | ${siteName}` : `${siteName} - Cửa hàng Apple chính hãng`;
   const resolvedUrl = url.startsWith("http") ? url : `${SITE_URL}${url}`;
   const resolvedImage = image.startsWith("http") ? image : `${SITE_URL}${image}`;
 

@@ -5,9 +5,7 @@ import {
     ArrowUpRight,
     CheckCircle2,
     Clock,
-    MessageSquareReply,
     Package,
-    RotateCcw,
     ShoppingBag,
     TrendingUp,
     Users,
@@ -28,8 +26,6 @@ import OrderStatusChart from "@/features/admin/components/dashboard/OrderStatusC
 import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
-import AdminAiInsights from "@/features/admin/components/dashboard/AdminAiInsights";
-import StaffActivityFeed from "@/features/admin/components/dashboard/StaffActivityFeed";
 import { formatNumber, formatPrice, cn } from "@/lib/utils";
 
 function MetricCard({ title, value, note, icon: Icon, tone = "default", loading }) {
@@ -109,11 +105,8 @@ export default function AdminDashboard() {
         pollingInterval: 30000,
     });
     const { data: lowStock = [], isLoading: isLowStockLoading } = useGetLowStockQuery();
-    const returnRate = stats?.totalOrders && stats?.totalReturns ? ((stats.totalReturns / stats.totalOrders) * 100).toFixed(1) : "0";
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
-    const returnRequestsCount = tasks.find((item) => item.key === "returnRequests")?.count || 0;
-    const reviewsCount = tasks.find((item) => item.key === "reviews")?.count || 0;
 
     const metricCards = useMemo(() => [
         {
@@ -140,7 +133,7 @@ export default function AdminDashboard() {
         {
             title: "Tỷ lệ giao thành công",
             value: `${operations?.orders?.deliveryRate ?? 0}%`,
-            note: `Hủy/hoàn ${operations?.orders?.problemRate ?? returnRate}%`,
+            note: `Hủy/hoàn ${operations?.orders?.problemRate ?? 0}%`,
             icon: CheckCircle2,
             tone: "order",
         },
@@ -158,7 +151,7 @@ export default function AdminDashboard() {
             icon: Users,
             tone: "default",
         },
-    ], [operations, returnRate, stats]);
+    ], [operations, stats]);
 
     return (
         <div className="space-y-6">
@@ -190,8 +183,6 @@ export default function AdminDashboard() {
                     <MetricCard key={card.title} {...card} loading={isStatsLoading || isOperationsLoading} />
                 ))}
             </div>
-
-            <AdminAiInsights />
 
             <div className="grid gap-4 lg:grid-cols-3">
                 <Card>
@@ -236,40 +227,7 @@ export default function AdminDashboard() {
                         )}
                     </CardContent>
                 </Card>
-            <Card className="border-border">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle className="text-sm font-medium">Chăm sóc khách hàng</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-1">
-                    <Link to="/admin/returns" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
-                        <div className="flex items-center gap-3">
-                            <RotateCcw className="h-4 w-4 text-red-500" aria-hidden="true" />
-                            <span className="text-sm font-medium text-foreground">Yêu cầu trả hàng</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Badge variant={returnRequestsCount > 0 ? "destructive" : "secondary"}>
-                                {formatNumber(returnRequestsCount)}
-                            </Badge>
-                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                        </div>
-                    </Link>
-                    <Link to="/admin/comments" className="flex items-center justify-between rounded-lg px-3 py-2.5 transition-colors hover:bg-muted">
-                        <div className="flex items-center gap-3">
-                            <MessageSquareReply className="h-4 w-4 text-amber-500" aria-hidden="true" />
-                            <span className="text-sm font-medium text-foreground">Đánh giá chưa phản hồi</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Badge variant={reviewsCount > 0 ? "destructive" : "secondary"}>
-                                {formatNumber(reviewsCount)}
-                            </Badge>
-                            <ArrowUpRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                        </div>
-                    </Link>
-                </CardContent>
-            </Card>
             </div>
-
-            <StaffActivityFeed />
 
             <div className="grid gap-4 lg:grid-cols-7">
                 <Card className="lg:col-span-4">

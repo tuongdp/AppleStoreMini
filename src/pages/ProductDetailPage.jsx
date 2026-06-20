@@ -126,9 +126,9 @@ export default function ProductDetailPage() {
 
     const invalidSelection = !selectedVariant && (selectedColor || selectedStorage || selectedRam || selectedEdition);
 
-    const inStock = selectedVariant?.inStock ?? false;
     const stock = selectedVariant?.stock ?? 0;
-    const isLowStock = inStock && stock > 0 && stock <= 5;
+    const inStock = stock > 0;
+    const isLowStock = inStock && stock <= 5;
     const marketingBadge = getProductMarketingBadge(selectedVariant);
 
     const displayOriginalPrice = selectedVariant?.price;
