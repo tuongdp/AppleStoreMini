@@ -3,7 +3,6 @@ import { useGetProfileQuery } from "@/store/api/usersApi";
 import { selectCurrentUser } from "@/store/authSlice";
 import ProfileForm from "@/features/profile/components/ProfileForm";
 import AvatarUpload from "@/features/profile/components/AvatarUpload";
-import PointsCard from "@/features/profile/components/PointsCard";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -17,9 +16,6 @@ export default function ProfilePage() {
 
     return (
         <div className="space-y-5">
-            {/* Points Card */}
-            <PointsCard points={profile?.points ?? 0} />
-
             {/* Profile Info Card */}
             <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
                 <div className="mb-8 flex flex-wrap items-center gap-6">

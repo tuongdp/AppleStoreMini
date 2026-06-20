@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Lock, Coins, LogOut } from "lucide-react";
+import { User, ShoppingBag, Lock, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
@@ -24,7 +24,6 @@ const SIDEBAR_MAP = {
   users: "Người dùng",
   profile: "Trang cá nhân",
   changePassword: "Đổi mật khẩu",
-  points: "Điểm thưởng",
 };
 
 const NAV_ITEMS = [
@@ -44,12 +43,6 @@ const NAV_ITEMS = [
     key: "changePassword",
     href: `${ROUTES.PROFILE}/change-password`,
     icon: Lock,
-    end: true,
-  },
-  {
-    key: "points",
-    href: ROUTES.POINTS,
-    icon: Coins,
     end: true,
   },
 ];

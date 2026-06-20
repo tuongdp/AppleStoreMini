@@ -60,7 +60,6 @@ const CheckoutPage = lazyPage(() => import("@/pages/CheckoutPage"));
 const ProfilePage = lazyPage(() => import("@/pages/ProfilePage"));
 const OrderHistoryPage = lazyPage(() => import("@/pages/OrderHistoryPage"));
 const OrderDetailPage = lazyPage(() => import("@/pages/OrderDetailPage"));
-const PointsPage = lazyPage(() => import("@/pages/PointsPage"));
 const PaymentResult = lazyPage(() => import("@/pages/PaymentResult"));
 const OrderLookupPage = lazyPage(() => import("@/pages/OrderLookupPage"));
 
@@ -121,7 +120,6 @@ export const router = createBrowserRouter([
                     { path: "orders", element: <OrderHistoryPage /> },
                     { path: "orders/:id", element: <OrderDetailPage /> },
                     { path: "change-password", element: <ChangePasswordPage /> },
-                    { path: "points", element: <PointsPage /> },
                 ],
             },
         ],

@@ -20,7 +20,6 @@ export const ROUTES = {
     ORDER_DETAIL: (id) => `/profile/orders/${id}`,
     ORDER_LOOKUP: "/order-lookup",
     CHANGE_PASSWORD: "/profile/change-password",
-    POINTS: "/profile/points",
 
     // Admin
     ADMIN: "/admin",
