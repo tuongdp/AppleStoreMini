@@ -11,9 +11,6 @@ import ResponsiveImage from "@/components/shared/ResponsiveImage";
 import { Input } from "@/components/ui/input";
 import { PAGINATION } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import AISearchToggle from "@/features/ai/AISearchToggle";
-import { useAiSearchMutation } from "@/store/api/aiApi";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import SeoHead from "@/components/shared/SeoHead";
 import { getNewsHref, groupProductsByCategory } from "@/features/products/utils/searchResults";
@@ -72,7 +69,6 @@ export default function SearchPage() {
     const keyword = searchParams.get("q") || "";
     const [inputValue, setInputValue] = useState(keyword);
     const page = Number(searchParams.get("page")) || 1;
-    const aiMode = searchParams.get("ai") === "1";
 
     const { data, isLoading, isFetching } = useGetProductsQuery(
         {
@@ -88,92 +84,30 @@ export default function SearchPage() {
         { skip: !keyword },
     );
 
-    const [aiSearch, { isLoading: isAiLoading }] = useAiSearchMutation();
-    const aiSearchAvailable = true;
-    const canUseAiMode = aiMode;
-    const [aiProducts, setAiProducts] = useState(null);
-
     useEffect(() => {
         setInputValue(keyword);
     }, [keyword]);
 
-    useEffect(() => {
-        if (keyword && canUseAiMode && !aiProducts && !isAiLoading) {
-            const runAiSearch = async () => {
-                try {
-                    const res = await aiSearch({ query: keyword }).unwrap();
-                    setAiProducts(res.products || []);
-                } catch {
-                    setAiProducts([]);
-                    toast.error("Không thể kết nối AI, vui lòng thử lại");
-                }
-            };
-            runAiSearch();
-        }
-        if (!canUseAiMode && aiProducts) {
-            setAiProducts(null);
-        }
-    }, [aiProducts, aiSearch, canUseAiMode, isAiLoading, keyword]);
-
     const pagination = data?.pagination || {};
-    const products = useMemo(
-        () => (canUseAiMode && aiProducts ? aiProducts : (data?.products || [])),
-        [aiProducts, canUseAiMode, data?.products],
-    );
+    const products = data?.products || [];
     const newsResults = newsData?.news || [];
     const productGroups = useMemo(() => groupProductsByCategory(products), [products]);
-    const totalProducts = canUseAiMode && aiProducts ? products.length : (pagination.total || products.length);
+    const totalProducts = pagination.total || products.length;
     const hasResults = products.length > 0 || newsResults.length > 0;
-    const isResultLoading = isLoading || isFetching || isNewsFetching || isAiLoading;
+    const isResultLoading = isLoading || isFetching || isNewsFetching;
 
-    const handleSearch = async (e) => {
+    const handleSearch = (e) => {
         e.preventDefault();
         const nextKeyword = inputValue.trim();
-
-        if (canUseAiMode && nextKeyword) {
-            try {
-                const res = await aiSearch({ query: nextKeyword }).unwrap();
-                setAiProducts(res.products || []);
-                const params = new URLSearchParams();
-                params.set("q", nextKeyword);
-                params.set("ai", "1");
-                params.set("page", "1");
-                setSearchParams(params);
-            } catch {
-                toast.error("Không thể kết nối AI, vui lòng thử lại");
-            }
-        } else {
-            setAiProducts(null);
-            const params = new URLSearchParams();
-            if (nextKeyword) params.set("q", nextKeyword);
-            if (nextKeyword) params.set("page", "1");
-            setSearchParams(params);
-        }
-    };
-
-    const handleInputChange = (e) => {
-        setInputValue(e.target.value);
+        const params = new URLSearchParams();
+        if (nextKeyword) params.set("q", nextKeyword);
+        if (nextKeyword) params.set("page", "1");
+        setSearchParams(params);
     };
 
     const updatePage = (nextPage) => {
         const params = new URLSearchParams(searchParams);
         params.set("page", String(nextPage));
-        setSearchParams(params);
-    };
-
-    const handleAiModeChange = (enabled) => {
-        if (enabled && !aiSearchAvailable) {
-            toast.info("Tìm kiếm AI đang tắt trong cấu hình admin");
-            return;
-        }
-        const params = new URLSearchParams(searchParams);
-        if (enabled) {
-            params.set("ai", "1");
-        } else {
-            params.delete("ai");
-            setAiProducts(null);
-        }
-        params.set("page", "1");
         setSearchParams(params);
     };
 
@@ -198,92 +132,63 @@ export default function SearchPage() {
                     </label>
                     <Input
                         id="search-page-input"
+                        type="search"
+                        placeholder="Tìm iPhone, iPad, MacBook..."
                         value={inputValue}
-                        onChange={handleInputChange}
-                        placeholder={canUseAiMode ? "VD: iPhone pin trâu chụp đẹp dưới 20 triệu" : "Tìm kiếm sản phẩm, tin tức..."}
-                        className="h-12 rounded-full pl-12 pr-32 text-base"
-                        name="search"
-                        autoComplete="off"
-                        data-testid="search-page-input"
+                        onChange={(e) => setInputValue(e.target.value)}
+                        className="h-12 rounded-full border-border pl-12 pr-24 text-base"
+                        autoFocus
                     />
                     <Button
                         type="submit"
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full px-6"
+                        className="absolute right-2 top-1/2 h-8 -translate-y-1/2 rounded-full px-6 text-sm"
+                        disabled={isResultLoading}
                     >
-                        {"Tìm kiếm"}
+                        Tìm
                     </Button>
                 </div>
             </form>
-            <AISearchToggle enabled={canUseAiMode} onToggle={handleAiModeChange} disabled={isAiLoading} available={aiSearchAvailable} />
 
             {keyword && (
-                <div className="mb-6">
-                    <h1 className="text-xl font-semibold text-foreground">
-                        {"Kết quả tìm kiếm cho"}{" "}
-                        <span className="text-apple-blue">
-                            &ldquo;{keyword}&rdquo;
-                        </span>
-                        {canUseAiMode && aiProducts && (
-                            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-apple-blue/10 px-2 py-0.5 text-xs font-normal text-apple-blue">
-                                AI
-                            </span>
-                        )}
-                    </h1>
-                    {!isResultLoading && hasResults && (
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {totalProducts} sản phẩm · {newsResults.length} tin tức
-                        </p>
-                    )}
-                </div>
-            )}
-
-            {!keyword ? (
-                <EmptyState
-                    icon={Search}
-                    title={"Tìm kiếm sản phẩm và tin tức"}
-                    description={"Nhập tên sản phẩm hoặc chủ đề tin tức bạn cần tìm."}
-                />
-            ) : isResultLoading ? (
-                <ProductGridSkeleton count={PAGINATION.DEFAULT_LIMIT} />
-            ) : !hasResults ? (
-                <EmptyState
-                    icon={Search}
-                    title={"Không tìm thấy kết quả"}
-                    description={"Thử tìm bằng tên sản phẩm hoặc từ khóa ngắn hơn."}
-                    actionLabel={"Xóa tìm kiếm"}
-                    onAction={() => {
-                        setInputValue("");
-                        setAiProducts(null);
-                        setSearchParams({});
-                    }}
-                />
-            ) : (
-                <div className="space-y-10">
-                    {products.length > 0 && (
-                        <section>
-                            <SectionHeader title="Sản phẩm" count={totalProducts} />
-                            <div className="space-y-8">
-                                {productGroups.map((group) => (
-                                    <div key={group.category}>
-                                        <div className="mb-3 flex items-center gap-2">
-                                            <h3 className="text-sm font-semibold text-foreground">
-                                                {group.category}
-                                            </h3>
-                                            <span className="text-xs text-muted-foreground">
-                                                ({group.products.length})
-                                            </span>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                                            {group.products.map((product) => (
-                                                <ProductCard key={product.id} product={product} />
-                                            ))}
-                                        </div>
+                <div className="mt-4">
+                    {isResultLoading ? (
+                        <ProductGridSkeleton count={8} />
+                    ) : !hasResults ? (
+                        <EmptyState
+                            icon={Search}
+                            title="Không tìm thấy kết quả"
+                            description={`Không có sản phẩm hoặc tin tức nào khớp với "${keyword}"`}
+                        />
+                    ) : (
+                        <>
+                            {productGroups.map((group) => (
+                                <div key={group.category} className="mb-8">
+                                    <SectionHeader
+                                        title={group.category || "Kết quả"}
+                                        count={totalProducts}
+                                        className="mb-4"
+                                    />
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                        {group.products.map((product) => (
+                                            <ProductCard key={product.id || product.slug} product={product} />
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
+
+                            {newsResults.length > 0 && (
+                                <div className="mb-8">
+                                    <SectionHeader title="Tin tức" count={newsResults.length} />
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        {newsResults.map((item) => (
+                                            <NewsResultCard key={item.id || item.slug} news={item} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {pagination.totalPages > 1 && (
-                                <div className="mt-10 flex items-center justify-center gap-2">
+                                <div className="flex items-center justify-center gap-3 pt-4">
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -291,10 +196,10 @@ export default function SearchPage() {
                                         disabled={page <= 1}
                                         onClick={() => updatePage(page - 1)}
                                     >
-                                        {"Trước"}
+                                        Trước
                                     </Button>
                                     <span className="text-sm text-muted-foreground">
-                                        {"Trang"} {page} {"trong"} {pagination.totalPages}
+                                        Trang {page} / {pagination.totalPages}
                                     </span>
                                     <Button
                                         variant="outline"
@@ -303,22 +208,11 @@ export default function SearchPage() {
                                         disabled={page >= pagination.totalPages}
                                         onClick={() => updatePage(page + 1)}
                                     >
-                                        {"Sau"}
+                                        Sau
                                     </Button>
                                 </div>
                             )}
-                        </section>
-                    )}
-
-                    {newsResults.length > 0 && (
-                        <section>
-                            <SectionHeader title="Tin tức liên quan" count={newsResults.length} />
-                            <div className="grid gap-3 md:grid-cols-2">
-                                {newsResults.map((news) => (
-                                    <NewsResultCard key={news.id || news._id || news.slug} news={news} />
-                                ))}
-                            </div>
-                        </section>
+                        </>
                     )}
                 </div>
             )}
