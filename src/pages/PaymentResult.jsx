@@ -35,6 +35,10 @@ export default function PaymentResult({ status }) {
     useEffect(() => {
         if (isVnpay) {
             setIsLoading(true);
+            // VNPay returns ResponseCode=00 for success, pre-set optimistic
+            if (vnpResponseCode === "00") {
+                setIsSuccess(true);
+            }
             const params = new URLSearchParams(window.location.search);
             fetch(`/api/payment/vnpay-return?${params.toString()}`)
                 .then((res) => res.json())
