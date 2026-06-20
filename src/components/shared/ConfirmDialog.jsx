@@ -16,8 +16,9 @@ export default function ConfirmDialog({
     cancelLabel,
     onConfirm,
     onCancel,
-    variant = "destructive", // destructive | default
+    variant = "destructive",
     isLoading = false,
+    children,
 }) {
     const handleCancel = () => {
         onCancel?.();
@@ -26,6 +27,7 @@ export default function ConfirmDialog({
 
     const handleConfirm = async () => {
         await onConfirm?.();
+        onOpenChange(false);
     };
 
     return (
@@ -37,6 +39,8 @@ export default function ConfirmDialog({
                         {description || "Hành động này không thể hoàn tác."}
                     </DialogDescription>
                 </DialogHeader>
+
+                {children}
 
                 <DialogFooter className="gap-2 sm:gap-0">
                     <Button
