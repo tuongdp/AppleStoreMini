@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { skipToken } from "@reduxjs/toolkit/query";
-import { useGetMyPointsQuery } from "@/store/api/pointsApi";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
@@ -20,14 +18,9 @@ export default function CartSummaryCard() {
     const stockIssues = useSelector(selectCartSelectedStockIssues);
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
-    const [usePoints, setUsePoints] = useState(false);
-
-    const { data: pointsData } = useGetMyPointsQuery(isAuthenticated ? undefined : skipToken);
 
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
-    const availablePoints = pointsData?.points ?? 0;
-    const pointsDiscount = usePoints ? Math.min(availablePoints, Math.max(0, total - discountAmount)) : 0;
-    const grandTotal = Math.max(0, total - discountAmount - pointsDiscount);
+    const grandTotal = Math.max(0, total - discountAmount);
     const canCheckout = selectedItems.length > 0 && stockIssues.length === 0;
     const disabledReason = selectedItems.length === 0
         ? "Vui lòng chọn ít nhất một sản phẩm để thanh toán."
@@ -74,12 +67,6 @@ export default function CartSummaryCard() {
                             <span>-{formatPrice(discountAmount)}</span>
                         </div>
                     )}
-                    {pointsDiscount > 0 && (
-                        <div className="flex items-center justify-between text-sm text-amber-600 dark:text-amber-400">
-                            <span>Điểm thưởng</span>
-                            <span>-{formatPrice(pointsDiscount)}</span>
-                        </div>
-                    )}
                 </div>
 
                 <Separator className="my-4" />
@@ -93,29 +80,6 @@ export default function CartSummaryCard() {
                         isAuthenticated={isAuthenticated}
                     />
                 </div>
-
-                {availablePoints > 0 && (
-                    <>
-                        <Separator className="mb-4" />
-                        <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-lg border p-3">
-                            <Checkbox
-                                checked={usePoints}
-                                onCheckedChange={(checked) => setUsePoints(Boolean(checked))}
-                                className="mt-0.5"
-                                data-testid="cart-use-points"
-                            />
-                            <span className="min-w-0 flex-1 text-sm">
-                                <span className="block font-medium text-foreground">
-                                    Dùng điểm thưởng
-                                </span>
-                                <span className="block text-xs text-muted-foreground">
-                                    Bạn có {availablePoints.toLocaleString("vi-VN")} điểm, có thể trừ trực tiếp vào đơn hàng.
-                                </span>
-                            </span>
-                        </label>
-                        <Separator className="mb-4" />
-                    </>
-                )}
 
                 <div className="flex items-center justify-between">
                     <span className="font-semibold text-foreground">
