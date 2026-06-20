@@ -103,7 +103,7 @@ export default function AvatarUpload({ user }) {
                         : "Thay đổi ảnh"}
                 </Button>
 
-                {avatarSrc && (
+                {preview && (
                     <Button
                         type="button"
                         variant="ghost"
