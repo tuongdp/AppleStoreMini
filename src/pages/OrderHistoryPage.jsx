@@ -51,12 +51,12 @@ export default function OrderHistoryPage() {
                     onValueChange={handleTabChange}
                     className="px-4 py-3"
                 >
-                    <TabsList className="flex h-auto w-full flex-wrap gap-1 bg-muted/40 p-1">
+                    <TabsList className="flex !h-auto min-h-8 w-full flex-wrap gap-1 bg-muted/40 p-1">
                         {STATUS_TABS.map((tab) => (
                             <TabsTrigger
                                 key={tab.value}
                                 value={tab.value}
-                                className="flex-1 whitespace-nowrap rounded-md px-2 py-2 text-xs sm:flex-none sm:text-sm"
+                                className="!h-auto flex-1 whitespace-nowrap rounded-md px-2 py-2 text-xs sm:flex-none sm:text-sm"
                             >
                                 {tab.label}
                             </TabsTrigger>
