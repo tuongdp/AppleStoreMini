@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CheckCircle2, XCircle, Loader2, Clock, ShoppingCart } from "lucide-react";
@@ -25,52 +25,34 @@ export default function PaymentResult({ status }) {
 
     const vnpResponseCode = searchParams.get("vnp_ResponseCode");
     const isVnpay = vnpResponseCode !== null;
+    const fetchedRef = useRef(false);
 
     useEffect(() => {
-        console.log("[PaymentResult] useEffect isVnpay:", isVnpay, "vnpResponseCode:", vnpResponseCode, "isSuccess:", isSuccess);
-        if (isVnpay) {
-            setIsLoading(true);
-            // VNPay returns ResponseCode=00 for success, pre-set optimistic
-            if (vnpResponseCode === "00") {
-                console.log("[PaymentResult] Optimistic success set");
-                setIsSuccess(true);
-            }
-            const params = new URLSearchParams(window.location.search);
-            const apiUrl = `/api/payment/vnpay-return?${params.toString()}`;
-            console.log("[PaymentResult] Fetching:", apiUrl);
-            fetch(apiUrl)
-                .then((res) => {
-                    console.log("[PaymentResult] Response status:", res.status);
-                    return res.json();
-                })
-                .then((data) => {
-                    console.log("[PaymentResult] API response:", data);
-                    const success = data?.data?.isSuccess ?? data?.data?.isVerified ?? false;
-                    console.log("[PaymentResult] Parsed success:", success);
-                    setIsSuccess(success);
-                    if (data?.data?.orderCode) {
-                        setOrderCode(data.data.orderCode);
-                    }
-                    if (data?.data?.orderId) {
-                        setOrderId(data.data.orderId);
-                    }
-                    if (success) {
-                        dispatch(clearCart());
-                        sessionStorage.removeItem("pending_order_id");
-                        sessionStorage.removeItem("pending_order_expires");
-                        sessionStorage.removeItem("pending_order_code");
-                    }
-                })
-                .catch((err) => {
-                    console.error("[PaymentResult] Fetch error:", err);
-                    setIsSuccess(false);
-                })
-                .finally(() => setIsLoading(false));
-        } else {
-            const resultCode = searchParams.get("resultCode");
-            setIsSuccess(resultCode !== null ? resultCode === "0" : status === "success");
+        if (!isVnpay || fetchedRef.current) return;
+        fetchedRef.current = true;
+
+        if (vnpResponseCode === "00") {
+            setIsSuccess(true);
+            dispatch(clearCart());
+            sessionStorage.removeItem("pending_order_id");
+            sessionStorage.removeItem("pending_order_expires");
+            sessionStorage.removeItem("pending_order_code");
         }
-    }, [isVnpay, searchParams, status, dispatch]);
+
+        setIsLoading(true);
+        const params = new URLSearchParams(window.location.search);
+        fetch(`/api/payment/vnpay-return?${params.toString()}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data?.data?.orderCode) setOrderCode(data.data.orderCode);
+                if (data?.data?.orderId) setOrderId(data.data.orderId);
+            })
+            .catch((err) => {
+                console.error("[PaymentResult] Fetch error:", err);
+                if (vnpResponseCode !== "00") setIsSuccess(false);
+            })
+            .finally(() => setIsLoading(false));
+    }, [isVnpay, vnpResponseCode, dispatch]);
 
     useEffect(() => {
         if (isVnpay || !pendingOrderId || isExpired || isSuccess) return;
@@ -121,7 +103,7 @@ export default function PaymentResult({ status }) {
             clearInterval(countdown);
             clearInterval(poll);
         };
-    }, [isVnpay, pendingOrderId, pendingOrderExpires, isExpired, isSuccess, dispatch]);
+    }, [isVnpay, pendingOrderId, pendingOrderExpires, isExpired, dispatch]);
 
     // AWAITING state – waiting for VNPay payment
     if (!isVnpay && pendingOrderId && !isExpired && !isSuccess) {
