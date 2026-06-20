@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 const PERIODS = [
     { value: "day", label: "Ngày" },
@@ -84,8 +84,9 @@ export default function RevenueChart() {
         ? searchParams.get("revenuePeriod")
         : "month";
     const [period, setPeriod] = useState(initialPeriod);
+    const [offset, setOffset] = useState(0);
 
-    const { data, isLoading, isError, error } = useGetRevenueStatsQuery({ period });
+    const { data, isLoading, isError, error } = useGetRevenueStatsQuery({ period, offset });
 
     // ✅ getRevenueStatsQuery transformResponse → response.data trực tiếp
     // shape: { chart, totalRevenue, totalOrders, revenueChange }
@@ -95,10 +96,19 @@ export default function RevenueChart() {
 
     const handlePeriodChange = (value) => {
         setPeriod(value);
+        setOffset(0);
         const params = new URLSearchParams(searchParams);
         if (value === "month") params.delete("revenuePeriod");
         else params.set("revenuePeriod", value);
         setSearchParams(params, { replace: true });
+    };
+
+    const periodLabel = () => {
+        if (offset === 0) return PERIODS.find((p) => p.value === period)?.label || "";
+        if (period === "day") return `${offset} ngày trước`;
+        if (period === "week") return `${offset} tuần trước`;
+        if (period === "month") return `${offset} tháng trước`;
+        return `${offset} năm trước`;
     };
 
     const revenueColumns = [
@@ -159,8 +169,17 @@ export default function RevenueChart() {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between gap-1.5">
-                <div className="flex gap-1.5">
-                {PERIODS.map((p) => (
+                <div className="flex items-center gap-1.5">
+                    <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => setOffset((o) => o + 1)}>
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="min-w-[60px] text-center text-xs text-muted-foreground">
+                        {periodLabel()}
+                    </span>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" disabled={offset <= 0} onClick={() => setOffset((o) => Math.max(0, o - 1))}>
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    {PERIODS.map((p) => (
                     <Button
                         key={p.value}
                         variant="ghost"
