@@ -44,6 +44,13 @@ export default function RecentOrders() {
 
     return (
         <div className="space-y-1">
+            {/* Header */}
+            <div className="flex items-center gap-3 rounded-xl px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                <span className="w-9 shrink-0" />
+                <span className="min-w-0 flex-1">Khách hàng</span>
+                <span className="w-20 shrink-0 text-center">Trạng thái</span>
+                <span className="w-24 shrink-0 text-right">Tổng tiền</span>
+            </div>
             {orders.map((order) => (
                 <Link
                     key={order._id || order.id}
@@ -65,10 +72,12 @@ export default function RecentOrders() {
                     </div>
 
                     {/* Status */}
-                    <OrderStatusBadge status={order.status} />
+                    <div className="w-20 shrink-0 flex justify-center">
+                        <OrderStatusBadge status={order.status} />
+                    </div>
 
                     {/* Total */}
-                    <p className="shrink-0 text-sm font-medium text-foreground">
+                    <p className="w-24 shrink-0 text-right text-sm font-medium text-foreground">
                         {formatPrice(order.totalAmount)}
                     </p>
                 </Link>
