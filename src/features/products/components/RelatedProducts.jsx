@@ -6,7 +6,7 @@ import { ROUTES } from "@/lib/constants";
 
 export default function RelatedProducts({ slug, category }) {
     const { data, isLoading } = useGetRelatedProductsQuery(
-        { slug, limit: 4 },
+        { slug, limit: 8 },
         { skip: !slug },
     );
 
@@ -25,7 +25,7 @@ export default function RelatedProducts({ slug, category }) {
                 className="mb-6"
             />
             {isLoading ? (
-                <ProductGridSkeleton count={4} />
+                <ProductGridSkeleton count={8} />
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {products.map((product) => (
