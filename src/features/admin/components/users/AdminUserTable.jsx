@@ -106,7 +106,7 @@ export default function AdminUserTable() {
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
                     <Input aria-label="Tìm khách hàng" name="admin-user-search" autoComplete="off" placeholder="Tìm tên, email, số điện thoại…" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} className="rounded-full pl-9" />
                 </div>
-                <Select value={searchParams.get("role") || "user"} onValueChange={(val) => updateParam("role", val)}>
+                <Select value={searchParams.get("role") || "all"} onValueChange={(val) => updateParam("role", val)}>
                     <SelectTrigger className="w-40 rounded-full"><SelectValue placeholder="Vai trò" /></SelectTrigger>
                     <SelectContent>
                         {ROLE_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
