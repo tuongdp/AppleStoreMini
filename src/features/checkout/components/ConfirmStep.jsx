@@ -20,7 +20,6 @@ export default function ConfirmStep({
     total,
     shippingFee,
     discountAmount = 0,
-    pointsDiscount = 0,
     grandTotal,
     onPlaceOrder,
     onBack,
@@ -128,14 +127,6 @@ export default function ConfirmStep({
                                 {"Giảm giá"}
                             </span>
                             <span>-{formatPrice(discountAmount)}</span>
-                        </div>
-                    )}
-                    {pointsDiscount > 0 && (
-                        <div className="flex justify-between text-amber-600 dark:text-amber-400">
-                            <span>
-                                {"Điểm thưởng"}
-                            </span>
-                            <span>-{formatPrice(pointsDiscount)}</span>
                         </div>
                     )}
                 </div>

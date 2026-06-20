@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { skipToken } from "@reduxjs/toolkit/query";
 import { toast } from "sonner";
 import { useCreateOrderMutation, useCreatePaymentMutation } from "@/store/api/ordersApi";
-import { useGetMyPointsQuery } from "@/store/api/pointsApi";
 import {
     removeCheckedOutItems,
     selectCartSelectedItems,
@@ -35,19 +33,15 @@ export function useCheckout() {
     });
 
     const [appliedCoupon, setAppliedCoupon] = useState(null);
-    const [usePoints, setUsePoints] = useState(false);
 
     const [createOrder, { isLoading }] = useCreateOrderMutation();
     const [createPayment, { isLoading: isPaying }] = useCreatePaymentMutation();
-    const { data: pointsData } = useGetMyPointsQuery(isAuthenticated ? undefined : skipToken);
 
     const shippingFee = 0;
 
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
-    const availablePoints = pointsData?.points ?? 0;
-    const pointsDiscount = usePoints ? Math.min(availablePoints, Math.max(0, total - discountAmount)) : 0;
 
-    const grandTotal = Math.max(0, total - discountAmount - pointsDiscount);
+    const grandTotal = Math.max(0, total - discountAmount);
 
     const canProceed = items.length > 0 && stockIssues.length === 0;
 
@@ -117,7 +111,6 @@ export function useCheckout() {
                 paymentMethod: checkoutData.paymentMethod,
                 note: checkoutData.note || "",
                 couponCode: appliedCoupon?.code || undefined,
-                usePoints,
                 items: items.map((item) => ({
                     variantId: item.variantId || item.product.variantId,
                     quantity: item.quantity,
@@ -153,7 +146,6 @@ export function useCheckout() {
         setIsSuccess(false);
         setCreatedOrder(null);
         setAppliedCoupon(null);
-        setUsePoints(false);
         setPaymentError(null);
         setCheckoutData({
             fullName: "",
@@ -174,9 +166,6 @@ export function useCheckout() {
         total,
         shippingFee,
         discountAmount,
-        availablePoints,
-        pointsDiscount,
-        usePoints,
         grandTotal,
         canProceed,
         isLoading,
@@ -190,7 +179,6 @@ export function useCheckout() {
         handleOnlinePayment,
         handleApplyCoupon,
         handleRemoveCoupon,
-        setUsePoints,
         goBack,
         reset,
     };

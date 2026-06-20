@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ShoppingCart } from "lucide-react";
 import { useCheckout } from "@/features/checkout/hooks/useCheckout";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import EmptyState from "@/components/shared/EmptyState";
 import PriceDisplay from "@/components/shared/PriceDisplay";
@@ -29,9 +28,6 @@ export default function CheckoutPage() {
         total,
         shippingFee,
         discountAmount,
-        availablePoints,
-        pointsDiscount,
-        usePoints,
         grandTotal,
         isLoading,
         isPaying,
@@ -43,7 +39,6 @@ export default function CheckoutPage() {
         handleOnlinePayment,
         handleApplyCoupon,
         handleRemoveCoupon,
-        setUsePoints,
         goBack,
         paymentError,
     } = useCheckout();
@@ -109,7 +104,6 @@ export default function CheckoutPage() {
                             total={total}
                             shippingFee={shippingFee}
                             discountAmount={discountAmount}
-                            pointsDiscount={pointsDiscount}
                             grandTotal={grandTotal}
                             onPlaceOrder={handlePlaceOrder}
                             onBack={goBack}
@@ -191,28 +185,6 @@ export default function CheckoutPage() {
 
                         <Separator className="mb-4" />
 
-                        {availablePoints > 0 && (
-                            <>
-                                <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-lg border p-3">
-                                    <Checkbox
-                                        checked={usePoints}
-                                        onCheckedChange={(checked) => setUsePoints(Boolean(checked))}
-                                        className="mt-0.5"
-                                        data-testid="checkout-use-points"
-                                    />
-                                    <span className="min-w-0 flex-1 text-sm">
-                                        <span className="block font-medium text-foreground">
-                                            Dùng điểm thưởng
-                                        </span>
-                                        <span className="block text-xs text-muted-foreground">
-                                            Bạn có {availablePoints.toLocaleString("vi-VN")} điểm, có thể trừ trực tiếp vào đơn hàng.
-                                        </span>
-                                    </span>
-                                </label>
-                                <Separator className="mb-4" />
-                            </>
-                        )}
-
                         {/* Totals */}
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
@@ -248,12 +220,6 @@ export default function CheckoutPage() {
                                         </code>
                                     </span>
                                     <span>-{formatPrice(discountAmount)}</span>
-                                </div>
-                            )}
-                            {pointsDiscount > 0 && (
-                                <div className="flex justify-between text-amber-600 dark:text-amber-400">
-                                    <span>Điểm thưởng</span>
-                                    <span>-{formatPrice(pointsDiscount)}</span>
                                 </div>
                             )}
                         </div>
