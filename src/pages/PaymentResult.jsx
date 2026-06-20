@@ -33,17 +33,26 @@ export default function PaymentResult({ status }) {
     const isVnpay = vnpResponseCode !== null;
 
     useEffect(() => {
+        console.log("[PaymentResult] useEffect isVnpay:", isVnpay, "vnpResponseCode:", vnpResponseCode, "isSuccess:", isSuccess);
         if (isVnpay) {
             setIsLoading(true);
             // VNPay returns ResponseCode=00 for success, pre-set optimistic
             if (vnpResponseCode === "00") {
+                console.log("[PaymentResult] Optimistic success set");
                 setIsSuccess(true);
             }
             const params = new URLSearchParams(window.location.search);
-            fetch(`/api/payment/vnpay-return?${params.toString()}`)
-                .then((res) => res.json())
+            const apiUrl = `/api/payment/vnpay-return?${params.toString()}`;
+            console.log("[PaymentResult] Fetching:", apiUrl);
+            fetch(apiUrl)
+                .then((res) => {
+                    console.log("[PaymentResult] Response status:", res.status);
+                    return res.json();
+                })
                 .then((data) => {
+                    console.log("[PaymentResult] API response:", data);
                     const success = data?.data?.isSuccess ?? data?.data?.isVerified ?? false;
+                    console.log("[PaymentResult] Parsed success:", success);
                     setIsSuccess(success);
                     if (data?.data?.orderCode) {
                         setOrderCode(data.data.orderCode);
@@ -58,7 +67,8 @@ export default function PaymentResult({ status }) {
                         sessionStorage.removeItem("pending_order_code");
                     }
                 })
-                .catch(() => {
+                .catch((err) => {
+                    console.error("[PaymentResult] Fetch error:", err);
                     setIsSuccess(false);
                 })
                 .finally(() => setIsLoading(false));
