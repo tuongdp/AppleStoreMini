@@ -91,6 +91,7 @@ export default function RevenueChart() {
     // ✅ getRevenueStatsQuery transformResponse → response.data trực tiếp
     // shape: { chart, totalRevenue, totalOrders, revenueChange }
     const chartData = data?.chart ?? [];
+    const hasNoData = chartData.length === 0 || chartData.every((d) => !d.revenue && !d.orders);
 
     const { exportExcel, exportPDF, isExporting } = useExport();
 
@@ -194,14 +195,14 @@ export default function RevenueChart() {
                 <ExportButton onExportExcel={handleExportRevenueExcel} onExportPDF={handleExportRevenuePDF} loading={isExporting} />
             </div>
 
-            {chartData.length === 0 ? (
+            {hasNoData ? (
                 <div className="flex h-[280px] items-center justify-center rounded-xl bg-muted/30">
                     <p className="text-sm text-muted-foreground">
-                        {"Không có dữ liệu"}
+                        {offset > 0 ? `Không có dữ liệu cho ${periodLabel()}` : "Không có dữ liệu"}
                     </p>
                 </div>
             ) : (
-                <ResponsiveContainer key={period} width="100%" height={280}>
+                <ResponsiveContainer key={`${period}-${offset}`} width="100%" height={280}>
                     <AreaChart
                         data={chartData}
                         margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
