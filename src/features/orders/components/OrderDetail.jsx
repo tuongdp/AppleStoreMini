@@ -10,6 +10,9 @@ import { Separator } from "@/components/ui/separator";
 import {
     Form, FormControl, FormField, FormItem, FormMessage,
 } from "@/components/ui/form";
+import {
+    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderItemRow from "./OrderItemRow";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
@@ -89,10 +92,12 @@ export default function OrderDetail({ order }) {
 
     const handleReviewSubmit = async (values) => {
         if (!reviewItem) return;
+        const product = reviewItem.product || reviewItem.variant?.product;
+        const productId = product?.id || reviewItem.productId || reviewItem.variant?.productId;
         try {
             await createReview({
-                productId: reviewItem.productId,
-                variantId: reviewItem.variantId,
+                productId,
+                variantId: reviewItem.variantId || reviewItem.variant?.id,
                 orderId: order.id,
                 orderItemId: reviewItem.id,
                 rating: values.rating,
@@ -204,20 +209,23 @@ export default function OrderDetail({ order }) {
                 </div>
             </div>
 
-            {reviewItem && (
-                <div className="rounded-2xl border border-border bg-card p-5">
-                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
-                        <Star className="h-4 w-4 text-yellow-500" />Đánh giá sản phẩm
-                    </div>
+            <Dialog open={!!reviewItem} onOpenChange={(open) => { if (!open) setReviewItem(null); }}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Đánh giá sản phẩm</DialogTitle>
+                        <DialogDescription>
+                            {reviewItem?.product?.name || reviewItem?.variant?.product?.name || reviewItem?.name || "Sản phẩm"}
+                        </DialogDescription>
+                    </DialogHeader>
                     <Form {...reviewForm}>
-                        <form onSubmit={reviewForm.handleSubmit(handleReviewSubmit)} className="space-y-3">
-                            <div className="flex items-center gap-1">
+                        <form onSubmit={reviewForm.handleSubmit(handleReviewSubmit)} className="space-y-4">
+                            <div className="flex items-center justify-center gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <button
                                         key={star}
                                         type="button"
                                         onClick={() => reviewForm.setValue("rating", star)}
-                                        className="text-2xl"
+                                        className="text-3xl transition-colors"
                                     >
                                         <Star
                                             className={star <= reviewForm.watch("rating") ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground"}
@@ -228,23 +236,23 @@ export default function OrderDetail({ order }) {
                             <FormField control={reviewForm.control} name="content" render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Textarea placeholder="Chia sẻ trải nghiệm của bạn..." rows={3} {...field} />
+                                        <Textarea placeholder="Chia sẻ trải nghiệm của bạn..." rows={4} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
-                            <div className="flex gap-2">
-                                <Button type="submit" size="sm" className="rounded-full" disabled={isReviewing}>
-                                    {isReviewing ? "Đang gửi..." : "Gửi đánh giá"}
-                                </Button>
-                                <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={() => setReviewItem(null)}>
+                            <div className="flex justify-end gap-2">
+                                <Button type="button" variant="outline" className="rounded-full" onClick={() => setReviewItem(null)}>
                                     Huỷ
+                                </Button>
+                                <Button type="submit" className="rounded-full" disabled={isReviewing}>
+                                    {isReviewing ? "Đang gửi..." : "Gửi đánh giá"}
                                 </Button>
                             </div>
                         </form>
                     </Form>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
 
             <ConfirmDialog
                 open={cancelOpen}
