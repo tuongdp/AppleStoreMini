@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateProfileMutation } from "@/store/api/usersApi";
@@ -29,6 +29,7 @@ const provinceOptions = Object.values(provinces).map((p) => ({
 
 export default function ProfileForm({ user }) {
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
@@ -43,7 +44,11 @@ export default function ProfileForm({ user }) {
 
   useEffect(() => {
     if (user) {
-      form.reset(getProfileFormDefaults(user));
+      const defaults = getProfileFormDefaults(user);
+      form.reset(defaults);
+      if (!defaults.province && !defaults.streetAddress) {
+        setIsEditingAddress(false);
+      }
     }
   }, [user, form]);
 
@@ -60,6 +65,7 @@ export default function ProfileForm({ user }) {
       const wardName = wardOptions.find((w) => w.code === values.ward)?.label || "";
       await updateProfile(getProfileSubmitValues(values, wardName, provinceName)).unwrap();
       toast.success("Cập nhật thông tin thành công");
+      setIsEditingAddress(false);
     } catch {
       toast.error("Cập nhật thông tin thất bại");
     }
@@ -117,63 +123,75 @@ export default function ProfileForm({ user }) {
           </FormItem>
         </div>
 
-        <FormField
-          control={form.control}
-          name="province"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Tỉnh/Thành phố"}<span className="text-destructive">*</span></FormLabel>
-              <SearchableSelect
-                options={provinceOptions}
-                value={field.value}
-                onChange={(value) => {
-                  field.onChange(value);
-                  form.setValue("ward", "");
-                }}
-                placeholder="Chọn tỉnh/thành phố"
-                disabled={isLoading}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {!isEditingAddress ? (
+          <div className="space-y-2">
+            <FormLabel>{"Địa chỉ"}</FormLabel>
+            <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-4">
+              <p className="flex-1 text-sm text-muted-foreground">{user?.address || "Chưa có địa chỉ"}</p>
+              <Button type="button" variant="outline" size="sm" className="shrink-0 rounded-full" onClick={() => setIsEditingAddress(true)}>Sửa</Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <FormField
+              control={form.control}
+              name="province"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Tỉnh/Thành phố"}<span className="text-destructive">*</span></FormLabel>
+                  <SearchableSelect
+                    options={provinceOptions}
+                    value={field.value}
+                    onChange={(value) => {
+                      field.onChange(value);
+                      form.setValue("ward", "");
+                    }}
+                    placeholder="Chọn tỉnh/thành phố"
+                    disabled={isLoading}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="ward"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Xã/Phường"}<span className="text-destructive">*</span></FormLabel>
-              <SearchableSelect
-                options={wardOptions}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder={selectedProvince ? "Chọn xã/phường" : "Vui lòng chọn tỉnh/thành phố trước"}
-                disabled={!selectedProvince || isLoading}
-                emptyText="Không có dữ liệu"
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="ward"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Xã/Phường"}<span className="text-destructive">*</span></FormLabel>
+                  <SearchableSelect
+                    options={wardOptions}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder={selectedProvince ? "Chọn xã/phường" : "Vui lòng chọn tỉnh/thành phố trước"}
+                    disabled={!selectedProvince || isLoading}
+                    emptyText="Không có dữ liệu"
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="streetAddress"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{"Số nhà, tên đường"}<span className="text-destructive">*</span></FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={"123 Nguyễn Huệ"}
-                  disabled={isLoading}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="streetAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Số nhà, tên đường"}<span className="text-destructive">*</span></FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={"123 Nguyễn Huệ"}
+                      disabled={isLoading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         <div className="pt-2">
           <Button
