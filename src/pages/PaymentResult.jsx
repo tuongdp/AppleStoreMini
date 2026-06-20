@@ -1,27 +1,21 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { CheckCircle2, XCircle, Loader2, ArrowRight, Clock, ShoppingCart } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Clock, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/constants";
-import { clearCart } from "@/store/cartSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
-import { useSwitchToCodMutation } from "@/store/api/ordersApi";
-import ConfirmDialog from "@/components/shared/ConfirmDialog";
-import { toast } from "sonner";
+import { clearCart } from "@/store/cartSlice";
 
 export default function PaymentResult({ status }) {
     const dispatch = useDispatch();
-    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(null);
     const [orderCode, setOrderCode] = useState(null);
     const [orderId, setOrderId] = useState(null);
     const [orderPhone] = useState(sessionStorage.getItem("order_phone") || "");
-    const [switchOpen, setSwitchOpen] = useState(false);
     const isAuthenticated = useSelector(selectIsAuthenticated);
-    const [switchToCod, { isLoading: isSwitching }] = useSwitchToCodMutation();
 
     const [timeLeft, setTimeLeft] = useState(null);
     const [isExpired, setIsExpired] = useState(false);
@@ -187,27 +181,7 @@ export default function PaymentResult({ status }) {
         ? ROUTES.ORDERS
         : `${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(orderPhone)}`;
 
-    const handleSwitchToCod = async () => {
-        try {
-            await switchToCod(orderId).unwrap();
-            toast.success("Đã chuyển sang COD. Vui lòng thanh toán khi nhận hàng.");
-            setSwitchOpen(false);
-            setIsSuccess(true);
-        } catch {
-            toast.error("Không thể chuyển sang COD");
-        }
-    };
-
-    const handleRetry = () => {
-        if (orderId && isAuthenticated) {
-            navigate(`${ROUTES.ORDERS}/${orderId}`);
-        } else if (orderCode) {
-            navigate(`${ROUTES.ORDER_LOOKUP}?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(orderPhone)}`);
-        }
-    };
-
     return (
-        <>
         <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
             <div className={`mb-6 flex h-20 w-20 items-center justify-center rounded-full ${
                 isSuccess ? "bg-green-100 dark:bg-green-950/30" : "bg-red-100 dark:bg-red-950/30"
@@ -234,19 +208,6 @@ export default function PaymentResult({ status }) {
                             <Link to={ROUTES.PRODUCTS}>Tiếp tục mua sắm</Link>
                         </Button>
                     </>
-                ) : isVnpay ? (
-                    <>
-                        <Button className="rounded-full px-6" onClick={handleRetry}>
-                            Thử lại VNPAY
-                        </Button>
-                        <Button variant="secondary" className="rounded-full px-6" onClick={() => setSwitchOpen(true)}>
-                            <ArrowRight className="mr-1.5 h-4 w-4" />
-                            Chuyển sang COD
-                        </Button>
-                        <Button variant="outline" className="rounded-full px-6" asChild>
-                            <Link to={ROUTES.PRODUCTS}>Tiếp tục mua sắm</Link>
-                        </Button>
-                    </>
                 ) : (
                     <>
                         <Button className="rounded-full px-8" asChild>
@@ -259,21 +220,5 @@ export default function PaymentResult({ status }) {
                 )}
             </div>
         </div>
-
-        <ConfirmDialog
-            open={switchOpen}
-            onOpenChange={(open) => { if (!open) setSwitchOpen(false); }}
-            title="Chuyển sang thanh toán COD"
-            description={
-                <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>Bạn sẽ chuyển đơn hàng <span className="font-mono font-medium text-foreground">#{orderCode}</span> từ VNPAY sang COD.</p>
-                    <p>Vui lòng thanh toán bằng tiền mặt khi nhận hàng.</p>
-                </div>
-            }
-            confirmLabel="Xác nhận chuyển COD"
-            onConfirm={handleSwitchToCod}
-            isLoading={isSwitching}
-        />
-        </>
     );
 }
