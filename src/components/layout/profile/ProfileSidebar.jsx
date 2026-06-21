@@ -1,28 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { User, ShoppingBag, Lock, LogOut } from "lucide-react";
+import { User, ShoppingBag, Lock, LogOut, ShieldCheck, ArrowLeft } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import ProfileSidebarItem from "./ProfileSidebarItem";
-import { logout, selectCurrentUser } from "@/store/authSlice";
+import { logout, selectCurrentUser, selectHasAdminAccess } from "@/store/authSlice";
 import { ROUTES } from "@/lib/constants";
 
 const SIDEBAR_MAP = {
   backToStore: "Về cửa hàng",
-  banners: "Banner quảng cáo",
-  categories: "Danh mục",
-  coupons: "Khuyến mãi",
-    dashboard: "Tổng quan",
-    logout: "Đăng xuất",
-  news: "Tin tức",
-  options: "Tùy chọn",
-  orders: "Đơn hàng",
-  products: "Sản phẩm",
-  comments: "Bình luận sản phẩm",
-  settings: "Cài đặt",
-  users: "Người dùng",
+  backToAdmin: "Quay lại quản trị",
   profile: "Trang cá nhân",
+  orders: "Đơn hàng",
   changePassword: "Đổi mật khẩu",
 };
 
@@ -51,6 +41,7 @@ export default function ProfileSidebar({ onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector(selectCurrentUser);
+  const hasAdminAccess = useSelector(selectHasAdminAccess);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -83,6 +74,16 @@ export default function ProfileSidebar({ onClose }) {
 
       {/* Nav items */}
       <nav className="flex flex-col gap-0.5">
+        {hasAdminAccess && (
+          <ProfileSidebarItem
+            href={ROUTES.ADMIN_DASHBOARD}
+            icon={ShieldCheck}
+            label={SIDEBAR_MAP.backToAdmin}
+            end={true}
+            onClick={onClose}
+          />
+        )}
+
         {NAV_ITEMS.map((item) => (
           <ProfileSidebarItem
             key={item.key}
@@ -93,6 +94,14 @@ export default function ProfileSidebar({ onClose }) {
             onClick={onClose}
           />
         ))}
+
+        <ProfileSidebarItem
+          href={ROUTES.HOME}
+          icon={ArrowLeft}
+          label={SIDEBAR_MAP.backToStore}
+          end={false}
+          onClick={onClose}
+        />
 
         <Separator className="my-2" />
 

@@ -22,8 +22,7 @@ export const usersApi = baseApi.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    // data đã qua transformResponse → là user object trực tiếp
-                    dispatch(updateUser(data));
+                    dispatch(updateUser({ ...data, role: data.role?.toLowerCase() }));
                 } catch { /* noop */ }
             },
             transformResponse: (response) => response.data,
