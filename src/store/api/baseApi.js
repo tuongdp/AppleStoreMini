@@ -25,8 +25,13 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
   if (result.error && result.error.status === 403) {
-    toast.error("Tài khoản đã bị khóa, vui lòng liên hệ cửa hàng");
-    api.dispatch(logout());
+    const message = result.error.data?.message || "";
+    if (message.includes("Tài khoản đã bị khóa")) {
+      toast.error("Tài khoản đã bị khóa, vui lòng liên hệ cửa hàng");
+      api.dispatch(logout());
+      return result;
+    }
+    toast.error(message || "Không có quyền truy cập");
     return result;
   }
 
@@ -151,9 +156,6 @@ export const baseApi = createApi({
     "News",
     "NewsItem",
     "Banners",
-    "Points",
-    "Returns",
-    "ShopSettings",
   ],
   endpoints: () => ({}),
 });

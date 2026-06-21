@@ -10,7 +10,6 @@ function parseAddress(address) {
     const parts = address.split(",").map((s) => s.trim());
     if (parts.length >= 3) {
         const provinceName = parts[parts.length - 1];
-        const wardName = parts[parts.length - 2];
         const street = parts.slice(0, -2).join(", ");
         const province = provinceOptions.find((p) => p.label === provinceName)?.code || "";
         return { province, ward: "", streetAddress: street };

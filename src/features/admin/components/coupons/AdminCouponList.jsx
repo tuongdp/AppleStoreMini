@@ -21,7 +21,7 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminCouponForm from "./AdminCouponForm";
 import { toast } from "sonner";
-import { formatPrice, formatDate, formatNumber } from "@/lib/utils";
+import { formatPrice, formatNumber } from "@/lib/utils";
 import { PAGINATION } from "@/lib/constants";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";

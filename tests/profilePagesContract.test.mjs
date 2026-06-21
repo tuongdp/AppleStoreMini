@@ -19,10 +19,7 @@ test("change password visibility buttons are keyboard accessible", () => {
 
 test("profile pagination controls use lucide chevrons", () => {
   const orderHistory = read("src/pages/OrderHistoryPage.jsx");
-  const pointsPage = read("src/pages/PointsPage.jsx");
 
   assert.match(orderHistory, /ChevronLeft/);
   assert.match(orderHistory, /ChevronRight/);
-  assert.match(pointsPage, /ChevronLeft/);
-  assert.match(pointsPage, /ChevronRight/);
 });

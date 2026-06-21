@@ -61,7 +61,7 @@ export default function RegisterForm() {
         const result = await registerUser(values);
         if (result.success) {
             toast.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.");
-            navigate(ROUTES.HOME);
+            navigate(ROUTES.LOGIN);
         } else {
             setServerError(result.message);
         }

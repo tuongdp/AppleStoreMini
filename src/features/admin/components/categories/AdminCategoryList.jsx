@@ -8,7 +8,6 @@ import {
     useDeleteCategoryMutation,
     useToggleCategoryStatusMutation,
 } from "@/store/api/categoriesApi";
-import { useUploadEditorImageMutation } from "@/store/api/productsApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +63,6 @@ function CategoryForm({ category, categories, onClose }) {
         useUpdateCategoryMutation();
     const isLoading = isCreating || isUpdating;
     const fileInputRef = useRef(null);
-    const [uploadImage] = useUploadEditorImageMutation();
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(getCategoryImage(category) || null);
 

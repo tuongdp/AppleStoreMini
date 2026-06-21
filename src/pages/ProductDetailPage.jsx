@@ -7,7 +7,7 @@ import {
 import { useGetProductBySlugQuery, useIncrementVariantViewMutation } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
 import { addToCart } from "@/store/cartSlice";
-import { toggleCartDrawer, toggleAuthModal } from "@/store/uiSlice";
+import { toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

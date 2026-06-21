@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleAuthModal, toggleCartDrawer } from "@/store/uiSlice";
+import { toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
 import { addToCart } from "@/store/cartSlice";

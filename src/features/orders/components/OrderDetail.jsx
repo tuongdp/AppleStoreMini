@@ -165,7 +165,6 @@ export default function OrderDetail({ order }) {
                 </div>
                 <div className="space-y-3">
                     {order.items?.map((item, index) => {
-                        const product = item.product || item.variant?.product;
                         const isReviewed = item.isReviewed || item.reviewed;
                         return (
                             <div key={item.id || index}>

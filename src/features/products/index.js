@@ -9,6 +9,5 @@ export { default as ProductCommentItem } from "./components/ProductCommentItem";
 export { default as ProductCommentSummary } from "./components/ProductCommentSummary";
 export { default as CommentForm } from "./components/CommentForm";
 export { default as RelatedProducts } from "./components/RelatedProducts";
-export { default as ProductBadge } from "./components/ProductBadge";
 export { useProductFilters } from "./hooks/useProductFilters";
 export { useProductSearch } from "./hooks/useProductSearch";

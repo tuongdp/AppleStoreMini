@@ -7,13 +7,12 @@ import { ROUTES } from "@/lib/constants";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { clearCart } from "@/store/cartSlice";
 
-export default function PaymentResult({ status }) {
+export default function PaymentResult({ status: _status }) {
     const dispatch = useDispatch();
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(null);
     const [orderCode, setOrderCode] = useState(null);
-    const [orderId, setOrderId] = useState(null);
     const [orderPhone] = useState(sessionStorage.getItem("order_phone") || "");
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
@@ -45,7 +44,6 @@ export default function PaymentResult({ status }) {
             .then((res) => res.json())
             .then((data) => {
                 if (data?.data?.orderCode) setOrderCode(data.data.orderCode);
-                if (data?.data?.orderId) setOrderId(data.data.orderId);
             })
             .catch((err) => {
                 console.error("[PaymentResult] Fetch error:", err);
@@ -83,7 +81,6 @@ export default function PaymentResult({ status }) {
                     if (order?.isPaid) {
                         setIsSuccess(true);
                         setOrderCode(order.code);
-                        setOrderId(order.id);
                         dispatch(clearCart());
                         sessionStorage.removeItem("pending_order_id");
                         sessionStorage.removeItem("pending_order_expires");
