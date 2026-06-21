@@ -5,11 +5,16 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     plugins: [react()],
+    define: {
+        "process.env": JSON.stringify({}),
+        global: "globalThis",
+    },
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
+            ...(mode === "production" && { "@react-trace/kit": path.resolve(__dirname, "./src/lib/react-trace-stub.js") }),
         },
     },
     server: {
@@ -52,4 +57,4 @@ export default defineConfig({
         },
         chunkSizeWarningLimit: 1000,
     },
-});
+}));
