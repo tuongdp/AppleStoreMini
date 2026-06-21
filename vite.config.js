@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
-            ...(mode === "production" && { "@react-trace/kit": path.resolve(__dirname, "./src/lib/react-trace-stub.js") }),
+            ...(mode === "production" && { "@react-trace/core": path.resolve(__dirname, "./src/lib/react-trace-stub.js") }),
         },
     },
     server: {

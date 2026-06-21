@@ -1,3 +1,3 @@
-export default function Trace() {
+export function Trace() {
   return null;
 }
