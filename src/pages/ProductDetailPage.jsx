@@ -23,7 +23,7 @@ import ProductSpecification from "@/features/products/components/ProductSpecific
 import SpecsAccordion from "@/components/shared/SpecsAccordion";
 import ProductComments from "@/features/products/components/ProductComments";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, parseJsonField } from "@/lib/utils";
 import {
     getProductMarketingBadge,
     getProductMarketingBadgeClassName,
@@ -136,8 +136,8 @@ export default function ProductDetailPage() {
     const maxQuantity = Math.max(1, stock || 1);
 
     const productImages = useMemo(() => {
-        const variantImages = selectedVariant?.images || [];
-        if (Array.isArray(variantImages) && variantImages.length > 0) {
+        const variantImages = parseJsonField(selectedVariant?.images);
+        if (variantImages.length > 0) {
             return variantImages;
         }
         return Array.isArray(product?.images) ? product.images : [];

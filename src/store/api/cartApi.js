@@ -6,13 +6,10 @@ export const cartApi = baseApi.injectEndpoints({
         getServerCart: builder.query({
             query: () => "/cart",
             providesTags: ["Cart"],
-            async onQueryStarted(_, { dispatch, queryFulfilled, getState }) {
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    const storeItems = getState().cart.items;
-                    if (storeItems.length === 0) {
-                        dispatch(setCartFromServer(data.data));
-                    }
+                    dispatch(setCartFromServer(data.data));
                 } catch { /* noop */ }
             },
         }),

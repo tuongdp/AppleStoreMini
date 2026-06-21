@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ShoppingBag } from "lucide-react";
 import {
@@ -16,12 +17,21 @@ import { selectCartItems, selectCartCount, selectAllCartItems, isCartItemSelecte
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { toggleCartDrawer, selectCartDrawerOpen } from "@/store/uiSlice";
 
+const isItemActive = (item) => {
+  if (item.variant?.isActive === false) return false;
+  if (item.variant?.product?.isActive === false) return false;
+  if (item.product?.isActive === false) return false;
+  return true;
+};
+
 export default function CartDrawer() {
   const dispatch = useDispatch();
   const isOpen = useSelector(selectCartDrawerOpen);
-  const items = useSelector(selectCartItems);
+  const rawItems = useSelector(selectCartItems);
   const count = useSelector(selectCartCount);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  const items = useMemo(() => rawItems.filter(isItemActive), [rawItems]);
 
   const allSelected = items.length > 0 && items.every(isCartItemSelected);
   const someSelected = items.some(isCartItemSelected);

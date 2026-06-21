@@ -71,19 +71,32 @@ export default function AdminVariantTable({ productId, variants, isLoading }) {
   };
 
   const handleUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!IMAGE.VALID_TYPES.includes(file.type) || file.size > IMAGE.MAX_SIZE) {
-      toast.error("Ảnh không hợp lệ hoặc vượt quá dung lượng");
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const remaining = IMAGE.MAX_COUNT - form.images.length;
+    if (remaining <= 0) {
+      toast.error(`Tối đa ${IMAGE.MAX_COUNT} ảnh`);
       return;
     }
+    const selected = files.slice(0, remaining);
+    const invalid = selected.filter((f) => !IMAGE.VALID_TYPES.includes(f.type) || f.size > IMAGE.MAX_SIZE);
+    if (invalid.length) {
+      toast.error(`${invalid.length} ảnh không hợp lệ hoặc vượt quá dung lượng`);
+      if (invalid.length === selected.length) return;
+    }
+    const valid = selected.filter((f) => IMAGE.VALID_TYPES.includes(f.type) && f.size <= IMAGE.MAX_SIZE);
     setIsUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("image", file);
-      const result = await uploadImage(fd).unwrap();
-      const url = result.url || result;
-      setForm((p) => ({ ...p, images: [...p.images, url] }));
+      const results = await Promise.all(
+        valid.map((file) => {
+          const fd = new FormData();
+          fd.append("image", file);
+          return uploadImage(fd).unwrap();
+        }),
+      );
+      const urls = results.map((r) => r.url || r);
+      setForm((p) => ({ ...p, images: [...p.images, ...urls] }));
+      toast.success(`Đã upload ${urls.length} ảnh`);
     } catch {
       toast.error("Lỗi upload ảnh");
     } finally {
@@ -283,7 +296,7 @@ export default function AdminVariantTable({ productId, variants, isLoading }) {
               <Switch checked={form.isActive} onCheckedChange={(v) => setForm((p) => ({ ...p, isActive: v }))} />
             </div>
             <div className="space-y-2">
-              <Label>Ảnh</Label>
+              <Label>Ảnh ({form.images.length}/{IMAGE.MAX_COUNT})</Label>
               <div className="flex flex-wrap gap-2">
                 {form.images.map((url, idx) => (
                   <div key={idx} className="relative h-16 w-16 overflow-hidden rounded-lg border border-border bg-muted/30">
@@ -297,15 +310,17 @@ export default function AdminVariantTable({ productId, variants, isLoading }) {
                     </button>
                   </div>
                 ))}
-                <button
-                  type="button"
-                  className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:border-primary/50 hover:text-primary"
-                  onClick={() => fileRef.current?.click()}
-                  disabled={isUploading}
-                >
-                  {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
-                </button>
-                <input ref={fileRef} type="file" accept={IMAGE.VALID_TYPES.join(",")} onChange={handleUpload} className="hidden" />
+                {form.images.length < IMAGE.MAX_COUNT && (
+                  <button
+                    type="button"
+                    className="flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:border-primary/50 hover:text-primary"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+                  </button>
+                )}
+                <input ref={fileRef} type="file" accept={IMAGE.VALID_TYPES.join(",")} onChange={handleUpload} className="hidden" multiple />
               </div>
             </div>
           </div>

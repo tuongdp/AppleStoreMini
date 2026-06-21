@@ -38,7 +38,6 @@ export default function RootLayout() {
     const [chatMounted, setChatMounted] = useState(false);
     useGetServerCartQuery(undefined, {
         skip: !isAuthenticated,
-        refetchOnMountOrArgChange: false,
     });
 
     useEffect(() => {

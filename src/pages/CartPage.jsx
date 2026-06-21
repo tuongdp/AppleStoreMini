@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import Breadcrumb from "@/components/shared/Breadcrumb";
 import CartTable from "@/features/cart/components/CartTable";
@@ -8,8 +9,16 @@ import { selectCartItems, selectCartCount } from "@/store/cartSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import SeoHead from "@/components/shared/SeoHead";
 
+const isItemActive = (item) => {
+    if (item.variant?.isActive === false) return false;
+    if (item.variant?.product?.isActive === false) return false;
+    if (item.product?.isActive === false) return false;
+    return true;
+};
+
 export default function CartPage() {
-    const items = useSelector(selectCartItems);
+    const rawItems = useSelector(selectCartItems);
+    const items = useMemo(() => rawItems.filter(isItemActive), [rawItems]);
     const count = useSelector(selectCartCount);
     const isAuthenticated = useSelector(selectIsAuthenticated);
 

@@ -270,7 +270,6 @@ export default function AdminCommentList() {
                             <TableHead>Sản phẩm</TableHead>
                             <TableHead>Đánh giá</TableHead>
                             <TableHead>Nội dung</TableHead>
-                            <TableHead>Phản hồi</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Ngày tạo</TableHead>
                             <TableHead className="text-right">Thao tác</TableHead>
@@ -279,10 +278,10 @@ export default function AdminCommentList() {
                     <TableBody>
                         {isLoading || isFetching ? (
                             [...Array(6)].map((_, i) => (
-                                <TableRow key={i}>{[...Array(8)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}</TableRow>
+                                <TableRow key={i}>{[...Array(7)].map((_, j) => <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>)}</TableRow>
                             ))
                         ) : reviews.length === 0 ? (
-                            <TableRow><TableCell colSpan={8} className="py-12 text-center text-muted-foreground">Không có dữ liệu</TableCell></TableRow>
+                            <TableRow><TableCell colSpan={7} className="py-12 text-center text-muted-foreground">Không có dữ liệu</TableCell></TableRow>
                         ) : (
                             reviews.map((review) => {
                                 const img = parseJsonField(review.product?.images)?.[0] || review.product?.image;
@@ -308,7 +307,6 @@ export default function AdminCommentList() {
                                         </TableCell>
                                         <TableCell><StarDisplay rating={review.rating} /></TableCell>
                                         <TableCell><p className="max-w-[200px] truncate text-sm text-muted-foreground">{reviewContent(review) || "Không có nhận xét"}</p></TableCell>
-                                        <TableCell>{review.adminReply ? <Badge variant="secondary">Đã phản hồi</Badge> : <Badge variant="outline">Chưa phản hồi</Badge>}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-wrap gap-1">
                                                 <Badge className={review.isVisible !== false ? "bg-green-100 text-green-700 hover:bg-green-100" : "bg-muted text-muted-foreground hover:bg-muted"}>{review.isVisible !== false ? "Hiển thị" : "Đã ẩn"}</Badge>

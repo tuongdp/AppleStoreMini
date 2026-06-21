@@ -40,7 +40,6 @@ export const usersApi = baseApi.injectEndpoints({
             async onQueryStarted(_, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    // data đã qua transformResponse → { avatar } object
                     dispatch(updateUser({ avatar: data.avatar }));
                 } catch { /* noop */ }
             },

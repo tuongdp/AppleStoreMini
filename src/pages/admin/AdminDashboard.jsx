@@ -184,7 +184,7 @@ export default function AdminDashboard() {
                 ))}
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid gap-4 lg:grid-cols-2">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-sm font-medium">Việc cần xử lý hôm nay</CardTitle>
