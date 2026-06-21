@@ -8,8 +8,6 @@ import AppProviders from "./providers/AppProviders";
 import { Toaster } from "@/components/ui/sonner";
 import LoadingScreen from "./components/shared/LoadingScreen";
 import ErrorBoundary from "./components/shared/ErrorBoundary";
-import NetworkStatusNotifier from "./components/shared/NetworkStatusNotifier";
-import ReactDevTrace from "./components/shared/ReactDevTrace";
 import App from "./App.jsx";
 import "./index.css";
 import { registerServiceWorker } from "./lib/registerServiceWorker";
@@ -24,10 +22,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                     <AppProviders>
                         <ErrorBoundary>
                             <App />
-                            <ReactDevTrace />
                         </ErrorBoundary>
                         <Toaster />
-                        <NetworkStatusNotifier />
                     </AppProviders>
                 </UnheadProvider>
             </PersistGate>
