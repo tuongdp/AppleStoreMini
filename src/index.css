@@ -339,3 +339,7 @@
 .swiper-pagination-bullet-active {
     @apply bg-foreground;
 }
+
+[data-react-trace] {
+    z-index: 99999 !important;
+}
