@@ -1,23 +1,21 @@
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import PriceDisplay from "@/components/shared/PriceDisplay";
 import CouponInput from "@/features/checkout/components/CouponInput";
-import { selectCartSelectedItems, selectCartSelectedStockIssues, selectCartSelectedTotal } from "@/store/cartSlice";
+import { selectCartSelectedItems, selectCartSelectedStockIssues, selectCartSelectedTotal, selectCartCoupon, setCartCoupon } from "@/store/cartSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { formatPrice } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
 
 export default function CartSummaryCard() {
+    const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const total = useSelector(selectCartSelectedTotal);
     const selectedItems = useSelector(selectCartSelectedItems);
     const stockIssues = useSelector(selectCartSelectedStockIssues);
-
-    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const appliedCoupon = useSelector(selectCartCoupon);
 
     const discountAmount = appliedCoupon?.discountAmount ?? 0;
     const grandTotal = Math.max(0, total - discountAmount);
@@ -29,11 +27,11 @@ export default function CartSummaryCard() {
             : "";
 
     const handleApplyCoupon = (couponData) => {
-        setAppliedCoupon(couponData);
+        dispatch(setCartCoupon(couponData));
     };
 
     const handleRemoveCoupon = () => {
-        setAppliedCoupon(null);
+        dispatch(setCartCoupon(null));
     };
 
     return (

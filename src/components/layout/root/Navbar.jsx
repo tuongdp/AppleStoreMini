@@ -29,7 +29,8 @@ import {
     toggleCartDrawer,
 } from "@/store/uiSlice";
 import { useScrolled } from "@/hooks/useScrollToTop";
-import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
+import { useCategories } from "@/hooks/useCategories";
+import { PAGINATION, ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { appleLogo } from "@/assets/images";
 import ResponsiveImage from "@/components/shared/ResponsiveImage";
@@ -46,6 +47,7 @@ export default function Navbar() {
     const mobileOpen = useSelector(selectMobileMenuOpen);
     const searchOpen = useSelector(selectSearchOpen);
     const isScrolled = useScrolled(10);
+    const { categories } = useCategories();
     const prefetchNewsList = useCallback(() => {
         dispatch(
             newsApi.util.prefetch(
@@ -102,7 +104,7 @@ export default function Navbar() {
                         </Link>
 
                         <nav className="hidden items-center gap-1 lg:flex">
-                            {CATEGORIES.map((cat) => (
+                            {categories.map((cat) => (
                                 <MegaMenu key={cat.value} category={cat} />
                             ))}
 

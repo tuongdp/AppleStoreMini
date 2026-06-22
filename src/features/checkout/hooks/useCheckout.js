@@ -7,6 +7,8 @@ import {
     selectCartSelectedItems,
     selectCartSelectedStockIssues,
     selectCartSelectedTotal,
+    selectCartCoupon,
+    setCartCoupon,
 } from "@/store/cartSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { PAYMENT_METHODS } from "@/lib/constants";
@@ -32,7 +34,7 @@ export function useCheckout() {
         note: "",
     });
 
-    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const appliedCoupon = useSelector(selectCartCoupon);
 
     const [createOrder, { isLoading }] = useCreateOrderMutation();
     const [createPayment, { isLoading: isPaying }] = useCreatePaymentMutation();
@@ -59,11 +61,11 @@ export function useCheckout() {
     };
 
     const handleApplyCoupon = (couponData) => {
-        setAppliedCoupon(couponData);
+        dispatch(setCartCoupon(couponData));
     };
 
     const handleRemoveCoupon = () => {
-        setAppliedCoupon(null);
+        dispatch(setCartCoupon(null));
     };
 
     const handleOnlinePayment = async (orderId) => {
@@ -145,7 +147,7 @@ export function useCheckout() {
         setCurrentStep(0);
         setIsSuccess(false);
         setCreatedOrder(null);
-        setAppliedCoupon(null);
+        dispatch(setCartCoupon(null));
         setPaymentError(null);
         setCheckoutData({
             fullName: "",

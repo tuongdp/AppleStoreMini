@@ -41,7 +41,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: { reason },
             }),
-            invalidatesTags: ["Orders", "Order"],
+            invalidatesTags: ["Orders", "Order", "Products"],
         }),
 
         cancelOrderByAdmin: builder.mutation({
@@ -50,7 +50,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 method: "POST",
                 body: { reason },
             }),
-            invalidatesTags: ["Orders", "Order"],
+            invalidatesTags: ["Orders", "Order", "Products"],
         }),
 
         switchToCod: builder.mutation({
@@ -58,7 +58,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 url: `/orders/${id}/switch-to-cod`,
                 method: "POST",
             }),
-            invalidatesTags: ["Orders", "Order"],
+            invalidatesTags: ["Orders", "Order", "Products"],
         }),
 
         createPayment: builder.mutation({
@@ -66,7 +66,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 url: `/orders/${id}/payment`,
                 method: "POST",
             }),
-            invalidatesTags: ["Orders", "Order"],
+            invalidatesTags: ["Orders", "Order", "Products"],
             transformResponse: (response) => response.data,
         }),
 
@@ -75,7 +75,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 url: `/orders/${id}/confirm-delivered`,
                 method: "POST",
             }),
-            invalidatesTags: ["Orders", "Order"],
+            invalidatesTags: ["Orders", "Order", "Products"],
         }),
 
         // ── Admin ──────────────────────────────────────
@@ -101,7 +101,7 @@ export const ordersApi = baseApi.injectEndpoints({
                 method: "PATCH",
                 body: { status, note },
             }),
-            invalidatesTags: ["Orders", "Order"],
+            invalidatesTags: ["Orders", "Order", "Products"],
         }),
 
         getRevenueStats: builder.query({

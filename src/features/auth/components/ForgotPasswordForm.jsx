@@ -29,13 +29,14 @@ export default function ForgotPasswordForm() {
         }
     };
 
-    if (sent) {
+        if (sent) {
         return (
             <div className="mx-auto max-w-md space-y-6 text-center">
                 <Mail className="mx-auto h-12 w-12 text-green-500" />
                 <h2 className="text-xl font-semibold text-foreground">Kiểm tra email của bạn</h2>
-                <p className="text-sm text-muted-foreground">Mật khẩu mới đã được gửi đến email. Vui lòng đăng nhập và đổi mật khẩu ngay.</p>
-                <Button asChild className="rounded-full"><Link to={ROUTES.LOGIN}>Đăng nhập</Link></Button>
+                <p className="text-sm text-muted-foreground">Link đặt lại mật khẩu đã được gửi đến email. Vui lòng kiểm tra hộp thư (bao gồm spam) và nhấn vào link để tạo mật khẩu mới.</p>
+                <p className="text-xs text-muted-foreground">Link có hiệu lực trong 15 phút.</p>
+                <Button asChild className="rounded-full"><Link to={ROUTES.LOGIN}>Quay lại đăng nhập</Link></Button>
             </div>
         );
     }
@@ -45,14 +46,14 @@ export default function ForgotPasswordForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto max-w-md space-y-6">
                 <div className="text-center">
                     <h2 className="text-xl font-semibold text-foreground">Quên mật khẩu</h2>
-                    <p className="mt-2 text-sm text-muted-foreground">Nhập email để nhận mật khẩu mới</p>
+                    <p className="mt-2 text-sm text-muted-foreground">Nhập email để nhận link đặt lại mật khẩu</p>
                 </div>
                 {serverError && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{serverError}</div>}
                 <FormField control={form.control} name="email" render={({ field }) => (
                     <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="email@example.com" disabled={isLoading} {...field} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <Button type="submit" className="w-full rounded-full" disabled={isLoading}>
-                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Gửi mật khẩu mới
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}Gửi link đặt lại
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">
                     <Link to={ROUTES.LOGIN} className="text-apple-blue hover:underline">Quay lại đăng nhập</Link>

@@ -2,6 +2,7 @@ import { createSlice, createSelector } from "@reduxjs/toolkit";
 
 const initialState = {
     items: [],
+    coupon: null,
 };
 
 const getItemVariantId = (item) => item.variantId || item.product?.variantId || item.variant?.id;
@@ -93,6 +94,7 @@ const cartSlice = createSlice({
         removeCheckedOutItems: (state, action) => {
             const checkedOutVariantIds = new Set(action.payload || []);
             state.items = state.items.filter((item) => !checkedOutVariantIds.has(getItemVariantId(item)));
+            state.coupon = null;
         },
 
         setCartFromServer: (state, action) => {
@@ -109,13 +111,19 @@ const cartSlice = createSlice({
             }));
         },
 
+        setCartCoupon: (state, action) => {
+            state.coupon = action.payload ?? null;
+        },
+
         clearCart: (state) => {
             state.items = [];
+            state.coupon = null;
         },
     },
     extraReducers: (builder) => {
         builder.addCase("auth/logout", (state) => {
             state.items = [];
+            state.coupon = null;
         });
     },
 });
@@ -128,8 +136,11 @@ export const {
     selectAllCartItems,
     removeCheckedOutItems,
     setCartFromServer,
+    setCartCoupon,
     clearCart,
 } = cartSlice.actions;
+
+export const selectCartCoupon = (state) => state.cart.coupon;
 
 export default cartSlice.reducer;
 

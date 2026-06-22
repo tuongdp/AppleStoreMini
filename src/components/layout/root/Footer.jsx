@@ -1,36 +1,7 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { CATEGORIES, ROUTES } from "@/lib/constants";
-
-const SHOP_LINKS = CATEGORIES.map((category) => ({
-    label: category.label,
-    href: category.href,
-}));
-
-const FOOTER_LINKS = [
-    {
-        title: "Mua sắm",
-        links: SHOP_LINKS,
-    },
-    {
-        title: "Khám phá",
-        links: [
-            { label: "AppleCare", href: ROUTES.APPLE_CARE },
-            { label: "Tin tức", href: "/news" },
-            { label: "Về chúng tôi", href: "/about" },
-            { label: "Liên hệ", href: "/contact" },
-        ],
-    },
-    {
-        title: "Hỗ trợ",
-        links: [
-            { label: "Tra cứu đơn hàng", href: ROUTES.ORDER_LOOKUP },
-            { label: "Chính sách bảo hành", href: "/warranty" },
-            { label: "Chính sách đổi trả", href: "/return" },
-            { label: "Chính sách bảo mật", href: "/privacy" },
-            { label: "Điều khoản sử dụng", href: "/terms" },
-        ],
-    },
-];
+import { useCategories } from "@/hooks/useCategories";
+import { ROUTES } from "@/lib/constants";
 
 function FacebookIcon(props) {
     return (
@@ -85,6 +56,35 @@ const SOCIAL_ICONS = {
 
 export default function Footer() {
     const shopName = "Apple Store";
+    const { categories } = useCategories();
+
+    const shopLinks = useMemo(() =>
+        categories.map((cat) => ({ label: cat.label, href: cat.href })),
+        [categories],
+    );
+
+    const footerLinks = [
+        { title: "Mua sắm", links: shopLinks },
+        {
+            title: "Khám phá",
+            links: [
+                { label: "AppleCare", href: ROUTES.APPLE_CARE },
+                { label: "Tin tức", href: "/news" },
+                { label: "Về chúng tôi", href: "/about" },
+                { label: "Liên hệ", href: "/contact" },
+            ],
+        },
+        {
+            title: "Hỗ trợ",
+            links: [
+                { label: "Tra cứu đơn hàng", href: ROUTES.ORDER_LOOKUP },
+                { label: "Chính sách bảo hành", href: "/warranty" },
+                { label: "Chính sách đổi trả", href: "/return" },
+                { label: "Chính sách bảo mật", href: "/privacy" },
+                { label: "Điều khoản sử dụng", href: "/terms" },
+            ],
+        },
+    ];
 
     const socialLinks = [];
 
@@ -144,7 +144,7 @@ export default function Footer() {
                             </div>
                         </div>
 
-                        {FOOTER_LINKS.map((column) => (
+                        {footerLinks.map((column) => (
                             <div key={column.title}>
                                 <h3 className="mb-4 text-sm font-semibold text-foreground">
                                     {column.title}

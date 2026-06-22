@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, CheckCircle, XCircle, Clock, User, Mail, Phone, MapPin } from "lucide-react";
+import { ChevronLeft, CheckCircle, XCircle, Clock, User, Mail, Phone, MapPin, AlertTriangle } from "lucide-react";
 import { useUpdateOrderStatusMutation, useCancelOrderByAdminMutation } from "@/store/api/ordersApi";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,7 @@ const ALL_STATUSES = ["PENDING", "CONFIRMED", "SHIPPING", "DELIVERED", "CANCELLE
 
 export default function AdminOrderDetail({ order }) {
     const [cancelOpen, setCancelOpen] = useState(false);
+    const [confirmStatus, setConfirmStatus] = useState(null);
     const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
     const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderByAdminMutation();
 
@@ -43,6 +44,20 @@ export default function AdminOrderDetail({ order }) {
     const address = order.address || user.address || "";
 
     const handleStatusChange = async (status) => {
+        if (status === "CONFIRMED" || status === "SHIPPING") {
+            const outOfStock = items.filter((item) => {
+                const variant = item.variant || {};
+                return variant.stock != null && variant.stock <= 0;
+            });
+            if (outOfStock.length > 0) {
+                setConfirmStatus(status);
+                return;
+            }
+        }
+        await doUpdateStatus(status);
+    };
+
+    const doUpdateStatus = async (status) => {
         try {
             await updateStatus({ id: oid, status }).unwrap();
             toast.success("Cập nhật trạng thái thành công");
@@ -204,6 +219,20 @@ export default function AdminOrderDetail({ order }) {
             </div>
 
             <ConfirmDialog open={cancelOpen} onOpenChange={setCancelOpen} title="Huỷ đơn hàng?" description="Hành động này không thể hoàn tác." onConfirm={handleCancel} isLoading={isCancelling} />
+
+            <ConfirmDialog
+                open={!!confirmStatus}
+                onOpenChange={(open) => { if (!open) setConfirmStatus(null); }}
+                title="Cảnh báo tồn kho"
+                description={`Có sản phẩm trong đơn đã hết hàng (tồn kho = 0). Bạn có chắc muốn tiếp tục?`}
+                confirmLabel="Vẫn xác nhận"
+                variant="destructive"
+                onConfirm={() => {
+                    const status = confirmStatus;
+                    setConfirmStatus(null);
+                    doUpdateStatus(status);
+                }}
+            />
         </div>
     );
 }

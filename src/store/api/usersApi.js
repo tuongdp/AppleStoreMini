@@ -9,6 +9,12 @@ export const usersApi = baseApi.injectEndpoints({
             query: () => "/users/profile",
             providesTags: ["Profile"],
             transformResponse: (response) => normalizeProfileUser(response.data),
+            async onQueryStarted(_, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    dispatch(updateUser(data));
+                } catch { /* noop */ }
+            },
         }),
 
         // PUT /users/profile

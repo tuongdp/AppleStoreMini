@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/utils";
-import { CATEGORIES, PRICE_RANGES } from "@/lib/constants";
+import { cn, formatPrice } from "@/lib/utils";
+import { useCategories } from "@/hooks/useCategories";
+import { PRICE_RANGES } from "@/lib/constants";
 import { useState } from "react";
 
 export default function ProductFilter({ filters, onUpdate }) {
+    const { categories } = useCategories();
     const [priceRange, setPriceRange] = useState([
         filters.minPrice || 0,
         filters.maxPrice || 100000000,
@@ -36,7 +37,7 @@ export default function ProductFilter({ filters, onUpdate }) {
                     >
                         {"Tất cả danh mục"}
                     </button>
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                         <button
                             key={cat.value}
                             onClick={() => onUpdate("category", cat.value)}

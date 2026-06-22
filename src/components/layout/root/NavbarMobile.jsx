@@ -6,7 +6,8 @@ import { newsApi } from "@/store/api/newsApi";
 import { productsApi } from "@/store/api/productsApi";
 import { toggleMobileMenu } from "@/store/uiSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CATEGORIES, PAGINATION, ROUTES } from "@/lib/constants";
+import { useCategories } from "@/hooks/useCategories";
+import { PAGINATION, ROUTES } from "@/lib/constants";
 import {
     User,
     ShoppingBag,
@@ -21,6 +22,7 @@ export default function NavbarMobile() {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const user = useSelector(selectCurrentUser);
+    const { categories } = useCategories();
 
     const handleClose = () => dispatch(toggleMobileMenu(false));
 
@@ -96,7 +98,7 @@ export default function NavbarMobile() {
                         {"Sản phẩm"}
                     </p>
                     <div className="space-y-0.5">
-                        {CATEGORIES.map((cat) => (
+                        {categories.map((cat) => (
                             <Link
                                 key={cat.value}
                                 to={cat.href}
