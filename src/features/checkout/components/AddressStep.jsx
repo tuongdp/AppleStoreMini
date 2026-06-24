@@ -1,12 +1,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
-import { addressSchema } from "@/lib/validations";
-import { selectCurrentUser, selectIsAuthenticated } from "@/store/authSlice";
-import { useGetWardsByProvinceQuery } from "@/store/api/addressApi";
+import { selectCurrentUser } from "@/store/authSlice";
+import { useUpdateProfileMutation } from "@/store/api/usersApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Form,
     FormControl,
@@ -15,56 +15,56 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import SearchableSelect from "@/components/ui/searchable-select";
-import provinces from "@/data/province.json";
+import { z } from "zod";
 
-const provinceOptions = Object.values(provinces).map((p) => ({
-    code: p.code,
-    label: p.name_with_type,
-}));
+const addressSchema = z.object({
+    fullName: z.string().min(2, "Họ tên tối thiểu 2 ký tự"),
+    phone: z.string().regex(/^0[0-9]{9}$/, "Số điện thoại không hợp lệ"),
+    address: z.string().min(10, "Địa chỉ tối thiểu 10 ký tự"),
+    note: z.string().max(200).optional(),
+    saveToProfile: z.boolean().optional(),
+});
 
 export default function AddressStep({ defaultData, onNext }) {
     const user = useSelector(selectCurrentUser);
-    const isAuthenticated = useSelector(selectIsAuthenticated);
+    const [updateProfile] = useUpdateProfileMutation();
 
     const form = useForm({
         resolver: zodResolver(addressSchema),
         defaultValues: {
             fullName: defaultData?.fullName || user?.fullName || "",
             phone: defaultData?.phone || user?.phone || "",
-            province: defaultData?.province || "",
-            ward: defaultData?.ward || "",
-            streetAddress: defaultData?.streetAddress || "",
-            email: defaultData?.email || user?.email || "",
+            address: defaultData?.address || user?.address || "",
             note: defaultData?.note || "",
+            saveToProfile: false,
         },
     });
 
-    const selectedProvince = form.watch("province");
-    const { data: wards = [] } = useGetWardsByProvinceQuery(
-        selectedProvince,
-        { skip: !selectedProvince },
-    );
-
-    const wardOptions = wards.map((w) => ({ code: w.code, label: w.name_with_type }));
-
-    const handleNext = () => {
-        form.handleSubmit((values) => {
-            const provinceName = provinceOptions.find((p) => p.code === values.province)?.label || "";
-            const wardName = wardOptions.find((w) => w.code === values.ward)?.label || "";
-            const address = `${values.streetAddress}, ${wardName}, ${provinceName}`;
-            onNext({
-                ...values,
-                address,
-            });
-        })();
-    };
+    const handleNext = form.handleSubmit(async (values) => {
+        if (values.saveToProfile) {
+            updateProfile({
+                fullName: values.fullName,
+                phone: values.phone,
+                address: values.address,
+            }).unwrap().catch(() => {});
+        }
+        onNext({
+            fullName: values.fullName,
+            phone: values.phone,
+            address: values.address,
+            email: user?.email || "",
+            note: values.note || "",
+        });
+    });
 
     return (
         <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
-            <h2 className="mb-5 text-base font-semibold text-foreground">
-                {"Thông tin giao hàng"}
+            <h2 className="mb-1 text-base font-semibold text-foreground">
+                Thông tin giao hàng
             </h2>
+            <p className="mb-4 text-xs text-muted-foreground">
+                Mặc định lấy từ tài khoản, bạn có thể thay đổi nếu cần gửi đến địa chỉ khác.
+            </p>
 
             <Form {...form}>
                 <form className="space-y-4">
@@ -74,15 +74,9 @@ export default function AddressStep({ defaultData, onNext }) {
                             name="fullName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>
-                                        {"Họ và tên"}<span className="text-destructive">*</span>
-                                    </FormLabel>
+                                    <FormLabel>Họ và tên <span className="text-destructive">*</span></FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder={"Nguyễn Văn A"}
-                                            data-testid="checkout-full-name"
-                                            {...field}
-                                        />
+                                        <Input placeholder="Nguyễn Văn A" data-testid="checkout-full-name" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -93,16 +87,9 @@ export default function AddressStep({ defaultData, onNext }) {
                             name="phone"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>
-                                        {"Số điện thoại"}<span className="text-destructive">*</span>
-                                    </FormLabel>
+                                    <FormLabel>Số điện thoại <span className="text-destructive">*</span></FormLabel>
                                     <FormControl>
-                                        <Input
-                                            type="tel"
-                                            placeholder={"0901234567"}
-                                            data-testid="checkout-phone"
-                                            {...field}
-                                        />
+                                        <Input type="tel" placeholder="0901234567" data-testid="checkout-phone" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -110,81 +97,20 @@ export default function AddressStep({ defaultData, onNext }) {
                         />
                     </div>
 
+                    <div>
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email nhận hóa đơn</label>
+                        <Input type="email" disabled value={user?.email || ""} className="mt-2" />
+                        <p className="mt-1 text-xs text-muted-foreground">Email từ tài khoản của bạn</p>
+                    </div>
+
                     <FormField
                         control={form.control}
-                        name="email"
+                        name="address"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>
-                                    {"Email"}
-                                    {!isAuthenticated && <span className="ml-1 text-xs text-muted-foreground">(để nhận thông báo đơn hàng)</span>}
-                                </FormLabel>
+                                <FormLabel>Địa chỉ <span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
-                                    <Input
-                                        type="email"
-                                        placeholder={"email@example.com"}
-                                        data-testid="checkout-email"
-                                        {...field}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="province"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{"Tỉnh/Thành phố"}<span className="text-destructive">*</span></FormLabel>
-                                <SearchableSelect
-                                    options={provinceOptions}
-                                    value={field.value}
-                                    onChange={(value) => {
-                                        field.onChange(value);
-                                        form.setValue("ward", "");
-                                    }}
-                                    placeholder="Chọn tỉnh/thành phố"
-                                    data-testid="checkout-province"
-                                />
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="ward"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{"Xã/Phường"}<span className="text-destructive">*</span></FormLabel>
-                                <SearchableSelect
-                                    options={wardOptions}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    placeholder={selectedProvince ? "Chọn xã/phường" : "Vui lòng chọn tỉnh/thành phố trước"}
-                                    disabled={!selectedProvince}
-                                    emptyText="Không có dữ liệu"
-                                    data-testid="checkout-ward"
-                                />
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="streetAddress"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{"Số nhà, tên đường"}<span className="text-destructive">*</span></FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder={"123 Nguyễn Huệ"}
-                                        data-testid="checkout-street-address"
-                                        {...field}
-                                    />
+                                    <Textarea placeholder="123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh" rows={2} data-testid="checkout-address" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -196,18 +122,26 @@ export default function AddressStep({ defaultData, onNext }) {
                         name="note"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>
-                                    {"Ghi chú"}
-                                </FormLabel>
+                                <FormLabel>Ghi chú <span className="text-xs text-muted-foreground">(tuỳ chọn)</span></FormLabel>
                                 <FormControl>
-                                    <Textarea
-                                        placeholder={"Ghi chú thêm (tuỳ chọn)"}
-                                        rows={2}
-                                        data-testid="checkout-note"
-                                        {...field}
-                                    />
+                                    <Input placeholder="Giao giờ hành chính..." data-testid="checkout-note" {...field} />
                                 </FormControl>
                                 <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="saveToProfile"
+                        render={({ field }) => (
+                            <FormItem className="flex items-center gap-2">
+                                <FormControl>
+                                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                </FormControl>
+                                <FormLabel className="!mt-0 cursor-pointer text-xs text-muted-foreground">
+                                    Lưu thông tin này vào tài khoản
+                                </FormLabel>
                             </FormItem>
                         )}
                     />
@@ -215,12 +149,8 @@ export default function AddressStep({ defaultData, onNext }) {
             </Form>
 
             <div className="mt-6 flex justify-end">
-                <Button
-                    onClick={handleNext}
-                    className="rounded-full px-8"
-                    data-testid="checkout-address-next"
-                >
-                    {"Tiếp tục"}
+                <Button onClick={handleNext} className="rounded-full px-8" data-testid="checkout-address-next">
+                    Tiếp tục
                 </Button>
             </div>
         </div>

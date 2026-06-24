@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { productsApi } from "@/store/api/productsApi";
-import { addToCart } from "@/store/cartSlice";
+import { addToCart, removeFromCart } from "@/store/cartSlice";
+import { toast } from "sonner";
 import { useAddToCartMutation } from "@/store/api/cartApi";
 import { formatPrice, cn, parseJsonField, calcDiscount, formatCompactNumber } from "@/lib/utils";
 import { ROUTES } from "@/lib/constants";
@@ -75,42 +76,53 @@ function ProductCard({ product }) {
     const variantSummary = getVariantSummary(product);
     const productDetailHref = getProductDetailHref(product);
 
-    const handleAddToCart = (e) => {
+    const handleAddToCart = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        dispatch(
-            addToCart({
-                product: {
-                    ...product,
-                    variantId,
-                    images: parseJsonField(product.images) || product.images,
-                },
+        const cartItem = {
+            product: {
+                ...product,
                 variantId,
-                quantity: 1,
-            }),
-        );
+                images: parseJsonField(product.images) || product.images,
+            },
+            variantId,
+            quantity: 1,
+        };
+        dispatch(addToCart(cartItem));
         dispatch(toggleCartDrawer(true));
         if (isAuthenticated && variantId) {
-            addToCartApi({ variantId, quantity: 1 });
+            try {
+                await addToCartApi({ variantId, quantity: 1 }).unwrap();
+            } catch (err) {
+                dispatch(removeFromCart({ variantId }));
+                const message = err?.data?.message || err?.message || "Thêm vào giỏ hàng thất bại";
+                toast.error(message);
+            }
         }
     };
 
-    const handleBuyNow = (e) => {
+    const handleBuyNow = async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        dispatch(
-            addToCart({
-                product: {
-                    ...product,
-                    variantId,
-                    images: parseJsonField(product.images) || product.images,
-                },
+        const cartItem = {
+            product: {
+                ...product,
                 variantId,
-                quantity: 1,
-            }),
-        );
+                images: parseJsonField(product.images) || product.images,
+            },
+            variantId,
+            quantity: 1,
+        };
+        dispatch(addToCart(cartItem));
         if (isAuthenticated && variantId) {
-            addToCartApi({ variantId, quantity: 1 });
+            try {
+                await addToCartApi({ variantId, quantity: 1 }).unwrap();
+            } catch (err) {
+                dispatch(removeFromCart({ variantId }));
+                const message = err?.data?.message || err?.message || "Không thể thêm vào giỏ hàng";
+                toast.error(message);
+                return;
+            }
         }
         navigate(ROUTES.CHECKOUT);
     };

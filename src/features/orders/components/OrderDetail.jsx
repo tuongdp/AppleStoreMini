@@ -17,7 +17,7 @@ import OrderStatusBadge from "./OrderStatusBadge";
 import OrderItemRow from "./OrderItemRow";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import PriceDisplay from "@/components/shared/PriceDisplay";
-import { useCancelOrderMutation, useConfirmDeliveredMutation } from "@/store/api/ordersApi";
+import { useCancelOrderMutation, useConfirmDeliveredMutation, useUpdateOrderShippingMutation } from "@/store/api/ordersApi";
 import { useCreateReviewMutation } from "@/store/api/productReviewApi";
 import { cancelOrderSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -34,6 +34,7 @@ const reviewSchema = z.object({
 export default function OrderDetail({ order }) {
     const [cancelOpen, setCancelOpen] = useState(false);
     const [reviewItem, setReviewItem] = useState(null);
+    const [isEditingShipping, setIsEditingShipping] = useState(false);
 
     const cancelForm = useForm({
         resolver: zodResolver(cancelOrderSchema),
@@ -42,6 +43,7 @@ export default function OrderDetail({ order }) {
 
     const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
     const [confirmDelivered, { isLoading: isConfirming }] = useConfirmDeliveredMutation();
+    const [updateShipping, { isLoading: isUpdatingShipping }] = useUpdateOrderShippingMutation();
     const [createReview, { isLoading: isReviewing }] = useCreateReviewMutation();
     const handleReOrder = useAddToCartFromOrder();
 
@@ -50,18 +52,28 @@ export default function OrderDetail({ order }) {
         defaultValues: { rating: 5, content: "" },
     });
 
+    const shippingInfo = {
+        fullName: order.shippingFullName || order.user?.fullName || "",
+        phone: order.shippingPhone || order.user?.phone || "",
+        address: order.shippingAddress || order.user?.address || "",
+    };
+
+    const shippingForm = useForm({
+        defaultValues: {
+            fullName: shippingInfo.fullName,
+            phone: shippingInfo.phone,
+            address: shippingInfo.address,
+            note: order.note || "",
+        },
+    });
+
     const isDelivered = (order.status || "").toLowerCase() === ORDER_STATUS.DELIVERED;
+    const isPending = (order.status || "").toLowerCase() === ORDER_STATUS.PENDING;
 
     const canCancel = !order.isPaid && [ORDER_STATUS.PENDING, ORDER_STATUS.CONFIRMED].includes(
         (order.status || "").toLowerCase(),
     );
     const canConfirm = (order.status || "").toLowerCase() === ORDER_STATUS.SHIPPING;
-
-    const shippingInfo = {
-        fullName: order.user?.fullName || "",
-        phone: order.user?.phone || "",
-        address: order.user?.address || order.address || "",
-    };
 
     const discountAmount = order.discountAmount ?? 0;
 
@@ -111,6 +123,16 @@ export default function OrderDetail({ order }) {
         }
     };
 
+    const handleUpdateShipping = async (values) => {
+        try {
+            await updateShipping({ id: order.id, ...values }).unwrap();
+            toast.success("Cập nhật thông tin thành công");
+            setIsEditingShipping(false);
+        } catch (error) {
+            toast.error(error?.data?.message || "Cập nhật thất bại");
+        }
+    };
+
     return (
         <div className="space-y-4">
             <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
@@ -144,11 +166,56 @@ export default function OrderDetail({ order }) {
 
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl border border-border bg-card p-5">
-                    <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />Địa chỉ giao hàng
+                    <div className="mb-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />Địa chỉ giao hàng
+                        </div>
+                        {isPending && !isEditingShipping && (
+                            <Button size="sm" variant="outline" className="rounded-full text-xs" onClick={() => setIsEditingShipping(true)}>
+                                Sửa
+                            </Button>
+                        )}
                     </div>
-                    <p className="text-sm font-medium">{shippingInfo.fullName} - {formatPhone(shippingInfo.phone)}</p>
-                    <p className="text-sm text-muted-foreground">{shippingInfo.address}</p>
+                    {isEditingShipping ? (
+                        <Form {...shippingForm}>
+                            <form onSubmit={shippingForm.handleSubmit(handleUpdateShipping)} className="space-y-3">
+                                <FormField control={shippingForm.control} name="fullName" render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl><Input placeholder="Họ tên người nhận" {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={shippingForm.control} name="phone" render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl><Input placeholder="Số điện thoại" {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={shippingForm.control} name="address" render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl><Textarea placeholder="Địa chỉ" rows={2} {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <FormField control={shippingForm.control} name="note" render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl><Input placeholder="Ghi chú (tuỳ chọn)" {...field} /></FormControl>
+                                    </FormItem>
+                                )} />
+                                <div className="flex gap-2">
+                                    <Button type="submit" size="sm" className="rounded-full" disabled={isUpdatingShipping}>
+                                        {isUpdatingShipping ? "Đang lưu..." : "Lưu"}
+                                    </Button>
+                                    <Button type="button" size="sm" variant="outline" className="rounded-full" onClick={() => setIsEditingShipping(false)}>
+                                        Huỷ
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
+                    ) : (
+                        <>
+                            <p className="text-sm font-medium">{shippingInfo.fullName} - {formatPhone(shippingInfo.phone)}</p>
+                            <p className="text-sm text-muted-foreground">{shippingInfo.address}</p>
+                            {order.note && <p className="mt-1 text-xs text-muted-foreground">Ghi chú: {order.note}</p>}
+                        </>
+                    )}
                 </div>
                 <div className="rounded-2xl border border-border bg-card p-5">
                     <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">

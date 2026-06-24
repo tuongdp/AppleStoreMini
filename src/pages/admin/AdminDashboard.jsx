@@ -27,6 +27,7 @@ import SlowProducts from "@/features/admin/components/dashboard/SlowProducts";
 import TopCustomers from "@/features/admin/components/dashboard/TopCustomers";
 import CategoryPieChart from "@/features/admin/components/dashboard/CategoryPieChart";
 import { formatNumber, formatPrice, cn } from "@/lib/utils";
+import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 
 function MetricCard({ title, value, note, icon: Icon, tone = "default", loading }) {
     const toneClass = {
@@ -100,11 +101,17 @@ function AlertItem({ alert }) {
 }
 
 export default function AdminDashboard() {
-    const { data: stats, isLoading: isStatsLoading } = useGetDashboardStatsQuery();
-    const { data: operations, isLoading: isOperationsLoading } = useGetDashboardOperationsQuery(undefined, {
+    const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useGetDashboardStatsQuery();
+    const { data: operations, isLoading: isOperationsLoading, refetch: refetchOps } = useGetDashboardOperationsQuery(undefined, {
         pollingInterval: 30000,
     });
-    const { data: lowStock = [], isLoading: isLowStockLoading } = useGetLowStockQuery();
+    const { data: lowStock = [], isLoading: isLowStockLoading, refetch: refetchLowStock } = useGetLowStockQuery();
+
+    useAdminRealtime(() => {
+        refetchStats();
+        refetchOps();
+        refetchLowStock();
+    });
     const tasks = operations?.tasks || [];
     const alerts = operations?.alerts || [];
 

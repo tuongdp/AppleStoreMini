@@ -53,12 +53,14 @@ export const ordersApi = baseApi.injectEndpoints({
             invalidatesTags: ["Orders", "Order", "Products"],
         }),
 
-        switchToCod: builder.mutation({
-            query: (id) => ({
-                url: `/orders/${id}/switch-to-cod`,
-                method: "POST",
+        updateOrderShipping: builder.mutation({
+            query: ({ id, ...body }) => ({
+                url: `/orders/${id}`,
+                method: "PATCH",
+                body,
             }),
-            invalidatesTags: ["Orders", "Order", "Products"],
+            invalidatesTags: ["Orders", "Order"],
+            transformResponse: (response) => response.data,
         }),
 
         createPayment: builder.mutation({
@@ -179,5 +181,5 @@ export const {
     useGetSlowProductsQuery,
     useGetOrderStatusDistributionQuery,
     useGetTopCustomersQuery,
-    useSwitchToCodMutation,
+    useUpdateOrderShippingMutation,
 } = ordersApi;

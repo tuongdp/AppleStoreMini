@@ -100,7 +100,7 @@ export default function PaymentResult({ status: _status }) {
             clearInterval(countdown);
             clearInterval(poll);
         };
-    }, [isVnpay, pendingOrderId, pendingOrderExpires, isExpired, dispatch]);
+    }, [isVnpay, pendingOrderId, pendingOrderExpires, isExpired, isSuccess, dispatch]);
 
     // AWAITING state – waiting for VNPay payment
     if (!isVnpay && pendingOrderId && !isExpired && !isSuccess) {

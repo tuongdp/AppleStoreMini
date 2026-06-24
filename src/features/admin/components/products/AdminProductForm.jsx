@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import DOMPurify from "dompurify";
@@ -23,7 +23,7 @@ export default function AdminProductForm({ product, onSubmit, isLoading }) {
   const isEdit = !!product;
 
   const { data: categoriesData } = useGetAdminCategoriesQuery();
-  const categories = categoriesData?.categories || [];
+  const categories = useMemo(() => categoriesData?.categories || [], [categoriesData]);
 
   const form = useForm({
     resolver: zodResolver(productSchema),

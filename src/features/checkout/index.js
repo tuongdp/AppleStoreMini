@@ -1,6 +1,5 @@
 export { default as CheckoutStepper } from "./components/CheckoutStepper";
 export { default as AddressStep } from "./components/AddressStep";
-export { default as AddressSavedList } from "./components/AddressSavedList";
 export { default as PaymentStep } from "./components/PaymentStep";
 export { default as PaymentMethodCard } from "./components/PaymentMethodCard";
 export { default as ConfirmStep } from "./components/ConfirmStep";

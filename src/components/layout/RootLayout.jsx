@@ -6,6 +6,7 @@ import ScrollToTopButton from "@/components/shared/ScrollToTopButton";
 import ScrollToTop from "@/components/shared/ScrollToTop";
 import { useDispatch, useSelector } from "react-redux";
 import { lazy, Suspense, useEffect, useState } from "react";
+import { useStockRealtime } from "@/hooks/useStockRealtime";
 import CartDrawer from "@/features/cart/components/CartDrawer";
 import { MessageCircle } from "lucide-react";
 import {
@@ -36,6 +37,7 @@ export default function RootLayout() {
     const dispatch = useDispatch();
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const [chatMounted, setChatMounted] = useState(false);
+    useStockRealtime();
     useGetServerCartQuery(undefined, {
         skip: !isAuthenticated,
     });

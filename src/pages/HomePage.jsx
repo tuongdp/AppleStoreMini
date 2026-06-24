@@ -110,11 +110,11 @@ export default function HomePage() {
       <h1 className="sr-only">Apple Store - Cửa hàng Apple chính hãng</h1>
       <SeoHead title="Trang chủ" />
       <StructuredData />
-      {showWelcome && (
+      {/* {showWelcome && (
         <Suspense fallback={null}>
           <WelcomeModal open={showWelcome} onClose={() => setShowWelcome(false)} />
         </Suspense>
-      )}
+      )} */}
 
       <BannerSlider slides={banners} isLoading={isHomepageLoading} />
 

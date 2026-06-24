@@ -16,21 +16,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { PAGINATION } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Calendar, ChevronLeft, ChevronRight, Clock, Search, TrendingUp } from "lucide-react";
-
-
-const ALL_CATEGORIES = [
-    { value: "", label: "Tất cả" },
-    { value: "iPhone", label: "iPhone" },
-    { value: "Mac", label: "Mac" },
-    { value: "iPad", label: "iPad" },
-    { value: "Watch", label: "Watch" },
-    { value: "Âm thanh", label: "Âm thanh" },
-    { value: "Phụ kiện", label: "Phụ kiện" },
-    { value: "Dịch vụ", label: "Dịch vụ" },
-];
 
 const SORT_OPTIONS = [
     { value: "newest", label: "Mới nhất" },
@@ -43,7 +30,6 @@ export default function NewsPage() {
     const debouncedSearch = useDebounce(searchInput, 400);
 
     const page = Number(searchParams.get("page")) || 1;
-    const activeCategory = searchParams.get("category") || "";
     const activeSort = searchParams.get("sort") || "newest";
     const searchQuery = searchParams.get("q") || "";
 
@@ -65,16 +51,15 @@ export default function NewsPage() {
         page,
         limit: PAGINATION.DEFAULT_LIMIT,
         search: searchQuery || undefined,
-        category: activeCategory || undefined,
         sort: activeSort === "newest" ? undefined : activeSort,
     });
 
     const news = data?.news || [];
     const pagination = data?.pagination || {};
-    const hasFocusedFilters = !!activeCategory || !!searchQuery || page > 1;
+    const hasFocusedFilters = !!searchQuery || page > 1;
     const featuredNews = !hasFocusedFilters ? news[0] : null;
     const gridNews = featuredNews ? news.slice(1) : news;
-    const seoTitle = searchQuery ? `Tìm kiếm ${searchQuery}` : activeCategory ? `Tin ${activeCategory}` : "Tin tức";
+    const seoTitle = searchQuery ? `Tìm kiếm ${searchQuery}` : "Tin tức";
     const canonicalPath = `/news${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
 
     const updateParam = (key, value) => {
@@ -135,26 +120,6 @@ export default function NewsPage() {
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
-
-                {/* Category tabs */}
-                <div className="mb-6 -mx-1 flex flex-wrap gap-1">
-                    {ALL_CATEGORIES.map((cat) => (
-                        <button
-                            key={cat.value}
-                            type="button"
-                            onClick={() => updateParam("category", cat.value)}
-                            className={cn(
-                                "rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
-                                (activeCategory === cat.value) ||
-                                (!activeCategory && cat.value === "")
-                                    ? "bg-foreground text-background"
-                                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
-                            )}
-                        >
-                            {cat.label}
-                        </button>
-                    ))}
                 </div>
 
                 {/* Grid */}

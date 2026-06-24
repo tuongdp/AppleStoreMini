@@ -136,25 +136,16 @@ export const profileSchema = z.object({
         .regex(/^0[0-9]{9}$/, {
             message: v("phone.invalid"),
         }),
-    province: z.string().min(1, { message: "Vui lòng chọn tỉnh/thành phố" }),
-    ward: z.string().min(1, { message: "Vui lòng chọn xã/phường" }),
-    streetAddress: z.string().min(5, { message: "Số nhà, tên đường tối thiểu 5 ký tự" }).transform(sanitizeText),
+    address: z.string().min(10, { message: v("address.addressMinLength") }).transform(sanitizeText),
 });
 
 // ── Address ───────────────────────────────────────────
 export const addressSchema = z.object({
-    fullName: z.string().min(2, { message: v("address.fullNameRequired") }).transform(sanitizeText),
-    phone: z
-        .string()
-        .min(1, { message: v("phone.required") })
-        .regex(/^0[0-9]{9}$/, {
-            message: v("phone.invalid"),
-        }),
-    province: z.string().min(1, { message: "Vui lòng chọn tỉnh/thành phố" }),
-    ward: z.string().min(1, { message: "Vui lòng chọn xã/phường" }),
-    streetAddress: z.string().min(5, { message: "Số nhà, tên đường tối thiểu 5 ký tự" }).transform(sanitizeText),
-    email: z.string().email({ message: "Email không hợp lệ" }).optional().or(z.literal("")),
-    note: z.string().max(200).optional().transform((val) => (val ? sanitizeText(val) : val)),
+    fullName: z.string().min(2, "Họ tên tối thiểu 2 ký tự"),
+    phone: z.string().regex(/^0[0-9]{9}$/, "Số điện thoại không hợp lệ"),
+    address: z.string().min(10, "Địa chỉ tối thiểu 10 ký tự"),
+    note: z.string().max(200).optional(),
+    saveToProfile: z.boolean().optional(),
 });
 
 // ── Checkout ──────────────────────────────────────────

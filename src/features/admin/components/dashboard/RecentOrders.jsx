@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useGetAllOrdersQuery } from "@/store/api/ordersApi";
 import OrderStatusBadge from "@/features/orders/components/OrderStatusBadge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatDateTime } from "@/lib/utils";
@@ -57,10 +58,13 @@ export default function RecentOrders() {
                     to={ROUTES.ADMIN_ORDER_DETAIL(order._id || order.id)}
                     className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-muted/50"
                 >
-                    {/* Avatar placeholder */}
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                        {order.user?.fullName?.charAt(0)?.toUpperCase() || "V"}
-                    </div>
+                    {/* Avatar */}
+                    <Avatar className="h-9 w-9 shrink-0">
+                        <AvatarImage src={order.user?.avatar} alt={order.user?.fullName} />
+                        <AvatarFallback className="text-xs">
+                            {order.user?.fullName?.charAt(0)?.toUpperCase() || "V"}
+                        </AvatarFallback>
+                    </Avatar>
 
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-foreground">

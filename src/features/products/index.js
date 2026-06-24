@@ -1,6 +1,5 @@
 export { default as ProductGrid } from "./components/ProductGrid";
 export { default as ProductFilter } from "./components/ProductFilter";
-export { default as ProductSort } from "./components/ProductSort";
 export { default as ProductImageGallery } from "./components/ProductImageGallery";
 export { default as ProductDescription } from "./components/ProductDescription";
 export { default as ProductSpecification } from "./components/ProductSpecification";
@@ -9,5 +8,4 @@ export { default as ProductCommentItem } from "./components/ProductCommentItem";
 export { default as ProductCommentSummary } from "./components/ProductCommentSummary";
 export { default as CommentForm } from "./components/CommentForm";
 export { default as RelatedProducts } from "./components/RelatedProducts";
-export { useProductFilters } from "./hooks/useProductFilters";
 export { useProductSearch } from "./hooks/useProductSearch";

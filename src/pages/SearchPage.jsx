@@ -89,7 +89,7 @@ export default function SearchPage() {
     }, [keyword]);
 
     const pagination = data?.pagination || {};
-    const products = data?.products || [];
+    const products = useMemo(() => data?.products || [], [data]);
     const newsResults = newsData?.news || [];
     const productGroups = useMemo(() => groupProductsByCategory(products), [products]);
     const totalProducts = pagination.total || products.length;

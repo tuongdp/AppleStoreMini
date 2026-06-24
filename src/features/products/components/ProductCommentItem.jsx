@@ -17,8 +17,8 @@ export default function ProductCommentItem({ comment }) {
             <div className="flex items-start gap-3">
                 <Avatar className="h-9 w-9">
                     <AvatarImage
-                        src={comment.user?.avatar}
-                        alt={comment.user?.fullName}
+                        src={comment.users?.avatar}
+                        alt={comment.users?.fullName}
                     />
                     <AvatarFallback className="text-xs">
                         {comment.user?.fullName?.charAt(0)?.toUpperCase() ||

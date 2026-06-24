@@ -41,7 +41,9 @@ export default function AdminOrderDetail({ order }) {
     const oid = order.id || order._id;
     const items = order.items || [];
     const user = order.user || {};
-    const address = order.address || user.address || "";
+    const shippingName = order.shippingFullName || user.fullName || "";
+    const shippingPhone = order.shippingPhone || user.phone || "";
+    const address = order.shippingAddress || user.address || "";
 
     const handleStatusChange = async (status) => {
         if (status === "CONFIRMED" || status === "SHIPPING") {
@@ -168,7 +170,19 @@ export default function AdminOrderDetail({ order }) {
                     {address && (
                         <Card>
                             <CardHeader><CardTitle className="text-sm font-medium">Địa chỉ giao hàng</CardTitle></CardHeader>
-                            <CardContent>
+                            <CardContent className="space-y-2">
+                                {shippingName && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <User className="h-4 w-4 text-muted-foreground" />
+                                        <span>{shippingName}</span>
+                                    </div>
+                                )}
+                                {shippingPhone && (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Phone className="h-4 w-4 text-muted-foreground" />
+                                        <span>{shippingPhone}</span>
+                                    </div>
+                                )}
                                 <div className="flex items-start gap-2 text-sm">
                                     <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                                     <span>{address}</span>

@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { CATEGORIES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 import ExportButton from "@/components/ui/export-button";
 import { useExport } from "@/hooks/useExport";
 
@@ -81,7 +82,14 @@ export default function AdminProductTable() {
   if (statusFilter === "inactive") filters.vstatus = "inactive";
   if (statusFilter === "hidden") filters.isActive = "false";
 
-  const { data, isLoading, isFetching } = useGetAdminProductsQuery(filters);
+  const { data, isLoading, isFetching, refetch } = useGetAdminProductsQuery(filters);
+
+  useAdminRealtime((event) => {
+    if (event === "productUpdated" || event === "productDeleted") {
+      refetch();
+    }
+  });
+
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
   const [updateProduct] = useUpdateProductMutation();
 

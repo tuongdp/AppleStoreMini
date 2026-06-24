@@ -6,7 +6,8 @@ import {
 } from "lucide-react";
 import { useGetProductBySlugQuery, useIncrementVariantViewMutation } from "@/store/api/productsApi";
 import { useAddToCartMutation } from "@/store/api/cartApi";
-import { addToCart } from "@/store/cartSlice";
+import { addToCart, removeFromCart } from "@/store/cartSlice";
+import { toast } from "sonner";
 import { toggleCartDrawer } from "@/store/uiSlice";
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
@@ -194,8 +195,10 @@ export default function ProductDetailPage() {
                     variantId: selectedVariant.id,
                     quantity,
                 }).unwrap();
-            } catch {
-                // Local cart is already updated; server cart sync can retry later.
+            } catch (err) {
+                dispatch(removeFromCart({ variantId: selectedVariant.id }));
+                const message = err?.data?.message || err?.message || "Thêm vào giỏ hàng thất bại";
+                toast.error(message);
             }
         }
     };
@@ -210,7 +213,14 @@ export default function ProductDetailPage() {
             }),
         );
         if (isAuthenticated) {
-            try { await addToCartApi({ variantId: selectedVariant.id, quantity }).unwrap(); } catch {}
+            try {
+                await addToCartApi({ variantId: selectedVariant.id, quantity }).unwrap();
+            } catch (err) {
+                dispatch(removeFromCart({ variantId: selectedVariant.id }));
+                const message = err?.data?.message || err?.message || "Không thể thêm vào giỏ hàng";
+                toast.error(message);
+                return;
+            }
         }
         navigate(ROUTES.CHECKOUT);
     };

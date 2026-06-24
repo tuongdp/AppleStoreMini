@@ -86,7 +86,6 @@ export default function CheckoutPage() {
                 <div className="min-w-0 flex-1">
                     {currentStep === 0 && (
                         <AddressStep
-                            defaultData={checkoutData}
                             onNext={handleAddressNext}
                         />
                     )}

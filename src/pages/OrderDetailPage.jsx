@@ -15,7 +15,11 @@ export default function OrderDetailPage() {
 
     useOrderSocket(id, (update) => {
         refetch();
-        toast.success(`Đơn hàng #${update.orderCode} đã chuyển sang: ${update.statusLabel}`);
+        if (update.type === "updated") {
+            toast.success("Thông tin đơn hàng đã được cập nhật");
+        } else if (update.statusLabel) {
+            toast.success(`Đơn hàng #${update.orderCode} đã chuyển sang: ${update.statusLabel}`);
+        }
     });
 
     const order = data;

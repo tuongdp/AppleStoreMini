@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { formatPrice, formatDateTime, cn } from "@/lib/utils";
 import { ROUTES, PAGINATION } from "@/lib/constants";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAdminRealtime } from "@/hooks/useAdminRealtime";
 
 const STATUS_OPTIONS = [
     { value: "all", label: "Tất cả" },
@@ -58,7 +59,14 @@ export default function AdminOrderTable() {
         search: debouncedSearch || undefined,
     };
 
-    const { data, isLoading, isFetching } = useGetAllOrdersQuery(filters);
+    const { data, isLoading, isFetching, refetch } = useGetAllOrdersQuery(filters);
+
+    useAdminRealtime((event) => {
+        if (event === "newOrder" || event === "orderStatusUpdate" || event === "orderUpdated") {
+            refetch();
+        }
+    });
+
     const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
     const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderByAdminMutation();
 

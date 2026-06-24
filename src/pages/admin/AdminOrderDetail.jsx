@@ -1,19 +1,23 @@
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useGetAdminOrderByIdQuery } from "@/store/api/ordersApi";
+import { useOrderSocket } from "@/hooks/useSocket";
 import AdminOrderDetailComponent from "@/features/admin/components/orders/AdminOrderDetail";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/lib/constants";
+import { toast } from "sonner";
 
 export default function AdminOrderDetailPage() {
     const { id } = useParams();
 
-    const { data, isLoading, isError } = useGetAdminOrderByIdQuery(id);
-
-    // ✅ getAdminOrderByIdQuery transformResponse → response.data trực tiếp
-    // Không cần .data thêm lần nữa
+    const { data, isLoading, isError, refetch } = useGetAdminOrderByIdQuery(id);
     const order = data;
+
+    useOrderSocket(id, () => {
+        refetch();
+        toast.info("Đơn hàng vừa được cập nhật");
+    });
 
     if (isLoading) {
         return (

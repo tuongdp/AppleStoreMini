@@ -1,5 +1,4 @@
 // Dashboard
-export { default as StatsCard } from "./components/dashboard/StatsCard";
 export { default as RevenueChart } from "./components/dashboard/RevenueChart";
 export { default as OrderStatusChart } from "./components/dashboard/OrderStatusChart";
 export { default as RecentOrders } from "./components/dashboard/RecentOrders";
