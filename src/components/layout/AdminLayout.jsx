@@ -101,16 +101,16 @@ const NAV_GROUPS = [
         icon: Tag,
         permission: "coupons",
     },
-    {
-        type: "group",
-        key: "contentGroup",
-        icon: Newspaper,
-        items: [
-            { key: "news", href: "/admin/news", icon: Newspaper, permission: "news" },
-            { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners" },
-        ],
-    },
-];
+        {
+            type: "group",
+            key: "contentGroup",
+            icon: Newspaper,
+            items: [
+                { key: "news", href: "/admin/news", icon: Newspaper, permission: "news" },
+                { key: "banners", href: "/admin/banners", icon: FileSliders, permission: "banners" },
+            ],
+        },
+    ];
 
 const FLAT_NAV_ITEMS = NAV_GROUPS.flatMap((group) => (group.type === "item" ? [group] : group.items));
 

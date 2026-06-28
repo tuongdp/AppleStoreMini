@@ -7,8 +7,9 @@ import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ProductCommentSummary from "./ProductCommentSummary";
 import ProductCommentItem from "./ProductCommentItem";
+import Pagination from "@/components/shared/Pagination";
 
-const PER_PAGE = 2;
+const PER_PAGE = 5;
 const STAR_OPTIONS = [
     { label: "Tất cả", value: null },
     { label: "5", value: 5 },
@@ -124,47 +125,14 @@ export default function ProductComments({ product }) {
                                 </div>
                             ))}
 
-                            {/* Pagination */}
-                            {pagination.totalPages > 1 && (
-                                <div className="flex items-center justify-center gap-3 pt-4">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-full"
-                                        disabled={page <= 1}
-                                        onClick={() => setPage((p) => p - 1)}
-                                    >
-                                        {"Trước"}
-                                    </Button>
-                                    {[...Array(pagination.totalPages)].map((_, i) => {
-                                        const pageNum = i + 1;
-                                        const isActive = pageNum === page;
-                                        return (
-                                            <Button
-                                                key={pageNum}
-                                                variant={isActive ? "default" : "outline"}
-                                                size="icon-sm"
-                                                className={cn(
-                                                    "h-8 w-8 rounded-full text-xs",
-                                                    !isActive && "text-muted-foreground",
-                                                )}
-                                                onClick={() => setPage(pageNum)}
-                                            >
-                                                {pageNum}
-                                            </Button>
-                                        );
-                                    })}
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="rounded-full"
-                                        disabled={page >= pagination.totalPages}
-                                        onClick={() => setPage((p) => p + 1)}
-                                    >
-                                        {"Sau"}
-                                    </Button>
-                                </div>
-                            )}
+                    {/* Pagination */}
+                    {pagination.totalPages > 1 && (
+                        <Pagination
+                            page={page}
+                            totalPages={pagination.totalPages}
+                            onPageChange={setPage}
+                        />
+                    )}
                         </div>
                     )}
                 </div>

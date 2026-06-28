@@ -155,6 +155,15 @@ export const ordersApi = baseApi.injectEndpoints({
             query: (params) => ({ url: "/admin/dashboard/top-customers", params }),
             transformResponse: (response) => response.data,
         }),
+
+        getReviewItems: builder.query({
+            query: (params) => ({ url: "/orders/review-items", params }),
+            providesTags: ["Orders"],
+            transformResponse: (response) => ({
+                items: response.data,
+                pagination: response.pagination,
+            }),
+        }),
     }),
 });
 
@@ -182,4 +191,5 @@ export const {
     useGetOrderStatusDistributionQuery,
     useGetTopCustomersQuery,
     useUpdateOrderShippingMutation,
+    useGetReviewItemsQuery,
 } = ordersApi;

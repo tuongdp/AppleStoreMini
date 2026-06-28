@@ -36,7 +36,7 @@ export default function SlowProducts() {
         { key: "name", label: "Tên sản phẩm" },
         { key: "totalStock", label: "Tồn kho" },
         { key: "soldCount", label: "Đã bán 30 ngày" },
-        { key: "daysInStock", label: "Tồn kho (ngày)" },
+        { key: "totalSold", label: "Tổng đã bán" },
     ];
 
     const getSlowProdExportRows = () => data.map((p, i) => ({
@@ -44,7 +44,7 @@ export default function SlowProducts() {
         name: p.name,
         totalStock: p.totalStock ?? 0,
         soldCount: p.soldCount ?? 0,
-        daysInStock: p.daysInStock ?? 0,
+        totalSold: p.totalSold ?? 0,
     }));
 
     const handleExportSlowProdExcel = () => {
@@ -89,6 +89,13 @@ export default function SlowProducts() {
                 <ExportButton onExportExcel={handleExportSlowProdExcel} onExportPDF={handleExportSlowProdPDF} loading={isExporting} />
             </div>
             <div className="space-y-1">
+            <div className="flex items-center gap-3 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <span className="w-5 shrink-0">#</span>
+                <span className="w-10 shrink-0" />
+                <span className="min-w-0 flex-1">Sản phẩm</span>
+                <span className="w-16 shrink-0 text-right">30 ngày</span>
+                <span className="w-16 shrink-0 text-right">Tổng</span>
+            </div>
             {data.map((product, index) => (
                 <Link key={product.id} to={ROUTES.ADMIN_PRODUCT_EDIT(product.id)}
                     className="flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-muted/50">
@@ -102,16 +109,13 @@ export default function SlowProducts() {
                         <p className="truncate text-sm font-medium text-foreground">{product.name}</p>
                         <p className="text-xs text-muted-foreground">{product.categorySlug} · Tồn: {formatNumber(product.totalStock)}</p>
                     </div>
-                    <div className="text-right shrink-0">
+                    <div className="text-right shrink-0 w-16">
                         <span className={cn("text-sm font-medium", product.soldCount === 0 ? "text-red-500" : "text-muted-foreground")}>
-                            {product.soldCount === 0 ? "0 bán" : `${formatNumber(product.soldCount)} bán`}
+                            {product.soldCount === 0 ? "0" : formatNumber(product.soldCount)}
                         </span>
-                        <p className="text-xs text-muted-foreground">{formatPrice(product.price)}</p>
                     </div>
-                    <div className="text-right shrink-0 w-20">
-                        <span className={cn("text-xs font-medium", daysInStockColor(product.daysInStock || 0))}>
-                            {daysInStockLabel(product.daysInStock || 0)}
-                        </span>
+                    <div className="text-right shrink-0 w-16">
+                        <span className="text-sm text-muted-foreground">{formatNumber(product.totalSold)}</span>
                     </div>
                 </Link>
             ))}

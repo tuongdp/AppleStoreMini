@@ -25,6 +25,7 @@ import SpecsAccordion from "@/components/shared/SpecsAccordion";
 import ProductComments from "@/features/products/components/ProductComments";
 import RelatedProducts from "@/features/products/components/RelatedProducts";
 import { cn, formatPrice, parseJsonField } from "@/lib/utils";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import {
     getProductMarketingBadge,
     getProductMarketingBadgeClassName,
@@ -46,10 +47,34 @@ export default function ProductDetailPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
+    const { addItem } = useRecentlyViewed();
 
     const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
 
     const product = data;
+
+    const firstVariant = product?.variants?.[0];
+    useEffect(() => {
+        if (product?.id) {
+            addItem({
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+                image: parseJsonField(firstVariant?.images)?.[0] || null,
+                price: product.price,
+                salePrice: product.salePrice ?? null,
+                rating: product.rating || 0,
+                reviewCount: product.reviewCount || 0,
+                soldCount: product.soldCount || 0,
+                variantId: firstVariant?.id || product.id,
+                stock: firstVariant?.stock ?? null,
+                color: firstVariant?.color || "",
+                storage: firstVariant?.storage || "",
+                viewCount: product.viewCount || 0,
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [product?.id]);
 
     const variants = useMemo(() => product?.variants || [], [product]);
 

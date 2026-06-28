@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useGetOrdersQuery } from "@/store/api/ordersApi";
 import OrderList from "@/features/orders/components/OrderList";
+import ReviewItemsList from "@/features/orders/components/ReviewItemsList";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ORDER_STATUS } from "@/lib/constants";
@@ -11,11 +12,8 @@ const STATUS_TABS = [
     { value: ORDER_STATUS.PENDING, label: "Chờ xác nhận", status: ORDER_STATUS.PENDING },
     { value: ORDER_STATUS.CONFIRMED, label: "Đã xác nhận", status: ORDER_STATUS.CONFIRMED },
     { value: ORDER_STATUS.SHIPPING, label: "Đang giao", status: ORDER_STATUS.SHIPPING },
-    { value: "review", label: "Đánh giá", status: ORDER_STATUS.DELIVERED },
+    { value: "review", label: "Đánh giá" },
 ];
-
-const hasReviewableItem = (order) =>
-    (order.items || []).some((item) => !item.isReviewed);
 
 export default function OrderHistoryPage() {
     const [activeTab, setActiveTab] = useState("all");
@@ -24,13 +22,14 @@ export default function OrderHistoryPage() {
     const currentTab = STATUS_TABS.find((tab) => tab.value === activeTab) || STATUS_TABS[0];
     const { data, isLoading } = useGetOrdersQuery({
         page,
-        limit: 10,
+        limit: 5,
         status: currentTab.status,
     });
 
-    const rawOrders = data?.orders ?? [];
-    const orders = activeTab === "review" ? rawOrders.filter(hasReviewableItem) : rawOrders;
+    const orders = data?.orders ?? [];
     const pagination = data?.pagination ?? {};
+
+    const isReviewTab = activeTab === "review";
 
     const handleTabChange = (value) => {
         setActiveTab(value);
@@ -65,34 +64,40 @@ export default function OrderHistoryPage() {
                 </Tabs>
             </div>
 
-            <OrderList orders={orders} isLoading={isLoading} />
+            {isReviewTab ? (
+                <ReviewItemsList />
+            ) : (
+                <>
+                    <OrderList orders={orders} isLoading={isLoading} />
 
-            {!isLoading && pagination.totalPages > 1 && activeTab !== "review" && (
-                <div className="mt-6 flex items-center justify-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full"
-                        disabled={page <= 1}
-                        onClick={() => setPage((p) => p - 1)}
-                    >
-                        <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                        Trước
-                    </Button>
-                    <span className="text-sm text-muted-foreground">
-                        Trang {page} trong {pagination.totalPages}
-                    </span>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="rounded-full"
-                        disabled={page >= pagination.totalPages}
-                        onClick={() => setPage((p) => p + 1)}
-                    >
-                        Sau
-                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                </div>
+                    {!isLoading && pagination.totalPages > 1 && (
+                        <div className="mt-6 flex items-center justify-center gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full"
+                                disabled={page <= 1}
+                                onClick={() => setPage((p) => p - 1)}
+                            >
+                                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                                Trước
+                            </Button>
+                            <span className="text-sm text-muted-foreground">
+                                Trang {page} trong {pagination.totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full"
+                                disabled={page >= pagination.totalPages}
+                                onClick={() => setPage((p) => p + 1)}
+                            >
+                                Sau
+                                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

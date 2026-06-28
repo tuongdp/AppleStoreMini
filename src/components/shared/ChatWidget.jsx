@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSendMessageMutation } from "@/store/api/chatApi";
 import { useCompareProductsMutation } from "@/store/api/aiApi";
-import { buildFocusedChatReply, filterChatProductsByMessage, detectCompareIntent, findProductByName } from "@/features/ai/chatProductFilter";
+import { filterChatProductsByMessage, detectCompareIntent, findProductByName } from "@/features/ai/chatProductFilter";
 
 export default function ChatWidget({ initialOpen = false }) {
     const [open, setOpen] = useState(initialOpen);
@@ -77,7 +77,6 @@ export default function ChatWidget({ initialOpen = false }) {
                         {
                             senderType: "AI",
                             content: compareResult?.reply || `So sánh ${p1.name} và ${p2.name}`,
-                            comparison: compareResult?.comparison,
                             createdAt: new Date().toISOString(),
                         },
                         { senderType: "AI", products: [p1, p2], createdAt: new Date().toISOString() },
@@ -102,11 +101,10 @@ export default function ChatWidget({ initialOpen = false }) {
             const result = await sendMessage({ message: text, history }).unwrap();
             const reply = result?.reply || "Mình chưa có câu trả lời phù hợp. Bạn thử hỏi theo cách khác nhé.";
             const products = filterChatProductsByMessage(text, result?.products || []);
-            const focusedReply = buildFocusedChatReply(text, reply, products);
 
             setMessages((prev) => [
                 ...prev,
-                { senderType: "AI", content: focusedReply, createdAt: new Date().toISOString() },
+                { senderType: "AI", content: reply, createdAt: new Date().toISOString() },
                 ...(products.length
                     ? [{ senderType: "AI", products, createdAt: new Date().toISOString() }]
                     : []),
@@ -183,18 +181,13 @@ export default function ChatWidget({ initialOpen = false }) {
                             <div key={`${item.senderType}-${index}`} className={`flex ${item.senderType === "USER" ? "justify-end" : "justify-start"}`}>
                                 {item.content ? (
                                     <div
-                                        className={`max-w-[80%] break-words rounded-2xl px-4 py-2.5 text-sm ${
+                                        className={`max-w-[80%] break-words rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${
                                             item.senderType === "USER"
                                                 ? "rounded-br-md bg-foreground text-background"
                                                 : "rounded-bl-md bg-muted text-foreground"
                                         }`}
                                     >
                                         {item.content}
-                                        {item.comparison?.verdict && (
-                                            <p className="mt-2 border-t border-border pt-2 text-xs font-medium text-foreground">
-                                                Kết luận: {item.comparison.verdict}
-                                            </p>
-                                        )}
                                     </div>
                                 ) : item.products ? (
                                     <div className="w-full space-y-2">

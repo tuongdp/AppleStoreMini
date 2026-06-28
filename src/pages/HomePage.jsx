@@ -1,4 +1,4 @@
-import { lazy, Suspense, memo, useState } from "react";
+import { Suspense, memo } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
@@ -9,6 +9,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import PersonalizedRecommendations from "@/features/products/PersonalizedRecommendations";
+import RecentlyViewed from "@/components/shared/RecentlyViewed";
 
 import { selectIsAuthenticated } from "@/store/authSlice";
 import { useGetHomepageQuery } from "@/store/api/homepageApi";
@@ -21,17 +22,6 @@ import SectionTitle from "@/components/shared/SectionTitle";
 import { ROUTES } from "@/lib/constants";
 import SeoHead from "@/components/shared/SeoHead";
 import StructuredData from "@/components/shared/StructuredData";
-
-const WelcomeModal = lazy(() => import("@/components/shared/WelcomeModal"));
-const WELCOME_STORAGE_KEY = "app-welcome-dismissed";
-
-function isWelcomeDismissed() {
-  try {
-    return localStorage.getItem(WELCOME_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
 
 function CategoryProductSlider({ slug, label, products = [], isLoading }) {
   return (
@@ -81,7 +71,6 @@ const TRUST_BADGES = [
 ];
 
 export default function HomePage() {
-  const [showWelcome, setShowWelcome] = useState(() => !isWelcomeDismissed());
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const { data: homepageData, isLoading: isHomepageLoading } = useGetHomepageQuery({
@@ -257,8 +246,10 @@ export default function HomePage() {
               <Link to="/contact">Liên hệ tư vấn</Link>
             </Button>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+
+        <RecentlyViewed />
     </div>
   );
 }
